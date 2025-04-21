@@ -1,0 +1,21 @@
+# .gitignore
+
+# Ignore the build output of Next.js
+.next/
+
+# Ignore node_modules for all parts of the monorepo
+node_modules/
+
+# Ignore the Sanity Studio build folder (if any)
+studio/.next/
+
+# Ignore IDE settings (optional)
+.vscode/
+.idea/
+
+# Ignore environment variables and secrets
+.env
+.env.local
+.env.production
+
+# Add any other files or directories specific to your project
