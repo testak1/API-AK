@@ -415,7 +415,10 @@ export default function TuningViewer() {
                     plugins={[watermarkPlugin]}
                   />
 
-<StagePreview description={description} />
+
+        <div className="stage-description">
+          {stage.descriptionRef?.description}
+        </div>
 
 
         <div className="text-center text-white">
