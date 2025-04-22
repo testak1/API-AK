@@ -1,7 +1,10 @@
+can you fix it, dont replace anything else... here is my current code:
+
 import { useEffect, useState, useRef } from 'react';
 import { Chart, CategoryScale, LinearScale, PointElement, LineElement, LineController } from 'chart.js';
 import { Line } from 'react-chartjs-2';
-import { PortableText } from '@portabletext/react';  // Correct import
+import { PortableText } from '@portabletext/react';
+
 
 Chart.register(CategoryScale, LinearScale, PointElement, LineElement, LineController);
 
@@ -296,6 +299,185 @@ export default function TuningViewer() {
                 </div>
               )}
 
+              {/* Performance Metrics */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div className="border border-gray-700 rounded-lg p-3 text-center">
+                  <p className="text-sm text-gray-400 mb-1">ORIGINAL HK</p>
+                  <p className="text-xl text-white font-bold">{stage.origHk} hk</p>
+                </div>
+                <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
+                  <p className="text-sm text-gray-400 mb-1">OPTIMERAD HK</p>
+                  <p className="text-xl font-bold">{stage.tunedHk} hk</p>
+                  <p className="text-xs mt-1 text-red-400">+{stage.tunedHk - stage.origHk} hk</p>
+                </div>
+                <div className="border border-gray-700 rounded-lg p-3 text-center">
+                  <p className="text-sm text-gray-400 mb-1">ORIGINAL NM</p>
+                  <p className="text-xl text-white font-bold">{stage.origNm} Nm</p>
+                </div>
+                <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
+                  <p className="text-sm text-gray-400 mb-1">OPTIMERAD NM</p>
+                  <p className="text-xl font-bold">{stage.tunedNm} Nm</p>
+                  <p className="text-xs mt-1 text-red-400">+{stage.tunedNm - stage.origNm} Nm</p>
+                </div>
+              </div>
+
+              {/* Dyno Chart */}
+              <div className="mt-6">
+                <h3 className="text-lg font-medium text-gray-300 mb-2">{stage.name} DYNO Chart</h3>
+                <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
+                  <div className="absolute right-4 top-4 bg-gray-800 px-2 py-1 rounded text-sm">
+                    <p className="text-amber-400">Max HK: {stage.tunedHk}</p>
+                    <p className="text-blue-400">Max NM: {stage.tunedNm}</p>
+                  </div>
+                  
+                  <Line
+                    data={{
+                      labels: ['2000', '3000', '4000', '5000', '6000', '7000'],
+                      datasets: [
+                        {
+                          label: 'Original HK',
+                          data: generateDynoCurve(stage.origHk, true),
+                          borderColor: 'rgba(251, 191, 36, 0.7)',
+                          backgroundColor: 'transparent',
+                          borderWidth: 2,
+                          borderDash: [5, 3],
+                          tension: 0.3,
+                          pointRadius: 0,
+                          yAxisID: 'hp',
+                        },
+                        {
+                          label: 'Tuned HK',
+                          data: generateDynoCurve(stage.tunedHk, true),
+                          borderColor: 'rgba(251, 191, 36, 1)',
+                          backgroundColor: 'transparent',
+                          borderWidth: 3,
+                          tension: 0.3,
+                          pointRadius: 0,
+                          yAxisID: 'hp',
+                        },
+                        {
+                          label: 'Original NM',
+                          data: generateDynoCurve(stage.origNm, false),
+                          borderColor: 'rgba(96, 165, 250, 0.7)',
+                          backgroundColor: 'transparent',
+                          borderWidth: 2,
+                          borderDash: [5, 3],
+                          tension: 0.3,
+                          pointRadius: 0,
+                          yAxisID: 'nm',
+                        },
+                        {
+                          label: 'Tuned NM',
+                          data: generateDynoCurve(stage.tunedNm, false),
+                          borderColor: 'rgba(96, 165, 250, 1)',
+                          backgroundColor: 'transparent',
+                          borderWidth: 3,
+                          tension: 0.3,
+                          pointRadius: 0,
+                          yAxisID: 'nm',
+                        }
+                      ]
+                    }}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: {
+                          position: 'top',
+                          labels: {
+                            color: '#E5E7EB',
+                            font: { size: 12 },
+                            boxWidth: 12,
+                            padding: 20,
+                            usePointStyle: true,
+                          }
+                        },
+                        tooltip: {
+                          mode: 'index',
+                          intersect: false,
+                        }
+                      },
+                      scales: {
+                        hp: {
+                          type: 'linear',
+                          display: true,
+                          position: 'left',
+                          title: {
+                            display: true,
+                            text: 'Effekt (HK)',
+                            color: '#F59E0B',
+                            font: { 
+                              size: 14,
+                              weight: 'bold'
+                            }
+                          },
+                          min: 0,
+                          max: Math.ceil(stage.tunedHk / 100) * 100 + 50,
+                          grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                          },
+                          ticks: {
+                            color: '#9CA3AF',
+                            stepSize: 100,
+                            callback: (value) => `${value}`
+                          }
+                        },
+                        nm: {
+                          type: 'linear',
+                          display: true,
+                          position: 'right',
+                          title: {
+                            display: true,
+                            text: 'Vridmoment (Nm)',
+                            color: '#3B82F6',
+                            font: { 
+                              size: 14,
+                              weight: 'bold'
+                            }
+                          },
+                          min: 0,
+                          max: Math.ceil(stage.tunedNm / 100) * 100 + 100,
+                          grid: {
+                            drawOnChartArea: false,
+                          },
+                          ticks: {
+                            color: '#9CA3AF',
+                            stepSize: 100,
+                            callback: (value) => `${value}`
+                          }
+                        },
+                        x: {
+                          title: {
+                            display: true,
+                            text: 'RPM',
+                            color: '#E5E7EB',
+                            font: { 
+                              size: 14,
+                              weight: 'bold'
+                            }
+                          },
+                          grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                          },
+                          ticks: {
+                            color: '#9CA3AF'
+                          }
+                        }
+                      },
+                      interaction: {
+                        intersect: false,
+                        mode: 'index',
+                      }
+                    }}
+                    plugins={[watermarkPlugin]}
+                  />
+
+                  <div className="text-center text-white mt-2">
+                    <p>Detta är en datorgenererad dyno-bild</p>
+                  </div>
+                </div>
+              </div>
+
               {/* AKT+ Options Section */}
               {stage.aktPlusOptions && stage.aktPlusOptions.length > 0 && (
                 <div className="mt-8">
@@ -332,7 +514,7 @@ export default function TuningViewer() {
                             {option.description && (
                               <div className="prose prose-invert max-w-none">
                                 <PortableText
-                                  value={option.description}  // Updated to `value`
+                                  value={option.description}
                                   components={{
                                     marks: {
                                       link: ({ children, mark }: any) => (
