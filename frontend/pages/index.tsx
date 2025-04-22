@@ -1,7 +1,8 @@
 import { useEffect, useState, useRef } from 'react';
 import { Chart, CategoryScale, LinearScale, PointElement, LineElement, LineController } from 'chart.js';
 import { Line } from 'react-chartjs-2';
-import PortableText from 'react-portable-text';
+import { PortableText } from '@portabletext/react';
+
 
 Chart.register(CategoryScale, LinearScale, PointElement, LineElement, LineController);
 
