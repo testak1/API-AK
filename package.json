@@ -3,9 +3,9 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "dev": "npm run dev --prefix frontend && npm run dev --prefix studio",
-    "build": "npm run build --prefix frontend && npm run build --prefix studio",
-    "deploy": "npm run deploy --prefix frontend && npm run deploy --prefix studio"
+  "start": "node studio/dist/server.js", // Assuming TS → JS
+  "build": "npm run build --prefix frontend && cd studio && npm run build",
+  "dev": "concurrently \"npm run dev --prefix frontend\" \"npm run dev --prefix studio\""
   },
   "dependencies": {
     "frontend": "file:frontend", 
