@@ -1,12 +1,13 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import { createClient } from '@sanity/client';
+// pages/api/brands.ts
+import { NextApiRequest, NextApiResponse } from 'next'
+import { createClient } from '@sanity/client'
 
 const client = createClient({
-  projectId: 'wensahkh',  // Ensure this is correct
-  dataset: 'production',  // Ensure this is correct
+  projectId: 'wensahkh',
+  dataset: 'production',
   apiVersion: '2023-01-01',
   useCdn: false,
-});
+})
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
@@ -30,13 +31,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           }
         }
       }
-    }`);
-
-    console.log('Fetched data:', result);  // Log the result to ensure data is coming from Sanity
-
-    res.status(200).json({ result });
+    }`)
+    res.status(200).json({ result })
   } catch (err) {
-    console.error('Sanity fetch failed', err);  // Log the error to troubleshoot issues
-    res.status(500).json({ error: 'Sanity fetch failed', details: err });
+    res.status(500).json({ error: 'Sanity fetch failed', details: err })
   }
 }
