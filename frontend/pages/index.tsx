@@ -55,7 +55,7 @@ export default function TuningViewer() {
     
     const fetchData = async () => {
       try {
-        const res = await fetch('/api/brands');
+        const res = await fetch('api/brands');
         const json = await res.json();
         setData(json.result);
       } catch (error) {
