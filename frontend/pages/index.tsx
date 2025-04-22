@@ -1,5 +1,3 @@
-can you fix it, dont replace anything else... here is my current code:
-
 import { useEffect, useState, useRef } from 'react';
 import { Chart, CategoryScale, LinearScale, PointElement, LineElement, LineController } from 'chart.js';
 import { Line } from 'react-chartjs-2';
