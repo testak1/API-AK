@@ -13,7 +13,7 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/api/$1"
+      "dest": "frontend/pages/api/$1"
     },
     {
       "src": "/studio/(.*)",
