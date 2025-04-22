@@ -10,39 +10,45 @@ const client = createClient({
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // Set CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*');  // Allow requests from all origins (you can replace '*' with your domain if needed)
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
 
-  // Handle OPTIONS request (preflight request for CORS)
+  // Handle OPTIONS request
   if (req.method === 'OPTIONS') {
-    return res.status(200).end();
+    return res.status(200).end()
   }
 
   try {
-    const result = await client.fetch(`*[_type == "brand"]{
-      name,
-      models[]{
+    const result = await client.fetch(`
+      *[_type == "brand"]{
         name,
-        years[]{
-          range,
-          engines[]{
-            fuel,
-            label,
-            stages[]{
-              name,
-              origHk,
-              tunedHk,
-              origNm,
-              tunedNm,
-              price
+        models[]{
+          name,
+          years[]{
+            range,
+            engines[]{
+              fuel,
+              label,
+              stages[]{
+                name,
+                origHk,
+                tunedHk,
+                origNm,
+                tunedNm,
+                price,
+                "description": descriptionRef->description  // Added this line
+              }
             }
           }
         }
       }
-    }`)
+    `)
     res.status(200).json({ result })
   } catch (err) {
-    res.status(500).json({ error: 'Sanity fetch failed', details: err })
+    res.status(500).json({ 
+      error: 'Sanity fetch failed',
+      details: err instanceof Error ? err.message : String(err)
+    })
   }
 }

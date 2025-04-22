@@ -416,9 +416,6 @@ export default function TuningViewer() {
                   />
 
 
-        <div className="stage-description">
-          {stage.descriptionRef?.description}
-        </div>
 
 
         <div className="text-center text-white">
