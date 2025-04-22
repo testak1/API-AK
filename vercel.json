@@ -16,6 +16,10 @@
       "dest": "/api/$1"
     },
     {
+      "src": "/studio/(.*)",
+      "dest": "/studio/$1"
+    },
+    {
       "src": "/(.*)",
       "dest": "/frontend/$1"
     }
