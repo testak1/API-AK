@@ -16,7 +16,7 @@
       "dest": "frontend/pages/api/$1"
     },
     {
-      "src": "/studio/(.*)",
+      "src": "studio/(.*)",
       "dest": "/studio/$1"
     },
     {
