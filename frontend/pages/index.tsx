@@ -110,7 +110,7 @@ export default function TuningViewer() {
   };
 
   // Memoize derived data to prevent unnecessary recalculations
-  const { brands, models, years, engines, selectedEngine, stages, groupedEngines } = React.useMemo(() => {
+    const { brands, models, years, engines, selectedEngine, stages, groupedEngines } = React.useMemo(() => {
     const brands = data.map(b => b.name);
     const models = data.find(b => b.name === selected.brand)?.models || [];
     const years = models.find(m => m.name === selected.model)?.years || [];
