@@ -415,6 +415,8 @@ export default function TuningViewer() {
                     plugins={[watermarkPlugin]}
                   />
 
+<StagePreview description={description} />
+
 
         <div className="text-center text-white">
 <p>Detta är en datorgenererad dyno-bild</p>
