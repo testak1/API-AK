@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-  "start": "node studio/dist/server.js", // Assuming TS → JS
+  "start": "node studio/dist/server.js",
   "build": "npm run build --prefix frontend && cd studio && npm run build",
   "dev": "concurrently \"npm run dev --prefix frontend\" \"npm run dev --prefix studio\""
   },
