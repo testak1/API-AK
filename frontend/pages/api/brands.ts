@@ -37,7 +37,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 origNm,
                 tunedNm,
                 price,
-                "description": descriptionRef->description
+                description
               }
             }
           }
