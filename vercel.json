@@ -3,11 +3,11 @@
   "builds": [
     {
       "src": "frontend/package.json",
-      "use": "@vercel/next"   // For Next.js frontend
+      "use": "@vercel/next"
     },
     {
       "src": "studio/package.json",
-      "use": "@vercel/static-build"  // For Sanity Studio static site
+      "use": "@vercel/static-build"
     }
   ],
   "routes": [
