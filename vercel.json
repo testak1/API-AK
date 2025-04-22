@@ -3,11 +3,14 @@
   "builds": [
     {
       "src": "frontend/package.json",
-      "use": "@vercel/next"   // For Next.js app (if it's a Next.js frontend)
+      "use": "@vercel/next"   // For Next.js app (frontend)
     },
     {
       "src": "studio/package.json",
-      "use": "@vercel/static-build" // For static sites like Sanity Studio
+      "use": "@vercel/static-build",  // For Sanity Studio
+      "config": {
+        "distDir": "studio/dist"  // Ensure this points to your studio build output directory
+      }
     }
   ],
   "routes": [
@@ -16,8 +19,12 @@
       "dest": "/api/$1"
     },
     {
+      "src": "/studio/(.*)",
+      "dest": "studio/dist/$1"   // Route for the Sanity Studio
+    },
+    {
       "src": "/(.*)",
-      "dest": "frontend/$1"   // If your frontend is located in the 'frontend' folder
+      "dest": "frontend/$1"   // Route for the Next.js frontend
     }
   ]
 }
