@@ -11,6 +11,7 @@ interface Stage {
   tunedHk: number;
   tunedNm: number;
   price: number;
+  description: string; // Added description field
 }
 
 interface Engine {
@@ -36,11 +37,11 @@ interface Brand {
 
 export default function TuningViewer() {
   const [data, setData] = useState<Brand[]>([]);
-  const [selected, setSelected] = useState({ 
-    brand: '', 
-    model: '', 
-    year: '', 
-    engine: '' 
+  const [selected, setSelected] = useState({
+    brand: '',
+    model: '',
+    year: '',
+    engine: ''
   });
   const [isLoading, setIsLoading] = useState(true);
   const watermarkImageRef = useRef<HTMLImageElement | null>(null);
@@ -48,11 +49,12 @@ export default function TuningViewer() {
   useEffect(() => {
     // Preload the watermark image
     const img = new Image();
-    img.src = '/ak-logo.png'; // Make sure this matches your actual logo path
+    img.src = '/ak-logo.png'; // Ensure this matches your actual logo path
     img.onload = () => {
       watermarkImageRef.current = img;
     };
-    
+
+    // Fetch data from the API
     const fetchData = async () => {
       try {
         const res = await fetch('api/brands');
@@ -64,42 +66,9 @@ export default function TuningViewer() {
         setIsLoading(false);
       }
     };
+
     fetchData();
   }, []);
-
-  // Watermark plugin configuration
-  const watermarkPlugin = {
-    id: 'watermark',
-    beforeDraw: (chart: any) => {
-      const ctx = chart.ctx;
-      const { chartArea: { top, left, width, height } } = chart;
-      
-      if (watermarkImageRef.current?.complete) {
-        ctx.save();
-        ctx.globalAlpha = 0.2; // Adjust opacity here
-        
-        // Calculate dimensions to maintain aspect ratio
-        const img = watermarkImageRef.current;
-        const ratio = img.width / img.height;
-        const imgWidth = width * 0.4; // Watermark width relative to chart
-        const imgHeight = imgWidth / ratio;
-        
-        // Center the watermark
-        const x = left + width / 2 - imgWidth / 2;
-        const y = top + height / 2 - imgHeight / 2;
-        
-        ctx.drawImage(img, x, y, imgWidth, imgHeight);
-        ctx.restore();
-      }
-    }
-  };
-
-  const brands = data.map(b => b.name);
-  const models = data.find(b => b.name === selected.brand)?.models || [];
-  const years = models.find(m => m.name === selected.model)?.years || [];
-  const engines = years.find(y => y.range === selected.year)?.engines || [];
-  const selectedEngine = engines.find(e => e.label === selected.engine);
-  const stages = selectedEngine?.stages || [];
 
   // Group engines by fuel type (bensin, diesel, hybrid)
   const groupedEngines = engines.reduce((acc, engine) => {
@@ -113,13 +82,13 @@ export default function TuningViewer() {
   const generateDynoCurve = (peakValue: number, isHp: boolean) => {
     const rpmRange = [2000, 3000, 4000, 5000, 6000, 7000];
     const peakRpmIndex = isHp ? 3 : 2; // HP peaks at 5000, torque at 4000
-    
+
     return rpmRange.map((rpm, i) => {
       // Build up to peak
       if (i <= peakRpmIndex) {
         const progress = i / peakRpmIndex;
         return peakValue * (0.4 + 0.6 * Math.pow(progress, 1.5));
-      } 
+      }
       // Fall after peak
       else {
         const fallProgress = (i - peakRpmIndex) / (rpmRange.length - 1 - peakRpmIndex);
@@ -127,6 +96,13 @@ export default function TuningViewer() {
       }
     });
   };
+
+  const brands = data.map(b => b.name);
+  const models = data.find(b => b.name === selected.brand)?.models || [];
+  const years = models.find(m => m.name === selected.model)?.years || [];
+  const engines = years.find(y => y.range === selected.year)?.engines || [];
+  const selectedEngine = engines.find(e => e.label === selected.engine);
+  const stages = selectedEngine?.stages || [];
 
   return (
     <div className="max-w-4xl mx-auto p-4 md:p-6 min-h-screen">
@@ -214,12 +190,20 @@ export default function TuningViewer() {
         </div>
       </div>
 
+      {/* Stage Description */}
+      {selectedEngine && selectedEngine.stages.length > 0 && (
+        <div className="bg-gray-800 rounded-xl p-6 mb-8">
+          <h2 className="text-xl font-semibold text-white">Stage Description</h2>
+          <p className="text-gray-400 mt-2">{selectedEngine.stages[0].description || 'No description available'}</p>
+        </div>
+      )}
+
       {/* Tuning Stages */}
       {isLoading ? (
         <div className="flex justify-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
         </div>
-      ) : stages.length > 0 ? (
+      ) : (
         <div className="space-y-6">
           {stages.map((stage) => (
             <div key={stage.name} className="bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-700">
@@ -270,7 +254,7 @@ export default function TuningViewer() {
                     <p className="text-amber-400">Max HK: {stage.tunedHk}</p>
                     <p className="text-blue-400">Max NM: {stage.tunedNm}</p>
                   </div>
-                  
+
                   <Line
                     data={{
                       labels: ['2000', '3000', '4000', '5000', '6000', '7000'],
@@ -415,13 +399,9 @@ export default function TuningViewer() {
                     plugins={[watermarkPlugin]}
                   />
 
-
-
-
-        <div className="text-center text-white">
-<p>Detta är en datorgenererad dyno-bild</p>
-        </div>
-
+                  <div className="text-center text-white">
+                    <p>Detta är en datorgenererad dyno-bild</p>
+                  </div>
 
                 </div>
               </div>
@@ -434,8 +414,7 @@ export default function TuningViewer() {
             {selected.brand ? "No tuning stages available" : "Select a vehicle to view tuning options"}
           </p>
         </div>
-      )
-}
+      )}
     </div>
   );
 }
