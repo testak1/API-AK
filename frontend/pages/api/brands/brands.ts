@@ -38,17 +38,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 tunedNm,
                 price,
                 "description": descriptionRef->description,
-                aktPlusOptions[]{
+                "aktPlusOptions": aktPlusOptions[]->{
                   _id,
                   title,
                   description,
-                  price,
-                  gallery[]{
-                    _key,
-                    asset->{
-                      _ref
-                    }
-                  }
+                  gallery,
+                  price
                 }
               }
             }
