@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { Chart, CategoryScale, LinearScale, PointElement, LineElement, LineController } from 'chart.js';
 import { Line } from 'react-chartjs-2';
-import { PortableText } from '@portabletext/react';  // Make sure you're importing from @portabletext/react
+import { PortableText } from '@portabletext/react';  // Correct import
 
 Chart.register(CategoryScale, LinearScale, PointElement, LineElement, LineController);
 
@@ -164,8 +164,79 @@ export default function TuningViewer() {
 
       {/* Vehicle Selection */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-8">
-        {/* Vehicle Select Dropdowns */}
-        {/* ... [Same as before] */}
+        <div>
+          <label className="block text-sm font-bold text-black mb-1">MÄRKE</label>
+          <select
+            className={`w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
+              isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:border-gray-600'
+            }`}
+            value={selected.brand}
+            onChange={(e) => setSelected({ brand: e.target.value, model: '', year: '', engine: '' })}
+            disabled={isLoading}
+          >
+            <option value="">VÄLJ MÄRKE</option>
+            {brands.map(brand => (
+              <option key={brand} value={brand}>{brand}</option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-bold text-black mb-1">MODELL</label>
+          <select
+            className={`w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
+              !selected.brand ? 'opacity-50 cursor-not-allowed' : 'hover:border-gray-600'
+            }`}
+            value={selected.model}
+            onChange={(e) => setSelected({ ...selected, model: e.target.value, year: '', engine: '' })}
+            disabled={!selected.brand}
+          >
+            <option value="">VÄLJ MODELL</option>
+            {models.map(m => (
+              <option key={m.name} value={m.name}>{m.name}</option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-bold text-black mb-1">ÅRSMODELL</label>
+          <select
+            className={`w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
+              !selected.model ? 'opacity-50 cursor-not-allowed' : 'hover:border-gray-600'
+            }`}
+            value={selected.year}
+            onChange={(e) => setSelected({ ...selected, year: e.target.value, engine: '' })}
+            disabled={!selected.model}
+          >
+            <option value="">VÄLJ ÅRSMODELL</option>
+            {years.map(y => (
+              <option key={y.range} value={y.range}>{y.range}</option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-bold text-black mb-1">MOTOR</label>
+          <select
+            className={`w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
+              !selected.year ? 'opacity-50 cursor-not-allowed' : 'hover:border-gray-600'
+            }`}
+            value={selected.engine}
+            onChange={(e) => setSelected({ ...selected, engine: e.target.value })}
+            disabled={!selected.year}
+          >
+            <option value="">VÄLJ MOTOR</option>
+            {Object.keys(groupedEngines).map((fuelType) => (
+              <optgroup label={fuelType.charAt(0).toUpperCase() + fuelType.slice(1)} key={fuelType}>
+                {groupedEngines[fuelType].map(engine => (
+                  <option key={engine.label} value={engine.label}>
+                    {engine.label}
+                  </option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* Tuning Stages */}
@@ -178,8 +249,22 @@ export default function TuningViewer() {
           {stages.map((stage) => (
             <div key={stage.name} className="bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-700">
               {/* Stage Header */}
-              {/* ... [Same as before] */}
-              
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+                <div>
+                  <h2 className="text-xl font-semibold text-white">
+                    <span className="text-indigo-400">{stage.name}</span> - {selected.engine}
+                  </h2>
+                  <p className="text-gray-400 text-sm mt-1">
+                    {selected.brand} {selected.model} {selected.year}
+                  </p>
+                </div>
+                <div className="mt-3 md:mt-0">
+                  <span className="inline-block bg-blue-900 text-blue-200 px-3 py-1 rounded-full text-sm font-medium">
+                    {stage.price?.toLocaleString()} kr
+                  </span>
+                </div>
+              </div>
+
               {/* Expandable Description */}
               {stage.description && (
                 <div className="mb-4">
