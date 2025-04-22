@@ -273,7 +273,7 @@ export default function TuningViewer() {
                     onClick={() => toggleDescription(stage.name)}
                     className="flex items-center text-blue-400 hover:text-blue-300 transition-colors"
                   >
-                    <span>Stage Description</span>
+                    <span>STEG INFORMATION</span>
                     <svg
                       className={`ml-2 h-4 w-4 transition-transform ${
                         expandedDescriptions[stage.name] ? 'rotate-180' : ''
