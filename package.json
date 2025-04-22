@@ -1,5 +1,5 @@
 {
-  name: "api-ak",
+  "name": "api-ak",
   "private": true,
   "version": "1.0.0",
   "main": "package.json",
@@ -8,7 +8,7 @@
     "dev": "next dev",
     "start": "next start",
     "build": "next build",
-    "deploy": "next export",  // If you're doing a static export for Next.js
+    "deploy": "next export",
     "deploy-graphql": "sanity graphql deploy"
   },
   "keywords": [
@@ -22,7 +22,7 @@
     "sanity": "^3.85.1",
     "slugify": "^1.6.6",
     "styled-components": "^6.1.15",
-    "next": "^13.1.0"  // Make sure Next.js is included
+    "next": "^13.1.0"
   },
   "devDependencies": {
     "@sanity/eslint-config-studio": "^5.0.2",
