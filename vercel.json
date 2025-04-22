@@ -8,12 +8,19 @@
     {
       "src": "studio/package.json",
       "use": "@vercel/static-build"
+    },
+
+    {
+      "src": "api/brands.ts",
+      "use": "@vercel/node"
     }
+
+
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "frontend/pages/api/$1"
+      "src": "/api/brands",
+      "dest": "/api/brands.ts"
     },
     {
       "src": "studio/(.*)",
