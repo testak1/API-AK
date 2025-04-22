@@ -1,4 +1,3 @@
-// pages/api/brands.ts
 import { NextApiRequest, NextApiResponse } from 'next'
 import { createClient } from '@sanity/client'
 
@@ -10,6 +9,16 @@ const client = createClient({
 })
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // Set CORS headers
+  res.setHeader('Access-Control-Allow-Origin', '*');  // Allow requests from all origins (you can replace '*' with your domain if needed)
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+  // Handle OPTIONS request (preflight request for CORS)
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   try {
     const result = await client.fetch(`*[_type == "brand"]{
       name,
