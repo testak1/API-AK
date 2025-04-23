@@ -1,5 +1,4 @@
 // lib/sanity.ts
-
 import { createClient } from '@sanity/client';
 import imageUrlBuilder from '@sanity/image-url';
 import type { Brand } from '@/types/sanity';
@@ -21,8 +20,15 @@ export function urlFor(source: any) {
 export async function getAllBrandsWithDetails(): Promise<Brand[]> {
   const query = `*[_type == "brand"]{
     _id,
+    _type,
     name,
     "slug": slug.current,
+    logo {
+      asset->{
+        _ref
+      },
+      alt
+    },
     "models": models[]{
       name,
       "years": years[]{
@@ -32,14 +38,18 @@ export async function getAllBrandsWithDetails(): Promise<Brand[]> {
           label,
           "globalAktPlusOptions": globalAktPlusOptions[]->{
             _id,
+            _type,
             title,
+            isUniversal,
+            applicableFuelTypes,
             description,
             "gallery": gallery[]{
               _key,
               "asset": asset->{
                 _ref
               },
-              alt
+              alt,
+              caption
             },
             price,
             installationTime,
@@ -53,16 +63,26 @@ export async function getAllBrandsWithDetails(): Promise<Brand[]> {
             tunedNm,
             price,
             description,
+            descriptionRef->{
+              _id,
+              stageName,
+              description
+            },
             "aktPlusOptions": aktPlusOptions[]->{
               _id,
+              _type,
               title,
+              isUniversal,
+              applicableFuelTypes,
+              stageCompatibility,
               description,
               "gallery": gallery[]{
                 _key,
                 "asset": asset->{
                   _ref
                 },
-                alt
+                alt,
+                caption
               },
               price,
               installationTime,

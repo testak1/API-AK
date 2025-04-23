@@ -21,9 +21,9 @@ interface SelectionState {
 const filterAktPlusOptions = (options: AktPlusOption[], fuelType: string) => {
   if (!options) return [];
   return options.filter(opt => 
-    opt.isUniversal || 
-    (opt.applicableFuelTypes && opt.applicableFuelTypes.includes(fuelType))
-};
+    opt?.isUniversal || 
+    (opt?.applicableFuelTypes && opt.applicableFuelTypes.includes(fuelType))
+  );
 
 export default function TuningViewer() {
   const [data, setData] = useState<Brand[]>([]);

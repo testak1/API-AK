@@ -7,11 +7,20 @@ export interface SanityImage {
     _ref: string;
   };
   alt?: string;
+  caption?: string;
 }
 
 export interface AktPlusOption {
   _id: string;
+  _type: 'aktPlus';
   title: string;
+  slug: {
+    _type: 'slug';
+    current: string;
+  };
+  isUniversal?: boolean;
+  applicableFuelTypes?: string[];
+  stageCompatibility?: string;
   description?: PortableTextBlock[];
   gallery?: SanityImage[];
   price?: number;
@@ -27,14 +36,26 @@ export interface Stage {
   tunedNm: number;
   price: number;
   description?: PortableTextBlock[];
-  aktPlusOptions?: AktPlusOption[];
+  descriptionRef?: {
+    _type: 'reference';
+    _ref: string;
+  };
+  aktPlusOptions?: Array<{
+    _type: 'reference';
+    _ref: string;
+    _key: string;
+  } | AktPlusOption>;
 }
 
 export interface Engine {
   label: string;
-  fuel: string;
+  fuel: 'diesel' | 'petrol' | 'hybrid' | 'electric';
   stages: Stage[];
-  globalAktPlusOptions?: AktPlusOption[];
+  globalAktPlusOptions?: Array<{
+    _type: 'reference';
+    _ref: string;
+    _key: string;
+  } | AktPlusOption>;
 }
 
 export interface Year {
@@ -49,8 +70,19 @@ export interface Model {
 
 export interface Brand {
   _id: string;
+  _type: 'brand';
   name: string;
-  slug: string;
+  slug: {
+    _type: 'slug';
+    current: string;
+  };
+  logo?: {
+    _type: 'image';
+    asset: {
+      _ref: string;
+    };
+    alt?: string;
+  };
   models: Model[];
 }
 
