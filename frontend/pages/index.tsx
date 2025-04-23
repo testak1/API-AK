@@ -179,21 +179,7 @@ export default function TuningViewer() {
     setSelected(prev => ({ ...prev, engine: e.target.value }));
   };
 
-  // PortableText components for rendering descriptions
-  const portableTextComponents = {
-    types: {
-      image: ({ value }: any) => (
 
-      )
-    },
-    marks: {
-      link: ({ children, value }: any) => (
-        <a href={value.href} className="text-blue-400 hover:text-blue-300 underline">
-          {children}
-        </a>
-      )
-    }
-  };
 
   return (
     <div className="max-w-4xl mx-auto p-4 md:p-6 min-h-screen">
