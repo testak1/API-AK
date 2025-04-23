@@ -13,10 +13,3 @@ studio/.next/
 .vscode/
 .idea/
 
-# Ignore environment variables and secrets
-.env
-.env.local
-.env.production
-
-# Add any other files or directories specific to your project
-frontend/pages/.DS_Store
