@@ -5,7 +5,7 @@ import type { Brand } from '@/types/sanity';
 const client = createClient({
   projectId: 'wensahkh',
   dataset: 'production',
-  apiVersion: '2023-01-01',
+  apiVersion: '2025-04-23',
   useCdn: process.env.NODE_ENV === 'production',
   token: process.env.SANITY_API_TOKEN
 });
