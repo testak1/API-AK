@@ -7,7 +7,7 @@ import type { ImageUrlBuilder } from '@sanity/image-url/lib/types/builder';
 const config: ClientConfig = {
   projectId: 'wensahkh',
   dataset: 'production',
-  apiVersion: '2023-01-01', // Match your Studio version
+  apiVersion: '2024-01-01', // Match your Studio version
   useCdn: process.env.NODE_ENV === 'production',
   token: process.env.SANITY_API_TOKEN,
 };
