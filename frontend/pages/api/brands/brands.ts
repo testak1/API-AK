@@ -1,6 +1,6 @@
 // pages/api/brands.ts
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getAllBrandsWithDetails } from '.@/lib/sanity';
+import { getAllBrandsWithDetails } from '../../lib/sanity';
 
 export default async function handler(
   req: NextApiRequest,
@@ -31,9 +31,10 @@ export default async function handler(
     return res.status(200).json({ result: brands });
   } catch (error) {
     console.error('API Error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return res.status(500).json({ 
       message: 'Failed to fetch brands',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: errorMessage
     });
   }
 }
