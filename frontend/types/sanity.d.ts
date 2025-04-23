@@ -1,7 +1,12 @@
 // types/sanity.d.ts
-import type { AktPlusOption, Brand } from '@/schemas';
+import type { ClientConfig, SanityClient } from '@sanity/client';
+import type { ImageUrlBuilder } from '@sanity/image-url';
 
 declare module '@/lib/sanity' {
-  export const client: import('@sanity/client').SanityClient;
-  export function urlFor(source: any): import('@sanity/image-url').ImageUrlBuilder;
+  export const client: SanityClient;
+  export function urlFor(source: any): ImageUrlBuilder;
+  export function fetchQuery<T = any>(
+    query: string,
+    params?: Record<string, unknown>
+  ): Promise<T>;
 }
