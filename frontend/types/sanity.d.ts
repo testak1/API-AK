@@ -10,6 +10,12 @@ export interface SanityImage {
   caption?: string;
 }
 
+export interface Reference {
+  _type: 'reference';
+  _ref: string;
+  _key?: string;
+}
+
 export interface AktPlusOption {
   _id: string;
   _type: 'aktPlus';
@@ -18,15 +24,17 @@ export interface AktPlusOption {
     _type: 'slug';
     current: string;
   };
-  isUniversal?: boolean;
-  applicableFuelTypes?: string[];
+  isUniversal: boolean;
+  applicableFuelTypes: string[];
   stageCompatibility?: string;
   description?: PortableTextBlock[];
   gallery?: SanityImage[];
-  price?: number;
+  price: number;
   installationTime?: number;
   compatibilityNotes?: string;
 }
+
+export type AktPlusOptionReference = Reference | AktPlusOption;
 
 export interface Stage {
   name: string;
@@ -36,26 +44,15 @@ export interface Stage {
   tunedNm: number;
   price: number;
   description?: PortableTextBlock[];
-  descriptionRef?: {
-    _type: 'reference';
-    _ref: string;
-  };
-  aktPlusOptions?: Array<{
-    _type: 'reference';
-    _ref: string;
-    _key: string;
-  } | AktPlusOption>;
+  descriptionRef?: Reference;
+  aktPlusOptions?: AktPlusOptionReference[];
 }
 
 export interface Engine {
   label: string;
   fuel: 'diesel' | 'petrol' | 'hybrid' | 'electric';
   stages: Stage[];
-  globalAktPlusOptions?: Array<{
-    _type: 'reference';
-    _ref: string;
-    _key: string;
-  } | AktPlusOption>;
+  globalAktPlusOptions?: AktPlusOptionReference[];
 }
 
 export interface Year {

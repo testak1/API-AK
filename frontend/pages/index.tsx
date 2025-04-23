@@ -1,12 +1,11 @@
 // pages/index.tsx
-
 import React from 'react';
 import { useEffect, useState, useRef, useMemo } from 'react';
 import { Chart, CategoryScale, LinearScale, PointElement, LineElement, LineController } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import { PortableText } from '@portabletext/react';
 import { urlFor } from '@/lib/sanity';
-import type { Brand, Stage, AktPlusOption, Engine } from '@/types/sanity';
+import type { Brand, Stage, AktPlusOption, AktPlusOptionReference } from '@/types/sanity';
 
 Chart.register(CategoryScale, LinearScale, PointElement, LineElement, LineController);
 
@@ -16,14 +15,6 @@ interface SelectionState {
   year: string;
   engine: string;
 }
-
-// Helper function to filter AKT+ options by fuel type
-const filterAktPlusOptions = (options: AktPlusOption[], fuelType: string) => {
-  if (!options) return [];
-  return options.filter(opt => 
-    opt?.isUniversal || 
-    (opt?.applicableFuelTypes && opt.applicableFuelTypes.includes(fuelType))
-  );
 
 export default function TuningViewer() {
   const [data, setData] = useState<Brand[]>([]);
@@ -84,7 +75,6 @@ export default function TuningViewer() {
     }
   };
 
-  // Memoize derived data
   const { brands, models, years, engines, selectedEngine, stages, groupedEngines } = useMemo(() => {
     const brands = data.map(b => b.name);
     const models = data.find(b => b.name === selected.brand)?.models || [];
@@ -103,12 +93,28 @@ export default function TuningViewer() {
     return { brands, models, years, engines, selectedEngine, stages, groupedEngines };
   }, [data, selected]);
 
-  // Combine and filter AKT+ options based on fuel type
+  const isExpandedAktPlusOption = (item: any): item is AktPlusOption => {
+    return item && '_id' in item && 'title' in item;
+  };
+
   const getAllAktPlusOptions = useMemo(() => (stage: Stage) => {
     if (!selectedEngine) return [];
     
-    const globalOptions = filterAktPlusOptions(selectedEngine.globalAktPlusOptions, selectedEngine.fuel);
-    const stageOptions = filterAktPlusOptions(stage.aktPlusOptions, selectedEngine.fuel);
+    const filterOptions = (options: AktPlusOptionReference[] = []) => {
+      return options
+        .filter(isExpandedAktPlusOption)
+        .filter(opt => 
+          opt.isUniversal || 
+          (opt.applicableFuelTypes && opt.applicableFuelTypes.includes(selectedEngine.fuel))
+        )
+        .filter(opt => 
+          !opt.stageCompatibility || 
+          opt.stageCompatibility.toLowerCase() === stage.name.toLowerCase()
+        );
+    };
+
+    const globalOptions = filterOptions(selectedEngine.globalAktPlusOptions);
+    const stageOptions = filterOptions(stage.aktPlusOptions);
     
     return [...globalOptions, ...stageOptions];
   }, [selectedEngine]);
@@ -158,7 +164,6 @@ export default function TuningViewer() {
     setSelected(prev => ({ ...prev, engine: e.target.value }));
   };
 
-  // PortableText components for rendering descriptions
   const portableTextComponents = {
     types: {
       image: ({ value }: any) => (
@@ -180,16 +185,13 @@ export default function TuningViewer() {
 
   return (
     <div className="max-w-4xl mx-auto p-4 md:p-6 min-h-screen">
-      {/* Header */}
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-indigo-600 bg-clip-text text-transparent">
           AK-TUNING
         </h1>
       </div>
 
-      {/* Vehicle Selection */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-8">
-        {/* Brand Selector */}
         <div>
           <label className="block text-sm font-bold text-black mb-1">MÄRKE</label>
           <select
@@ -207,7 +209,6 @@ export default function TuningViewer() {
           </select>
         </div>
 
-        {/* Model Selector */}
         <div>
           <label className="block text-sm font-bold text-black mb-1">MODELL</label>
           <select
@@ -225,7 +226,6 @@ export default function TuningViewer() {
           </select>
         </div>
 
-        {/* Year Selector */}
         <div>
           <label className="block text-sm font-bold text-black mb-1">ÅRSMODELL</label>
           <select
@@ -243,7 +243,6 @@ export default function TuningViewer() {
           </select>
         </div>
 
-        {/* Engine Selector */}
         <div>
           <label className="block text-sm font-bold text-black mb-1">MOTOR</label>
           <select
@@ -271,7 +270,6 @@ export default function TuningViewer() {
         </div>
       </div>
 
-      {/* Loading State */}
       {isLoading ? (
         <div className="flex justify-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
@@ -283,7 +281,6 @@ export default function TuningViewer() {
 
             return (
               <div key={stage.name} className="bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-700">
-                {/* Stage Header */}
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
                   <div>
                     <h2 className="text-xl font-semibold text-white">
@@ -300,19 +297,20 @@ export default function TuningViewer() {
                   </div>
                 </div>
 
-                {/* Expandable Description */}
                 {stage.description && (
                   <div className="mb-4">
                     <button
                       onClick={() => toggleDescription(stage.name)}
-                      className="flex items-center text-blue-400 hover:text-blue-300 transition-colors">
+                      className="flex items-center text-blue-400 hover:text-blue-300 transition-colors"
+                    >
                       <span>STEG INFORMATION</span>
                       <svg
                         className={`ml-2 h-4 w-4 transition-transform ${
                           expandedDescriptions[stage.name] ? 'rotate-180' : ''
                         }`}
                         viewBox="0 0 20 20"
-                        fill="currentColor">
+                        fill="currentColor"
+                      >
                         <path
                           fillRule="evenodd"
                           d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
@@ -329,7 +327,6 @@ export default function TuningViewer() {
                   </div>
                 )}
 
-                {/* Performance Metrics */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                   <div className="border border-gray-700 rounded-lg p-3 text-center">
                     <p className="text-sm text-gray-400 mb-1">ORIGINAL HK</p>
@@ -351,7 +348,6 @@ export default function TuningViewer() {
                   </div>
                 </div>
 
-                {/* Dyno Chart */}
                 <div className="mt-6">
                   <h3 className="text-lg font-medium text-gray-300 mb-2">{stage.name} DYNO Chart</h3>
                   <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
@@ -508,11 +504,10 @@ export default function TuningViewer() {
                   </div>
                 </div>
 
-                {/* Combined AKT+ Options Section */}
                 {allOptions.length > 0 && (
                   <div className="mt-8">
                     <h3 className="text-lg font-medium text-red-400 mb-4 border-b border-gray-600 pb-2">
-                      AKT+
+                      AKT+ OPTIONS
                     </h3>
                     
                     <div className="space-y-4">
@@ -522,7 +517,14 @@ export default function TuningViewer() {
                             onClick={() => toggleOption(option._id)}
                             className="w-full flex justify-between items-center p-4 bg-gray-700 hover:bg-gray-600 transition-colors"
                           >
-                            <span className="font-medium text-white">{option.title}</span>
+                            <div className="flex items-center">
+                              <span className="font-medium text-white">{option.title}</span>
+                              {option.isUniversal && (
+                                <span className="ml-2 px-2 py-1 bg-blue-900 text-blue-200 text-xs rounded-full">
+                                  Universal
+                                </span>
+                              )}
+                            </div>
                             <svg
                               className={`h-5 w-5 text-gray-400 transition-transform ${
                                 expandedOptions[option._id] ? 'rotate-180' : ''
