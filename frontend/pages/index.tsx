@@ -51,6 +51,13 @@ export default function TuningViewer() {
     fetchData();
   }, []);
 
+
+const firstStageName = json?.result?.[0]?.models?.[0]?.years?.[0]?.engines?.[0]?.stages?.[0]?.name;
+if (firstStageName) {
+  setExpandedDescriptions({ [firstStageName]: true });
+}
+
+
   const watermarkPlugin = {
     id: 'watermark',
     beforeDraw: (chart: Chart) => {
@@ -279,6 +286,7 @@ export default function TuningViewer() {
         <div className="space-y-6">
           {stages.map((stage) => {
             const allOptions = getAllAktPlusOptions(stage);
+            const isExpanded = expandedDescriptions[stage.name];
 
             return (
               <div key={stage.name} className="bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-700">
