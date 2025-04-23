@@ -1,6 +1,7 @@
 // pages/api/brands.ts
 import { NextApiRequest, NextApiResponse } from 'next';
 import { client } from '@/lib/sanity';
+import { fetchAllBrandsWithDetails } from '@/lib/sanity';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   // Set CORS headers
