@@ -3,7 +3,7 @@ import { useEffect, useState, useRef, useMemo } from 'react';
 import { Chart, CategoryScale, LinearScale, PointElement, LineElement, LineController } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import { PortableText } from '@portabletext/react';
-import { urlFor } from '@./lib/sanity';
+import { urlFor } from '@/lib/sanity';
 
 Chart.register(CategoryScale, LinearScale, PointElement, LineElement, LineController);
 
