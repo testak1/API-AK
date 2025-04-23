@@ -307,7 +307,10 @@ export default function TuningViewer() {
                         />
                       </svg>
                     </button>
-                    
+
+
+                    )}
+  
                     {expandedDescriptions[stage.name] && (
                       <div className="mt-2 p-4 bg-gray-700 rounded-lg">
   {stage.description && (
@@ -317,7 +320,7 @@ export default function TuningViewer() {
         components={portableTextComponents}
       />
     </div>
-  )}
+
                     )}
                   </div>
                 )}
