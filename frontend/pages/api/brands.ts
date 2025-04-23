@@ -1,9 +1,11 @@
 // pages/api/brands.ts
 import { NextApiRequest, NextApiResponse } from 'next';
-import { client } from '@/lib/sanity';
-import { fetchAllBrandsWithDetails } from '@/lib/sanity';
+import { getAllBrandsWithDetails } from '@/lib/sanity';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -20,66 +22,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const query = `*[_type == "brand"]{
-      _id,
-      name,
-      "slug": slug.current,
-      "models": models[]{
-        name,
-        "years": years[]{
-          range,
-          "engines": engines[]{
-            fuel,
-            label,
-            "globalAktPlusOptions": globalAktPlusOptions[]->{
-              _id,
-              title,
-              description,
-              "gallery": gallery[]{
-                _key,
-                "url": asset->url,
-                "alt": alt
-              },
-              price,
-              installationTime,
-              compatibilityNotes
-            },
-            "stages": stages[]{
-              name,
-              origHk,
-              tunedHk,
-              origNm,
-              tunedNm,
-              price,
-              "description": descriptionRef->description,
-              "aktPlusOptions": aktPlusOptions[]->{
-                _id,
-                title,
-                description,
-                "gallery": gallery[]{
-                  _key,
-                  "url": asset->url,
-                  "alt": alt
-                },
-                price,
-                installationTime,
-                compatibilityNotes
-              }
-            }
-          }
-        }
-      }
-    }`;
-
-    const result = await client.fetch(query);
+    const brands = await getAllBrandsWithDetails();
     
-    if (!result || result.length === 0) {
+    if (!brands || brands.length === 0) {
       return res.status(404).json({ message: 'No brands found' });
     }
 
-    return res.status(200).json({ result });
+    return res.status(200).json({ result: brands });
   } catch (error) {
-    console.error('Sanity fetch error:', error);
+    console.error('API Error:', error);
     return res.status(500).json({ 
       message: 'Failed to fetch brands',
       error: error instanceof Error ? error.message : 'Unknown error'

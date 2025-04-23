@@ -8,5 +8,5 @@ declare module '@/lib/sanity' {
     query: string,
     params?: Record<string, unknown>
   ): Promise<T>;
-  export function getAllBrands(): Promise<Brand[]>;
+  export function getAllBrandsWithDetails(): Promise<Brand[]>;
 }

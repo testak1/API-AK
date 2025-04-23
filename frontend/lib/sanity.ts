@@ -3,25 +3,24 @@ import { createClient, type SanityClient } from '@sanity/client';
 import imageUrlBuilder from '@sanity/image-url';
 import type { ImageUrlBuilder } from '@sanity/image-url/lib/types/builder';
 
-// Type-safe configuration
+// Configuration matching your studio
 const config = {
   projectId: 'wensahkh',
   dataset: 'production',
-  apiVersion: '2023-01-01', // Must match your studio config
+  apiVersion: '2023-01-01',
   useCdn: process.env.NODE_ENV === 'production',
   token: process.env.SANITY_API_TOKEN,
 };
 
-// Explicitly type the client
+// Create and export the typed client
 export const client: SanityClient = createClient(config);
 
-// Image URL builder with proper typing
+// Image URL builder
 export function urlFor(source: any): ImageUrlBuilder {
-  const builder = imageUrlBuilder(client);
-  return builder.image(source);
+  return imageUrlBuilder(client).image(source);
 }
 
-// Type-safe fetch wrapper
+// Core query function with error handling
 export async function fetchSanityQuery<T = any>(
   query: string,
   params?: Record<string, unknown>
@@ -30,35 +29,62 @@ export async function fetchSanityQuery<T = any>(
     return await client.fetch<T>(query, params);
   } catch (error) {
     console.error('Sanity query error:', error);
-    throw error;
+    throw new Error(error instanceof Error ? error.message : 'Query failed');
   }
 }
 
-// Utility for fetching all brands with proper typing
-export async function getAllBrands(): Promise<Brand[]> {
+// Specific query for brands with all relations
+export async function getAllBrandsWithDetails(): Promise<any[]> {
   const query = `*[_type == "brand"]{
+    _id,
     name,
-    models[] {
+    "slug": slug.current,
+    "models": models[]{
       name,
-      years[] {
+      "years": years[]{
         range,
-        engines[] {
+        "engines": engines[]{
           fuel,
           label,
-          globalAktPlusOptions[]->,
-          stages[] {
+          "globalAktPlusOptions": globalAktPlusOptions[]->{
+            _id,
+            title,
+            description,
+            "gallery": gallery[]{
+              _key,
+              "url": asset->url,
+              "alt": alt
+            },
+            price,
+            installationTime,
+            compatibilityNotes
+          },
+          "stages": stages[]{
             name,
             origHk,
             tunedHk,
             origNm,
             tunedNm,
             price,
-            descriptionRef->,
-            aktPlusOptions[]->
+            "description": descriptionRef->description,
+            "aktPlusOptions": aktPlusOptions[]->{
+              _id,
+              title,
+              description,
+              "gallery": gallery[]{
+                _key,
+                "url": asset->url,
+                "alt": alt
+              },
+              price,
+              installationTime,
+              compatibilityNotes
+            }
           }
         }
       }
     }
   }`;
-  return fetchSanityQuery<Brand[]>(query);
+
+  return fetchSanityQuery<any[]>(query);
 }
