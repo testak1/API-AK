@@ -1,6 +1,6 @@
-// lib/sanity.ts
 import { createClient } from '@sanity/client';
 import imageUrlBuilder from '@sanity/image-url';
+import type { Brand } from '@/types/sanity';
 
 const client = createClient({
   projectId: 'wensahkh',
@@ -16,7 +16,7 @@ export function urlFor(source: any) {
   return builder.image(source);
 }
 
-export async function getAllBrandsWithDetails() {
+export async function getAllBrandsWithDetails(): Promise<Brand[]> {
   const query = `*[_type == "brand"]{
     _id,
     name,
@@ -34,8 +34,10 @@ export async function getAllBrandsWithDetails() {
             description,
             "gallery": gallery[]{
               _key,
-              "url": asset->url,
-              "alt": alt
+              "asset": asset->{
+                _ref
+              },
+              alt
             },
             price,
             installationTime,
@@ -48,15 +50,17 @@ export async function getAllBrandsWithDetails() {
             origNm,
             tunedNm,
             price,
-            "description": descriptionRef->description,
+            description,
             "aktPlusOptions": aktPlusOptions[]->{
               _id,
               title,
               description,
               "gallery": gallery[]{
                 _key,
-                "url": asset->url,
-                "alt": alt
+                "asset": asset->{
+                  _ref
+                },
+                alt
               },
               price,
               installationTime,
