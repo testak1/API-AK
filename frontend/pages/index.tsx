@@ -17,6 +17,14 @@ interface SelectionState {
   engine: string;
 }
 
+// Helper function to filter AKT+ options by fuel type
+const filterAktPlusOptions = (options: AktPlusOption[], fuelType: string) => {
+  if (!options) return [];
+  return options.filter(opt => 
+    opt.isUniversal || 
+    (opt.applicableFuelTypes && opt.applicableFuelTypes.includes(fuelType))
+};
+
 export default function TuningViewer() {
   const [data, setData] = useState<Brand[]>([]);
   const [selected, setSelected] = useState<SelectionState>({ 
@@ -95,6 +103,16 @@ export default function TuningViewer() {
     return { brands, models, years, engines, selectedEngine, stages, groupedEngines };
   }, [data, selected]);
 
+  // Combine and filter AKT+ options based on fuel type
+  const getAllAktPlusOptions = useMemo(() => (stage: Stage) => {
+    if (!selectedEngine) return [];
+    
+    const globalOptions = filterAktPlusOptions(selectedEngine.globalAktPlusOptions, selectedEngine.fuel);
+    const stageOptions = filterAktPlusOptions(stage.aktPlusOptions, selectedEngine.fuel);
+    
+    return [...globalOptions, ...stageOptions];
+  }, [selectedEngine]);
+
   const generateDynoCurve = (peakValue: number, isHp: boolean) => {
     const rpmRange = [2000, 3000, 4000, 5000, 6000, 7000];
     const peakRpmIndex = isHp ? 3 : 2;
@@ -168,7 +186,6 @@ export default function TuningViewer() {
           AK-TUNING
         </h1>
       </div>
-
 
       {/* Vehicle Selection */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-8">
@@ -262,11 +279,7 @@ export default function TuningViewer() {
       ) : stages.length > 0 ? (
         <div className="space-y-6">
           {stages.map((stage) => {
-            // Combine global and stage-specific options
-            const allOptions = [
-              ...(selectedEngine?.globalAktPlusOptions || []),
-              ...(stage.aktPlusOptions || [])
-            ];
+            const allOptions = getAllAktPlusOptions(stage);
 
             return (
               <div key={stage.name} className="bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-700">
@@ -308,15 +321,13 @@ export default function TuningViewer() {
                       </svg>
                     </button>
 
-
-		   {expandedDescriptions[stage.name] && stage.description && (
-		      <div className="mt-2 p-4 bg-gray-700 rounded-lg">
-		        <PortableText value={stage.description} components={portableTextComponents} />
-		      </div>
-		   )}
-  	         </div>
-
-		)}
+                    {expandedDescriptions[stage.name] && stage.description && (
+                      <div className="mt-2 p-4 bg-gray-700 rounded-lg">
+                        <PortableText value={stage.description} components={portableTextComponents} />
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Performance Metrics */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
