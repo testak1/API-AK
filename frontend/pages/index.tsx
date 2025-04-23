@@ -332,10 +332,7 @@ export default function TuningViewer() {
                     
                     {expandedDescriptions[stage.name] && (
                       <div className="mt-2 p-4 bg-gray-700 rounded-lg">
-                        <PortableText
-                          value={stage.description}
-                          components={portableTextComponents}
-                        />
+                        <PortableText value={stage.description} components={portableTextComponents} />
                       </div>
                     )}
                   </div>
