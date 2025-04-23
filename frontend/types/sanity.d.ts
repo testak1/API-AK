@@ -31,7 +31,7 @@ export interface Stage {
 }
 
 export interface Engine {
-  label: string;
+  name: string;
   fuel: string;
   stages: Stage[];
   globalAktPlusOptions?: AktPlusOption[];
