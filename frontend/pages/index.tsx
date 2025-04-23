@@ -12,7 +12,7 @@ interface SelectionState {
   brand: string;
   model: string;
   year: string;
-  engine: label;
+  engine: string;
 }
 
 export default function TuningViewer() {
@@ -21,7 +21,7 @@ export default function TuningViewer() {
     brand: '', 
     model: '', 
     year: '', 
-    engine: '' 
+    engine: '',
   });
   const [isLoading, setIsLoading] = useState(true);
   const [expandedDescriptions, setExpandedDescriptions] = useState<Record<string, boolean>>({});
