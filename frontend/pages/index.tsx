@@ -166,6 +166,7 @@ export default function TuningViewer() {
           AK-TUNING
         </h1>
       </div>
+</div>
 
       {/* Vehicle Selection */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-8">
