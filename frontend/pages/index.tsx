@@ -183,11 +183,7 @@ export default function TuningViewer() {
   const portableTextComponents = {
     types: {
       image: ({ value }: any) => (
-        <img 
-          src={urlFor(value).width(800).url()} 
-          alt={value.alt || ''}
-          className="my-4 rounded-lg shadow-md"
-        />
+
       )
     },
     marks: {
