@@ -498,8 +498,8 @@ export default function TuningViewer() {
                 {/* Combined AKT+ Options Section */}
                 {allOptions.length > 0 && (
                   <div className="mt-8">
-                    <h3 className="text-lg font-medium text-white mb-4 border-b border-gray-600 pb-2">
-                      AVAILABLE UPGRADES
+                    <h3 className="text-lg font-medium text-red-400 mb-4 border-b border-gray-600 pb-2">
+                      AKT+
                     </h3>
                     
                     <div className="space-y-4">
