@@ -3,7 +3,7 @@ import { useEffect, useState, useRef, useMemo } from 'react';
 import { Chart, CategoryScale, LinearScale, PointElement, LineElement, LineController } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import { PortableText } from '@portabletext/react';
-
+import { urlFor } from '@/lib/sanity';
 
 Chart.register(CategoryScale, LinearScale, PointElement, LineElement, LineController);
 
@@ -179,10 +179,28 @@ export default function TuningViewer() {
     setSelected(prev => ({ ...prev, engine: e.target.value }));
   };
 
+  // PortableText components for rendering descriptions
+  const portableTextComponents = {
+    types: {
+      image: ({ value }: any) => (
+        <img 
+          src={urlFor(value).width(800).url()} 
+          alt={value.alt || ''}
+          className="my-4 rounded-lg shadow-md"
+        />
+      )
+    },
+    marks: {
+      link: ({ children, value }: any) => (
+        <a href={value.href} className="text-blue-400 hover:text-blue-300 underline">
+          {children}
+        </a>
+      )
+    }
+  };
 
-
-
-
+  return (
+    <div className="max-w-4xl mx-auto p-4 md:p-6 min-h-screen">
       {/* Header */}
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-indigo-600 bg-clip-text text-transparent">
@@ -332,7 +350,10 @@ export default function TuningViewer() {
                     
                     {expandedDescriptions[stage.name] && (
                       <div className="mt-2 p-4 bg-gray-700 rounded-lg">
-                        <PortableText value={stage.description} components={portableTextComponents} />
+                        <PortableText
+                          value={stage.description}
+                          components={portableTextComponents}
+                        />
                       </div>
                     )}
                   </div>
