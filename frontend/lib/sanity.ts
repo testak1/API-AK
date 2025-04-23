@@ -1,28 +1,30 @@
 // lib/sanity.ts
-import { createClient } from '@sanity/client';
+import { createClient, type ClientConfig } from '@sanity/client';
 import imageUrlBuilder from '@sanity/image-url';
+import type { ImageUrlBuilder } from '@sanity/image-url/lib/types/builder';
 
-export const client = createClient({
-  projectId: 'wensahkh', // Must match your sanity.config.ts
-  dataset: 'production', // Must match your sanity.config.ts
-  apiVersion: '2023-01-01', // Use current date in production
-  useCdn: process.env.NODE_ENV === 'production', // Enable CDN in production
-  token: process.env.SANITY_API_TOKEN // Optional for private datasets
-});
+// Type-safe configuration
+const config: ClientConfig = {
+  projectId: 'wensahkh',
+  dataset: 'production',
+  apiVersion: '2023-01-01', // Match your Studio version
+  useCdn: process.env.NODE_ENV === 'production',
+  token: process.env.SANITY_API_TOKEN,
+};
 
-const builder = imageUrlBuilder(client);
+// Create the client
+export const client = createClient(config);
 
-// Helper function for generating image URLs
-export function urlFor(source: any) {
-  return builder.image(source);
+// Image URL builder with proper typing
+export function urlFor(source: any): ImageUrlBuilder {
+  return imageUrlBuilder(client).image(source);
 }
 
-// GROQ query helper
-export async function fetchQuery(query: string, params = {}) {
-  try {
-    return await client.fetch(query, params);
-  } catch (error) {
-    console.error('Sanity fetch error:', error);
-    throw error;
-  }
+// Type-safe fetch wrapper
+export async function fetchQuery<T = any>(
+  query: string,
+  params?: Record<string, unknown>
+): Promise<T> {
+  if (!client) throw new Error('Sanity client not initialized');
+  return client.fetch<T>(query, params);
 }
