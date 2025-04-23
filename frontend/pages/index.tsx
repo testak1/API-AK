@@ -143,7 +143,7 @@ export default function TuningViewer() {
     types: {
       image: ({ value }: any) => (
         <img 
-          src={urlFor(value).width(800).url()} 
+          src={urlFor(value).width(100).url()} 
           alt={value.alt || ''}
           className="my-4 rounded-lg shadow-md"
         />
