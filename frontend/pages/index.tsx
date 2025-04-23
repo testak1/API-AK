@@ -166,7 +166,7 @@ export default function TuningViewer() {
           AK-TUNING
         </h1>
       </div>
-</div>
+
 
       {/* Vehicle Selection */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-8">
@@ -290,16 +290,14 @@ export default function TuningViewer() {
                   <div className="mb-4">
                     <button
                       onClick={() => toggleDescription(stage.name)}
-                      className="flex items-center text-blue-400 hover:text-blue-300 transition-colors"
-                    >
+                      className="flex items-center text-blue-400 hover:text-blue-300 transition-colors">
                       <span>STEG INFORMATION</span>
                       <svg
                         className={`ml-2 h-4 w-4 transition-transform ${
                           expandedDescriptions[stage.name] ? 'rotate-180' : ''
                         }`}
                         viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
+                        fill="currentColor">
                         <path
                           fillRule="evenodd"
                           d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
@@ -309,21 +307,14 @@ export default function TuningViewer() {
                     </button>
 
 
-                    )}
-  
-                    {expandedDescriptions[stage.name] && (
-                      <div className="mt-2 p-4 bg-gray-700 rounded-lg">
-  {stage.description && (
-    <div className="mt-2 p-4 bg-gray-700 rounded-lg">
-      <PortableText
-        value={stage.description}
-        components={portableTextComponents}
-      />
-    </div>
+		   {expandedDescriptions[stage.name] && stage.description && (
+		      <div className="mt-2 p-4 bg-gray-700 rounded-lg">
+		        <PortableText value={stage.description} components={portableTextComponents} />
+		      </div>
+		   )}
+  	         </div>
 
-                    )}
-                  </div>
-                )}
+		)}
 
                 {/* Performance Metrics */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
