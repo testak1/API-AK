@@ -12,7 +12,7 @@ interface SelectionState {
   brand: string;
   model: string;
   year: string;
-  engine: string;
+  engine: label;
 }
 
 export default function TuningViewer() {
