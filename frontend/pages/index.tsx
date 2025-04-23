@@ -4,7 +4,7 @@ import { Chart, CategoryScale, LinearScale, PointElement, LineElement, LineContr
 import { Line } from 'react-chartjs-2';
 import { PortableText } from '@portabletext/react';
 import { urlFor } from '@/lib/sanity';
-import type { Brand, Stage, AktPlusOption } from '@/types/sanity';
+import type { Brand, Stage, AktPlusOption, Engine } from '@/types/sanity';
 
 Chart.register(CategoryScale, LinearScale, PointElement, LineElement, LineController);
 
@@ -88,7 +88,7 @@ export default function TuningViewer() {
       if (!acc[fuelType]) acc[fuelType] = [];
       acc[fuelType].push(engine);
       return acc;
-    }, {} as Record<string, engine[]>);
+    }, {} as Record<string, typeof engines>);
 
     return { brands, models, years, engines, selectedEngine, stages, groupedEngines };
   }, [data, selected]);
