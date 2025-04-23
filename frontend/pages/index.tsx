@@ -88,7 +88,7 @@ export default function TuningViewer() {
       if (!acc[fuelType]) acc[fuelType] = [];
       acc[fuelType].push(engine);
       return acc;
-    }, {} as Record<string, Engine[]>);
+    }, {} as Record<string, engine[]>);
 
     return { brands, models, years, engines, selectedEngine, stages, groupedEngines };
   }, [data, selected]);
