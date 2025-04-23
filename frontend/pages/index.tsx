@@ -101,7 +101,7 @@ export default function TuningViewer() {
     if (!selectedEngine) return [];
     
     const filterOptions = (options: AktPlusOptionReference[] = []) => {
-      return options
+      return (Array.isArray(options) ? options : [])
         .filter(isExpandedAktPlusOption)
         .filter(opt => 
           opt.isUniversal || 
@@ -118,6 +118,7 @@ export default function TuningViewer() {
     
     return [...globalOptions, ...stageOptions];
   }, [selectedEngine]);
+
 
   const generateDynoCurve = (peakValue: number, isHp: boolean) => {
     const rpmRange = [2000, 3000, 4000, 5000, 6000, 7000];
