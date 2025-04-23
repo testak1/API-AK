@@ -1,3 +1,5 @@
+// pages/api/brands.ts
+
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getAllBrandsWithDetails } from '@/lib/sanity';
 

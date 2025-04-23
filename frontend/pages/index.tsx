@@ -1,3 +1,5 @@
+// pages/index.tsx
+
 import React from 'react';
 import { useEffect, useState, useRef, useMemo } from 'react';
 import { Chart, CategoryScale, LinearScale, PointElement, LineElement, LineController } from 'chart.js';
