@@ -3,6 +3,7 @@ import { useEffect, useState, useRef, useMemo } from 'react';
 import { Chart, CategoryScale, LinearScale, PointElement, LineElement, LineController } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import { PortableText } from '@portabletext/react';
+import type { PortableTextBlock } from '@portabletext/types';
 import { urlFor } from '@/lib/sanity';
 
 Chart.register(CategoryScale, LinearScale, PointElement, LineElement, LineController);
@@ -10,7 +11,7 @@ Chart.register(CategoryScale, LinearScale, PointElement, LineElement, LineContro
 interface AktPlusOption {
   _id: string;
   title: string;
-  description?: any[];
+  description?: PortableTextBlock[];
   gallery?: {
     _key: string;
     asset: {
@@ -30,7 +31,7 @@ interface Stage {
   tunedHk: number;
   tunedNm: number;
   price: number;
-  description?: string;
+  description?: PortableTextBlock[];
   aktPlusOptions?: AktPlusOption[];
 }
 
@@ -350,10 +351,12 @@ export default function TuningViewer() {
                     
                     {expandedDescriptions[stage.name] && (
                       <div className="mt-2 p-4 bg-gray-700 rounded-lg">
-                        <PortableText
-                          value={stage.description}
-                          components={portableTextComponents}
-                        />
+{stage.description && Array.isArray(stage.description) && (
+  <PortableText
+    value={stage.description}
+    components={portableTextComponents}
+  />
+)}
                       </div>
                     )}
                   </div>
