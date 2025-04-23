@@ -3,63 +3,21 @@ import { useEffect, useState, useRef, useMemo } from 'react';
 import { Chart, CategoryScale, LinearScale, PointElement, LineElement, LineController } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import { PortableText } from '@portabletext/react';
-import type { PortableTextBlock } from '@portabletext/types';
 import { urlFor } from '@/lib/sanity';
+import type { Brand, Stage, AktPlusOption } from '@/types/sanity';
 
 Chart.register(CategoryScale, LinearScale, PointElement, LineElement, LineController);
 
-interface AktPlusOption {
-  _id: string;
-  title: string;
-  description?: PortableTextBlock[];
-  gallery?: {
-    _key: string;
-    asset: {
-      _ref: string;
-    };
-    alt?: string;
-  }[];
-  price?: number;
-  installationTime?: number;
-  compatibilityNotes?: string;
-}
-
-interface Stage {
-  name: string;
-  origHk: number;
-  origNm: number;
-  tunedHk: number;
-  tunedNm: number;
-  price: number;
-  description?: PortableTextBlock[];
-  aktPlusOptions?: AktPlusOption[];
-}
-
-interface Engine {
-  label: string;
-  fuel: string;
-  stages: Stage[];
-  globalAktPlusOptions?: AktPlusOption[];
-}
-
-interface Year {
-  range: string;
-  engines: Engine[];
-}
-
-interface Model {
-  name: string;
-  years: Year[];
-}
-
-interface Brand {
-  name: string;
-  models: Model[];
+interface SelectionState {
+  brand: string;
+  model: string;
+  year: string;
+  engine: string;
 }
 
 export default function TuningViewer() {
   const [data, setData] = useState<Brand[]>([]);
-  const [selected, setSelected] = useState({ 
+  const [selected, setSelected] = useState<SelectionState>({ 
     brand: '', 
     model: '', 
     year: '', 
@@ -351,13 +309,14 @@ export default function TuningViewer() {
                     
                     {expandedDescriptions[stage.name] && (
                       <div className="mt-2 p-4 bg-gray-700 rounded-lg">
-{stage.description && Array.isArray(stage.description) && (
-  <PortableText
-    value={stage.description}
-    components={portableTextComponents}
-  />
-)}
-                      </div>
+  {stage.description && (
+    <div className="mt-2 p-4 bg-gray-700 rounded-lg">
+      <PortableText
+        value={stage.description}
+        components={portableTextComponents}
+      />
+    </div>
+  )}
                     )}
                   </div>
                 )}
