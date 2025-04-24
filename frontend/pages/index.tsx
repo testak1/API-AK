@@ -656,19 +656,17 @@ const renderStageDescription = (stage: Stage) => {
     )}
 
     {/* Gallery Images */}
-    {option.gallery && option.gallery.length > 0 && (
-      <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
-        {option.gallery.map((image) => (
-<img
-  key={image._key}
-  src={image.asset.url}
-  alt={image.alt || option.title}
-  className="rounded-lg object-cover h-40 w-full"
-  loading="lazy"
-/>
-        ))}
-      </div>
-    )}
+{option.gallery && option.gallery.length > 0 && (
+  <div className="mt-4 flex justify-center">
+    <img
+      key={option.gallery[0]._key}
+      src={urlFor(option.gallery[0].asset).width(200).url()}
+      alt={option.gallery[0].alt || option.title}
+      className="h-24 w-auto object-contain"
+      loading="lazy"
+    />
+  </div>
+)}
 
     {/* Info and CTA */}
     <div className="mt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
