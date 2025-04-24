@@ -330,7 +330,7 @@ const filterOptions = (options: AktPlusOptionReference[] = []) => {
 
                 {isExpanded && (
                   <div className="px-6 pb-6">
-                    {stage.description && (
+                    {stage.descriptionRef && (
                       <div className="mb-6">
                         <div className="prose prose-invert max-w-none p-4 bg-gray-700 rounded-lg">
                           <PortableText value={stage.descriptionRef} components={portableTextComponents} />
