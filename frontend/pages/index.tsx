@@ -111,17 +111,18 @@ export default function TuningViewer() {
 const getAllAktPlusOptions = useMemo(() => (stage: Stage) => {
   if (!selectedEngine) return [];
   
-  const filterOptions = (options: AktPlusOptionReference[] = []) => {
-    return (Array.isArray(options) ? options : [])
-      .filter(isExpandedAktPlusOption)
-      .filter(opt => 
-        opt.isUniversal || 
-        (opt.applicableFuelTypes && opt.applicableFuelTypes.includes(selectedEngine.fuel))
-      .filter(opt => 
-        !opt.stageCompatibility || 
-        opt.stageCompatibility.toLowerCase() === stage.name.toLowerCase()
-      );
-  };
+const filterOptions = (options: AktPlusOptionReference[] = []) => {
+  return (Array.isArray(options) ? options : [])
+    .filter(isExpandedAktPlusOption)
+    .filter(opt =>
+      opt.isUniversal ||
+      (opt.applicableFuelTypes?.includes(selectedEngine.fuel))
+    )
+    .filter(opt =>
+      !opt.stageCompatibility ||
+      opt.stageCompatibility.toLowerCase() === stage.name.toLowerCase()
+    );
+};
 
   const globalOptions = filterOptions(selectedEngine.globalAktPlusOptions);
   const stageOptions = filterOptions(stage.aktPlusOptions);
