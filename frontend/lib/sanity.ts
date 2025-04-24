@@ -52,14 +52,21 @@ export async function getAllBrandsWithDetails(): Promise<Brand[]> {
       "years": years[]{
         range,
         "engines": engines[]{
+          _id,
           fuel,
           label,
-          "globalAktPlusOptions": globalAktPlusOptions[]->{
+          // Auto-deployed global options (for all stages)
+          "globalAktPlusOptions": *[_type == "aktPlus" && (
+            isUniversal == true || 
+            ^.fuel in applicableFuelTypes || 
+            ^._id in manualAssignments[]._ref
+          ) && !defined(stageCompatibility)]{
             _id,
             _type,
             title,
             isUniversal,
             applicableFuelTypes,
+            stageCompatibility,
             description,
             "gallery": gallery[]{
               _key,
@@ -73,6 +80,7 @@ export async function getAllBrandsWithDetails(): Promise<Brand[]> {
             installationTime,
             compatibilityNotes
           },
+          // Auto-deployed stage-specific options
           "stages": stages[]{
             name,
             origHk,
@@ -86,7 +94,14 @@ export async function getAllBrandsWithDetails(): Promise<Brand[]> {
               stageName,
               description
             },
-            "aktPlusOptions": aktPlusOptions[]->{
+            "aktPlusOptions": *[_type == "aktPlus" && (
+              isUniversal == true || 
+              ^.^.fuel in applicableFuelTypes || 
+              ^.^._id in manualAssignments[]._ref
+            ) && (
+              !defined(stageCompatibility) || 
+              stageCompatibility == ^.name
+            )]{
               _id,
               _type,
               title,
@@ -128,6 +143,18 @@ export async function getAllBrandsWithDetails(): Promise<Brand[]> {
 export async function getBrandBySlug(slug: string): Promise<Brand | null> {
   const query = `*[_type == "brand" && slug.current == $slug][0]`;
   return client.fetch<Brand | null>(query, { slug });
+}
+
+export async function getEngineById(engineId: string): Promise<any> {
+  const query = `*[_type == "engine" && _id == $engineId][0]{
+    ...,
+    "brand": *[_type == "brand" && references(^._id)][0]{
+      _id,
+      name,
+      slug
+    }
+  }`;
+  return client.fetch(query, { engineId });
 }
 
 export default client;

@@ -107,27 +107,26 @@ export default function TuningViewer() {
     return item && '_id' in item && 'title' in item;
   };
 
-  const getAllAktPlusOptions = useMemo(() => (stage: Stage) => {
-    if (!selectedEngine) return [];
-    
-    const filterOptions = (options: AktPlusOptionReference[] = []) => {
-      return (Array.isArray(options) ? options : [])
-        .filter(isExpandedAktPlusOption)
-        .filter(opt =>
-          opt.isUniversal ||
-          (opt.applicableFuelTypes?.includes(selectedEngine.fuel))
-        )
-        .filter(opt =>
-          !opt.stageCompatibility ||
-          opt.stageCompatibility.toLowerCase() === stage.name.toLowerCase()
-        );
-    };
+const getAllAktPlusOptions = useMemo(() => (stage: Stage) => {
+  if (!selectedEngine) return [];
 
-    const globalOptions = filterOptions(selectedEngine.globalAktPlusOptions);
-    const stageOptions = filterOptions(stage.aktPlusOptions);
-    
-    return [...globalOptions, ...stageOptions];
-  }, [selectedEngine]);
+  const allOptions: AktPlusOptionReference[] = [
+    ...(selectedEngine.globalAktPlusOptions || []),
+    ...(stage.aktPlusOptions || [])
+  ];
+
+  return (allOptions as AktPlusOptionReference[])
+    .filter(isExpandedAktPlusOption)
+    .filter(opt =>
+      opt.isUniversal ||
+      opt.applicableFuelTypes?.includes(selectedEngine.fuel) ||
+      opt.manualAssignments?.some(ref => ref._ref === selectedEngine._id)
+    )
+    .filter(opt =>
+      !opt.stageCompatibility ||
+      opt.stageCompatibility.toLowerCase() === stage.name.toLowerCase()
+    );
+}, [selectedEngine]);
 
   const generateDynoCurve = (peakValue: number, isHp: boolean) => {
     const rpmRange = [2000, 3000, 4000, 5000, 6000, 7000];
