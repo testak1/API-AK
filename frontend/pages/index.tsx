@@ -103,29 +103,34 @@ export default function TuningViewer() {
     }
   };
 
-  const isExpandedAktPlusOption = (item: any): item is AktPlusOption => {
-    return item && '_id' in item && 'title' in item;
-  };
+const isExpandedAktPlusOption = (item: any): item is AktPlusOption => {
+  return item && '_id' in item && 'title' in item;
+};
 
 const getAllAktPlusOptions = useMemo(() => (stage: Stage) => {
   if (!selectedEngine) return [];
 
-  const allOptions: AktPlusOptionReference[] = [
+  const combinedOptions: AktPlusOptionReference[] = [
     ...(selectedEngine.globalAktPlusOptions || []),
     ...(stage.aktPlusOptions || [])
   ];
 
-  return (allOptions as AktPlusOptionReference[])
+  const uniqueOptionsMap = new Map<string, AktPlusOption>();
+
+  (combinedOptions as AktPlusOptionReference[])
     .filter(isExpandedAktPlusOption)
-    .filter(opt =>
-      opt.isUniversal ||
-      opt.applicableFuelTypes?.includes(selectedEngine.fuel) ||  // Match directly
-      opt.manualAssignments?.some(ref => ref._ref === selectedEngine._id)
-    )
-    .filter(opt =>
-      !opt.stageCompatibility ||
-      opt.stageCompatibility === stage.name
-    );
+    .forEach(opt => {
+      if (
+        (opt.isUniversal ||
+         opt.applicableFuelTypes?.includes(selectedEngine.fuel) ||
+         opt.manualAssignments?.some(ref => ref._ref === selectedEngine._id)) &&
+        (!opt.stageCompatibility || opt.stageCompatibility === stage.name)
+      ) {
+        uniqueOptionsMap.set(opt._id, opt);
+      }
+    });
+
+  return Array.from(uniqueOptionsMap.values());
 }, [selectedEngine]);
 
   const generateDynoCurve = (peakValue: number, isHp: boolean) => {
