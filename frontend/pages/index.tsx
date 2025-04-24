@@ -624,8 +624,16 @@ const renderStageDescription = (stage: Stage) => {
                               
 {expandedOptions[option._id] && (
   <div className="p-4 bg-gray-800">
-    
-    {/* AKT+ Header with logo and title */}
+    {/* REMOVE THIS REDUNDANT IMAGE */}
+    {/* <div className="mb-4">
+      <img
+        src={`/aktplus-icons/${option.slug?.current || 'default'}.png`}
+        alt={option.title}
+        className="h-12 w-auto object-contain"
+      />
+    </div> */}
+
+    {/* Header with logo and title only */}
     <div className="flex items-center mb-4 gap-4">
       <img
         src="/logos/aktplus.png"
@@ -637,14 +645,8 @@ const renderStageDescription = (stage: Stage) => {
       </h4>
     </div>
 
-    {/* Option icon/image (based on slug) */}
-    <div className="mb-4">
-      <img
-        src={`/aktplus-icons/${option.slug?.current || 'default'}.png`}
-        alt={option.title}
-        className="h-12 w-auto object-contain"
-      />
-    </div>
+    {/* REMOVE BLACK TEXT LABEL */}
+    {/* <p className="text-black">{option.title}</p> */}
 
     {/* Rich Text Description */}
     {option.description && (
