@@ -333,7 +333,7 @@ const filterOptions = (options: AktPlusOptionReference[] = []) => {
                     {stage.description && (
                       <div className="mb-6">
                         <div className="prose prose-invert max-w-none p-4 bg-gray-700 rounded-lg">
-                          <PortableText value={stage.description} components={portableTextComponents} />
+                          <PortableText value={stage.descriptionRef} components={portableTextComponents} />
                         </div>
                       </div>
                     )}
