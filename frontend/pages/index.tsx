@@ -579,6 +579,12 @@ const renderStageDescription = (stage: Stage) => {
                           plugins={[watermarkPlugin]}
                         />
 
+
+
+
+                      </div>
+                    </div>
+
 <div className="text-center text-white mt-6">
   <p>Detta är en datorgenererad dyno-bild</p>
 </div>
@@ -594,8 +600,6 @@ const renderStageDescription = (stage: Stage) => {
 </div>
 
 
-                      </div>
-                    </div>
 
 {allOptions.length > 0 && (
   <div className="mt-8">
