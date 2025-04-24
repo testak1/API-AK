@@ -610,7 +610,8 @@ const renderStageDescription = (stage: Stage) => {
         alt="AKT+ Logo"
         className="h-10 w-auto object-contain"
       />
-      <h3 className="text-xl font-semibold text-white">AKT+ Upgrades</h3>
+      <h3 className="text-xl font-semibold text-white">TILLÄGG</h3>
+<p>Tryck på flikarna nedanför för mer information</p>
     </div>
 
     <div className="space-y-4">
@@ -628,7 +629,7 @@ const renderStageDescription = (stage: Stage) => {
       className="h-10 w-10 object-contain"
     />
   )}
-  <span className="font-medium text-white">{option.title}</span>
+  <span className="font-large text-orange">{option.title}</span>
               {option.isUniversal && (
                 <span className="ml-2 px-2 py-1 bg-blue-900 text-blue-200 text-xs rounded-full">
                   Universal
