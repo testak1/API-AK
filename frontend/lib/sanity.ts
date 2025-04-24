@@ -39,9 +39,10 @@ export async function getAllBrandsWithDetails(): Promise<Brand[]> {
     _type,
     name,
     "slug": slug.current,
-    logo {
+    "logo": logo {
       asset->{
-        _ref
+        _id,
+        url
       },
       alt
     },
