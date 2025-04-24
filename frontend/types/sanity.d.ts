@@ -4,9 +4,8 @@ export interface SanityImage {
   _key?: string;
   _type?: 'image';
   asset: {
-    _ref?: string;
-    _id?: string;
-    url?: string;
+    _type?: 'reference';
+    _ref: string;
   };
   alt?: string;
   caption?: string;

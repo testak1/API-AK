@@ -61,14 +61,12 @@ const query = `*[_type == "brand"]{
             applicableFuelTypes,
             stageCompatibility,
             description,
-            "gallery": gallery[]{
-              _key,
-              "asset": asset->{
-                _ref
-              },
-              alt,
-              caption
-            },
+"gallery": gallery[]{
+  _key,
+  asset,
+  alt,
+  caption
+},
             price,
             installationTime,
             compatibilityNotes
