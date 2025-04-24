@@ -43,6 +43,7 @@ export interface AktPlusOption {
   price: number;
   installationTime?: number;
   compatibilityNotes?: string;
+  manualAssignments?: Reference[];
 }
 
 export type AktPlusOptionReference = Reference | AktPlusOption;
