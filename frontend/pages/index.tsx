@@ -697,7 +697,7 @@ const renderStageDescription = (stage: Stage) => {
         </div>
       ) : (
         <div className="text-center py-12 bg-gray-800 rounded-xl">
-          <p className="text-gray-400">
+          <p className="text-white">
 EXTRA INFO RUTA KANSKE?
           </p>
         </div>
