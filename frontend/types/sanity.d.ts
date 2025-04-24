@@ -63,7 +63,7 @@ export interface Stage {
 export interface Engine {
   _id: string;
   label: string;
-  fuel: 'diesel' | 'petrol' | 'hybrid' | 'electric';
+  fuel: 'diesel' | 'bensin' | 'hybrid' | 'electric';
   stages: Stage[];
   globalAktPlusOptions?: AktPlusOptionReference[];
 }

@@ -8,7 +8,7 @@ export default function FuelTypeSelector(props) {
   
   const fuelOptions = [
     {id: 'diesel', title: 'Diesel'},
-    {id: 'petrol', title: 'Petrol'},
+    {id: 'bensin', title: 'Bensin'},
     {id: 'hybrid', title: 'Hybrid'},
     {id: 'electric', title: 'Electric'}
   ];
