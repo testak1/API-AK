@@ -585,7 +585,7 @@ const renderStageDescription = (stage: Stage) => {
                       </div>
                     </div>
 
-<div className="text-center text-white mt-6">
+<div className="text-center text-orange-600 text-sm">
   <p>Detta är en datorgenererad dyno-bild</p>
 </div>
 
