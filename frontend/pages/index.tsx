@@ -592,14 +592,15 @@ const renderStageDescription = (stage: Stage) => {
             onClick={() => toggleOption(option._id)}
             className="w-full flex justify-between items-center p-4 bg-gray-700 hover:bg-gray-600 transition-colors"
           >
-            <div className="flex items-center gap-3">
-              {/* OPTION ICON */}
-              <img
-                src={`/aktplus-icons/${option.slug?.current || 'default'}.png`}
-                alt={option.title}
-                className="h-6 w-6 object-contain"
-              />
-              <span className="font-medium text-white">{option.title}</span>
+<div className="flex items-center gap-3">
+  {option.gallery?.[0]?.asset && (
+    <img
+      src={urlFor(option.gallery[0].asset).width(32).url()}
+      alt={option.gallery[0].alt || option.title}
+      className="h-6 w-6 object-contain"
+    />
+  )}
+  <span className="font-medium text-white">{option.title}</span>
               {option.isUniversal && (
                 <span className="ml-2 px-2 py-1 bg-blue-900 text-blue-200 text-xs rounded-full">
                   Universal
