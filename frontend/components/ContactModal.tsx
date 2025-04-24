@@ -4,6 +4,12 @@ import { Fragment, useState } from 'react';
 interface ContactModalProps {
   isOpen: boolean;
   onClose: () => void;
+  selectedVehicle: {
+    brand: string;
+    model: string;
+    year: string;
+    engine: string;
+  };
 }
 
 export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
@@ -34,22 +40,28 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
             </div>
           )}
 
-          {contactMode === 'form' && (
-            <form className="space-y-4 text-left mt-4 text-white">
-              <input type="text" placeholder="Name" className="w-full p-2 rounded bg-gray-800 border border-gray-600" />
-              <input type="email" placeholder="Email" className="w-full p-2 rounded bg-gray-800 border border-gray-600" />
-              <input type="tel" placeholder="Phone Number" className="w-full p-2 rounded bg-gray-800 border border-gray-600" />
-              <textarea placeholder="Message" className="w-full p-2 rounded bg-gray-800 border border-gray-600" rows={3} />
-              <select className="w-full p-2 rounded bg-gray-800 border border-gray-600">
-                <option value="">Select Dealer</option>
-                <option value="goteborg">Göteborg</option>
-                <option value="stockholm">Stockholm</option>
-              </select>
-              <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">
-                Send Request
-              </button>
-            </form>
-          )}
+{contactMode === 'form' && (
+  <form className="space-y-4 text-left mt-4 text-white">
+    <div className="text-sm text-gray-400 mb-2">
+      Request for: <strong>{selectedVehicle.brand} {selectedVehicle.model} {selectedVehicle.year} – {selectedVehicle.engine}</strong>
+    </div>
+
+    <input type="text" placeholder="Name" className="w-full p-2 rounded bg-gray-800 border border-gray-600" />
+    <input type="email" placeholder="Email" className="w-full p-2 rounded bg-gray-800 border border-gray-600" />
+    <input type="tel" placeholder="Phone Number" className="w-full p-2 rounded bg-gray-800 border border-gray-600" />
+    <textarea placeholder="Message" className="w-full p-2 rounded bg-gray-800 border border-gray-600" rows={3} />
+
+    <select className="w-full p-2 rounded bg-gray-800 border border-gray-600">
+      <option value="">Select Dealer</option>
+      <option value="goteborg">Göteborg</option>
+      <option value="stockholm">Stockholm</option>
+    </select>
+
+    <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">
+      Send Request
+    </button>
+  </form>
+)}
 
           {contactMode === 'phone' && (
             <div className="text-left text-white mt-4 space-y-2">

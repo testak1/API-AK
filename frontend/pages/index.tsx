@@ -396,8 +396,11 @@ const renderStageDescription = (stage: Stage) => {
 
 
 
-<ContactModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
-
+<ContactModal
+  isOpen={isModalOpen}
+  onClose={() => setIsModalOpen(false)}
+  selectedVehicle={selected}
+/>
 
 
                 {isExpanded && (
