@@ -12,7 +12,7 @@ interface ContactModalProps {
   };
 }
 
-export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
+export default function ContactModal({ isOpen, onClose, selectedVehicle }: ContactModalProps) {
   const [contactMode, setContactMode] = useState<'form' | 'phone' | null>(null);
 
   return (
