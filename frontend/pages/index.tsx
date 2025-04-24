@@ -69,17 +69,15 @@ export default function TuningViewer() {
     return { brands, models, years, engines, selectedEngine, stages, groupedEngines };
   }, [data, selected]);
 
-  // Initialize expanded states when stages change
-useEffect(() => {
-  if (stages.length > 0) {
-    const initialExpandedStates = stages.reduce((acc, stage) => {
-      acc[stage.name] = stage.name === 'Steg 1';
-      return acc;
-    }, {} as Record<string, boolean>);
-    setExpandedStages(initialExpandedStates);
-  }
-}, [stages]);
-
+  useEffect(() => {
+    if (stages.length > 0) {
+      const initialExpandedStates = stages.reduce((acc, stage) => {
+        acc[stage.name] = stage.name === 'Steg 1';
+        return acc;
+      }, {} as Record<string, boolean>);
+      setExpandedStages(initialExpandedStates);
+    }
+  }, [stages]);
 
   const watermarkPlugin = {
     id: 'watermark',
@@ -109,27 +107,27 @@ useEffect(() => {
     return item && '_id' in item && 'title' in item;
   };
 
-const getAllAktPlusOptions = useMemo(() => (stage: Stage) => {
-  if (!selectedEngine) return [];
-  
-const filterOptions = (options: AktPlusOptionReference[] = []) => {
-  return (Array.isArray(options) ? options : [])
-    .filter(isExpandedAktPlusOption)
-    .filter(opt =>
-      opt.isUniversal ||
-      (opt.applicableFuelTypes?.includes(selectedEngine.fuel))
-    )
-    .filter(opt =>
-      !opt.stageCompatibility ||
-      opt.stageCompatibility.toLowerCase() === stage.name.toLowerCase()
-    );
-};
+  const getAllAktPlusOptions = useMemo(() => (stage: Stage) => {
+    if (!selectedEngine) return [];
+    
+    const filterOptions = (options: AktPlusOptionReference[] = []) => {
+      return (Array.isArray(options) ? options : [])
+        .filter(isExpandedAktPlusOption)
+        .filter(opt =>
+          opt.isUniversal ||
+          (opt.applicableFuelTypes?.includes(selectedEngine.fuel))
+        )
+        .filter(opt =>
+          !opt.stageCompatibility ||
+          opt.stageCompatibility.toLowerCase() === stage.name.toLowerCase()
+        );
+    };
 
-  const globalOptions = filterOptions(selectedEngine.globalAktPlusOptions);
-  const stageOptions = filterOptions(stage.aktPlusOptions);
-  
-  return [...globalOptions, ...stageOptions];
-}, [selectedEngine]);
+    const globalOptions = filterOptions(selectedEngine.globalAktPlusOptions);
+    const stageOptions = filterOptions(stage.aktPlusOptions);
+    
+    return [...globalOptions, ...stageOptions];
+  }, [selectedEngine]);
 
   const generateDynoCurve = (peakValue: number, isHp: boolean) => {
     const rpmRange = [2000, 3000, 4000, 5000, 6000, 7000];
@@ -193,6 +191,30 @@ const filterOptions = (options: AktPlusOptionReference[] = []) => {
         </a>
       )
     }
+  };
+
+  const renderStageDescription = (stage: Stage) => {
+    const description = stage.descriptionRef?.description || stage.description;
+    
+    if (!description) {
+      return (
+        <div className="mb-6 p-4 bg-gray-700 rounded-lg text-gray-400 italic">
+          No description available for this stage
+        </div>
+      );
+    }
+
+    return (
+      <div className="mb-6">
+        <div className="prose prose-invert max-w-none p-4 bg-gray-700 rounded-lg">
+          {typeof description === 'string' ? (
+            <p>{description}</p>
+          ) : (
+            <PortableText value={description} components={portableTextComponents} />
+          )}
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -328,30 +350,9 @@ const filterOptions = (options: AktPlusOptionReference[] = []) => {
                   </div>
                 </button>
 
-{isExpanded && (
-  <div className="px-6 pb-6">
-    {/* Check both stage.description and stage.descriptionRef.description */}
-    {(stage.description || stage.descriptionRef?.description) && (
-      <div className="mb-6">
-        <div className="prose prose-invert max-w-none p-4 bg-gray-700 rounded-lg">
-          {/* First try descriptionRef if it exists */}
-          {stage.descriptionRef?.description ? (
-            <p>{stage.descriptionRef.description}</p>
-          ) : stage.description ? (
-            Array.isArray(stage.description) ? (
-              <PortableText value={stage.description} components={portableTextComponents} />
-            ) : (
-              <p>{stage.description}</p>
-            )
-          ) : null}
-        </div>
-      </div>
-    )}
-    {!stage.description && !stage.descriptionRef?.description && (
-      <div className="mb-6 p-4 bg-gray-700 rounded-lg text-gray-400 italic">
-        No description available for this stage
-      </div>
-    )}
+                {isExpanded && (
+                  <div className="px-6 pb-6">
+                    {renderStageDescription(stage)}
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                       <div className="border border-gray-700 rounded-lg p-3 text-center">
