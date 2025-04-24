@@ -1,9 +1,7 @@
-// lib/sanity.ts
 import { createClient, type ClientConfig, type SanityClient } from '@sanity/client';
 import imageUrlBuilder from '@sanity/image-url';
 import type { Brand } from '@/types/sanity';
 
-// Define Reference type locally since we're not importing it
 interface Reference {
   _type: 'reference';
   _ref: string;
@@ -25,7 +23,7 @@ const config: ClientConfig = {
   apiVersion: '2025-04-23',
   useCdn: process.env.NODE_ENV === 'production',
   token: process.env.SANITY_API_TOKEN,
-  ignoreBrowserTokenWarning: true
+  ignoreBrowserTokenWarning: true,
 };
 
 const client: SanityClient = createClient(config);
@@ -51,14 +49,14 @@ export async function getAllBrandsWithDetails(): Promise<Brand[]> {
       name,
       "years": years[]{
         range,
-        "engines": engines[]{
+        "engines": engines[]->{
           _id,
           fuel,
           label,
-          // Auto-deployed global options (for all stages)
+          // Auto-deployed global options
           "globalAktPlusOptions": *[_type == "aktPlus" && (
-            isUniversal == true || 
-            ^.fuel in applicableFuelTypes || 
+            isUniversal == true ||
+            ^.fuel in applicableFuelTypes ||
             ^._id in manualAssignments[]._ref
           ) && !defined(stageCompatibility)]{
             _id,
@@ -80,7 +78,6 @@ export async function getAllBrandsWithDetails(): Promise<Brand[]> {
             installationTime,
             compatibilityNotes
           },
-          // Auto-deployed stage-specific options
           "stages": stages[]{
             name,
             origHk,
@@ -95,8 +92,8 @@ export async function getAllBrandsWithDetails(): Promise<Brand[]> {
               description
             },
             "aktPlusOptions": *[_type == "aktPlus" && (
-              isUniversal == true || 
-              ^.^.fuel in applicableFuelTypes || 
+              isUniversal == true ||
+              ^.^.fuel in applicableFuelTypes ||
               ^.^._id in manualAssignments[]._ref
             ) && (
               !defined(stageCompatibility) || 
@@ -139,7 +136,6 @@ export async function getAllBrandsWithDetails(): Promise<Brand[]> {
   }
 }
 
-// Utility functions
 export async function getBrandBySlug(slug: string): Promise<Brand | null> {
   const query = `*[_type == "brand" && slug.current == $slug][0]`;
   return client.fetch<Brand | null>(query, { slug });

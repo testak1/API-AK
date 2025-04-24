@@ -1,4 +1,3 @@
-// types/sanity.d.ts
 import type { PortableTextBlock } from '@portabletext/types';
 
 export interface SanityImage {
@@ -27,7 +26,6 @@ export interface StageDescription {
   _type: 'stageDescription';
   stageName: string;
   description: PortableTextBlock[] | string;
-  // Add any other fields that might exist in your stage descriptions
 }
 
 export interface AktPlusOption {
@@ -70,7 +68,7 @@ export interface Engine {
 
 export interface Year {
   range: string;
-  engines: Engine[];
+  engines: Engine[]; // These are now dereferenced via GROQ -> in the query
 }
 
 export interface Model {
@@ -106,10 +104,8 @@ declare module '@sanity/image-url' {
 
 declare module '@/lib/sanity' {
   export const client: import('@sanity/client').SanityClient;
-  
+
   export function urlFor(source: import('sanity').SanityImageSource): import('@sanity/image-url').ImageUrlBuilder;
-  
+
   export function getAllBrandsWithDetails(): Promise<Brand[]>;
-  
-  // Add any other Sanity utility functions you use
 }
