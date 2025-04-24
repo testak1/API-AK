@@ -349,34 +349,47 @@ const renderStageDescription = (stage: Stage) => {
                   onClick={() => toggleStage(stage.name)}
                   className="w-full p-6 text-left"
                 >
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-                    <div>
-                      <h2 className="text-xl font-semibold text-white">
-                        <span className="text-indigo-400">{stage.name}</span> - {selected.engine}
-                      </h2>
-                      <p className="text-gray-400 text-sm mt-1">
-                        {selected.brand} {selected.model} {selected.year}
-                      </p>
-                    </div>
-                    <div className="mt-3 md:mt-0 flex items-center">
-                      <span className="inline-block bg-blue-900 text-blue-200 px-3 py-1 rounded-full text-sm font-medium mr-4">
-                        {stage.price?.toLocaleString()} kr
-                      </span>
-                      <svg
-                        className={`h-5 w-5 text-gray-400 transition-transform ${
-                          isExpanded ? 'rotate-180' : ''
-                        }`}
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </div>
-                  </div>
+<div className="flex flex-col md:flex-row md:items-center md:justify-between">
+  <div className="flex items-center space-x-4">
+    <h2 className="text-xl font-semibold text-white">
+      <span className="text-indigo-400">{stage.name}</span> - {selected.engine}
+    </h2>
+    {/* Brand logo */}
+    {data.find(b => b.name === selected.brand)?.logo?.asset && (
+      <img
+        src={urlFor(data.find(b => b.name === selected.brand)?.logo).width(60).url()}
+        alt={selected.brand}
+        className="h-8 object-contain"
+      />
+    )}
+  </div>
+  
+  <div className="mt-3 md:mt-0 flex items-center gap-4">
+    {/* Stage badge image */}
+    <img
+      src={`/badges/${stage.name.toLowerCase().replace(/\s+/g, '')}.png`} // e.g. steg1.png
+      alt={stage.name}
+      className="h-8 object-contain"
+    />
+    <span className="inline-block bg-blue-900 text-blue-200 px-3 py-1 rounded-full text-sm font-medium">
+      {stage.price?.toLocaleString()} kr
+    </span>
+    <svg
+      className={`h-5 w-5 text-gray-400 transition-transform ${
+        isExpanded ? 'rotate-180' : ''
+      }`}
+      viewBox="0 0 20 20"
+      fill="currentColor"
+    >
+      <path
+        fillRule="evenodd"
+        d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+        clipRule="evenodd"
+      />
+    </svg>
+  </div>
+</div>
+
                 </button>
 
                 {isExpanded && (
@@ -560,91 +573,124 @@ const renderStageDescription = (stage: Stage) => {
                       </div>
                     </div>
 
-                    {allOptions.length > 0 && (
-                      <div className="mt-8">
-                        <h3 className="text-lg font-medium text-red-400 mb-4 border-b border-gray-600 pb-2">
-                          AKT+ OPTIONS
-                        </h3>
-                        
-                        <div className="space-y-4">
-                          {allOptions.map((option) => (
-                            <div key={option._id} className="border border-gray-600 rounded-lg overflow-hidden">
-                              <button
-                                onClick={() => toggleOption(option._id)}
-                                className="w-full flex justify-between items-center p-4 bg-gray-700 hover:bg-gray-600 transition-colors"
-                              >
-                                <div className="flex items-center">
-                                  <span className="font-medium text-white">{option.title}</span>
-                                  {option.isUniversal && (
-                                    <span className="ml-2 px-2 py-1 bg-blue-900 text-blue-200 text-xs rounded-full">
-                                      Universal
-                                    </span>
-                                  )}
-                                </div>
-                                <svg
-                                  className={`h-5 w-5 text-gray-400 transition-transform ${
-                                    expandedOptions[option._id] ? 'rotate-180' : ''
-                                  }`}
-                                  viewBox="0 0 20 20"
-                                  fill="currentColor"
-                                >
-                                  <path
-                                    fillRule="evenodd"
-                                    d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-                                    clipRule="evenodd"
-                                  />
-                                </svg>
-                              </button>
+{allOptions.length > 0 && (
+  <div className="mt-8">
+    {/* AKT+ HEADER WITH LOGO */}
+    <div className="flex items-center gap-4 mb-4">
+      <img
+        src="/logos/aktplus.png"
+        alt="AKT+ Logo"
+        className="h-10 w-auto object-contain"
+      />
+      <h3 className="text-xl font-semibold text-white">AKT+ Upgrades</h3>
+    </div>
+
+    <div className="space-y-4">
+      {allOptions.map((option) => (
+        <div key={option._id} className="border border-gray-600 rounded-lg overflow-hidden">
+          <button
+            onClick={() => toggleOption(option._id)}
+            className="w-full flex justify-between items-center p-4 bg-gray-700 hover:bg-gray-600 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              {/* OPTION ICON */}
+              <img
+                src={`/aktplus-icons/${option.slug?.current || 'default'}.png`}
+                alt={option.title}
+                className="h-6 w-6 object-contain"
+              />
+              <span className="font-medium text-white">{option.title}</span>
+              {option.isUniversal && (
+                <span className="ml-2 px-2 py-1 bg-blue-900 text-blue-200 text-xs rounded-full">
+                  Universal
+                </span>
+              )}
+            </div>
+            <svg
+              className={`h-5 w-5 text-gray-400 transition-transform ${
+                expandedOptions[option._id] ? 'rotate-180' : ''
+              }`}
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </button>
                               
-                              {expandedOptions[option._id] && (
-                                <div className="p-4 bg-gray-800">
-                                  {option.description && (
-                                    <div className="prose prose-invert max-w-none">
-                                      <PortableText
-                                        value={option.description}
-                                        components={portableTextComponents}
-                                      />
-                                    </div>
-                                  )}
-                                  
-                                  {option.gallery && option.gallery.length > 0 && (
-                                    <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
-                                      {option.gallery.map((image) => (
-                                        <img 
-                                          key={image._key}
-                                          src={urlFor(image).width(600).url()}
-                                          alt={image.alt || option.title}
-                                          className="rounded-lg object-cover h-40 w-full"
-                                          loading="lazy"
-                                        />
-                                      ))}
-                                    </div>
-                                  )}
-                                  
-                                  <div className="mt-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                                    <div>
-                                      {option.price && (
-                                        <p className="text-lg font-semibold text-green-400">
-                                          Additional Cost: +{option.price.toLocaleString()} SEK
-                                        </p>
-                                      )}
-                                      {option.installationTime && (
-                                        <p className="text-sm text-gray-300">
-                                          Installation Time: ~{option.installationTime} hours
-                                        </p>
-                                      )}
-                                      {option.compatibilityNotes && (
-                                        <p className="text-sm text-yellow-300 mt-2">
-                                          Note: {option.compatibilityNotes}
-                                        </p>
-                                      )}
-                                    </div>
-                                    <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white transition-colors whitespace-nowrap">
-                                      Contact us for details
-                                    </button>
-                                  </div>
-                                </div>
-                              )}
+{expandedOptions[option._id] && (
+  <div className="p-4 bg-gray-800">
+    
+    {/* AKT+ Header with logo and title */}
+    <div className="flex items-center mb-4 gap-4">
+      <img
+        src="/logos/aktplus.png"
+        alt="AKT+"
+        className="h-8 w-auto object-contain"
+      />
+      <h4 className="text-lg font-semibold text-white uppercase tracking-wide">
+        AKT+ Option Details
+      </h4>
+    </div>
+
+    {/* Option icon/image (based on slug) */}
+    <div className="mb-4">
+      <img
+        src={`/aktplus-icons/${option.slug?.current || 'default'}.png`}
+        alt={option.title}
+        className="h-12 w-auto object-contain"
+      />
+    </div>
+
+    {/* Rich Text Description */}
+    {option.description && (
+      <div className="prose prose-invert max-w-none mb-4">
+        <PortableText
+          value={option.description}
+          components={portableTextComponents}
+        />
+      </div>
+    )}
+
+    {/* Gallery Images */}
+    {option.gallery && option.gallery.length > 0 && (
+      <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
+        {option.gallery.map((image) => (
+          <img
+            key={image._key}
+            src={urlFor(image).width(600).url()}
+            alt={image.alt || option.title}
+            className="rounded-lg object-cover h-40 w-full"
+            loading="lazy"
+          />
+        ))}
+      </div>
+    )}
+
+    {/* Info and CTA */}
+    <div className="mt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div>
+        {option.price && (
+          <p className="text-lg font-semibold text-green-400">
+            Additional Cost: +{option.price.toLocaleString()} SEK
+          </p>
+        )}
+        {option.compatibilityNotes && (
+          <p className="text-sm text-yellow-300 mt-2">
+            Note: {option.compatibilityNotes}
+          </p>
+        )}
+      </div>
+      <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white transition-colors whitespace-nowrap">
+        Contact us for details
+      </button>
+    </div>
+  </div>
+)}
+
                             </div>
                           ))}
                         </div>
