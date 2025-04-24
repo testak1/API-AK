@@ -579,12 +579,12 @@ const renderStageDescription = (stage: Stage) => {
                           plugins={[watermarkPlugin]}
                         />
 
-                        <div className="text-center text-white mt-6">
-                          <p>Detta är en datorgenererad dyno-bild</p>
-                        </div>
+<div className="text-center text-white mt-6">
+  <p>Detta är en datorgenererad dyno-bild</p>
+</div>
 
-
-<div className="my-8 flex justify-center">
+{/* Add spacer */}
+<div className="mt-6 mb-10 flex justify-center">
   <button
     onClick={() => setIsContactModalOpen(true)}
     className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg transition-colors"
