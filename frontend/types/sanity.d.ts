@@ -1,3 +1,4 @@
+// types/sanity.d.ts
 import type { PortableTextBlock } from '@portabletext/types';
 
 export interface SanityImage {
@@ -5,7 +6,9 @@ export interface SanityImage {
   _type?: 'image';
   asset: {
     _type?: 'reference';
-    _ref: string;
+    _ref?: string;
+    _id?: string;
+    url?: string;
   };
   alt?: string;
   caption?: string;
@@ -61,9 +64,9 @@ export interface Stage {
 }
 
 export interface Engine {
-  _id?: string; // Optional if generated dynamically in nested objects
+  _id?: string;
   label: string;
-  fuel: 'diesel' | 'bensin' | 'hybrid' | 'electric';
+  fuel: 'Diesel' | 'Bensin' | 'Hybrid' | 'Electric'; // Capitalized for frontend display
   stages: Stage[];
   globalAktPlusOptions?: AktPlusOptionReference[];
 }
@@ -91,7 +94,7 @@ export interface Brand {
   models: Model[];
 }
 
-// Image URL builder types
+// Sanity Image URL Builder Support
 declare module '@sanity/image-url' {
   interface ImageUrlBuilder {
     image(source: SanityImageSource): this;

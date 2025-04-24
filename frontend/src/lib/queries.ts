@@ -3,6 +3,10 @@ export const allBrandsQuery = `*[_type == "brand"]{
   _id,
   name,
   "slug": slug.current,
+  logo {
+    asset,
+    alt
+  },
   "models": models[]{
     name,
     "years": years[]{
@@ -17,7 +21,18 @@ export const allBrandsQuery = `*[_type == "brand"]{
         ) && !defined(stageCompatibility)]{
           _id,
           title,
-          price
+          price,
+          isUniversal,
+          applicableFuelTypes,
+          stageCompatibility,
+          "gallery": gallery[]{
+            _key,
+            asset,
+            alt,
+            caption
+          },
+          installationTime,
+          compatibilityNotes
         },
         "stages": stages[]{
           name,
@@ -35,7 +50,18 @@ export const allBrandsQuery = `*[_type == "brand"]{
           )]{
             _id,
             title,
-            price
+            price,
+            isUniversal,
+            applicableFuelTypes,
+            stageCompatibility,
+            "gallery": gallery[]{
+              _key,
+              asset,
+              alt,
+              caption
+            },
+            installationTime,
+            compatibilityNotes
           }
         }
       }
