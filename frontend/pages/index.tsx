@@ -70,15 +70,16 @@ export default function TuningViewer() {
   }, [data, selected]);
 
   // Initialize expanded states when stages change
-  useEffect(() => {
-    if (stages.length > 0) {
-      const initialExpandedStates = stages.reduce((acc, stage) => {
-        acc[stage.name] = stage.name.toLowerCase() === 'Steg 1';
-        return acc;
-      }, {} as Record<string, boolean>);
-      setExpandedStages(initialExpandedStates);
-    }
-  }, [stages]);
+useEffect(() => {
+  if (stages.length > 0) {
+    const initialExpandedStates = stages.reduce((acc, stage) => {
+      acc[stage.name] = stage.name === 'Steg 1';
+      return acc;
+    }, {} as Record<string, boolean>);
+    setExpandedStages(initialExpandedStates);
+  }
+}, [stages]);
+
 
   const watermarkPlugin = {
     id: 'watermark',
