@@ -51,7 +51,25 @@ export default function TuningViewer() {
     fetchData();
   }, []);
 
-  // Initialize expanded states when stages change
+  const { brands, models, years, engines, selectedEngine, stages, groupedEngines } = useMemo(() => {
+    const brands = data.map(b => b.name);
+    const models = data.find(b => b.name === selected.brand)?.models || [];
+    const years = models.find(m => m.name === selected.model)?.years || [];
+    const engines = years.find(y => y.range === selected.year)?.engines || [];
+    const selectedEngine = engines.find(e => e.label === selected.engine);
+    const stages = selectedEngine?.stages || [];
+
+    const groupedEngines = engines.reduce((acc, engine) => {
+      const fuelType = engine.fuel;
+      if (!acc[fuelType]) acc[fuelType] = [];
+      acc[fuelType].push(engine);
+      return acc;
+    }, {} as Record<string, typeof engines>);
+
+    return { brands, models, years, engines, selectedEngine, stages, groupedEngines };
+  }, [data, selected]);
+
+  // Initialize expanded states when stages change - moved after stages declaration
   useEffect(() => {
     if (stages.length > 0) {
       const initialExpandedStates = stages.reduce((acc, stage) => {
@@ -85,24 +103,6 @@ export default function TuningViewer() {
       }
     }
   };
-
-  const { brands, models, years, engines, selectedEngine, stages, groupedEngines } = useMemo(() => {
-    const brands = data.map(b => b.name);
-    const models = data.find(b => b.name === selected.brand)?.models || [];
-    const years = models.find(m => m.name === selected.model)?.years || [];
-    const engines = years.find(y => y.range === selected.year)?.engines || [];
-    const selectedEngine = engines.find(e => e.label === selected.engine);
-    const stages = selectedEngine?.stages || [];
-
-    const groupedEngines = engines.reduce((acc, engine) => {
-      const fuelType = engine.fuel;
-      if (!acc[fuelType]) acc[fuelType] = [];
-      acc[fuelType].push(engine);
-      return acc;
-    }, {} as Record<string, typeof engines>);
-
-    return { brands, models, years, engines, selectedEngine, stages, groupedEngines };
-  }, [data, selected]);
 
   const isExpandedAktPlusOption = (item: any): item is AktPlusOption => {
     return item && '_id' in item && 'title' in item;
