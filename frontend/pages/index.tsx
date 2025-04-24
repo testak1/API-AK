@@ -31,6 +31,7 @@ export default function TuningViewer() {
   const [expandedOptions, setExpandedOptions] = useState<Record<string, boolean>>({});
   const watermarkImageRef = useRef<HTMLImageElement | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
   useEffect(() => {
     const img = new Image();
@@ -696,6 +697,19 @@ const renderStageDescription = (stage: Stage) => {
           </p>
         </div>
       )}
+
+<ContactModal
+  isOpen={isContactModalOpen}
+  onClose={() => setIsContactModalOpen(false)}
+  selectedVehicle={{
+    brand: selected.brand,
+    model: selected.model,
+    year: selected.year,
+    engine: selected.engine
+  }}
+/>
+</div>
+
     </div>
   );
 }
