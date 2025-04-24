@@ -14,16 +14,27 @@ export interface Reference {
   _type: 'reference';
   _ref: string;
   _key?: string;
+  _weak?: boolean;
+}
+
+export interface Slug {
+  _type: 'slug';
+  current: string;
+}
+
+export interface StageDescription {
+  _id: string;
+  _type: 'stageDescription';
+  stageName: string;
+  description: PortableTextBlock[] | string;
+  // Add any other fields that might exist in your stage descriptions
 }
 
 export interface AktPlusOption {
   _id: string;
   _type: 'aktPlus';
   title: string;
-  slug: {
-    _type: 'slug';
-    current: string;
-  };
+  slug: Slug;
   isUniversal: boolean;
   applicableFuelTypes: string[];
   stageCompatibility?: string;
@@ -44,7 +55,7 @@ export interface Stage {
   tunedNm: number;
   price: number;
   description?: PortableTextBlock[];
-  descriptionRef?: Reference;
+  descriptionRef?: StageDescription | null;
   aktPlusOptions?: AktPlusOptionReference[];
 }
 
@@ -69,22 +80,34 @@ export interface Brand {
   _id: string;
   _type: 'brand';
   name: string;
-  slug: {
-    _type: 'slug';
-    current: string;
-  };
+  slug: Slug;
   logo?: {
     _type: 'image';
-    asset: {
-      _ref: string;
-    };
+    asset: Reference;
     alt?: string;
   };
   models: Model[];
 }
 
+// Image URL builder types
+declare module '@sanity/image-url' {
+  interface ImageUrlBuilder {
+    image(source: SanityImageSource): this;
+    width(pixels: number): this;
+    height(pixels: number): this;
+    fit(mode: 'clip' | 'crop' | 'fill' | 'fillmax' | 'max' | 'scale' | 'min'): this;
+    quality(percentage: number): this;
+    format(type: 'jpg' | 'png' | 'webp' | 'avif'): this;
+    url(): string;
+  }
+}
+
 declare module '@/lib/sanity' {
   export const client: import('@sanity/client').SanityClient;
+  
   export function urlFor(source: import('sanity').SanityImageSource): import('@sanity/image-url').ImageUrlBuilder;
+  
   export function getAllBrandsWithDetails(): Promise<Brand[]>;
+  
+  // Add any other Sanity utility functions you use
 }
