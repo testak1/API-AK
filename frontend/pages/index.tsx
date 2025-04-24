@@ -584,7 +584,7 @@ const renderStageDescription = (stage: Stage) => {
                         </div>
 
 
-<div class="mt-6">
+<div className="mt-6 flex justify-center">
   <button
     onClick={() => setIsContactModalOpen(true)}
     className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg transition-colors"
@@ -598,7 +598,7 @@ const renderStageDescription = (stage: Stage) => {
                     </div>
 
 {allOptions.length > 0 && (
-  <div class="mt-16">
+  <div className="mt-8">
     {/* AKT+ HEADER WITH LOGO */}
     <div className="flex items-center gap-4 mb-4">
       <img
