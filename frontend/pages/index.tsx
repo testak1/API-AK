@@ -624,31 +624,7 @@ const renderStageDescription = (stage: Stage) => {
                               
 {expandedOptions[option._id] && (
   <div className="p-4 bg-gray-800">
-    {/* REMOVE THIS REDUNDANT IMAGE */}
-    {/* <div className="mb-4">
-      <img
-        src={`/aktplus-icons/${option.slug?.current || 'default'}.png`}
-        alt={option.title}
-        className="h-12 w-auto object-contain"
-      />
-    </div> */}
-
-    {/* Header with logo and title only */}
-    <div className="flex items-center mb-4 gap-4">
-      <img
-        src="/logos/aktplus.png"
-        alt="AKT+"
-        className="h-8 w-auto object-contain"
-      />
-      <h4 className="text-lg font-semibold text-white uppercase tracking-wide">
-        AKT+ Option Details
-      </h4>
-    </div>
-
-    {/* REMOVE BLACK TEXT LABEL */}
-    {/* <p className="text-black">{option.title}</p> */}
-
-    {/* Rich Text Description */}
+    {/* Description Text */}
     {option.description && (
       <div className="prose prose-invert max-w-none mb-4">
         <PortableText
@@ -658,30 +634,14 @@ const renderStageDescription = (stage: Stage) => {
       </div>
     )}
 
-    {/* Gallery Images */}
-{option.gallery && option.gallery.length > 0 && (
-  <div className="mt-4 flex justify-center">
-    <img
-      key={option.gallery[0]._key}
-      src={urlFor(option.gallery[0].asset).width(200).url()}
-      alt={option.gallery[0].alt || option.title}
-      className="h-24 w-auto object-contain"
-      loading="lazy"
-    />
-  </div>
-)}
+    {/* Gallery removed */}
 
-    {/* Info and CTA */}
+    {/* Cost and CTA */}
     <div className="mt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <div>
         {option.price && (
           <p className="text-lg font-semibold text-green-400">
-            Additional Cost: +{option.price.toLocaleString()} SEK
-          </p>
-        )}
-        {option.compatibilityNotes && (
-          <p className="text-sm text-yellow-300 mt-2">
-            Note: {option.compatibilityNotes}
+            KOSTNAD: {option.price.toLocaleString()} KR
           </p>
         )}
       </div>
