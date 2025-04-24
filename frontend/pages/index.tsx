@@ -702,6 +702,6 @@ const renderStageDescription = (stage: Stage) => {
           engine: selected.engine
         }}
       />
-    </div> 
+    </div> {/* Closing the main wrapper div */}
   );
 }
