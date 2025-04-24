@@ -328,15 +328,30 @@ const filterOptions = (options: AktPlusOptionReference[] = []) => {
                   </div>
                 </button>
 
-                {isExpanded && (
-                  <div className="px-6 pb-6">
-                    {stage.descriptionRef && (
-                      <div className="mb-6">
-                        <div className="prose prose-invert max-w-none p-4 bg-gray-700 rounded-lg">
-                          <PortableText value={stage.descriptionRef} components={portableTextComponents} />
-                        </div>
-                      </div>
-                    )}
+{isExpanded && (
+  <div className="px-6 pb-6">
+    {/* Check both stage.description and stage.descriptionRef.description */}
+    {(stage.description || stage.descriptionRef?.description) && (
+      <div className="mb-6">
+        <div className="prose prose-invert max-w-none p-4 bg-gray-700 rounded-lg">
+          {/* First try descriptionRef if it exists */}
+          {stage.descriptionRef?.description ? (
+            <p>{stage.descriptionRef.description}</p>
+          ) : stage.description ? (
+            Array.isArray(stage.description) ? (
+              <PortableText value={stage.description} components={portableTextComponents} />
+            ) : (
+              <p>{stage.description}</p>
+            )
+          ) : null}
+        </div>
+      </div>
+    )}
+    {!stage.description && !stage.descriptionRef?.description && (
+      <div className="mb-6 p-4 bg-gray-700 rounded-lg text-gray-400 italic">
+        No description available for this stage
+      </div>
+    )}
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                       <div className="border border-gray-700 rounded-lg p-3 text-center">
