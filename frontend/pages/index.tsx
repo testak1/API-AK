@@ -628,12 +628,7 @@ const renderStageDescription = (stage: Stage) => {
       className="h-10 w-10 object-contain"
     />
   )}
-  <span className="text-lg font-bold text-orange-600">{option.title}</span>
-              {option.isUniversal && (
-                <span className="ml-2 px-2 py-1 bg-blue-900 text-blue-200 text-xs rounded-full">
-                  Universal
-                </span>
-              )}
+
             </div>
             <svg
               className={`h-5 w-5 text-orange-600 transition-transform ${
