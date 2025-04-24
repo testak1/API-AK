@@ -668,8 +668,8 @@ const renderStageDescription = (stage: Stage) => {
     <div className="mt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <div>
         {option.price && (
-          <p className="text-lg font-semibold text-green-400">
-            KOSTNAD: {option.price.toLocaleString()} KR
+          <p className="font-bold text-green-400">
+            Pris: {option.price.toLocaleString()} kr
           </p>
         )}
       </div>
@@ -677,7 +677,7 @@ const renderStageDescription = (stage: Stage) => {
   onClick={() => setIsModalOpen(true)}
   className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white transition-colors whitespace-nowrap"
 >
-  Contact us for details
+  📩 BOKA/KONTAKTA OSS
 </button>
     </div>
   </div>
