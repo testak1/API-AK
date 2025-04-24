@@ -49,18 +49,15 @@ export async function getAllBrandsWithDetails(): Promise<Brand[]> {
       name,
       "years": years[]{
         range,
-        "engines": engines[]->{
-          _id,
-          fuel,
+        "engines": engines[]{
+          _key,
           label,
-          // Auto-deployed global options
+          fuel,
           "globalAktPlusOptions": *[_type == "aktPlus" && (
             isUniversal == true ||
-            ^.fuel in applicableFuelTypes ||
-            ^._id in manualAssignments[]._ref
+            ^.fuel in applicableFuelTypes
           ) && !defined(stageCompatibility)]{
             _id,
-            _type,
             title,
             isUniversal,
             applicableFuelTypes,
@@ -93,14 +90,12 @@ export async function getAllBrandsWithDetails(): Promise<Brand[]> {
             },
             "aktPlusOptions": *[_type == "aktPlus" && (
               isUniversal == true ||
-              ^.^.fuel in applicableFuelTypes ||
-              ^.^._id in manualAssignments[]._ref
+              ^.^.fuel in applicableFuelTypes
             ) && (
               !defined(stageCompatibility) || 
               stageCompatibility == ^.name
             )]{
               _id,
-              _type,
               title,
               isUniversal,
               applicableFuelTypes,
@@ -141,16 +136,9 @@ export async function getBrandBySlug(slug: string): Promise<Brand | null> {
   return client.fetch<Brand | null>(query, { slug });
 }
 
+// No longer valid if engine is not a document type
 export async function getEngineById(engineId: string): Promise<any> {
-  const query = `*[_type == "engine" && _id == $engineId][0]{
-    ...,
-    "brand": *[_type == "brand" && references(^._id)][0]{
-      _id,
-      name,
-      slug
-    }
-  }`;
-  return client.fetch(query, { engineId });
+  return null; // or remove this function entirely
 }
 
 export default client;

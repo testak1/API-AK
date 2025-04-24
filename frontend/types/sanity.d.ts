@@ -34,7 +34,7 @@ export interface AktPlusOption {
   title: string;
   slug: Slug;
   isUniversal: boolean;
-  applicableFuelTypes: string[];
+  applicableFuelTypes?: string[];
   stageCompatibility?: string;
   description?: PortableTextBlock[];
   gallery?: SanityImage[];
@@ -59,7 +59,7 @@ export interface Stage {
 }
 
 export interface Engine {
-  _id: string;
+  _id?: string; // Optional if generated dynamically in nested objects
   label: string;
   fuel: 'diesel' | 'bensin' | 'hybrid' | 'electric';
   stages: Stage[];
@@ -68,7 +68,7 @@ export interface Engine {
 
 export interface Year {
   range: string;
-  engines: Engine[]; // These are now dereferenced via GROQ -> in the query
+  engines: Engine[];
 }
 
 export interface Model {
@@ -104,8 +104,6 @@ declare module '@sanity/image-url' {
 
 declare module '@/lib/sanity' {
   export const client: import('@sanity/client').SanityClient;
-
   export function urlFor(source: import('sanity').SanityImageSource): import('@sanity/image-url').ImageUrlBuilder;
-
   export function getAllBrandsWithDetails(): Promise<Brand[]>;
 }
