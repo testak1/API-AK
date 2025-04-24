@@ -12,7 +12,10 @@ interface Reference {
 interface SanityImage {
   _key?: string;
   _type: 'image';
-  asset: Reference;
+  asset: {
+    _id: string;
+    url: string;
+  };
   alt?: string;
   caption?: string;
 }
@@ -40,7 +43,10 @@ export async function getAllBrandsWithDetails(): Promise<Brand[]> {
     name,
     "slug": slug.current,
     logo {
-      asset,
+      "asset": asset->{
+        _id,
+        url
+      },
       alt
     },
     "models": models[]{
@@ -63,9 +69,12 @@ export async function getAllBrandsWithDetails(): Promise<Brand[]> {
             description,
             "gallery": gallery[]{
               _key,
-              asset,
               alt,
-              caption
+              caption,
+              "asset": asset->{
+                _id,
+                url
+              }
             },
             price,
             installationTime,
@@ -99,9 +108,12 @@ export async function getAllBrandsWithDetails(): Promise<Brand[]> {
               description,
               "gallery": gallery[]{
                 _key,
-                asset,
                 alt,
-                caption
+                caption,
+                "asset": asset->{
+                  _id,
+                  url
+                }
               },
               price,
               installationTime,

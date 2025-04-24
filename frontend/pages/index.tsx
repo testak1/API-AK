@@ -659,13 +659,13 @@ const renderStageDescription = (stage: Stage) => {
     {option.gallery && option.gallery.length > 0 && (
       <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
         {option.gallery.map((image) => (
-          <img
-            key={image._key}
-            src={urlFor(image).width(600).url()}
-            alt={image.alt || option.title}
-            className="rounded-lg object-cover h-40 w-full"
-            loading="lazy"
-          />
+<img
+  key={image._key}
+  src={image.asset.url}
+  alt={image.alt || option.title}
+  className="rounded-lg object-cover h-40 w-full"
+  loading="lazy"
+/>
         ))}
       </div>
     )}
