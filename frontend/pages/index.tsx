@@ -708,6 +708,6 @@ const renderStageDescription = (stage: Stage) => {
           engine: selected.engine
         }}
       />
-    </div> {/* ← this is the final wrapper div */}
+    </div>
   );
 }
