@@ -595,9 +595,9 @@ const renderStageDescription = (stage: Stage) => {
 <div className="flex items-center gap-3">
   {option.gallery?.[0]?.asset && (
     <img
-      src={urlFor(option.gallery[0].asset).width(32).url()}
+      src={urlFor(option.gallery[0].asset).width(80).url()}
       alt={option.gallery[0].alt || option.title}
-      className="h-6 w-6 object-contain"
+      className="h-10 w-10 object-contain"
     />
   )}
   <span className="font-medium text-white">{option.title}</span>
