@@ -73,7 +73,7 @@ export default function TuningViewer() {
   useEffect(() => {
     if (stages.length > 0) {
       const initialExpandedStates = stages.reduce((acc, stage) => {
-        acc[stage.name] = stage.name.toLowerCase() === 'stage 1';
+        acc[stage.name] = stage.name.toLowerCase() === 'Steg 1';
         return acc;
       }, {} as Record<string, boolean>);
       setExpandedStages(initialExpandedStates);
