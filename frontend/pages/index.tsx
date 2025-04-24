@@ -690,7 +690,7 @@ const renderStageDescription = (stage: Stage) => {
             );
           })}
         </div>
-      ) : }
+
 
       <ContactModal
         isOpen={isContactModalOpen}
