@@ -34,15 +34,15 @@ export function urlFor(source: SanityImage | Reference | string) {
 }
 
 export async function getAllBrandsWithDetails(): Promise<Brand[]> {
-const query = `*[_type == "brand"]{
-  _id,
-  _type,
-  name,
-  "slug": slug.current,
-  logo {
-    asset->,
-    alt
-  },
+  const query = `*[_type == "brand"]{
+    _id,
+    _type,
+    name,
+    "slug": slug.current,
+    logo {
+      asset,
+      alt
+    },
     "models": models[]{
       name,
       "years": years[]{
@@ -61,12 +61,12 @@ const query = `*[_type == "brand"]{
             applicableFuelTypes,
             stageCompatibility,
             description,
-"gallery": gallery[]{
-  _key,
-  asset,
-  alt,
-  caption
-},
+            "gallery": gallery[]{
+              _key,
+              asset,
+              alt,
+              caption
+            },
             price,
             installationTime,
             compatibilityNotes
@@ -96,12 +96,10 @@ const query = `*[_type == "brand"]{
               isUniversal,
               applicableFuelTypes,
               stageCompatibility,
-"gallery": gallery[]{
-  _key,
-  alt,
-  caption,
-  asset
-},
+              description,
+              "gallery": gallery[]{
+                _key,
+                asset,
                 alt,
                 caption
               },
@@ -134,7 +132,7 @@ export async function getBrandBySlug(slug: string): Promise<Brand | null> {
 
 // No longer valid if engine is not a document type
 export async function getEngineById(engineId: string): Promise<any> {
-  return null; // or remove this function entirely
+  return null;
 }
 
 export default client;
