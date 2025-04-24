@@ -589,7 +589,7 @@ const renderStageDescription = (stage: Stage) => {
     onClick={() => setIsContactModalOpen(true)}
     className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg transition-colors"
   >
-    📩 Contact for Booking
+    📩 BOKA/KONTAKTA OSS
   </button>
 </div>
 
@@ -598,7 +598,7 @@ const renderStageDescription = (stage: Stage) => {
                     </div>
 
 {allOptions.length > 0 && (
-  <div className="mt-8">
+  <div className="mt-16">
     {/* AKT+ HEADER WITH LOGO */}
     <div className="flex items-center gap-4 mb-4">
       <img
