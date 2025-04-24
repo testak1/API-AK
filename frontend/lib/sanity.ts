@@ -96,12 +96,12 @@ const query = `*[_type == "brand"]{
               isUniversal,
               applicableFuelTypes,
               stageCompatibility,
-              description,
-              "gallery": gallery[]{
-                _key,
-                "asset": asset->{
-                  _ref
-                },
+"gallery": gallery[]{
+  _key,
+  alt,
+  caption,
+  asset
+},
                 alt,
                 caption
               },
