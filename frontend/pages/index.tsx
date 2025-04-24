@@ -628,6 +628,7 @@ const renderStageDescription = (stage: Stage) => {
       className="h-10 w-10 object-contain"
     />
   )}
+  <span className="text-lg font-bold text-orange-600">{option.title}</span>
 
             </div>
             <svg
