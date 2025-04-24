@@ -702,3 +702,6 @@ const renderStageDescription = (stage: Stage) => {
           engine: selected.engine
         }}
       />
+    </div> 
+  );
+}
