@@ -222,7 +222,7 @@ const renderStageDescription = (stage: Stage) => {
           STAGE {stage.name.replace(/\D/g, '')} INFO
         </span>
         <svg
-          className={`h-5 w-5 text-gray-400 transition-transform ${
+          className={`h-5 w-5 text-orange-600 transition-transform ${
             isExpanded ? 'rotate-180' : ''
           }`}
           viewBox="0 0 20 20"
@@ -378,7 +378,7 @@ const renderStageDescription = (stage: Stage) => {
       {stage.price?.toLocaleString()} kr
     </span>
     <svg
-      className={`h-5 w-5 text-gray-400 transition-transform ${
+      className={`h-5 w-5 text-orange-600 transition-transform ${
         isExpanded ? 'rotate-180' : ''
       }`}
       viewBox="0 0 20 20"
@@ -636,7 +636,7 @@ const renderStageDescription = (stage: Stage) => {
               )}
             </div>
             <svg
-              className={`h-5 w-5 text-gray-400 transition-transform ${
+              className={`h-5 w-5 text-orange-600 transition-transform ${
                 expandedOptions[option._id] ? 'rotate-180' : ''
               }`}
               viewBox="0 0 20 20"
