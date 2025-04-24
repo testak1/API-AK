@@ -6,6 +6,7 @@ import { Line } from 'react-chartjs-2';
 import { PortableText } from '@portabletext/react';
 import { urlFor } from '@/lib/sanity';
 import type { Brand, Stage, AktPlusOption, AktPlusOptionReference } from '@/types/sanity';
+import ContactModal from '@/components/ContactModal';
 
 Chart.register(CategoryScale, LinearScale, PointElement, LineElement, LineController);
 
@@ -29,6 +30,7 @@ export default function TuningViewer() {
   const [expandedDescriptions, setExpandedDescriptions] = useState<Record<string, boolean>>({});
   const [expandedOptions, setExpandedOptions] = useState<Record<string, boolean>>({});
   const watermarkImageRef = useRef<HTMLImageElement | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const img = new Image();
@@ -392,6 +394,12 @@ const renderStageDescription = (stage: Stage) => {
 
                 </button>
 
+
+
+<ContactModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+
+
+
                 {isExpanded && (
                   <div className="px-6 pb-6">
                     {renderStageDescription(stage)}
@@ -645,9 +653,12 @@ const renderStageDescription = (stage: Stage) => {
           </p>
         )}
       </div>
-      <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white transition-colors whitespace-nowrap">
-        Contact us for details
-      </button>
+<button
+  onClick={() => setIsModalOpen(true)}
+  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white transition-colors whitespace-nowrap"
+>
+  Contact us for details
+</button>
     </div>
   </div>
 )}
