@@ -1,9 +1,12 @@
 import type { PortableTextBlock } from '@portabletext/types';
 
 export interface SanityImage {
-  _key: string;
+  _key?: string;
+  _type?: 'image';
   asset: {
-    _ref: string;
+    _ref?: string;
+    _id?: string;
+    url?: string;
   };
   alt?: string;
   caption?: string;
@@ -82,10 +85,7 @@ export interface Brand {
   name: string;
   slug: Slug;
   logo?: {
-    _type: 'image';
-    asset: Reference;
-    alt?: string;
-  };
+  logo?: SanityImage;
   models: Model[];
 }
 
