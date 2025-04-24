@@ -34,18 +34,15 @@ export function urlFor(source: SanityImage | Reference | string) {
 }
 
 export async function getAllBrandsWithDetails(): Promise<Brand[]> {
-  const query = `*[_type == "brand"]{
-    _id,
-    _type,
-    name,
-    "slug": slug.current,
-    "logo": logo {
-      asset->{
-        _id,
-        url
-      },
-      alt
-    },
+const query = `*[_type == "brand"]{
+  _id,
+  _type,
+  name,
+  "slug": slug.current,
+  logo {
+    asset->,
+    alt
+  },
     "models": models[]{
       name,
       "years": years[]{

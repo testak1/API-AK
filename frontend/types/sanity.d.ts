@@ -85,7 +85,10 @@ export interface Brand {
   name: string;
   slug: Slug;
   logo?: {
-  logo?: SanityImage;
+    _type: 'image';
+    asset: Reference;
+    alt?: string;
+  };
   models: Model[];
 }
 
