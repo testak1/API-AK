@@ -581,6 +581,18 @@ const renderStageDescription = (stage: Stage) => {
                         <div className="text-center text-white mt-2">
                           <p>Detta är en datorgenererad dyno-bild</p>
                         </div>
+
+
+<div className="mt-6 flex justify-center">
+  <button
+    onClick={() => setIsContactModalOpen(true)}
+    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg transition-colors"
+  >
+    📩 Contact for Booking
+  </button>
+</div>
+
+
                       </div>
                     </div>
 
