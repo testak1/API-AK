@@ -1,49 +1,57 @@
-// components/FuelTypeSelector.js
-import React from 'react';
-import {useState, useEffect} from 'react';
-import {Box, Stack, Label, Checkbox, Text} from '@sanity/ui';
+// components/FuelTypeSelector.tsx
+import React, { useEffect, useState } from 'react';
+import { Box, Stack, Label, Checkbox, Text } from '@sanity/ui';
+import { PatchEvent, set, unset } from 'sanity';
 
-export default function FuelTypeSelector(props) {
-  const [selectedFuels, setSelectedFuels] = useState(props.value || []);
-  
-  const fuelOptions = [
-    {id: 'diesel', title: 'Diesel'},
-    {id: 'bensin', title: 'Bensin'},
-    {id: 'hybrid', title: 'Hybrid'},
-    {id: 'electric', title: 'Electric'}
-  ];
+interface FuelTypeSelectorProps {
+  value: string[];
+  onChange: (event: PatchEvent) => void;
+  document: {
+    isUniversal?: boolean;
+  };
+}
+
+const fuelOptions = [
+  { id: 'diesel', title: 'Diesel' },
+  { id: 'bensin', title: 'Bensin' },
+  { id: 'hybrid', title: 'Hybrid' },
+  { id: 'electric', title: 'Electric' }
+];
+
+export default function FuelTypeSelector(props: FuelTypeSelectorProps) {
+  const { value = [], onChange, document } = props;
+  const [selectedFuels, setSelectedFuels] = useState<string[]>(value);
 
   useEffect(() => {
-    if (props.document?.isUniversal) {
+    if (document?.isUniversal) {
       setSelectedFuels([]);
-      props.onChange([]);
+      onChange(unset());
     }
-  }, [props.document?.isUniversal]);
+  }, [document?.isUniversal, onChange]);
 
-  const handleChange = (fuelType) => {
-    const newSelection = selectedFuels.includes(fuelType)
+  const handleChange = (fuelType: string) => {
+    const updated = selectedFuels.includes(fuelType)
       ? selectedFuels.filter(f => f !== fuelType)
       : [...selectedFuels, fuelType];
-    setSelectedFuels(newSelection);
-    props.onChange(newSelection);
+
+    setSelectedFuels(updated);
+    onChange(updated.length > 0 ? set(updated) : unset());
   };
 
   return (
     <Stack space={3}>
       <Label>Compatible Fuel Types</Label>
-      {props.document?.isUniversal ? (
-        <Text size={1} muted>Universal option - applies to all fuel types</Text>
+      {document?.isUniversal ? (
+        <Text size={1} muted>Universal option – applies to all fuel types</Text>
       ) : (
         <Box>
           {fuelOptions.map(option => (
-            <div key={option.id} style={{display: 'flex', alignItems: 'center', marginBottom: '0.5em'}}>
+            <div key={option.id} style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5em' }}>
               <Checkbox
                 checked={selectedFuels.includes(option.id)}
                 onChange={() => handleChange(option.id)}
-                disabled={props.document?.isUniversal}
-                style={{marginRight: '0.5em'}}
               />
-              <Text size={1}>{option.title}</Text>
+              <Text size={1} style={{ marginLeft: '0.5em' }}>{option.title}</Text>
             </div>
           ))}
         </Box>
