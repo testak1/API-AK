@@ -119,12 +119,12 @@ const getAllAktPlusOptions = useMemo(() => (stage: Stage) => {
     .filter(isExpandedAktPlusOption)
     .filter(opt =>
       opt.isUniversal ||
-      opt.applicableFuelTypes?.includes(selectedEngine.fuel) ||
+      opt.applicableFuelTypes?.includes(selectedEngine.fuel) ||  // Match directly
       opt.manualAssignments?.some(ref => ref._ref === selectedEngine._id)
     )
     .filter(opt =>
       !opt.stageCompatibility ||
-      opt.stageCompatibility.toLowerCase() === stage.name.toLowerCase()
+      opt.stageCompatibility === stage.name
     );
 }, [selectedEngine]);
 
