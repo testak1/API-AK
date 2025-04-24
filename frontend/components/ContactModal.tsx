@@ -20,7 +20,7 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle }: Conta
       <div className="flex items-center justify-center min-h-screen p-4 text-center bg-black bg-opacity-50">
         <Dialog.Panel className="bg-gray-900 rounded-lg max-w-md w-full p-6 shadow-xl">
           <Dialog.Title className="text-white text-xl font-bold mb-4">
-            Contact Options
+            VÄLJ METOD NEDANFÖR
           </Dialog.Title>
 
           {!contactMode && (
@@ -43,7 +43,7 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle }: Conta
 {contactMode === 'form' && (
   <form className="space-y-4 text-left mt-4 text-white">
     <div className="text-sm text-gray-400 mb-2">
-      Request for: <strong>{selectedVehicle.brand} {selectedVehicle.model} {selectedVehicle.year} – {selectedVehicle.engine}</strong>
+      FÖRFRÅGAN FÖR: <strong>{selectedVehicle.brand} {selectedVehicle.model} {selectedVehicle.year} – {selectedVehicle.engine}</strong>
     </div>
 
     <input type="text" placeholder="NAMN" className="w-full p-2 rounded bg-gray-800 border border-gray-600" />
@@ -62,7 +62,7 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle }: Conta
     </select>
 
     <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">
-      Send Request
+      SKICKA FÖRFRÅGAN
     </button>
   </form>
 )}
@@ -85,7 +85,7 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle }: Conta
             }}
             className="mt-6 text-sm text-gray-400 hover:text-white"
           >
-            Cancel
+            STÄNG
           </button>
         </Dialog.Panel>
       </div>
