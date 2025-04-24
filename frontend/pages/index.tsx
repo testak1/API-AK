@@ -579,12 +579,13 @@ const renderStageDescription = (stage: Stage) => {
                           plugins={[watermarkPlugin]}
                         />
 
-                        <div className="text-center text-white mt-4">
+                        <div className="text-center text-white mt-6">
                           <p>Detta är en datorgenererad dyno-bild</p>
                         </div>
 
 
-<div className="mt-6 flex justify-center">
+
+<div className="mt-16 flex justify-center">
   <button
     onClick={() => setIsContactModalOpen(true)}
     className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg transition-colors"
@@ -598,6 +599,10 @@ const renderStageDescription = (stage: Stage) => {
                     </div>
 
 {allOptions.length > 0 && (
+
+
+
+<div className="mt-8" style="padding-top: 90px;">
   <div className="mt-8">
     {/* AKT+ HEADER WITH LOGO */}
     <div className="flex items-center gap-4 mb-4">
@@ -608,6 +613,9 @@ const renderStageDescription = (stage: Stage) => {
       />
       <h3 className="text-xl font-semibold text-white">AKT+ Upgrades</h3>
     </div>
+
+
+</div>
 
     <div className="space-y-4">
       {allOptions.map((option) => (
