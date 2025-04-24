@@ -61,6 +61,7 @@ export interface Stage {
 }
 
 export interface Engine {
+  _id: string;
   label: string;
   fuel: 'diesel' | 'petrol' | 'hybrid' | 'electric';
   stages: Stage[];
