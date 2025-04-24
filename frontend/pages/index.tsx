@@ -26,6 +26,7 @@ export default function TuningViewer() {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [expandedStages, setExpandedStages] = useState<Record<string, boolean>>({});
+  const [expandedDescriptions, setExpandedDescriptions] = useState<Record<string, boolean>>({});
   const [expandedOptions, setExpandedOptions] = useState<Record<string, boolean>>({});
   const watermarkImageRef = useRef<HTMLImageElement | null>(null);
 
@@ -197,29 +198,53 @@ const getAllAktPlusOptions = useMemo(() => (stage: Stage) => {
     }
   };
 
-  const renderStageDescription = (stage: Stage) => {
-    const description = stage.descriptionRef?.description || stage.description;
-    
-    if (!description) {
-      return (
-        <div className="mb-6 p-4 bg-gray-700 rounded-lg text-gray-400 italic">
-          No description available for this stage
-        </div>
-      );
-    }
+const renderStageDescription = (stage: Stage) => {
+  const description = stage.descriptionRef?.description || stage.description;
+  const isExpanded = expandedDescriptions[stage.name] ?? false;
 
-    return (
-      <div className="mb-6">
-        <div className="prose prose-invert max-w-none p-4 bg-gray-700 rounded-lg">
+  if (!description) return null;
+
+  return (
+    <div className="mb-6 border border-gray-700 rounded-lg overflow-hidden">
+      <button
+        onClick={() =>
+          setExpandedDescriptions(prev => ({
+            ...prev,
+            [stage.name]: !prev[stage.name]
+          }))
+        }
+        className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 text-left flex justify-between items-center"
+      >
+        <span className="text-white font-medium">
+          STAGE {stage.name.replace(/\D/g, '')} INFO
+        </span>
+        <svg
+          className={`h-5 w-5 text-gray-400 transition-transform ${
+            isExpanded ? 'rotate-180' : ''
+          }`}
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path
+            fillRule="evenodd"
+            d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+            clipRule="evenodd"
+          />
+        </svg>
+      </button>
+
+      {isExpanded && (
+        <div className="prose prose-invert max-w-none p-4 bg-gray-800">
           {typeof description === 'string' ? (
             <p>{description}</p>
           ) : (
             <PortableText value={description} components={portableTextComponents} />
           )}
         </div>
-      </div>
-    );
-  };
+      )}
+    </div>
+  );
+};
 
   return (
     <div className="max-w-4xl mx-auto p-4 md:p-6 min-h-screen">
