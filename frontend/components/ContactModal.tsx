@@ -29,13 +29,13 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle }: Conta
                 className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
                 onClick={() => setContactMode('form')}
               >
-                📩 Send Enquiry
+                📩 SKICKA FÖRFRÅGAN
               </button>
               <button
                 className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
                 onClick={() => setContactMode('phone')}
               >
-                📞 Call Us
+                📞 RING OSS
               </button>
             </div>
           )}
@@ -46,15 +46,19 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle }: Conta
       Request for: <strong>{selectedVehicle.brand} {selectedVehicle.model} {selectedVehicle.year} – {selectedVehicle.engine}</strong>
     </div>
 
-    <input type="text" placeholder="Name" className="w-full p-2 rounded bg-gray-800 border border-gray-600" />
-    <input type="email" placeholder="Email" className="w-full p-2 rounded bg-gray-800 border border-gray-600" />
-    <input type="tel" placeholder="Phone Number" className="w-full p-2 rounded bg-gray-800 border border-gray-600" />
-    <textarea placeholder="Message" className="w-full p-2 rounded bg-gray-800 border border-gray-600" rows={3} />
+    <input type="text" placeholder="NAMN" className="w-full p-2 rounded bg-gray-800 border border-gray-600" />
+    <input type="email" placeholder="EMAIL" className="w-full p-2 rounded bg-gray-800 border border-gray-600" />
+    <input type="tel" placeholder="TELNR" className="w-full p-2 rounded bg-gray-800 border border-gray-600" />
+    <textarea placeholder="MEDDELANDE" className="w-full p-2 rounded bg-gray-800 border border-gray-600" rows={3} />
 
     <select className="w-full p-2 rounded bg-gray-800 border border-gray-600">
-      <option value="">Select Dealer</option>
-      <option value="goteborg">Göteborg</option>
-      <option value="stockholm">Stockholm</option>
+      <option value="">VÄLJ ANLÄGGNING</option>
+      <option value="goteborg">GÖTEBORG (HQ)</option>
+      <option value="jonkoping">JÖNKÖPING</option>
+      <option value="skane">SKÅNE</option>
+      <option value="stockholm">STOCKHOLM</option>
+      <option value="orebro">ÖREBRO</option>
+      <option value="storvik">STORVIK</option>
     </select>
 
     <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">
@@ -65,8 +69,12 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle }: Conta
 
           {contactMode === 'phone' && (
             <div className="text-left text-white mt-4 space-y-2">
-              <p><strong>Göteborg:</strong> <a href="tel:0313823300" className="text-blue-400 underline">031-382 33 00</a></p>
-              <p><strong>Stockholm:</strong> <a href="tel:0303332300" className="text-blue-400 underline">030-333 23 00</a></p>
+              <p><strong>GÖTEBORG (HQ) - </strong> <a href="tel:0313823300" className="text-blue-400 underline">031-382 33 00</a></p>
+              <p><strong>JÖNKÖPING - </strong> <a href="tel:0303332300" className="text-blue-400 underline">030-333 23 00</a></p>
+              <p><strong>SKÅNE - </strong> <a href="tel:041318166" className="text-blue-400 underline">041-31 81 66</a></p>
+              <p><strong>STOCKHOLM - </strong> <a href="tel:0708265573" className="text-blue-400 underline">070-826 55 73</a></p>
+              <p><strong>ÖREBRO - </strong> <a href="tel:0708265573" className="text-blue-400 underline">070-826 55 73</a></p>
+              <p><strong>STORVIK - </strong> <a href="tel:0708265573" className="text-blue-400 underline">070-826 55 73</a></p>
             </div>
           )}
 
