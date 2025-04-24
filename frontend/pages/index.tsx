@@ -69,7 +69,7 @@ export default function TuningViewer() {
     return { brands, models, years, engines, selectedEngine, stages, groupedEngines };
   }, [data, selected]);
 
-  // Initialize expanded states when stages change - moved after stages declaration
+  // Initialize expanded states when stages change
   useEffect(() => {
     if (stages.length > 0) {
       const initialExpandedStates = stages.reduce((acc, stage) => {
