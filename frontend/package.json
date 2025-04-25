@@ -12,15 +12,16 @@
     "@sanity/client": "^6.29.0",
     "@sanity/image-url": "^1.0.2",
     "@sanity/types": "^3.8.0",
+    "autoprefixer": "^10.4.21",
     "chart.js": "^4.4.9",
     "next": "^14.1.10",
+    "postcss": "^8.5.3",
     "react": "^18.2.0",
     "react-chartjs-2": "^5.3.0",
     "react-dom": "^18.2.0",
-    "typescript": "^5.8.3",
+    "resend": "^4.4.1",
     "tailwindcss": "^3.4.1",
-    "postcss": "^8.5.3",
-    "autoprefixer": "^10.4.21"
+    "typescript": "^5.8.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.4",
