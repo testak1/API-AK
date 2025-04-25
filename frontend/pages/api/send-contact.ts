@@ -43,31 +43,29 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       from: 'onboarding@resend.dev',
       to: recipientEmail,
       subject: 'Ny förfrågan från hemsidan',
-      html: `
-        <div style="font-family: Arial, sans-serif; padding: 20px; color: #222;">
-          <h2 style="color: #333;">📬 Ny förfrågan från hemsidan</h2>
+html: `
+  <div style="font-family: Arial, sans-serif; padding: 20px; color: #222;">
+    <h2 style="color: #333;">📬 Ny förfrågan från hemsidan</h2>
 
-          <table cellpadding="8">
-            <tr><td><strong>Namn:</strong></td><td>${name}</td></tr>
-            <tr><td><strong>Email:</strong></td><td>${email}</td></tr>
-            <tr><td><strong>Telefon:</strong></td><td>${tel}</td></tr>
-            <tr><td><strong>Filial:</strong></td><td>${branch}</td></tr>
-            <tr><td><strong>Stage / AKTPLUS:</strong></td><td>${stage || '-'}</td></tr>
-            <tr><td><strong>Meddelande:</strong></td><td>${message}</td></tr>
-          </table>
+    <table cellpadding="8">
+      <tr><td><strong>Namn:</strong></td><td>${name}</td></tr>
+      <tr><td><strong>Email:</strong></td><td>${email}</td></tr>
+      <tr><td><strong>Telefon:</strong></td><td>${tel}</td></tr>
+      <tr><td><strong>Filial:</strong></td><td>${branch}</td></tr>
+      <tr><td><strong>Stage / AKTPLUS:</strong></td><td>${req.body?.stage || '-'}</td></tr>
+      <tr><td><strong>Meddelande:</strong></td><td>${message}</td></tr>
+    </table>
 
-          <h3 style="margin-top: 30px;">🚗 Fordon</h3>
-          <table cellpadding="8">
-            <tr><td><strong>Märke:</strong></td><td>${vehicle.brand}</td></tr>
-            <tr><td><strong>Modell:</strong></td><td>${vehicle.model}</td></tr>
-            <tr><td><strong>År:</strong></td><td>${vehicle.year}</td></tr>
-            <tr><td><strong>Motor:</strong></td><td>${vehicle.engine}</td></tr>
-          </table>
+    <h3 style="margin-top: 30px;">🚗 Fordon</h3>
+    <table cellpadding="8">
+      <tr><td><strong>Märke:</strong></td><td>${vehicle?.brand || '-'}</td></tr>
+      <tr><td><strong>Modell:</strong></td><td>${vehicle?.model || '-'}</td></tr>
+      <tr><td><strong>År:</strong></td><td>${vehicle?.year || '-'}</td></tr>
+      <tr><td><strong>Motor:</strong></td><td>${vehicle?.engine || '-'}</td></tr>
+    </table>
 
-          <p style="margin-top: 30px; font-size: 0.9em; color: #888;">
-            Skickad automatiskt via <strong>AKTuning.se</strong>
-          </p>
-        </div>
+    <p style="margin-top: 30px; font-size: 0.9em; color: #888;">Skickad automatiskt via AKTuning.se</p>
+  </div>
       `,
     });
 
