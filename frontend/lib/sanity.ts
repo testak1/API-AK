@@ -1,7 +1,7 @@
 import { createClient, type ClientConfig, type SanityClient } from '@sanity/client';
 import imageUrlBuilder from '@sanity/image-url';
 import type { Brand } from '@/types/sanity';
-import { allBrandsQuery } from '/src/lib/queries';
+import { allBrandsQuery } from './src/lib/queries';
 
 const config: ClientConfig = {
   projectId: 'wensahkh',
