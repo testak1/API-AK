@@ -145,9 +145,13 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle }: Conta
                 onChange={(e) => setFormData({ ...formData, branch: e.target.value })}
               >
                 <option value="">VÄLJ FILIAL</option>
-                <option value="Stockholm">Stockholm</option>
-                <option value="Göteborg">Göteborg</option>
-                <option value="Malmö">Malmö</option>
+                <option value="TEST-AK">TEST-AK</option>
+                <option value="Göteborg">GÖTEBORG (HQ)</option>
+                <option value="Jönköping">JÖNKÖPING</option>
+                <option value="Malmö">MALMÖ</option>
+                <option value="Stockholm">STOCKHOLM</option>
+                <option value="Stockholm">ÖREBRO</option>
+                <option value="Stockholm">STORVIK</option>
               </select>
               {errors.branch && <p className="text-red-500 text-sm">Välj en anläggning</p>}
 

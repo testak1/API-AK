@@ -17,6 +17,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   let recipientEmail = '';
 
   switch (branch) {
+    case 'TEST-AK':
+      recipientEmail = 'info@aktuning.se';
+      break;
     case 'Stockholm':
       recipientEmail = 'stockholm@aktuning.se';
       break;
@@ -25,6 +28,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       break;
     case 'Malmö':
       recipientEmail = 'malmo@aktuning.se';
+      break;
+    case 'Jönköping':
+      recipientEmail = 'jonkoping@aktuning.se';
+      break;
+    case 'Örebro':
+      recipientEmail = 'stockholm@aktuning.se';
+      break;
+    case 'Storvik':
+      recipientEmail = 'stockholm@aktuning.se';
       break;
     default:
       return res.status(400).json({ error: 'Ogiltig anläggning vald.' });
