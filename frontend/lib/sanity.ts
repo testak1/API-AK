@@ -1,24 +1,7 @@
 import { createClient, type ClientConfig, type SanityClient } from '@sanity/client';
 import imageUrlBuilder from '@sanity/image-url';
 import type { Brand } from '@/types/sanity';
-
-interface Reference {
-  _type: 'reference';
-  _ref: string;
-  _key?: string;
-  _weak?: boolean;
-}
-
-interface SanityImage {
-  _key?: string;
-  _type: 'image';
-  asset: {
-    _id: string;
-    url: string;
-  };
-  alt?: string;
-  caption?: string;
-}
+import { allBrandsQuery } from './queries';
 
 const config: ClientConfig = {
   projectId: 'wensahkh',
@@ -32,104 +15,14 @@ const config: ClientConfig = {
 const client: SanityClient = createClient(config);
 const builder = imageUrlBuilder(client);
 
-export function urlFor(source: SanityImage | Reference | string) {
+export function urlFor(source: any) {
   return builder.image(source);
 }
 
 export async function getAllBrandsWithDetails(): Promise<Brand[]> {
-  const query = `*[_type == "brand"]{
-    _id,
-    _type,
-    name,
-    "slug": slug.current,
-    logo {
-      "asset": asset->{
-        _id,
-        url
-      },
-      alt
-    },
-    "models": models[]{
-      name,
-      "years": years[]{
-        range,
-        "engines": engines[]{
-          _key,
-          label,
-          fuel,
-          "globalAktPlusOptions": *[_type == "aktPlus" && (
-            isUniversal == true ||
-            ^.fuel in applicableFuelTypes
-          ) && !defined(stageCompatibility)]{
-            _id,
-            title,
-            isUniversal,
-            applicableFuelTypes,
-            stageCompatibility,
-            description,
-            "gallery": gallery[]{
-              _key,
-              alt,
-              caption,
-              "asset": asset->{
-                _id,
-                url
-              }
-            },
-            price,
-            installationTime,
-            compatibilityNotes
-          },
-          "stages": stages[]{
-            name,
-            origHk,
-            tunedHk,
-            origNm,
-            tunedNm,
-            price,
-            description,
-            descriptionRef->{
-              _id,
-              stageName,
-              description
-            },
-            "aktPlusOptions": *[_type == "aktPlus" && (
-              isUniversal == true ||
-              ^.^.fuel in applicableFuelTypes
-            ) && (
-              !defined(stageCompatibility) || 
-              stageCompatibility == ^.name
-            )]{
-              _id,
-              title,
-              isUniversal,
-              applicableFuelTypes,
-              stageCompatibility,
-              description,
-              "gallery": gallery[]{
-                _key,
-                alt,
-                caption,
-                "asset": asset->{
-                  _id,
-                  url
-                }
-              },
-              price,
-              installationTime,
-              compatibilityNotes
-            }
-          }
-        }
-      }
-    }
-  }`;
-
   try {
-    const results = await client.fetch<Brand[]>(query);
-    if (!results || !Array.isArray(results)) {
-      throw new Error('Invalid data format received from Sanity');
-    }
+    const results = await client.fetch<Brand[]>(allBrandsQuery);
+    if (!Array.isArray(results)) throw new Error('Invalid format received from Sanity');
     return results;
   } catch (error) {
     console.error('Error fetching brands:', error);
@@ -140,11 +33,6 @@ export async function getAllBrandsWithDetails(): Promise<Brand[]> {
 export async function getBrandBySlug(slug: string): Promise<Brand | null> {
   const query = `*[_type == "brand" && slug.current == $slug][0]`;
   return client.fetch<Brand | null>(query, { slug });
-}
-
-// No longer valid if engine is not a document type
-export async function getEngineById(engineId: string): Promise<any> {
-  return null;
 }
 
 export default client;

@@ -1,10 +1,14 @@
 // frontend/src/lib/queries.ts
 export const allBrandsQuery = `*[_type == "brand"]{
   _id,
+  _type,
   name,
   "slug": slug.current,
   logo {
-    asset,
+    "asset": asset->{
+      _id,
+      url
+    },
     alt
   },
   "models": models[]{
@@ -12,9 +16,10 @@ export const allBrandsQuery = `*[_type == "brand"]{
     "years": years[]{
       range,
       "engines": engines[]{
+        _key,
         _id,
-        fuel,
         label,
+        fuel,
         "globalAktPlusOptions": *[_type == "aktPlus" && (
           isUniversal == true || 
           ^.fuel in applicableFuelTypes
@@ -25,6 +30,7 @@ export const allBrandsQuery = `*[_type == "brand"]{
           isUniversal,
           applicableFuelTypes,
           stageCompatibility,
+          description,
           "gallery": gallery[]{
             _key,
             asset,
@@ -41,6 +47,12 @@ export const allBrandsQuery = `*[_type == "brand"]{
           origNm,
           tunedNm,
           price,
+          description,
+          descriptionRef->{
+            _id,
+            stageName,
+            description
+          },
           "aktPlusOptions": *[_type == "aktPlus" && (
             isUniversal == true || 
             ^.^.fuel in applicableFuelTypes
@@ -54,6 +66,7 @@ export const allBrandsQuery = `*[_type == "brand"]{
             isUniversal,
             applicableFuelTypes,
             stageCompatibility,
+            description,
             "gallery": gallery[]{
               _key,
               asset,
@@ -68,3 +81,4 @@ export const allBrandsQuery = `*[_type == "brand"]{
     }
   }
 }`;
+

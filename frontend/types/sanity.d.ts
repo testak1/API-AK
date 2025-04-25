@@ -35,7 +35,7 @@ export interface AktPlusOption {
   _id: string;
   _type: 'aktPlus';
   title: string;
-  slug: Slug;
+  slug?: Slug;
   isUniversal: boolean;
   applicableFuelTypes?: string[];
   stageCompatibility?: string;
@@ -63,8 +63,9 @@ export interface Stage {
 
 export interface Engine {
   _id?: string;
+  _key?: string;
   label: string;
-  fuel: 'Diesel' | 'Bensin' | 'Hybrid' | 'Electric'; // Capitalized for frontend display
+  fuel: 'Diesel' | 'Bensin' | 'Hybrid' | 'Electric';
   stages: Stage[];
   globalAktPlusOptions?: AktPlusOptionReference[];
 }
@@ -91,6 +92,7 @@ export interface Brand {
   };
   models: Model[];
 }
+
 
 // Sanity Image URL Builder Support
 declare module '@sanity/image-url' {
