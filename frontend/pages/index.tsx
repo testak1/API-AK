@@ -32,149 +32,139 @@ export default function TuningViewer() {
   const watermarkImageRef = useRef<HTMLImageElement | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
-  
-  // Fetch brands initially
+
   useEffect(() => {
     const img = new Image();
     img.src = '/ak-logo.png';
     img.onload = () => {
       watermarkImageRef.current = img;
     };
-
-    const fetchBrands = async () => {
+    
+    const fetchData = async () => {
       try {
         const res = await fetch('/api/brands');
+        if (!res.ok) throw new Error('Failed to fetch data');
         const json = await res.json();
-        setBrands(json.result.map((b: any) => b.name));
+        setData(json.result || []);
       } catch (error) {
-        console.error('Error fetching brands:', error);
+        console.error('Error fetching data:', error);
       } finally {
         setIsLoading(false);
       }
     };
-
-    fetchBrands();
+    fetchData();
   }, []);
 
-  // Fetch models when brand changes
+  const { brands, models, years, engines, selectedEngine, stages, groupedEngines } = useMemo(() => {
+    const brands = data.map(b => b.name);
+    const models = data.find(b => b.name === selected.brand)?.models || [];
+    const years = models.find(m => m.name === selected.model)?.years || [];
+    const engines = years.find(y => y.range === selected.year)?.engines || [];
+    const selectedEngine = engines.find(e => e.label === selected.engine);
+    const stages = selectedEngine?.stages || [];
+
+    const groupedEngines = engines.reduce((acc, engine) => {
+      const fuelType = engine.fuel;
+      if (!acc[fuelType]) acc[fuelType] = [];
+      acc[fuelType].push(engine);
+      return acc;
+    }, {} as Record<string, typeof engines>);
+
+    return { brands, models, years, engines, selectedEngine, stages, groupedEngines };
+  }, [data, selected]);
+
   useEffect(() => {
-    if (!selected.brand) {
-      setModels([]);
-      setYears([]);
-      setEngines([]);
-      setSelected(prev => ({ ...prev, model: '', year: '', engine: '' }));
-      return;
-    }
-
-    const fetchModels = async () => {
-      try {
-        const res = await fetch(`/api/models?brand=${encodeURIComponent(selected.brand)}`);
-        const json = await res.json();
-        setModels(json.result || []);
-      } catch (error) {
-        console.error('Error fetching models:', error);
-      }
-    };
-
-    fetchModels();
-  }, [selected.brand]);
-
-  // Fetch years when model changes
-  useEffect(() => {
-    if (!selected.model) {
-      setYears([]);
-      setEngines([]);
-      setSelected(prev => ({ ...prev, year: '', engine: '' }));
-      return;
-    }
-
-    const fetchYears = async () => {
-      try {
-        const res = await fetch(`/api/years?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}`);
-        const json = await res.json();
-        setYears(json.result || []);
-      } catch (error) {
-        console.error('Error fetching years:', error);
-      }
-    };
-
-    fetchYears();
-  }, [selected.model]);
-
-  // Fetch engines when year changes
-  useEffect(() => {
-    if (!selected.year) {
-      setEngines([]);
-      setSelected(prev => ({ ...prev, engine: '' }));
-      return;
-    }
-
-    const fetchEngines = async () => {
-      try {
-        const res = await fetch(`/api/engines?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}&year=${encodeURIComponent(selected.year)}`);
-        const json = await res.json();
-        setEngines(json.result || []);
-      } catch (error) {
-        console.error('Error fetching engines:', error);
-      }
-    };
-
-    fetchEngines();
-  }, [selected.year]);
-
-  // Set selected engine
-  useEffect(() => {
-    const engine = engines.find((e) => e.label === selected.engine) || null;
-    setSelectedEngine(engine);
-
-    if (engine?.stages?.length) {
-      const initialExpanded = engine.stages.reduce((acc, stage) => {
+    if (stages.length > 0) {
+      const initialExpandedStates = stages.reduce((acc, stage) => {
         acc[stage.name] = stage.name === 'Steg 1';
         return acc;
       }, {} as Record<string, boolean>);
-      setExpandedStages(initialExpanded);
+      setExpandedStages(initialExpandedStates);
     }
-  }, [selected.engine, engines]);
+  }, [stages]);
 
-  const groupedEngines = useMemo(() => {
-    return engines.reduce((acc, engine) => {
-      if (!acc[engine.fuel]) acc[engine.fuel] = [];
-      acc[engine.fuel].push(engine);
-      return acc;
-    }, {} as Record<string, Engine[]>);
-  }, [engines]);
-
-  const stages = selectedEngine?.stages || [];
-
-  const isExpandedAktPlusOption = (item: any): item is AktPlusOption => {
-    return item && '_id' in item && 'title' in item;
+  const watermarkPlugin = {
+    id: 'watermark',
+    beforeDraw: (chart: Chart) => {
+      const ctx = chart.ctx;
+      const { chartArea: { top, left, width, height } } = chart;
+      
+      if (watermarkImageRef.current?.complete) {
+        ctx.save();
+        ctx.globalAlpha = 0.2;
+        
+        const img = watermarkImageRef.current;
+        const ratio = img.width / img.height;
+        const imgWidth = width * 0.4;
+        const imgHeight = imgWidth / ratio;
+        
+        const x = left + width / 2 - imgWidth / 2;
+        const y = top + height / 2 - imgHeight / 2;
+        
+        ctx.drawImage(img, x, y, imgWidth, imgHeight);
+        ctx.restore();
+      }
+    }
   };
 
-  const getAllAktPlusOptions = useMemo(() => (stage: Stage) => {
-    if (!selectedEngine) return [];
+const isExpandedAktPlusOption = (item: any): item is AktPlusOption => {
+  return item && '_id' in item && 'title' in item;
+};
 
-    const combinedOptions: AktPlusOptionReference[] = [
-      ...(selectedEngine.globalAktPlusOptions || []),
-      ...(stage.aktPlusOptions || [])
-    ];
+const getAllAktPlusOptions = useMemo(() => (stage: Stage) => {
+  if (!selectedEngine) return [];
 
-    const uniqueOptionsMap = new Map<string, AktPlusOption>();
+  const combinedOptions: AktPlusOptionReference[] = [
+    ...(selectedEngine.globalAktPlusOptions || []),
+    ...(stage.aktPlusOptions || [])
+  ];
 
-    (combinedOptions as AktPlusOptionReference[])
-      .filter(isExpandedAktPlusOption)
-      .forEach(opt => {
-        if (
-          (opt.isUniversal ||
-           opt.applicableFuelTypes?.includes(selectedEngine.fuel) ||
-           opt.manualAssignments?.some(ref => ref._ref === selectedEngine._id)) &&
-          (!opt.stageCompatibility || opt.stageCompatibility === stage.name)
-        ) {
-          uniqueOptionsMap.set(opt._id, opt);
-        }
-      });
+  const uniqueOptionsMap = new Map<string, AktPlusOption>();
 
-    return Array.from(uniqueOptionsMap.values());
-  }, [selectedEngine]);
+  (combinedOptions as AktPlusOptionReference[])
+    .filter(isExpandedAktPlusOption)
+    .forEach(opt => {
+      if (
+        (opt.isUniversal ||
+         opt.applicableFuelTypes?.includes(selectedEngine.fuel) ||
+         opt.manualAssignments?.some(ref => ref._ref === selectedEngine._id)) &&
+        (!opt.stageCompatibility || opt.stageCompatibility === stage.name)
+      ) {
+        uniqueOptionsMap.set(opt._id, opt);
+      }
+    });
+
+  return Array.from(uniqueOptionsMap.values());
+}, [selectedEngine]);
+
+  const generateDynoCurve = (peakValue: number, isHp: boolean) => {
+    const rpmRange = [2000, 3000, 4000, 5000, 6000, 7000];
+    const peakRpmIndex = isHp ? 3 : 2;
+    
+    return rpmRange.map((rpm, i) => {
+      if (i <= peakRpmIndex) {
+        const progress = i / peakRpmIndex;
+        return peakValue * (0.4 + 0.6 * Math.pow(progress, 1.5));
+      } else {
+        const fallProgress = (i - peakRpmIndex) / (rpmRange.length - 1 - peakRpmIndex);
+        return peakValue * (1 - 0.5 * Math.pow(fallProgress, 1.2));
+      }
+    });
+  };
+
+  const toggleStage = (stageName: string) => {
+    setExpandedStages(prev => ({
+      ...prev,
+      [stageName]: !prev[stageName]
+    }));
+  };
+
+  const toggleOption = (optionId: string) => {
+    setExpandedOptions(prev => ({
+      ...prev,
+      [optionId]: !prev[optionId]
+    }));
+  };
 
   const handleBrandChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelected({ brand: e.target.value, model: '', year: '', engine: '' });
