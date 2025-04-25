@@ -50,8 +50,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 _id,
                 url
               }
-            }
-
+            },
+            compatibilityNotes
+          }
         },
         "globalAktPlusOptions": *[_type == "aktPlus" && (
           isUniversal == true || 
@@ -73,7 +74,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               url
             }
           },
-          installationTime,
           compatibilityNotes
         }
       }
