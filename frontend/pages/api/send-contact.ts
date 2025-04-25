@@ -15,7 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ error: 'Alla fält måste fyllas i.' });
   }
 
-  let recipientEmail = '';
+  let recipientEmail = ";
   switch (branch.toLowerCase()) {
     case 'TEST-AK':
       recipientEmail = 'info@aktuning.se';
