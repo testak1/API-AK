@@ -135,7 +135,7 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle }: Conta
                 required
               >
                 <option value="">VÄLJ ANLÄGGNING</option>
-                <option value="test-ak">TEST-AK</option>
+                <option value="TEST-AK">TEST-AK</option>
                 <option value="goteborg">GÖTEBORG (HQ)</option>
                 <option value="jonkoping">JÖNKÖPING</option>
                 <option value="malmo">MALMÖ</option>
