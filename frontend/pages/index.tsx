@@ -55,23 +55,39 @@ export default function TuningViewer() {
     fetchData();
   }, []);
 
-  const { brands, models, years, engines, selectedEngine, stages, groupedEngines } = useMemo(() => {
-    const brands = data.map(b => b.name);
-    const models = data.find(b => b.name === selected.brand)?.models || [];
-    const years = models.find(m => m.name === selected.model)?.years || [];
-    const engines = years.find(y => y.range === selected.year)?.engines || [];
-    const selectedEngine = engines.find(e => e.label === selected.engine);
-    const stages = selectedEngine?.stages || [];
+const brands = useMemo(() => data.map((b) => b.name), [data]);
 
-    const groupedEngines = engines.reduce((acc, engine) => {
-      const fuelType = engine.fuel;
-      if (!acc[fuelType]) acc[fuelType] = [];
-      acc[fuelType].push(engine);
-      return acc;
-    }, {} as Record<string, typeof engines>);
+const models = useMemo(() => {
+  const selectedBrand = data.find((b) => b.name === selected.brand);
+  return selectedBrand?.models ?? [];
+}, [data, selected.brand]);
 
-    return { brands, models, years, engines, selectedEngine, stages, groupedEngines };
-  }, [data, selected]);
+const years = useMemo(() => {
+  const selectedModel = models.find((m) => m.name === selected.model);
+  return selectedModel?.years ?? [];
+}, [models, selected.model]);
+
+const engines = useMemo(() => {
+  const selectedYear = years.find((y) => y.range === selected.year);
+  return selectedYear?.engines ?? [];
+}, [years, selected.year]);
+
+const selectedEngine = useMemo(() => {
+  return engines.find((e) => e.label === selected.engine);
+}, [engines, selected.engine]);
+
+const stages = useMemo(() => {
+  return selectedEngine?.stages ?? [];
+}, [selectedEngine]);
+
+const groupedEngines = useMemo(() => {
+  return engines.reduce((acc, engine) => {
+    const fuelType = engine.fuel;
+    if (!acc[fuelType]) acc[fuelType] = [];
+    acc[fuelType].push(engine);
+    return acc;
+  }, {} as Record<string, typeof engines>);
+}, [engines]);
 
   useEffect(() => {
     if (stages.length > 0) {
