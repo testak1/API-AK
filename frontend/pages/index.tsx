@@ -1,10 +1,11 @@
 // pages/index.tsx
-import React, { useEffect, useState, useRef, useMemo } from 'react';
+import React from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import { Chart, CategoryScale, LinearScale, PointElement, LineElement, LineController } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import { PortableText } from '@portabletext/react';
 import { urlFor } from '@/lib/sanity';
-import type { Brand, Model, Year, Engine, Stage, AktPlusOption, AktPlusOptionReference } from '@/types/sanity';
+import type { Brand, Stage, AktPlusOption, AktPlusOptionReference } from '@/types/sanity';
 import ContactModal from '@/components/ContactModal';
 
 Chart.register(CategoryScale, LinearScale, PointElement, LineElement, LineController);
@@ -17,20 +18,21 @@ interface SelectionState {
 }
 
 export default function TuningViewer() {
-  const [brands, setBrands] = useState<string[]>([]);
-  const [models, setModels] = useState<Model[]>([]);
-  const [years, setYears] = useState<Year[]>([]);
-  const [engines, setEngines] = useState<Engine[]>([]);
-  const [selected, setSelected] = useState<SelectionState>({ brand: '', model: '', year: '', engine: '' });
-  const [selectedEngine, setSelectedEngine] = useState<Engine | null>(null);
+  const [data, setData] = useState<Brand[]>([]);
+  const [selected, setSelected] = useState<SelectionState>({ 
+    brand: '', 
+    model: '', 
+    year: '', 
+    engine: '',
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [expandedStages, setExpandedStages] = useState<Record<string, boolean>>({});
   const [expandedDescriptions, setExpandedDescriptions] = useState<Record<string, boolean>>({});
   const [expandedOptions, setExpandedOptions] = useState<Record<string, boolean>>({});
+  const watermarkImageRef = useRef<HTMLImageElement | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
-  const watermarkImageRef = useRef<HTMLImageElement | null>(null);
-
+  
   // Fetch brands initially
   useEffect(() => {
     const img = new Image();
