@@ -353,19 +353,21 @@ const renderStageDescription = (stage: Stage) => {
                   className="w-full p-6 text-left"
                 >
 <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-  <div className="flex items-center space-x-4">
-    <h2 className="text-xl font-semibold text-white">
-      <span className="text-indigo-400">{stage.name}</span> - {selected.engine}
-    </h2>
-    {/* Brand logo */}
-    {data.find(b => b.name === selected.brand)?.logo?.asset && (
-      <img
-        src={urlFor(data.find(b => b.name === selected.brand)?.logo).width(60).url()}
-        alt={selected.brand}
-        className="h-8 object-contain"
-      />
-    )}
-  </div>
+<div className="flex items-center gap-4">
+  {/* Brand logo first */}
+  {data.find(b => b.name === selected.brand)?.logo?.asset && (
+    <img
+      src={urlFor(data.find(b => b.name === selected.brand)?.logo).width(60).url()}
+      alt={selected.brand}
+      className="h-8 w-auto object-contain"
+    />
+  )}
+
+  {/* Engine name and stage */}
+  <h2 className="text-lg font-semibold text-white">
+    {selected.engine} – <span className="text-indigo-400">{stage.name}</span>
+  </h2>
+</div>
   
   <div className="mt-3 md:mt-0 flex items-center gap-4">
     {/* Stage badge image */}
