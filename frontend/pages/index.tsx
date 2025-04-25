@@ -521,7 +521,7 @@ const renderStageDescription = (stage: Stage) => {
                                   }
                                 },
                                 min: 0,
-                                max: Math.ceil(stage.tunedHk / 100) * 100,
+                                max: Math.ceil(stage.tunedHk / 100) * 100 + 20,
                                 grid: {
                                   color: 'rgba(255, 255, 255, 0.1)'
                                 },
