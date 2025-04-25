@@ -13,3 +13,4 @@ studio/.next/
 .vscode/
 .idea/
 
+frontend/public/badges/.DS_Store
