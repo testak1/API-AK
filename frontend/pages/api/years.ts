@@ -1,3 +1,4 @@
+// pages/api/years.ts
 import { NextApiRequest, NextApiResponse } from 'next';
 import client from '@/lib/sanity';
 

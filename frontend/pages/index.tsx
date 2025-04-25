@@ -1,6 +1,5 @@
 // pages/index.tsx
-import React from 'react';
-import { useEffect, useState, useRef, useMemo } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { Chart, CategoryScale, LinearScale, PointElement, LineElement, LineController } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import { PortableText } from '@portabletext/react';
@@ -19,10 +18,10 @@ interface SelectionState {
 
 export default function TuningViewer() {
   const [data, setData] = useState<Brand[]>([]);
-  const [selected, setSelected] = useState<SelectionState>({ 
-    brand: '', 
-    model: '', 
-    year: '', 
+  const [selected, setSelected] = useState<SelectionState>({
+    brand: '',
+    model: '',
+    year: '',
     engine: '',
   });
   const [isLoading, setIsLoading] = useState(true);
@@ -33,27 +32,71 @@ export default function TuningViewer() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
+  // Load watermark image
   useEffect(() => {
     const img = new Image();
     img.src = '/ak-logo.png';
     img.onload = () => {
       watermarkImageRef.current = img;
     };
-    
-    const fetchData = async () => {
+  }, []);
+
+  // Fetch brands and models (light query)
+  useEffect(() => {
+    const fetchBrands = async () => {
       try {
         const res = await fetch('/api/brands');
-        if (!res.ok) throw new Error('Failed to fetch data');
+        if (!res.ok) throw new Error('Failed to fetch brands');
         const json = await res.json();
         setData(json.result || []);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error('Error fetching brands:', error);
       } finally {
         setIsLoading(false);
       }
     };
-    fetchData();
+    fetchBrands();
   }, []);
+
+  // Fetch engines when brand, model, year are selected
+  useEffect(() => {
+    const fetchEngines = async () => {
+      if (selected.brand && selected.model && selected.year) {
+        setIsLoading(true);
+        try {
+          const res = await fetch(
+            `/api/engines?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}&year=${encodeURIComponent(selected.year)}`
+          );
+          if (!res.ok) throw new Error('Failed to fetch engines');
+          const engines = await res.json();
+
+          setData(prev =>
+            prev.map(brand => {
+              if (brand.name !== selected.brand) return brand;
+              return {
+                ...brand,
+                models: brand.models.map(model => {
+                  if (model.name !== selected.model) return model;
+                  return {
+                    ...model,
+                    years: model.years.map(year => {
+                      if (year.range !== selected.year) return year;
+                      return { ...year, engines: engines.result };
+                    })
+                  };
+                })
+              };
+            })
+          );
+        } catch (error) {
+          console.error('Error fetching engines:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+    fetchEngines();
+  }, [selected.brand, selected.model, selected.year]);
 
   const { brands, models, years, engines, selectedEngine, stages, groupedEngines } = useMemo(() => {
     const brands = data.map(b => b.name);
@@ -72,6 +115,8 @@ export default function TuningViewer() {
 
     return { brands, models, years, engines, selectedEngine, stages, groupedEngines };
   }, [data, selected]);
+
+
 
   useEffect(() => {
     if (stages.length > 0) {

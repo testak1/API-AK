@@ -1,5 +1,25 @@
-// frontend/src/lib/queries.ts
-export const allBrandsQuery = `*[_type == "brand"]{
+// Lightweight query (for /api/brands.ts)
+export const brandsLightQuery = `
+*[_type == "brand"]{
+  _id,
+  name,
+  "slug": slug.current,
+  logo {
+    "asset": asset->{
+      _id,
+      url
+    },
+    alt
+  },
+  "models": models[]{
+    name
+  }
+}
+`;
+
+// Heavy query (when you need full info like stages, aktplus, engines)
+export const allBrandsQuery = `
+*[_type == "brand"]{
   _id,
   _type,
   name,
@@ -86,4 +106,5 @@ export const allBrandsQuery = `*[_type == "brand"]{
       }
     }
   }
-}`;
+}
+`;

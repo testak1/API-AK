@@ -1,3 +1,4 @@
+// pages/api/models.ts
 import { NextApiRequest, NextApiResponse } from 'next';
 import client from '@/lib/sanity';
 
