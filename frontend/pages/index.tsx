@@ -376,7 +376,7 @@ const renderStageDescription = (stage: Stage) => {
       alt={stage.name}
       className="h-8 object-contain"
     />
-<span className="inline-block bg-red-600 text-white px-4 py-1 rounded-full text-sm font-semibold shadow-md">
+<span className="inline-block bg-red-600 text-black px-4 py-1 rounded-full text-xl font-semibold shadow-md">
   {stage.price?.toLocaleString()} kr
 </span>
     <svg
