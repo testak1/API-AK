@@ -53,6 +53,7 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle }: Conta
 
     <select className="w-full p-2 rounded bg-gray-800 border border-gray-600">
       <option value="">VÄLJ ANLÄGGNING</option>
+      <option value="TEST-AK">TEST-AK</option>
       <option value="goteborg">GÖTEBORG (HQ)</option>
       <option value="jonkoping">JÖNKÖPING</option>
       <option value="skane">SKÅNE</option>
