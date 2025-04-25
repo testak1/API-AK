@@ -521,7 +521,7 @@ const renderStageDescription = (stage: Stage) => {
                                   }
                                 },
                                 min: 0,
-                                max: Math.ceil(stage.tunedHk / 100) * 100 + 50,
+                                max: Math.ceil(stage.tunedHk / 100) * 100,
                                 grid: {
                                   color: 'rgba(255, 255, 255, 0.1)'
                                 },
@@ -547,7 +547,7 @@ const renderStageDescription = (stage: Stage) => {
                                 min: 0,
                                 max: Math.ceil(stage.tunedNm / 100) * 100 + 100,
                                 grid: {
-                                  drawOnChartArea: false,
+                                  drawOnChartArea: true,
                                 },
                                 ticks: {
                                   color: '#9CA3AF',
