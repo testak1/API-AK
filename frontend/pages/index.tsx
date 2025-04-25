@@ -58,6 +58,50 @@ export default function TuningViewer() {
     fetchBrands();
   }, []);
 
+
+
+// Fetch years when brand and model are selected
+useEffect(() => {
+  const fetchYears = async () => {
+    if (selected.brand && selected.model) {
+      setIsLoading(true);
+      try {
+        const res = await fetch(
+          `/api/years?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}`
+        );
+        if (!res.ok) throw new Error('Failed to fetch years');
+        const years = await res.json();
+
+        setData(prev =>
+          prev.map(brand => {
+            if (brand.name !== selected.brand) return brand;
+            return {
+              ...brand,
+              models: brand.models.map(model => {
+                if (model.name !== selected.model) return model;
+                return {
+                  ...model,
+                  years: years.result
+                };
+              })
+            };
+          })
+        );
+      } catch (error) {
+        console.error('Error fetching years:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  fetchYears();
+}, [selected.brand, selected.model]);
+
+
+
+
+
   // Fetch engines when brand, model, year are selected
   useEffect(() => {
     const fetchEngines = async () => {
