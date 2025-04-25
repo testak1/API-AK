@@ -33,9 +33,12 @@ export const allBrandsQuery = `*[_type == "brand"]{
           description,
           "gallery": gallery[]{
             _key,
-            asset,
             alt,
-            caption
+            caption,
+            "asset": asset->{
+              _id,
+              url
+            }
           },
           installationTime,
           compatibilityNotes
@@ -69,9 +72,12 @@ export const allBrandsQuery = `*[_type == "brand"]{
             description,
             "gallery": gallery[]{
               _key,
-              asset,
               alt,
-              caption
+              caption,
+              "asset": asset->{
+                _id,
+                url
+              }
             },
             installationTime,
             compatibilityNotes
@@ -81,4 +87,3 @@ export const allBrandsQuery = `*[_type == "brand"]{
     }
   }
 }`;
-
