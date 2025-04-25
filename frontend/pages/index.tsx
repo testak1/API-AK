@@ -365,7 +365,7 @@ const renderStageDescription = (stage: Stage) => {
 
   {/* Engine name and stage */}
   <h2 className="text-lg font-semibold text-white">
-    {selected.engine} – <span className="text-indigo-400">{stage.name}</span>
+    {selected.engine} – <span className="text-indigo-400 uppercase tracking-wide">{stage.name}</span>
   </h2>
 </div>
   
@@ -376,9 +376,9 @@ const renderStageDescription = (stage: Stage) => {
       alt={stage.name}
       className="h-8 object-contain"
     />
-    <span className="inline-block bg-blue-900 text-blue-200 px-3 py-1 rounded-full text-sm font-medium">
-      {stage.price?.toLocaleString()} kr
-    </span>
+<span className="inline-block bg-red-600 text-white px-4 py-1 rounded-full text-sm font-semibold shadow-md">
+  {stage.price?.toLocaleString()} kr
+</span>
     <svg
       className={`h-5 w-5 text-orange-600 transition-transform ${
         isExpanded ? 'rotate-180' : ''
