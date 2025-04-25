@@ -50,10 +50,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 _id,
                 url
               }
-            },
-            installationTime,
-            compatibilityNotes
-          }
+            }
+
         },
         "globalAktPlusOptions": *[_type == "aktPlus" && (
           isUniversal == true || 
