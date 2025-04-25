@@ -1,5 +1,5 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import { client } from '@/lib/sanity';
+import { NextApiRequest, NextApiResponse } from '
+import client from '@/lib/sanity';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { brand, model } = req.query;
