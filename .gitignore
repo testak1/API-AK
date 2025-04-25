@@ -1,7 +1,7 @@
 # .gitignore
 
 # Ignore the build output of Next.js
-
+.next/
 
 # Ignore node_modules for all parts of the monorepo
 node_modules/
