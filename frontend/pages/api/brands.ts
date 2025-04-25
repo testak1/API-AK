@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { client } from '@/lib/sanity';
+import client from '@/lib/sanity';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const query = `*[_type == "brand"]{ name, "slug": slug.current, logo { "url": asset->url, alt } }`;
