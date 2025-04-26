@@ -531,7 +531,7 @@ const renderStageDescription = (stage: Stage) => {
 
       <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
         {/* Split the spec boxes */}
-        <div className="absolute flex flex-row justify-between top-4 left-0 right-0 px-8">
+        <div className="absolute flex flex-row justify-between top-4 left-0 right-0 px-14">
           {/* ORG HK / Max HK */}
           <div className="bg-gray-900 px-4 py-3 rounded text-sm text-white flex flex-col items-start w-30">
             <p className="text-red-600">- -</p>
