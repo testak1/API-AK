@@ -267,10 +267,8 @@ const getAllAktPlusOptions = useMemo(() => (stage: Stage) => {
 const toggleOption = (optionId: string) => {
   setExpandedOptions(prev => {
     const newState: Record<string, boolean> = {};
-    for (const id in prev) {
-      newState[id] = false; // Stäng alla först
-    }
-    newState[optionId] = !prev[optionId]; // Öppna/stäng klickad
+    // Stäng alla andra, öppna endast det nya
+    newState[optionId] = !prev[optionId];
     return newState;
   });
 };
