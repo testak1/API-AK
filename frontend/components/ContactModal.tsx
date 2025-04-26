@@ -91,7 +91,7 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle, stageOr
             enter="ease-out duration-300" enterFrom="opacity-0 scale-90" enterTo="opacity-100 scale-100"
             leave="ease-in duration-200" leaveFrom="opacity-100 scale-100" leaveTo="opacity-0 scale-90"
           >
-            <Dialog.Panel className="bg-gray-900 rounded-lg max-w-md w-full p-6 shadow-xl relative">
+            <Dialog.Panel className="bg-gray-900 rounded-lg text-white max-w-md w-full p-6 shadow-xl relative">
               <button
                 type="button"
                 onClick={handleClose}
