@@ -323,7 +323,7 @@ const renderStageDescription = (stage: Stage) => {
             [stage.name]: !prev[stage.name]
           }))
         }
-        className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 flex justify-between sm:justify-start items-center text-center"
+        className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 flex justify-between sm:justify-start items-center text-center">
         <span className="text-white font-medium">
           STEG {stage.name.replace(/\D/g, '')} information
         </span>
