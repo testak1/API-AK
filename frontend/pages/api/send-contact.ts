@@ -65,7 +65,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 <tr><td><strong>MODELL:</strong></td><td>${vehicle?.model || '-'}</td></tr>
                 <tr><td><strong>VARIANT:</strong></td><td>${vehicle?.year || '-'}</td></tr>
                 <tr><td><strong>MOTOR:</strong></td><td>${vehicle?.engine || '-'}</td></tr>
-                <tr><td><strong>VAL+:</strong></td><td><span style="color: #059669;"><strong>${stage || '-'}</strong></span></td></tr>
+                <tr><td><strong>GÄLLANDE:</strong></td><td><span style="color: #059669;"><strong>${stage || '-'}</strong></span></td></tr>
               </table>
 
               <h3 style="margin-top: 30px; margin-bottom: 10px; text-align:center;">💬 MEDDELANDE</h3>
