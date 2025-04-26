@@ -563,7 +563,7 @@ const renderStageDescription = (stage: Stage) => {
                               },
                               {
                                 label: 'Original NM',
-                                data: generateDynoCurve(stage.origNm, false),
+                                data: generateDynoCurve(stage.origNm, true),
                                 borderColor: 'white',
                                 backgroundColor: 'transparent',
                                 borderWidth: 2,
@@ -574,7 +574,7 @@ const renderStageDescription = (stage: Stage) => {
                               },
                               {
                                 label: 'Tuned NM',
-                                data: generateDynoCurve(stage.tunedNm, false),
+                                data: generateDynoCurve(stage.tunedNm, true),
                                 borderColor: 'white',
                                 backgroundColor: 'transparent',
                                 borderWidth: 3,
