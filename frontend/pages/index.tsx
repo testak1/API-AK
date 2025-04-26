@@ -447,6 +447,8 @@ const renderStageDescription = (stage: Stage) => {
             const allOptions = getAllAktPlusOptions(stage);
             const isExpanded = expandedStages[stage.name] ?? false;
 
+
+
             return (
               <div key={stage.name} className="bg-gray-800 rounded-xl shadow-lg border border-gray-700 overflow-hidden">
                 <button
@@ -529,7 +531,7 @@ const renderStageDescription = (stage: Stage) => {
 
       <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
         {/* Split the spec boxes */}
-        <div className="absolute flex flex-col sm:flex-row gap-24 top-4 left-4 right-4 justify-center items-start">
+        <div className="absolute flex flex-col sm:flex-row justify-between top-4 left-4 right-4 items-start">
           {/* ORG HK / Max HK */}
           <div className="bg-gray-900 px-4 py-3 rounded text-sm text-white flex flex-col items-start w-30">
             <p className="text-red-600">- -</p>
@@ -776,7 +778,7 @@ const renderStageDescription = (stage: Stage) => {
               </div>
             );
           })}
-        </div>
+        </div> ) : null}
 
 
       {/* Modal */}
