@@ -42,7 +42,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const response = await resend.emails.send({
       from: 'info@aktuning.se',
       to: recipientEmail,
-      subject: `FÖRFRÅGAN - ${vehicle?.brand || ''} ${vehicle?.model || ''} ${vehicle?.year || ''} ${vehicle?.engine || ''} / ${stage || '-'}`
+      subject: `FÖRFRÅGAN - ${vehicle?.brand || ''} ${vehicle?.model || ''} ${vehicle?.year || ''} ${vehicle?.engine || ''} / ${stage || '-'}`,
       reply_to: email,
       html: `
         <div style="font-family: Arial, sans-serif; padding: 20px; color: #222;">
