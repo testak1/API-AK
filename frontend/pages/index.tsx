@@ -531,7 +531,7 @@ const renderStageDescription = (stage: Stage) => {
         {/* Split the spec boxes */}
         <div className="absolute flex flex-col sm:flex-row justify-between top-4 left-4 right-4">
           {/* ORG HK / Max HK */}
-          <div className="bg-gray-600 px-3 py-2 rounded text-sm mb-2 sm:mb-0">
+          <div className="bg-gray-800 px-3 py-2 rounded text-sm mb-2 sm:mb-0">
             <p className="text-red-600">- -</p>
             <p className="text-white">ORG HK: {stage.origHk}</p>
             <p className="text-red-600">⸺</p>
@@ -539,7 +539,7 @@ const renderStageDescription = (stage: Stage) => {
           </div>
 
           {/* ORG NM / Max NM */}
-          <div className="bg-gray-600 px-3 py-2 rounded text-sm">
+          <div className="bg-gray-800 px-3 py-2 rounded text-sm">
             <p className="text-blue-600">- -</p>
             <p className="text-white">ORG NM: {stage.origNm}</p>
             <p className="text-blue-600">⸺</p>
