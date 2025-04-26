@@ -539,7 +539,7 @@ const renderStageDescription = (stage: Stage) => {
           </div>
 
           {/* ORG NM / Max NM */}
-          <div className="px-3 py-2 rounded text-sm">
+          <div className="py-2 rounded text-sm">
             <p className="text-blue-600">- -</p>
             <p className="text-white">ORG NM: {stage.origNm}</p>
             <p className="text-blue-600">⸺</p>
