@@ -428,4 +428,5 @@ return (
       stageOrOption={contactModalData.stageOrOption}
     />
   </div>
-);
+  );
+}
