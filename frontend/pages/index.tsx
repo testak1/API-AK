@@ -783,3 +783,4 @@ const renderStageDescription = (stage: Stage) => {
   }}
   stageOrOption={contactModalData.stageOrOption}
 />
+</div>
