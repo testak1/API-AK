@@ -477,9 +477,11 @@ const renderStageDescription = (stage: Stage) => {
       alt={stage.name}
       className="h-8 object-contain"
     />
+    <div className="flex justify-center md:justify-start items-center">
     <span className="inline-block bg-red-600 text-black px-4 py-1 rounded-full text-xl font-semibold shadow-md">
       {stage.price?.toLocaleString()} kr
     </span>
+    </div>
     <svg
       className={`h-5 w-5 text-orange-600 transition-transform ${
         isExpanded ? 'rotate-180' : ''
@@ -531,9 +533,9 @@ const renderStageDescription = (stage: Stage) => {
 
       <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
         {/* Split the spec boxes */}
-        <div className="absolute flex flex-row justify-between top-4 left-0 right-0 px-16">
+        <div className="absolute flex flex-col sm:flex-row top-4 left-1/2 transform -translate-x-1/2 gap-4 sm:gap-16 items-center">
           {/* ORG HK / Max HK */}
-          <div className="bg-gray-900 px-4 py-3 rounded text-sm text-white flex flex-col items-start w-32">
+          <div className="bg-gray-900 px-4 py-3 rounded text-sm text-white flex flex-col items-start w-40">
             <p className="text-red-600">- -</p>
             <p className="text-white">ORG: {stage.origHk} hk</p>
             <p className="text-red-600">⸺</p>
@@ -541,13 +543,14 @@ const renderStageDescription = (stage: Stage) => {
           </div>
 
           {/* ORG NM / Max NM */}
-          <div className="bg-gray-900 px-4 py-3 rounded text-sm text-white flex flex-col items-start w-32">
+          <div className="bg-gray-900 px-4 py-3 rounded text-sm text-white flex flex-col items-start w-40">
             <p className="text-white">- -</p>
             <p className="text-white">ORG: {stage.origNm} Nm</p>
             <p className="text-white">⸺</p>
             <p className="text-white">MAX: {stage.tunedNm} Nm</p>
           </div>
         </div>
+       </div>
 
         {/* Dyno graph */}
         <Line
@@ -711,7 +714,7 @@ const renderStageDescription = (stage: Stage) => {
       />
       <h3 className="text-xl font-semibold text-white">TILLÄGG</h3>
     </div>
-
+  </div>
     {/* GRID for options */}
 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 {allOptions.map((option) => (
