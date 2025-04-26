@@ -40,7 +40,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const response = await resend.emails.send({
-      from: 'onboarding@resend.dev',
+      from: 'info@aktuning.se',
       to: recipientEmail,
       subject: 'Ny förfrågan från hemsidan',
       html: `
