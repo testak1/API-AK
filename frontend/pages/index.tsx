@@ -29,20 +29,24 @@ export default function TuningViewer() {
   const [expandedDescriptions, setExpandedDescriptions] = useState<Record<string, boolean>>({});
   const [expandedOptions, setExpandedOptions] = useState<Record<string, boolean>>({});
   const watermarkImageRef = useRef<HTMLImageElement | null>(null);
-  const [contactModalData, setContactModalData] = useState<{
-    isOpen: boolean;
-    stageOrOption: string;
-  }>({
-    isOpen: false,
-    stageOrOption: '',
-  });
+const [contactModalData, setContactModalData] = useState<{
+  isOpen: boolean;
+  stageOrOption: string;
+}>({
+  isOpen: false,
+  stageOrOption: '',
+});
 
-  const handleBookNow = (stageOrOptionName: string) => {
-    setContactModalData({
-      isOpen: true,
-      stageOrOption: stageOrOptionName,
-    });
-  };
+
+
+
+// 👇 ADD IT HERE
+const handleBookNow = (stageOrOptionName: string) => {
+  setContactModalData({
+    isOpen: true,
+    stageOrOption: stageOrOptionName,
+  });
+};
 
   // Load watermark image
   useEffect(() => {
@@ -70,42 +74,49 @@ export default function TuningViewer() {
     fetchBrands();
   }, []);
 
-  // Fetch years when brand and model are selected
-  useEffect(() => {
-    const fetchYears = async () => {
-      if (selected.brand && selected.model) {
-        setIsLoading(true);
-        try {
-          const res = await fetch(
-            `/api/years?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}`
-          );
-          if (!res.ok) throw new Error('Failed to fetch years');
-          const years = await res.json();
 
-          setData(prev =>
-            prev.map(brand => {
-              if (brand.name !== selected.brand) return brand;
-              return {
-                ...brand,
-                models: brand.models.map(model => {
-                  if (model.name !== selected.model) return model;
-                  return {
-                    ...model,
-                    years: years.result
-                  };
-                })
-              };
-            })
-          );
-        } catch (error) {
-          console.error('Error fetching years:', error);
-        } finally {
-          setIsLoading(false);
-        }
+
+// Fetch years when brand and model are selected
+useEffect(() => {
+  const fetchYears = async () => {
+    if (selected.brand && selected.model) {
+      setIsLoading(true);
+      try {
+        const res = await fetch(
+          `/api/years?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}`
+        );
+        if (!res.ok) throw new Error('Failed to fetch years');
+        const years = await res.json();
+
+        setData(prev =>
+          prev.map(brand => {
+            if (brand.name !== selected.brand) return brand;
+            return {
+              ...brand,
+              models: brand.models.map(model => {
+                if (model.name !== selected.model) return model;
+                return {
+                  ...model,
+                  years: years.result
+                };
+              })
+            };
+          })
+        );
+      } catch (error) {
+        console.error('Error fetching years:', error);
+      } finally {
+        setIsLoading(false);
       }
-    };
-    fetchYears();
-  }, [selected.brand, selected.model]);
+    }
+  };
+
+  fetchYears();
+}, [selected.brand, selected.model]);
+
+
+
+
 
   // Fetch engines when brand, model, year are selected
   useEffect(() => {
@@ -165,6 +176,8 @@ export default function TuningViewer() {
     return { brands, models, years, engines, selectedEngine, stages, groupedEngines };
   }, [data, selected]);
 
+
+
   useEffect(() => {
     if (stages.length > 0) {
       const initialExpandedStates = stages.reduce((acc, stage) => {
@@ -199,35 +212,35 @@ export default function TuningViewer() {
     }
   };
 
-  const isExpandedAktPlusOption = (item: any): item is AktPlusOption => {
-    return item && '_id' in item && 'title' in item;
-  };
+const isExpandedAktPlusOption = (item: any): item is AktPlusOption => {
+  return item && '_id' in item && 'title' in item;
+};
 
-  const getAllAktPlusOptions = useMemo(() => (stage: Stage) => {
-    if (!selectedEngine) return [];
+const getAllAktPlusOptions = useMemo(() => (stage: Stage) => {
+  if (!selectedEngine) return [];
 
-    const combinedOptions: AktPlusOptionReference[] = [
-      ...(selectedEngine.globalAktPlusOptions || []),
-      ...(stage.aktPlusOptions || [])
-    ];
+  const combinedOptions: AktPlusOptionReference[] = [
+    ...(selectedEngine.globalAktPlusOptions || []),
+    ...(stage.aktPlusOptions || [])
+  ];
 
-    const uniqueOptionsMap = new Map<string, AktPlusOption>();
+  const uniqueOptionsMap = new Map<string, AktPlusOption>();
 
-    (combinedOptions as AktPlusOptionReference[])
-      .filter(isExpandedAktPlusOption)
-      .forEach(opt => {
-        if (
-          (opt.isUniversal ||
-           opt.applicableFuelTypes?.includes(selectedEngine.fuel) ||
-           opt.manualAssignments?.some(ref => ref._ref === selectedEngine._id)) &&
-          (!opt.stageCompatibility || opt.stageCompatibility === stage.name)
-        ) {
-          uniqueOptionsMap.set(opt._id, opt);
-        }
-      });
+  (combinedOptions as AktPlusOptionReference[])
+    .filter(isExpandedAktPlusOption)
+    .forEach(opt => {
+      if (
+        (opt.isUniversal ||
+         opt.applicableFuelTypes?.includes(selectedEngine.fuel) ||
+         opt.manualAssignments?.some(ref => ref._ref === selectedEngine._id)) &&
+        (!opt.stageCompatibility || opt.stageCompatibility === stage.name)
+      ) {
+        uniqueOptionsMap.set(opt._id, opt);
+      }
+    });
 
-    return Array.from(uniqueOptionsMap.values());
-  }, [selectedEngine]);
+  return Array.from(uniqueOptionsMap.values());
+}, [selectedEngine]);
 
   const generateDynoCurve = (peakValue: number, isHp: boolean) => {
     const rpmRange = [2000, 3000, 4000, 5000, 6000, 7000];
@@ -251,13 +264,14 @@ export default function TuningViewer() {
     }));
   };
 
-  const toggleOption = (optionId: string) => {
-    setExpandedOptions(prev => {
-      const newState: Record<string, boolean> = {};
-      newState[optionId] = !prev[optionId];
-      return newState;
-    });
-  };
+const toggleOption = (optionId: string) => {
+  setExpandedOptions(prev => {
+    const newState: Record<string, boolean> = {};
+    // Stäng alla andra, öppna endast det nya
+    newState[optionId] = !prev[optionId];
+    return newState;
+  });
+};
 
   const handleBrandChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelected({ brand: e.target.value, model: '', year: '', engine: '' });
@@ -294,51 +308,52 @@ export default function TuningViewer() {
     }
   };
 
-  const renderStageDescription = (stage: Stage) => {
-    const description = stage.descriptionRef?.description || stage.description;
-    const isExpanded = expandedDescriptions[stage.name] ?? false;
+const renderStageDescription = (stage: Stage) => {
+  const description = stage.descriptionRef?.description || stage.description;
+  const isExpanded = expandedDescriptions[stage.name] ?? false;
 
-    if (!description) return null;
+  if (!description) return null;
 
-    return (
-      <div className="mb-6 border border-gray-700 rounded-lg overflow-hidden">
-        <button
-          onClick={() =>
-            setExpandedDescriptions(prev => ({
-              ...prev,
-              [stage.name]: !prev[stage.name]
-            }))
-          }
-          className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 flex justify-between sm:justify-start items-center text-center">
-          <span className="text-white font-medium">
-            STEG {stage.name.replace(/\D/g, '')} information
-          </span>
-          <svg
-            className={`h-5 w-5 text-orange-600 transition-transform ${
-              isExpanded ? 'rotate-180' : ''
-            }`}
-            viewBox="0 0 20 20"
-            fill="currentColor">
-            <path
-              fillRule="evenodd"
-              d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </button>
+  return (
+    <div className="mb-6 border border-gray-700 rounded-lg overflow-hidden">
+      <button
+        onClick={() =>
+          setExpandedDescriptions(prev => ({
+            ...prev,
+            [stage.name]: !prev[stage.name]
+          }))
+        }
+        className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 flex justify-between sm:justify-start items-center text-center">
+        <span className="text-white font-medium">
+          STEG {stage.name.replace(/\D/g, '')} information
+        </span>
+        <svg
+          className={`h-5 w-5 text-orange-600 transition-transform ${
+            isExpanded ? 'rotate-180' : ''
+          }`}
+          viewBox="0 0 20 20"
+          fill="currentColor">
+          <path
+            fillRule="evenodd"
+            d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+            clipRule="evenodd"
+          />
+        </svg>
+      </button>
 
-        {isExpanded && (
-          <div className="prose prose-invert max-w-none p-4 bg-gray-800">
-            {typeof description === 'string' ? (
-              <p>{description}</p>
-            ) : (
-              <PortableText value={description} components={portableTextComponents} />
-            )}
-          </div>
-        )}
-      </div>
-    );
-  };
+      {isExpanded && (
+        <div className="prose prose-invert max-w-none p-4 bg-gray-800">
+          {typeof description === 'string' ? (
+            <p>{description}</p>
+          ) : (
+            <PortableText value={description} components={portableTextComponents} />
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
 
   return (
     <div className="max-w-5xl mx-auto p-4 md:p-8">
@@ -432,307 +447,333 @@ export default function TuningViewer() {
             const allOptions = getAllAktPlusOptions(stage);
             const isExpanded = expandedStages[stage.name] ?? false;
 
+
+
             return (
               <div key={stage.name} className="bg-gray-800 rounded-xl shadow-lg border border-gray-700 overflow-hidden">
                 <button
                   onClick={() => toggleStage(stage.name)}
                   className="w-full p-6 text-left">
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-                    <div className="flex items-center gap-4">
-                      {data.find(b => b.name === selected.brand)?.logo?.asset && (
-                        <img
-                          src={urlFor(data.find(b => b.name === selected.brand)?.logo).width(60).url()}
-                          alt={selected.brand}
-                          className="h-8 w-auto object-contain"
-                        />
-                      )}
-                      <h2 className="text-lg font-semibold text-white">
-                        {selected.engine} – <span className="text-indigo-400 uppercase tracking-wide">{stage.name}</span>
-                      </h2>
-                    </div>
+<div className="flex flex-col md:flex-row md:items-center md:justify-between">
+  <div className="flex items-center gap-4">
+    {/* Brand logo first */}
+    {data.find(b => b.name === selected.brand)?.logo?.asset && (
+      <img
+        src={urlFor(data.find(b => b.name === selected.brand)?.logo).width(60).url()}
+        alt={selected.brand}
+        className="h-8 w-auto object-contain"
+      />
+    )}
+    {/* Engine name and stage */}
+    <h2 className="text-lg font-semibold text-white">
+      {selected.engine} – <span className="text-indigo-400 uppercase tracking-wide">{stage.name}</span>
+    </h2>
+  </div>
 
-                    <div className="mt-3 md:mt-0 flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-4 text-center">
-                      <img
-                        src={`/badges/${stage.name.toLowerCase().replace(/\s+/g, '')}.png`}
-                        alt={stage.name}
-                        className="h-8 object-contain"
-                      />
-                      <div className="flex justify-center md:justify-start items-center">
-                        <span className="inline-block bg-red-600 text-black px-4 py-1 rounded-full text-xl font-semibold shadow-md">
-                          {stage.price?.toLocaleString()} kr
-                        </span>
-                      </div>
-                      <svg
-                        className={`h-5 w-5 text-orange-600 transition-transform ${
-                          isExpanded ? 'rotate-180' : ''
-                        }`}
-                        viewBox="0 0 20 20"
-                        fill="currentColor">
-                        <path
-                          fillRule="evenodd"
-                          d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    </div>
-                  </div>
-                </button>
+  <div className="mt-3 md:mt-0 flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-4 text-center">
+    {/* Stage badge image */}
+    <img
+      src={`/badges/${stage.name.toLowerCase().replace(/\s+/g, '')}.png`}
+      alt={stage.name}
+      className="h-8 object-contain"
+    />
+    <div className="flex justify-center md:justify-start items-center">
+    <span className="inline-block bg-red-600 text-black px-4 py-1 rounded-full text-xl font-semibold shadow-md">
+      {stage.price?.toLocaleString()} kr
+    </span>
+    </div>
+    <svg
+      className={`h-5 w-5 text-orange-600 transition-transform ${
+        isExpanded ? 'rotate-180' : ''
+      }`}
+      viewBox="0 0 20 20"
+      fill="currentColor"
+    >
+      <path
+        fillRule="evenodd"
+        d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+        clipRule="evenodd"
+      />
+    </svg>
+  </div>
+</div>
 
-                {isExpanded && (
-                  <div className="px-6 pb-6">
-                    {renderStageDescription(stage)}
+</button>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                      <div className="border border-white rounded-lg p-3 text-center">
-                        <p className="text-sm text-white font-bold mb-1">ORIGINAL HK</p>
-                        <p className="text-xl text-white font-bold">{stage.origHk} hk</p>
-                      </div>
-                      <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
-                        <p className="text-xl text-white font-bold mb-1 uppercase">{stage.name} HK</p>
-                        <p className="text-xl font-bold">{stage.tunedHk} hk</p>
-                        <p className="text-xs mt-1 text-red-400">+{stage.tunedHk - stage.origHk} hk</p>
-                      </div>
-                      <div className="border border-white rounded-lg p-3 text-center">
-                        <p className="text-sm text-white font-bold mb-1">ORIGINAL NM</p>
-                        <p className="text-xl text-white font-bold">{stage.origNm} Nm</p>
-                      </div>
-                      <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
-                        <p className="text-xl text-white font-bold mb-1 uppercase">{stage.name} NM</p>
-                        <p className="text-xl font-bold">{stage.tunedNm} Nm</p>
-                        <p className="text-xs mt-1 text-red-400">+{stage.tunedNm - stage.origNm} Nm</p>
-                      </div>
-                    </div>
+{isExpanded && (
+  <div className="px-6 pb-6">
+    {renderStageDescription(stage)}
 
-                    <div className="mt-6">
-                      <h3 className="text-lg font-medium text-gray-300 mb-2">{stage.name}</h3>
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      {/* HK */}
+      <div className="border border-white rounded-lg p-3 text-center">
+        <p className="text-sm text-white font-bold mb-1">ORIGINAL HK</p>
+        <p className="text-xl text-white font-bold">{stage.origHk} hk</p>
+      </div>
+      <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
+        <p className="text-xl text-white font-bold mb-1 uppercase">{stage.name} HK</p>
+        <p className="text-xl font-bold">{stage.tunedHk} hk</p>
+        <p className="text-xs mt-1 text-red-400">+{stage.tunedHk - stage.origHk} hk</p>
+      </div>
 
-                      <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
-                        <div className="absolute flex flex-col sm:flex-row top-4 left-1/2 transform -translate-x-1/2 gap-4 sm:gap-16 items-center">
-                          <div className="bg-gray-900 px-4 py-3 rounded text-sm text-white flex flex-col items-start w-40">
-                            <p className="text-red-600">- -</p>
-                            <p className="text-white">HK ORG: {stage.origHk} hk</p>
-                            <p className="text-red-600">⸺</p>
-                            <p className="text-white">HK AK: {stage.tunedHk} hk</p>
-                          </div>
-                          <div className="bg-gray-900 px-4 py-3 rounded text-sm text-white flex flex-col items-start w-40">
-                            <p className="text-white">- -</p>
-                            <p className="text-white">NM ORG: {stage.origNm} Nm</p>
-                            <p className="text-white">⸺</p>
-                            <p className="text-white">NM AK: {stage.tunedNm} Nm</p>
-                          </div>
-                        </div>
-                      </div>
+      {/* NM */}
+      <div className="border border-white rounded-lg p-3 text-center">
+        <p className="text-sm text-white font-bold mb-1">ORIGINAL NM</p>
+        <p className="text-xl text-white font-bold">{stage.origNm} Nm</p>
+      </div>
+      <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
+        <p className="text-xl text-white font-bold mb-1 uppercase">{stage.name} NM</p>
+        <p className="text-xl font-bold">{stage.tunedNm} Nm</p>
+        <p className="text-xs mt-1 text-red-400">+{stage.tunedNm - stage.origNm} Nm</p>
+      </div>
+    </div>
 
-                      <Line
-                        data={{
-                          labels: ['2000', '3000', '4000', '5000', '6000', '7000'],
-                          datasets: [
-                            {
-                              label: 'Original HK',
-                              data: generateDynoCurve(stage.origHk, true),
-                              borderColor: 'red',
-                              backgroundColor: 'transparent',
-                              borderWidth: 2,
-                              borderDash: [5, 3],
-                              tension: 0.3,
-                              pointRadius: 0,
-                              yAxisID: 'hp',
-                            },
-                            {
-                              label: 'Tuned HK',
-                              data: generateDynoCurve(stage.tunedHk, true),
-                              borderColor: 'red',
-                              backgroundColor: 'transparent',
-                              borderWidth: 3,
-                              tension: 0.4,
-                              pointRadius: 0,
-                              yAxisID: 'hp',
-                            },
-                            {
-                              label: 'Original NM',
-                              data: generateDynoCurve(stage.origNm, false),
-                              borderColor: 'white',
-                              backgroundColor: 'transparent',
-                              borderWidth: 2,
-                              borderDash: [5, 3],
-                              tension: 0.3,
-                              pointRadius: 0,
-                              yAxisID: 'nm',
-                            },
-                            {
-                              label: 'Tuned NM',
-                              data: generateDynoCurve(stage.tunedNm, false),
-                              borderColor: 'white',
-                              backgroundColor: 'transparent',
-                              borderWidth: 3,
-                              tension: 0.4,
-                              pointRadius: 0,
-                              yAxisID: 'nm',
-                            }
-                          ]
-                        }}
-                        options={{
-                          responsive: true,
-                          maintainAspectRatio: false,
-                          plugins: {
-                            legend: {
-                              position: 'top',
-                              labels: {
-                                color: '#E5E7EB',
-                                font: { size: 12 },
-                                boxWidth: 12,
-                                padding: 20,
-                                usePointStyle: true,
-                              }
-                            },
-                            tooltip: {
-                              mode: 'index',
-                              intersect: false,
-                            }
-                          },
-                          scales: {
-                            hp: {
-                              type: 'linear',
-                              display: true,
-                              position: 'left',
-                              title: {
-                                display: true,
-                                text: 'Effekt (HK)',
-                                color: 'white',
-                                font: { size: 14 }
-                              },
-                              min: 0,
-                              max: Math.ceil(stage.tunedHk / 100) * 100 + 100,
-                              grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                              },
-                              ticks: {
-                                color: '#9CA3AF',
-                                stepSize: 100,
-                                callback: (value) => `${value}`
-                              }
-                            },
-                            nm: {
-                              type: 'linear',
-                              display: true,
-                              position: 'right',
-                              title: {
-                                display: true,
-                                text: 'Vridmoment (Nm)',
-                                color: 'white',
-                                font: { size: 14 }
-                              },
-                              min: 0,
-                              max: Math.ceil(stage.tunedNm / 100) * 100 + 100,
-                              grid: {
-                                drawOnChartArea: false,
-                              },
-                              ticks: {
-                                color: '#9CA3AF',
-                                stepSize: 100,
-                                callback: (value) => `${value}`
-                              }
-                            },
-                            x: {
-                              title: {
-                                display: true,
-                                text: 'RPM',
-                                color: '#E5E7EB',
-                                font: { size: 14 }
-                              },
-                              grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                              },
-                              ticks: {
-                                color: '#9CA3AF'
-                              }
-                            }
-                          },
-                          interaction: {
-                            intersect: false,
-                            mode: 'index',
-                          }
-                        }}
-                        plugins={[watermarkPlugin]}
-                      />
+    <div className="mt-6">
+      <h3 className="text-lg font-medium text-gray-300 mb-2">{stage.name}</h3>
 
-                      <div className="text-center text-white text-sm mt-4">
-                        <p>(Simulerad effektkurva)</p>
-                      </div>
+      <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
+        {/* Split the spec boxes */}
+        <div className="absolute flex flex-col sm:flex-row top-4 left-1/2 transform -translate-x-1/2 gap-4 sm:gap-16 items-center">
+          {/* ORG HK / Max HK */}
+          <div className="bg-gray-900 px-4 py-3 rounded text-sm text-white flex flex-col items-start w-40">
+            <p className="text-red-600">- -</p>
+            <p className="text-white">HK ORG: {stage.origHk} hk</p>
+            <p className="text-red-600">⸺</p>
+            <p className="text-white">HK AK: {stage.tunedHk} hk</p>
+          </div>
 
-                      <div className="mt-6 mb-10 flex justify-center">
-                        <button
-                          onClick={() => handleBookNow(stage.name)}
-                          className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg transition-colors">
-                          📩 KONTAKT
-                        </button>
-                      </div>
-                    </div>
+          {/* ORG NM / Max NM */}
+          <div className="bg-gray-900 px-4 py-3 rounded text-sm text-white flex flex-col items-start w-40">
+            <p className="text-white">- -</p>
+            <p className="text-white">NM ORG: {stage.origNm} Nm</p>
+            <p className="text-white">⸺</p>
+            <p className="text-white">NM AK: {stage.tunedNm} Nm</p>
+          </div>
+        </div>
+       </div>
 
-                    {allOptions.length > 0 && (
-                      <div className="mt-8">
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-start items-center justify-center gap-4 mb-4 text-center">
-                          <img
-                            src="/logos/aktplus.png"
-                            alt="AKT+ Logo"
-                            className="h-8 w-auto object-contain"
-                          />
-                          <h3 className="text-xl font-semibold text-white">TILLÄGG</h3>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {allOptions.map((option) => (
-                            <div key={option._id} className="border border-gray-600 rounded-lg overflow-hidden bg-gray-700 transition-all duration-300">
-                              <button
-                                onClick={() => toggleOption(option._id)}
-                                className="w-full flex justify-between items-center p-4 hover:bg-gray-600 transition-colors">
-                                <div className="flex items-center gap-3">
-                                  {option.gallery?.[0]?.asset && (
-                                    <img
-                                      src={urlFor(option.gallery[0].asset).width(80).url()}
-                                      alt={option.gallery[0].alt || option.title}
-                                      className="h-10 w-10 object-contain"
-                                    />
-                                  )}
-                                  <span className="text-lg font-bold text-orange-600">{option.title}</span>
-                                </div>
-                                <svg
-                                  className={`h-5 w-5 text-orange-600 transition-transform ${
-                                    expandedOptions[option._id] ? 'rotate-180' : ''
-                                  }`}
-                                  viewBox="0 0 20 20"
-                                  fill="currentColor">
-                                  <path
-                                    fillRule="evenodd"
-                                    d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-                                    clipRule="evenodd"
-                                  />
-                                </svg>
-                              </button>
+       {/* Dyno graph */}
+        <Line
+          data={{
+            labels: ['2000', '3000', '4000', '5000', '6000', '7000'],
+            datasets: [
+              {
+                label: 'Original HK',
+                data: generateDynoCurve(stage.origHk, true),
+                borderColor: 'red',
+                backgroundColor: 'transparent',
+                borderWidth: 2,
+                borderDash: [5, 3],
+                tension: 0.3,
+                pointRadius: 0,
+                yAxisID: 'hp',
+              },
+              {
+                label: 'Tuned HK',
+                data: generateDynoCurve(stage.tunedHk, true),
+                borderColor: 'red',
+                backgroundColor: 'transparent',
+                borderWidth: 3,
+                tension: 0.4,
+                pointRadius: 0,
+                yAxisID: 'hp',
+              },
+              {
+                label: 'Original NM',
+                data: generateDynoCurve(stage.origNm, false),
+                borderColor: 'white',
+                backgroundColor: 'transparent',
+                borderWidth: 2,
+                borderDash: [5, 3],
+                tension: 0.3,
+                pointRadius: 0,
+                yAxisID: 'nm',
+              },
+              {
+                label: 'Tuned NM',
+                data: generateDynoCurve(stage.tunedNm, false),
+                borderColor: 'white',
+                backgroundColor: 'transparent',
+                borderWidth: 3,
+                tension: 0.4,
+                pointRadius: 0,
+                yAxisID: 'nm',
+              }
+            ]
+          }}
+          options={{
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'top',
+                labels: {
+                  color: '#E5E7EB',
+                  font: { size: 12 },
+                  boxWidth: 12,
+                  padding: 20,
+                  usePointStyle: true,
+                }
+              },
+              tooltip: {
+                mode: 'index',
+                intersect: false,
+              }
+            },
+            scales: {
+              hp: {
+                type: 'linear',
+                display: true,
+                position: 'left',
+                title: {
+                  display: true,
+                  text: 'Effekt (HK)',
+                  color: 'white',
+                  font: { size: 14 }
+                },
+                min: 0,
+                max: Math.ceil(stage.tunedHk / 100) * 100 + 100,
+                grid: {
+                  color: 'rgba(255, 255, 255, 0.1)'
+                },
+                ticks: {
+                  color: '#9CA3AF',
+                  stepSize: 100,
+                  callback: (value) => `${value}`
+                }
+              },
+              nm: {
+                type: 'linear',
+                display: true,
+                position: 'right',
+                title: {
+                  display: true,
+                  text: 'Vridmoment (Nm)',
+                  color: 'white',
+                  font: { size: 14 }
+                },
+                min: 0,
+                max: Math.ceil(stage.tunedNm / 100) * 100 + 100,
+                grid: {
+                  drawOnChartArea: false,
+                },
+                ticks: {
+                  color: '#9CA3AF',
+                  stepSize: 100,
+                  callback: (value) => `${value}`
+                }
+              },
+              x: {
+                title: {
+                  display: true,
+                  text: 'RPM',
+                  color: '#E5E7EB',
+                  font: { size: 14 }
+                },
+                grid: {
+                  color: 'rgba(255, 255, 255, 0.1)'
+                },
+                ticks: {
+                  color: '#9CA3AF'
+                }
+              }
+            },
+            interaction: {
+              intersect: false,
+              mode: 'index',
+            }
+          }}
+          plugins={[watermarkPlugin]}
+        />
+      </div>
+    </div>
 
-                              {expandedOptions[option._id] && (
-                                <div className="bg-gray-800 border-t border-gray-600 p-4 space-y-4">
-                                  {option.description && (
-                                    <div className="prose prose-invert max-w-none text-sm">
-                                      <PortableText value={option.description} components={portableTextComponents} />
-                                    </div>
-                                  )}
-                                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                                    {option.price && (
-                                      <p className="font-bold text-green-400">
-                                        Pris: {option.price.toLocaleString()} kr
-                                      </p>
-                                    )}
-                                    <button
-                                      onClick={() => handleBookNow(option.title)}
-                                      className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-white transition-colors whitespace-nowrap">
-                                      📩 KONTAKT
-                                    </button>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          ))}
-                        </div>
+    <div className="text-center text-white text-sm mt-4">
+      <p>(Simulerad effektkurva)</p>
+    </div>
+
+    <div className="mt-6 mb-10 flex justify-center">
+      <button
+        onClick={() => handleBookNow(stage.name)}
+        className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg transition-colors"
+      >
+        📩 KONTAKT
+      </button>
+    </div>
+   </div>
+
+
+{allOptions.length > 0 && (
+  <div className="mt-8">
+    {/* AKT+ HEADER WITH LOGO */}
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-start items-center justify-center gap-4 mb-4 text-center">
+      <img
+        src="/logos/aktplus.png"
+        alt="AKT+ Logo"
+        className="h-8 w-auto object-contain"
+      />
+      <h3 className="text-xl font-semibold text-white">TILLÄGG</h3>
+    </div>
+  </div>
+    {/* GRID for options */}
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+{allOptions.map((option) => (
+  <div key={option._id} className="border border-gray-600 rounded-lg overflow-hidden bg-gray-700 transition-all duration-300">
+    <button
+      onClick={() => toggleOption(option._id)}
+      className="w-full flex justify-between items-center p-4 hover:bg-gray-600 transition-colors"
+    >
+      <div className="flex items-center gap-3">
+        {option.gallery?.[0]?.asset && (
+          <img
+            src={urlFor(option.gallery[0].asset).width(80).url()}
+            alt={option.gallery[0].alt || option.title}
+            className="h-10 w-10 object-contain"
+          />
+        )}
+        <span className="text-lg font-bold text-orange-600">{option.title}</span>
+      </div>
+      <svg
+        className={`h-5 w-5 text-orange-600 transition-transform ${
+          expandedOptions[option._id] ? 'rotate-180' : ''
+        }`}
+        viewBox="0 0 20 20"
+        fill="currentColor"
+      >
+        <path
+          fillRule="evenodd"
+          d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+          clipRule="evenodd"
+        />
+      </svg>
+    </button>
+
+    {expandedOptions[option._id] && (
+      <div className="bg-gray-800 border-t border-gray-600 p-4 space-y-4">
+        {option.description && (
+          <div className="prose prose-invert max-w-none text-sm">
+            <PortableText value={option.description} components={portableTextComponents} />
+          </div>
+        )}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          {option.price && (
+            <p className="font-bold text-green-400">
+              Pris: {option.price.toLocaleString()} kr
+            </p>
+          )}
+          <button
+            onClick={() => handleBookNow(option.title)}
+            className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-white transition-colors whitespace-nowrap"
+          >
+            📩 KONTAKT
+          </button>
+        </div>
+      </div>
+    )}
+  </div>
+))}
+</div>
+
                       </div>
                     )}
                   </div>
@@ -740,9 +781,10 @@ export default function TuningViewer() {
               </div>
             );
           })}
-        </div>
-      ) : null}
+        </div> ) : null}
 
+
+      {/* Modal */}
       <ContactModal
         isOpen={contactModalData.isOpen}
         onClose={() => setContactModalData({ isOpen: false, stageOrOption: '' })}
