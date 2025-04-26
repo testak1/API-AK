@@ -453,38 +453,41 @@ const renderStageDescription = (stage: Stage) => {
                   onClick={() => toggleStage(stage.name)}
                   className="w-full p-6 text-left">
 <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-<div className="flex items-center gap-4">
-  {/* Brand logo first */}
-  {data.find(b => b.name === selected.brand)?.logo?.asset && (
-    <img
-      src={urlFor(data.find(b => b.name === selected.brand)?.logo).width(60).url()}
-      alt={selected.brand}
-      className="h-8 w-auto object-contain"
-    />
-  )}
+  <div className="flex items-center gap-4">
+    {/* Brand logo first */}
+    {data.find(b => b.name === selected.brand)?.logo?.asset && (
+      <img
+        src={urlFor(data.find(b => b.name === selected.brand)?.logo).width(60).url()}
+        alt={selected.brand}
+        className="h-8 w-auto object-contain"
+      />
+    )}
 
-  {/* Engine name and stage */}
-  <h2 className="text-lg font-semibold text-white">
-    {selected.engine} – <span className="text-indigo-400 uppercase tracking-wide">{stage.name}</span>
-  </h2>
-</div>
-  
+    {/* Engine name and stage */}
+    <h2 className="text-lg font-semibold text-white">
+      {selected.engine} – <span className="text-indigo-400 uppercase tracking-wide">{stage.name}</span>
+    </h2>
+  </div>
+
   <div className="mt-3 md:mt-0 flex items-center gap-4">
     {/* Stage badge image */}
     <img
-      src={`/badges/${stage.name.toLowerCase().replace(/\s+/g, '')}.png`} // e.g. steg1.png
+      src={`/badges/${stage.name.toLowerCase().replace(/\s+/g, '')}.png`}
       alt={stage.name}
       className="h-8 object-contain"
     />
-<span className="inline-block bg-red-600 text-black px-4 py-1 rounded-full text-xl font-semibold shadow-md">
-  {stage.price?.toLocaleString()} kr
-</span>
+
+    <span className="inline-block bg-red-600 text-black px-4 py-1 rounded-full text-xl font-semibold shadow-md">
+      {stage.price?.toLocaleString()} kr
+    </span>
+
     <svg
       className={`h-5 w-5 text-orange-600 transition-transform ${
         isExpanded ? 'rotate-180' : ''
       }`}
       viewBox="0 0 20 20"
-      fill="currentColor">
+      fill="currentColor"
+    >
       <path
         fillRule="evenodd"
         d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
@@ -494,194 +497,202 @@ const renderStageDescription = (stage: Stage) => {
   </div>
 </div>
 
-                </button>
+</button>
 
+{isExpanded && (
+  <div className="px-6 pb-6">
+    {renderStageDescription(stage)}
 
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      {/* Original HK */}
+      <div className="border border-white rounded-lg p-3 text-center">
+        <p className="text-sm text-white font-bold mb-1">ORIGINAL HK</p>
+        <p className="text-xl text-white font-bold">{stage.origHk} hk</p>
+      </div>
 
+      {/* Tuned HK */}
+      <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
+        <p className="text-sm text-white font-bold mb-1 uppercase">{stage.name} HK</p>
+        <p className="text-xl font-bold">{stage.tunedHk} hk</p>
+        <p className="text-xs mt-1 text-red-400">+{stage.tunedHk - stage.origHk} hk</p>
+      </div>
 
+      {/* Original NM */}
+      <div className="border border-white rounded-lg p-3 text-center">
+        <p className="text-sm text-white font-bold mb-1">ORIGINAL NM</p>
+        <p className="text-xl text-white font-bold">{stage.origNm} Nm</p>
+      </div>
 
-                {isExpanded && (
-                  <div className="px-6 pb-6">
-                    {renderStageDescription(stage)}
-
-<div className="mt-6">
-  <h3 className="text-lg font-medium text-gray-300 mb-2">{stage.name}</h3>
-  <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
-    {/* Top Left Block */}
-    <div className="absolute left-4 top-4 bg-gray-600 px-2 py-1 rounded text-sm">
-      <p className="text-red-600">- -</p>
-      <p className="text-white">ORG HK: {stage.origHk}</p>
-      <p className="text-red-600">⸺</p>
-      <p className="text-white">Max HK: {stage.tunedHk}</p>
+      {/* Tuned NM */}
+      <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
+        <p className="text-sm text-white font-bold mb-1 uppercase">{stage.name} NM</p>
+        <p className="text-xl font-bold">{stage.tunedNm} Nm</p>
+        <p className="text-xs mt-1 text-red-400">+{stage.tunedNm - stage.origNm} Nm</p>
+      </div>
     </div>
 
-    {/* Top Right Block */}
-    <div className="absolute right-4 top-4 bg-gray-600 px-2 py-1 rounded text-sm">
-      <p className="text-blue-600">- -</p>
-      <p className="text-white">ORG NM: {stage.origNm}</p>
-      <p className="text-blue-600">⸺</p>
-      <p className="text-white">Max NM: {stage.tunedNm}</p>
+    <div className="mt-6">
+      <h3 className="text-lg font-medium text-gray-300 mb-2">{stage.name}</h3>
+
+      <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
+        <div className="absolute right-4 top-4 bg-gray-600 px-2 py-1 rounded text-sm">
+          <p className="text-red-600">- -</p>
+          <p className="text-white">ORG HK: {stage.origHk}</p>
+          <p className="text-red-600">⸺</p>
+          <p className="text-white">Max HK: {stage.tunedHk}</p>
+          <p className="text-blue-600">- -</p>
+          <p className="text-white">ORG NM: {stage.origNm}</p>
+          <p className="text-blue-600">⸺</p>
+          <p className="text-white">Max NM: {stage.tunedNm}</p>
+        </div>
+
+        <Line
+          data={{
+            labels: ['2000', '3000', '4000', '5000', '6000', '7000'],
+            datasets: [
+              {
+                label: 'Original HK',
+                data: generateDynoCurve(stage.origHk, true),
+                borderColor: 'red',
+                backgroundColor: 'transparent',
+                borderWidth: 2,
+                borderDash: [5, 3],
+                tension: 0.3,
+                pointRadius: 0,
+                yAxisID: 'hp',
+              },
+              {
+                label: 'Tuned HK',
+                data: generateDynoCurve(stage.tunedHk, true),
+                borderColor: 'red',
+                backgroundColor: 'transparent',
+                borderWidth: 3,
+                tension: 0.4,
+                pointRadius: 0,
+                yAxisID: 'hp',
+              },
+              {
+                label: 'Original NM',
+                data: generateDynoCurve(stage.origNm, false),
+                borderColor: 'white',
+                backgroundColor: 'transparent',
+                borderWidth: 2,
+                borderDash: [5, 3],
+                tension: 0.3,
+                pointRadius: 0,
+                yAxisID: 'nm',
+              },
+              {
+                label: 'Tuned NM',
+                data: generateDynoCurve(stage.tunedNm, false),
+                borderColor: 'white',
+                backgroundColor: 'transparent',
+                borderWidth: 3,
+                tension: 0.4,
+                pointRadius: 0,
+                yAxisID: 'nm',
+              }
+            ]
+          }}
+          options={{
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'top',
+                labels: {
+                  color: '#E5E7EB',
+                  font: { size: 12 },
+                  boxWidth: 12,
+                  padding: 20,
+                  usePointStyle: true,
+                }
+              },
+              tooltip: {
+                mode: 'index',
+                intersect: false,
+              }
+            },
+            scales: {
+              hp: {
+                type: 'linear',
+                display: true,
+                position: 'left',
+                title: {
+                  display: true,
+                  text: 'Effekt (HK)',
+                  color: 'white',
+                  font: { size: 14 }
+                },
+                min: 0,
+                max: Math.ceil(stage.tunedHk / 100) * 100 + 20,
+                grid: {
+                  color: 'rgba(255, 255, 255, 0.1)'
+                },
+                ticks: {
+                  color: '#9CA3AF',
+                  stepSize: 100,
+                  callback: (value) => `${value}`
+                }
+              },
+              nm: {
+                type: 'linear',
+                display: true,
+                position: 'right',
+                title: {
+                  display: true,
+                  text: 'Vridmoment (Nm)',
+                  color: 'white',
+                  font: { size: 14 }
+                },
+                min: 0,
+                max: Math.ceil(stage.tunedNm / 100) * 100 + 100,
+                grid: {
+                  drawOnChartArea: false,
+                },
+                ticks: {
+                  color: '#9CA3AF',
+                  stepSize: 100,
+                  callback: (value) => `${value}`
+                }
+              },
+              x: {
+                title: {
+                  display: true,
+                  text: 'RPM',
+                  color: '#E5E7EB',
+                  font: { size: 14 }
+                },
+                grid: {
+                  color: 'rgba(255, 255, 255, 0.1)'
+                },
+                ticks: {
+                  color: '#9CA3AF'
+                }
+              }
+            },
+            interaction: {
+              intersect: false,
+              mode: 'index',
+            }
+          }}
+          plugins={[watermarkPlugin]}
+        />
+      </div>
     </div>
-  </div>
-</div>
-                        
-                        <Line
-                          data={{
-                            labels: ['2000', '3000', '4000', '5000', '6000', '7000'],
-                            datasets: [
-                              {
-                                label: 'Original HK',
-                                data: generateDynoCurve(stage.origHk, true),
-                                borderColor: 'red',
-                                backgroundColor: 'transparent',
-                                borderWidth: 2,
-                                borderDash: [5, 3],
-                                tension: 0.3,
-                                pointRadius: 0,
-                                yAxisID: 'hp',
-                              },
-                              {
-                                label: 'Tuned HK',
-                                data: generateDynoCurve(stage.tunedHk, true),
-                                borderColor: 'red',
-                                backgroundColor: 'transparent',
-                                borderWidth: 3,
-                                tension: 0.4,
-                                pointRadius: 0,
-                                yAxisID: 'hp',
-                              },
-                              {
-                                label: 'Original NM',
-                                data: generateDynoCurve(stage.origNm, false),
-                                borderColor: 'white',
-                                backgroundColor: 'transparent',
-                                borderWidth: 2,
-                                borderDash: [5, 3],
-                                tension: 0.3,
-                                pointRadius: 0,
-                                yAxisID: 'nm',
-                              },
-                              {
-                                label: 'Tuned NM',
-                                data: generateDynoCurve(stage.tunedNm, false),
-                                borderColor: 'white',
-                                backgroundColor: 'transparent',
-                                borderWidth: 3,
-                                tension: 0.4,
-                                pointRadius: 0,
-                                yAxisID: 'nm',
-                              }
-                            ]
-                          }}
-                          options={{
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                              legend: {
-                                position: 'top',
-                                labels: {
-                                  color: '#E5E7EB',
-                                  font: { size: 12 },
-                                  boxWidth: 12,
-                                  padding: 20,
-                                  usePointStyle: true,
-                                }
-                              },
-                              tooltip: {
-                                mode: 'index',
-                                intersect: false,
-                              }
-                            },
-                            scales: {
-                              hp: {
-                                type: 'linear',
-                                display: true,
-                                position: 'left',
-                                title: {
-                                  display: true,
-                                  text: 'Effekt (HK)',
-                                  color: 'white',
-                                  font: { 
-                                    size: 14,
-                                  }
-                                },
-                                min: 0,
-                                max: Math.ceil(stage.tunedHk / 100) * 100 + 20,
-                                grid: {
-                                  color: 'rgba(255, 255, 255, 0.1)'
-                                },
-                                ticks: {
-                                  color: '#9CA3AF',
-                                  stepSize: 100,
-                                  callback: (value) => `${value}`
-                                }
-                              },
-                              nm: {
-                                type: 'linear',
-                                display: true,
-                                position: 'right',
-                                title: {
-                                  display: true,
-                                  text: 'Vridmoment (Nm)',
-                                  color: 'white',
-                                  font: { 
-                                    size: 14,
-                                  }
-                                },
-                                min: 0,
-                                max: Math.ceil(stage.tunedNm / 100) * 100 + 100,
-                                grid: {
-                                  drawOnChartArea: false,
-                                },
-                                ticks: {
-                                  color: '#9CA3AF',
-                                  stepSize: 100,
-                                  callback: (value) => `${value}`
-                                }
-                              },
-                              x: {
-                                title: {
-                                  display: true,
-                                  text: 'RPM',
-                                  color: '#E5E7EB',
-                                  font: { 
-                                    size: 14,
-                                  }
-                                },
-                                grid: {
-                                  color: 'rgba(255, 255, 255, 0.1)'
-                                },
-                                ticks: {
-                                  color: '#9CA3AF'
-                                }
-                              }
-                            },
-                            interaction: {
-                              intersect: false,
-                              mode: 'index',
-                            }
-                          }}
-                          plugins={[watermarkPlugin]}
-                        />
 
+    <div className="text-center text-white text-sm mt-4">
+      <p>(Simulerad effektkurva)</p>
+    </div>
 
-
-
-                      </div>
-                    </div>
-
-<div className="text-center text-white text-sm">
-  <p>(Simulerad effektkurva)</p>
-</div>
-
-{/* Add spacer */}
-<div className="mt-6 mb-10 flex justify-center">
-<button
-  onClick={() => handleBookNow(stage.name)} 
-    className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg transition-colors">
-    📩 KONTAKT
-  </button>
-</div>
+    <div className="mt-6 mb-10 flex justify-center">
+      <button
+        onClick={() => handleBookNow(stage.name)}
+        className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg transition-colors"
+      >
+        📩 KONTAKT
+      </button>
+    </div>
 
 
 
