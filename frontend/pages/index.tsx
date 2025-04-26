@@ -703,7 +703,6 @@ const renderStageDescription = (stage: Stage) => {
 
 
 
-
 {allOptions.length > 0 && (
   <div className="mt-8">
     {/* AKT+ HEADER WITH LOGO */}
@@ -715,6 +714,8 @@ const renderStageDescription = (stage: Stage) => {
       />
       <h3 className="text-xl font-semibold text-white">TILLÄGG</h3>
     </div>
+
+    {/* GRID for options */}
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {allOptions.map((option) => (
         <div key={option._id} className="border border-gray-600 rounded-lg overflow-hidden">
@@ -749,17 +750,11 @@ const renderStageDescription = (stage: Stage) => {
 
           {expandedOptions[option._id] && (
             <div className="p-4 bg-gray-800">
-              {/* Description Text */}
               {option.description && (
                 <div className="prose prose-invert max-w-none mb-4">
-                  <PortableText
-                    value={option.description}
-                    components={portableTextComponents}
-                  />
+                  <PortableText value={option.description} components={portableTextComponents} />
                 </div>
               )}
-
-              {/* Cost and CTA */}
               <div className="mt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
                   {option.price && (
@@ -779,15 +774,15 @@ const renderStageDescription = (stage: Stage) => {
           )}
         </div>
       ))}
-    </div> 
-  </div>
+    </div> {/* ✅ Stänger grid-cols-2 här */}
+  </div>  {/* ✅ Stänger hela AKT+ sektionen här */}
+)}
 
-        <div className="text-center py-12 bg-gray-800 rounded-xl">
-          <p className="text-white">
-EXTRA INFO RUTA KANSKE?
-          </p>
-        </div>
-      )}
+{!allOptions.length && (
+  <div className="text-center py-12 bg-gray-800 rounded-xl mt-8">
+    <p className="text-white">EXTRA INFO RUTA KANSKE?</p>
+  </div>
+)}
 
 <ContactModal
   isOpen={contactModalData.isOpen}
@@ -800,6 +795,3 @@ EXTRA INFO RUTA KANSKE?
   }}
   stageOrOption={contactModalData.stageOrOption}
 />
-    </div>
-  );
-}
