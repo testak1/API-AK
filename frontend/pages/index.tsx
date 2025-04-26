@@ -264,12 +264,17 @@ const getAllAktPlusOptions = useMemo(() => (stage: Stage) => {
     }));
   };
 
-  const toggleOption = (optionId: string) => {
-    setExpandedOptions(prev => ({
-      ...prev,
-      [optionId]: !prev[optionId]
-    }));
-  };
+const toggleOption = (optionId: string) => {
+  setExpandedOptions(prev => {
+    const newState: Record<string, boolean> = {};
+    // Stäng alla andra, öppna bara den du klickar på
+    for (const key in prev) {
+      newState[key] = false;
+    }
+    newState[optionId] = !prev[optionId];
+    return newState;
+  });
+};
 
   const handleBrandChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelected({ brand: e.target.value, model: '', year: '', engine: '' });
