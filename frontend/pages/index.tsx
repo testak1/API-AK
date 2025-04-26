@@ -539,7 +539,7 @@ const renderStageDescription = (stage: Stage) => {
                           <p className="text-blue-600">- -</p><p className="text-white">ORG NM: {stage.origNm}</p>
                           <p className="text-blue-600">⸺</p><p className="text-white">Max NM: {stage.tunedNm}</p>
                         </div>
-                        
+                     </div>
                         
                         <Line
                           data={{
