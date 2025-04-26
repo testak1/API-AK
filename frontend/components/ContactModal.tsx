@@ -82,29 +82,34 @@ const handleClose = () => {
   <div className="fixed inset-0 bg-black bg-opacity-50" />
   <div className="fixed inset-0 flex items-center justify-center p-4">
     <Dialog.Panel className="bg-gray-900 rounded-lg max-w-md w-full p-6 shadow-xl">
-          <Dialog.Title className="text-white text-xl font-bold mb-4">
-            {contactMode === 'thankyou' ? 'Tack för din förfrågan!' : 'VÄLJ METOD NEDANFÖR'}
-          </Dialog.Title>
+    
+      {/* Close button */}
+      <button
+        type="button"
+        onClick={handleClose}
+        className="absolute top-4 right-4 text-white text-2xl hover:text-red-400"
+      >
+        &times;
+      </button>
+
+      {/* Modal content starts here */}
+      <Dialog.Title className="text-white text-xl font-bold mb-4">
+        {contactMode === 'thankyou' ? 'Tack för din förfrågan!' : 'VÄLJ METOD NEDANFÖR'}
+      </Dialog.Title>
 
           {!contactMode && (
             <div className="flex flex-col gap-4">
 <button
   type="button"
   className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
-  onClick={(e) => {
-    e.stopPropagation(); // 👈 ADD THIS to fix
-    setContactMode('form');
-  }}
+  onClick={() => setContactMode('form')}
 >
   📩 SKICKA FÖRFRÅGAN
 </button>
 <button
   type="button"
   className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
-  onClick={(e) => {
-    e.stopPropagation(); // 👈 ADD THIS too
-    setContactMode('phone');
-  }}
+  onClick={() => setContactMode('phone')}
 >
   📞 RING OSS
 </button>
