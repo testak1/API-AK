@@ -350,7 +350,7 @@ const renderStageDescription = (stage: Stage) => {
           )}
         </div>
       )}
-    </div>
+
   );
 };
 
