@@ -510,7 +510,7 @@ const renderStageDescription = (stage: Stage) => {
                         <p className="text-xl text-white font-bold">{stage.origHk} hk</p>
                       </div>
                       <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
-                        <p className="text-sm text-white font-bold mb-1 uppercase">{stage.name} HK</p>
+                        <p className="text-xl text-white font-bold mb-1 uppercase">{stage.name} HK</p>
                         <p className="text-xl font-bold">{stage.tunedHk} hk</p>
                         <p className="text-xs mt-1 text-red-400">+{stage.tunedHk - stage.origHk} hk</p>
                       </div>
@@ -519,7 +519,7 @@ const renderStageDescription = (stage: Stage) => {
                         <p className="text-xl text-white font-bold">{stage.origNm} Nm</p>
                       </div>
                       <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
-                        <p className="text-sm text-white font-bold mb-1 uppercase">{stage.name} NM</p>
+                        <p className="text-xl text-white font-bold mb-1 uppercase">{stage.name} NM</p>
                         <p className="text-xl font-bold">{stage.tunedNm} Nm</p>
                         <p className="text-xs mt-1 text-red-400">+{stage.tunedNm - stage.origNm} Nm</p>
                       </div>
