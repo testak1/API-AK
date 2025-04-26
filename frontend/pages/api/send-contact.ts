@@ -54,19 +54,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
             <div style="padding: 20px; color: #111;">
               <h3 style="margin-bottom: 10px;">🔹 UPPGIFTER</h3>
-              <table cellpadding="6" cellspacing="0" style="width: 100%;">
+              <table cellpadding="6" cellspacing="0" style="width: 40%;">
                 <tr><td><strong>NAMN:</strong></td><td>${name}</td></tr>
                 <tr><td><strong>EMAIL:</strong></td><td>${email}</td></tr>
                 <tr><td><strong>TELNR:</strong></td><td>${tel}</td></tr>
               </table>
 
               <h3 style="margin-top: 30px; margin-bottom: 10px;">🚗 FORDON</h3>
-              <table cellpadding="8" cellspacing="0" style="width: 100%;">
+              <table cellpadding="8" cellspacing="0" style="width: 55%;">
                 <tr><td><strong>MÄRKE:</strong></td><td>${vehicle?.brand || '-'}</td></tr>
                 <tr><td><strong>MODELL:</strong></td><td>${vehicle?.model || '-'}</td></tr>
                 <tr><td><strong>VARIANT:</strong></td><td>${vehicle?.year || '-'}</td></tr>
                 <tr><td><strong>MOTOR:</strong></td><td>${vehicle?.engine || '-'}</td></tr>
-                <tr><td><strong>GÄLLANDE:</strong></td><td><span style="color: #059669;"><strong>${stage || '-'}</strong></span></td></tr>
+                <tr><td><strong>GÄLLANDE:</strong></td><td><span style="color: #059669;"><strong>$(stage || '-').toUpperCase()}</strong></span></td></tr>
               </table>
 
               <h3 style="margin-top: 30px; margin-bottom: 10px; text-align:center;">💬 MEDDELANDE</h3>
