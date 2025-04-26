@@ -348,9 +348,9 @@ const renderStageDescription = (stage: Stage) => {
           ) : (
             <PortableText value={description} components={portableTextComponents} />
           )}
-        </div>
-      )}
-    );
+      </div>
+)}
+);
 
 
 
