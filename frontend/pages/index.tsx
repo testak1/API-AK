@@ -700,10 +700,10 @@ const renderStageDescription = (stage: Stage) => {
 <div className="mt-6 mb-10 flex justify-center">
 <button
   onClick={() => handleBookNow(stage.name)} 
-  className="..." 
->
-  📩 BOKA/KONTAKTA OSS
-</button>
+    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg transition-colors"
+  >
+    📩 BOKA/KONTAKTA OSS
+  </button>
 </div>
 
 
@@ -779,10 +779,10 @@ const renderStageDescription = (stage: Stage) => {
   </div>
 <button
   onClick={() => handleBookNow(option.title)}
-  className="..."
->
-  📩 BOKA/KONTAKTA OSS
-</button>
+    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white transition-colors whitespace-nowrap"
+  >
+    📩 BOKA/KONTAKTA OSS
+  </button>
 </div>
   </div>
 )}
