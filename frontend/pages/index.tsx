@@ -540,7 +540,7 @@ const renderStageDescription = (stage: Stage) => {
                               {
                                 label: 'Original HK',
                                 data: generateDynoCurve(stage.origHk, true),
-                                borderColor: 'rgba(251, 191, 36, 0.7)',
+                                borderColor: 'rgba(255, 0, 0)',
                                 backgroundColor: 'transparent',
                                 borderWidth: 2,
                                 borderDash: [5, 3],
