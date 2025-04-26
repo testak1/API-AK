@@ -1,5 +1,5 @@
 import { Dialog } from '@headlessui/react';
-import { Fragment, useState } from 'react';
+import { Fragment, useState, useEffect } from 'react';
 
 interface ContactModalProps {
   isOpen: boolean;
@@ -15,14 +15,23 @@ interface ContactModalProps {
 
 export default function ContactModal({ isOpen, onClose, selectedVehicle, stageOrOption }: ContactModalProps) {
   const [contactMode, setContactMode] = useState<'form' | 'phone' | 'thankyou' | null>(null);
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    tel: '',
-    message: '',
-    branch: '',
-    stage: stageOrOption || '-',   // <-- Correct here
-  });
+const [formData, setFormData] = useState({
+  name: '',
+  email: '',
+  tel: '',
+  message: '',
+  branch: '',
+  stage: '-',  // default
+});
+
+// 👇 ADD THIS
+useEffect(() => {
+  setFormData((prev) => ({
+    ...prev,
+    stage: stageOrOption || '-',
+  }));
+}, [stageOrOption]);
+
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');
 
@@ -53,7 +62,7 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle, stageOr
         tel: '',
         message: '',
         branch: '',
-        stage: stageOrOption || '-',
+        stage: '-',
       });
       setContactMode('thankyou');
     } catch (err: any) {
@@ -95,9 +104,14 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle, stageOr
 
           {contactMode === 'form' && (
             <form className="space-y-4 text-left mt-4 text-white" onSubmit={handleSubmit}>
-              <div className="text-sm text-gray-400 mb-2">
-                FÖRFRÅGAN FÖR: <strong>{selectedVehicle.brand} {selectedVehicle.model} {selectedVehicle.year} – {selectedVehicle.engine}</strong>
-              </div>
+<div className="text-sm text-gray-400 mb-2">
+  FÖRFRÅGAN FÖR: <strong>{selectedVehicle.brand} {selectedVehicle.model} {selectedVehicle.year} – {selectedVehicle.engine}</strong>
+  {formData.stage && formData.stage !== '-' && (
+    <div className="mt-1 text-green-400 text-xs">
+      ➔ Vald Stage/AKT+: <strong>{formData.stage}</strong>
+    </div>
+  )}
+</div>
 
               <input type="text" placeholder="NAMN" required className="w-full p-2 rounded bg-gray-800 border border-gray-600" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
               <input type="email" placeholder="EMAIL" required className="w-full p-2 rounded bg-gray-800 border border-gray-600" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
