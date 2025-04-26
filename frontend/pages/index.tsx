@@ -529,21 +529,21 @@ const renderStageDescription = (stage: Stage) => {
 
       <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
         {/* Split the spec boxes */}
-        <div className="absolute flex flex-col sm:flex-row gap-8 top-4 left-0 right-0 justify-center items-start">
+        <div className="absolute flex flex-col sm:flex-row gap-24 top-4 left-0 right-0 justify-center items-start">
           {/* ORG HK / Max HK */}
-          <div className="bg-gray-600 px-6 py-3 rounded text-sm text-white flex flex-col items-start w-48">
+          <div className="bg-gray-800 px-6 py-3 rounded text-sm text-white flex flex-col items-start w-48">
             <p className="text-red-600">- -</p>
-            <p className="text-orange-600">ORG HK: {stage.origHk}</p>
+            <p className="text-white">org hk: {stage.origHk}</p>
             <p className="text-red-600">⸺</p>
-            <p className="text-orange-600">Max HK: {stage.tunedHk}</p>
+            <p className="text-white">max hk: {stage.tunedHk}</p>
           </div>
 
           {/* ORG NM / Max NM */}
-          <div className="bg-gray-600 px-6 py-3 rounded text-sm text-white flex flex-col items-start w-48">
+          <div className="bg-gray-800 px-6 py-3 rounded text-sm text-white flex flex-col items-start w-48">
             <p className="text-white">- -</p>
-            <p className="text-orange-600">ORG NM: {stage.origNm}</p>
+            <p className="text-white">org nm: {stage.origNm}</p>
             <p className="text-white">⸺</p>
-            <p className="text-orange-600">Max NM: {stage.tunedNm}</p>
+            <p className="text-white">max nm: {stage.tunedNm}</p>
           </div>
         </div>
 
