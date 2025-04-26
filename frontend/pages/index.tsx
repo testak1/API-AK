@@ -31,6 +31,8 @@ export default function TuningViewer() {
   const watermarkImageRef = useRef<HTMLImageElement | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [selectedStageOrOption, setSelectedStageOrOption] = useState<string | undefined>(undefined);
+
 
   // Load watermark image
   useEffect(() => {
@@ -683,7 +685,10 @@ const renderStageDescription = (stage: Stage) => {
 {/* Add spacer */}
 <div className="mt-6 mb-10 flex justify-center">
   <button
-    onClick={() => setIsContactModalOpen(true)}
+    onClick={() => {
+      setSelectedStageOrOption(stage.name); // 👈 Set the Stage name dynamically!
+      setIsContactModalOpen(true);
+    }}
     className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg transition-colors"
   >
     📩 BOKA/KONTAKTA OSS
@@ -751,22 +756,25 @@ const renderStageDescription = (stage: Stage) => {
 
     {/* Gallery removed */}
 
-    {/* Cost and CTA */}
-    <div className="mt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-      <div>
-        {option.price && (
-          <p className="font-bold text-green-400">
-            Pris: {option.price.toLocaleString()} kr
-          </p>
-        )}
-      </div>
-<button
-  onClick={() => setIsModalOpen(true)}
-  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white transition-colors whitespace-nowrap"
->
-  📩 BOKA/KONTAKTA OSS
-</button>
-    </div>
+{/* Cost and CTA */}
+<div className="mt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+  <div>
+    {option.price && (
+      <p className="font-bold text-green-400">
+        Pris: {option.price.toLocaleString()} kr
+      </p>
+    )}
+  </div>
+  <button
+    onClick={() => {
+      setSelectedStageOrOption(option.title); // 👈 NEW: Set AKT+ title
+      setIsContactModalOpen(true); // 👈 Then open modal
+    }}
+    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white transition-colors whitespace-nowrap"
+  >
+    📩 BOKA/KONTAKTA OSS
+  </button>
+</div>
   </div>
 )}
 
@@ -789,16 +797,17 @@ EXTRA INFO RUTA KANSKE?
         </div>
       )}
 
-      <ContactModal
-        isOpen={isContactModalOpen}
-        onClose={() => setIsContactModalOpen(false)}
-        selectedVehicle={{
-          brand: selected.brand,
-          model: selected.model,
-          year: selected.year,
-          engine: selected.engine
-        }}
-      />
+<ContactModal
+  isOpen={isContactModalOpen}
+  onClose={() => setIsContactModalOpen(false)}
+  selectedVehicle={{
+    brand: selected.brand,
+    model: selected.model,
+    year: selected.year,
+    engine: selected.engine,
+  }}
+  stageOrOption={selectedStageOrOption} // 👈 ADD this new prop!
+ />
     </div>
   );
 }
