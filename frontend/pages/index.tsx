@@ -529,7 +529,7 @@ const renderStageDescription = (stage: Stage) => {
                       <h3 className="text-lg font-medium text-gray-300 mb-2">{stage.name}</h3>
                       <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
                         <div className="absolute right-4 top-4 bg-gray-800 px-2 py-1 rounded text-sm">
-                          <p className="text-amber-400">Max HK: {stage.tunedHk}</p>
+                          <p className="text-red-400">Max HK: {stage.tunedHk}</p>
                           <p className="text-blue-400">Max NM: {stage.tunedNm}</p>
                         </div>
                         
@@ -689,8 +689,8 @@ const renderStageDescription = (stage: Stage) => {
 <div className="mt-6 mb-10 flex justify-center">
 <button
   onClick={() => handleBookNow(stage.name)} 
-    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg transition-colors">
-    📩 BOKA/KONTAKTA OSS
+    className="bg-green-400 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg transition-colors">
+    📩 KONTAKT
   </button>
 </div>
 
@@ -757,7 +757,7 @@ const renderStageDescription = (stage: Stage) => {
           )}
           <button
             onClick={() => handleBookNow(option.title)}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white transition-colors whitespace-nowrap"
+            className="px-4 py-2 bg-green-400 hover:bg-green-700 rounded-lg text-white transition-colors whitespace-nowrap"
           >
             📩 BOKA/KONTAKTA OSS
           </button>
