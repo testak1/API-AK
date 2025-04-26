@@ -78,7 +78,7 @@ useEffect(() => {
   };
 
   return (
-    <Dialog as="div" className="fixed z-50 inset-0 overflow-y-auto" onClose={onClose} open={isOpen}>
+<Dialog as="div" className="fixed z-50 inset-0 overflow-y-auto" onClose={() => {}} open={isOpen}>
       <div className="flex items-center justify-center min-h-screen p-4 text-center bg-black bg-opacity-50">
         <Dialog.Panel className="bg-gray-900 rounded-lg max-w-md w-full p-6 shadow-xl">
           <Dialog.Title className="text-white text-xl font-bold mb-4">
