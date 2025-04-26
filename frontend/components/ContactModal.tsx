@@ -165,34 +165,30 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle, stageOr
                 </form>
               )}
 
-              {contactMode === 'thankyou' && (
-                <div className="text-center text-white mt-6 space-y-4">
-                  <p className="text-lg">✅ DIN FÖRFRÅGAN ÄR SKICKAD, VI BESVARAR SÅ FORT VI KAN!</p>
-                  <button
-                    onClick={handleClose}
-                    className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg font-semibold active:scale-95 transition"
-                  >
-                    STÄNG
-                  </button>
-                </div>
-              )}
-
-              {contactMode === 'phone' && (
-                <div className="text-white mt-4 space-y-2 text-left">
-                  {[
-                    { name: 'GÖTEBORG (HQ)', phone: '0313823300' },
-                    { name: 'JÖNKÖPING', phone: '0303332300' },
-                    { name: 'SKÅNE', phone: '041318166' },
-                    { name: 'STOCKHOLM', phone: '0708265573' },
-                    { name: 'ÖREBRO', phone: '0708265573' },
-                    { name: 'STORVIK', phone: '0708265573' },
-                  ].map(branch => (
-                    <div key={branch.name} className="bg-gray-800 p-3 rounded-lg">
-                      <p><strong>{branch.name} - </strong> <a href={`tel:${branch.phone}`} className="text-blue-400 underline">{branch.phone}</a></p>
-                    </div>
-                  ))}
-                </div>
-              )}
+{contactMode === 'phone' && (
+  <div className="text-white mt-4 space-y-4 text-left">
+    {[
+      { city: "GÖTEBORG (HQ)", number: "0313823300" },
+      { city: "JÖNKÖPING", number: "0303332300" },
+      { city: "SKÅNE", number: "041318166" },
+      { city: "STOCKHOLM", number: "0708265573" },
+      { city: "ÖREBRO", number: "0708265573" },
+      { city: "STORVIK", number: "0708265573" },
+    ].map(({ city, number }) => (
+      <a 
+        key={city} 
+        href={`tel:${number}`} 
+        className="flex items-center gap-3 bg-gray-800 hover:bg-gray-700 p-3 rounded-lg transition-colors"
+      >
+        <span className="text-green-400 text-2xl">📞</span>
+        <div className="flex flex-col">
+          <span className="font-semibold">{city}</span>
+          <span className="text-sm text-gray-400">{number}</span>
+        </div>
+      </a>
+    ))}
+  </div>
+)}
             </Dialog.Panel>
           </Transition.Child>
         </div>
