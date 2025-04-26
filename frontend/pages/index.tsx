@@ -1,4 +1,3 @@
-@ -1,801 +1,807 @@
 // pages/index.tsx
 import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { Chart, CategoryScale, LinearScale, PointElement, LineElement, LineController } from 'chart.js';
