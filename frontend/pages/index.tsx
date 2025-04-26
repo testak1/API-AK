@@ -504,6 +504,8 @@ const renderStageDescription = (stage: Stage) => {
 
 
 
+
+
                 {isExpanded && (
                   <div className="px-6 pb-6">
                     {renderStageDescription(stage)}

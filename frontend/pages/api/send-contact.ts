@@ -46,23 +46,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       replyTo: email,
       html: `
         <div style="font-family: Arial, sans-serif; padding: 20px; color: #222;">
-          <h2 style="color: #333;">📬 Ny förfrågan från hemsidan</h2>
+          <h2 style="color: #333;">📬 FÖRFRÅGAN</h2>
 
           <table cellpadding="8">
-            <tr><td><strong>Namn:</strong></td><td>${name}</td></tr>
-            <tr><td><strong>Email:</strong></td><td>${email}</td></tr>
-            <tr><td><strong>Telefon:</strong></td><td>${tel}</td></tr>
-            <tr><td><strong>Filial:</strong></td><td>${branch}</td></tr>
-            <tr><td><strong>Stage / AKTPLUS:</strong></td><td>${stage || '-'}</td></tr>
-            <tr><td><strong>Meddelande:</strong></td><td>${message}</td></tr>
+            <tr><td><strong>NAMN:</strong></td><td>${name}</td></tr>
+            <tr><td><strong>EMAIL:</strong></td><td>${email}</td></tr>
+            <tr><td><strong>TELNR:</strong></td><td>${tel}</td></tr>
           </table>
 
           <h3 style="margin-top: 30px;">🚗 Fordon</h3>
           <table cellpadding="8">
-            <tr><td><strong>Märke:</strong></td><td>${vehicle?.brand || '-'}</td></tr>
-            <tr><td><strong>Modell:</strong></td><td>${vehicle?.model || '-'}</td></tr>
-            <tr><td><strong>År:</strong></td><td>${vehicle?.year || '-'}</td></tr>
-            <tr><td><strong>Motor:</strong></td><td>${vehicle?.engine || '-'}</td></tr>
+            <tr><td><strong>MÄRKE:</strong></td><td>${vehicle?.brand || '-'}</td></tr>
+            <tr><td><strong>MODELL:</strong></td><td>${vehicle?.model || '-'}</td></tr>
+            <tr><td><strong>VARIANT:</strong></td><td>${vehicle?.year || '-'}</td></tr>
+            <tr><td><strong>MOTOR:</strong></td><td>${vehicle?.engine || '-'}</td></tr>
+            <tr><td><strong>VAL:</strong></td><td>${stage || '-'}</td></tr>
+            <tr><td><strong>MEDDELANDE:</strong></td><td>${message}</td></tr>
           </table>
         </div>
       `,

@@ -85,7 +85,10 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle, stageOr
     <Dialog as="div" className="relative z-50" open={isOpen} onClose={handleClose}>
       <div className="fixed inset-0 bg-black bg-opacity-50" />
       <div className="fixed inset-0 flex items-center justify-center p-4">
-        <Dialog.Panel className="bg-gray-900 rounded-lg max-w-md w-full p-6 shadow-xl relative">
+<Dialog.Panel 
+  className="bg-gray-900 rounded-lg max-w-md w-full p-6 shadow-xl relative transform transition-all duration-300 scale-95 opacity-0 data-[state=open]:scale-100 data-[state=open]:opacity-100"
+>
+
           <button
             type="button"
             onClick={handleClose}
@@ -102,14 +105,14 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle, stageOr
             <div className="flex flex-col gap-4">
               <button
                 type="button"
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+                className="bg-blue-600 hover:bg-blue-700 active:scale-95 transition transform px-4 py-2 rounded-lg shadow-md font-semibold"
                 onClick={() => setContactMode('form')}
               >
                 📩 SKICKA FÖRFRÅGAN
               </button>
               <button
                 type="button"
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
+                className="bg-blue-600 hover:bg-green-700 active:scale-95 transition transform px-4 py-2 rounded-lg shadow-md font-semibold"
                 onClick={() => setContactMode('phone')}
               >
                 📞 RING OSS
