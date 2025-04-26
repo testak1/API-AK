@@ -531,7 +531,7 @@ const renderStageDescription = (stage: Stage) => {
         {/* Split the spec boxes */}
         <div className="absolute flex flex-col sm:flex-row top-4 left-6 right-6 justify-between items-start">
           {/* ORG HK / Max HK */}
-          <div className="bg-gray-600 px-6 py-3 rounded text-sm text-white flex flex-col items-start w-48">
+          <div className="bg-gray-800 px-4 py-3 rounded text-sm text-white flex flex-col items-start w-40">
             <p className="text-red-600">- -</p>
             <p className="text-white">org hk: {stage.origHk}</p>
             <p className="text-red-600">⸺</p>
@@ -539,7 +539,7 @@ const renderStageDescription = (stage: Stage) => {
           </div>
 
           {/* ORG NM / Max NM */}
-          <div className="bg-gray-600 px-6 py-3 rounded text-sm text-white flex flex-col items-start w-48">
+          <div className="bg-gray-800 px-4 py-3 rounded text-sm text-white flex flex-col items-start w-40">
             <p className="text-white">- -</p>
             <p className="text-white">org nm: {stage.origNm}</p>
             <p className="text-white">⸺</p>
@@ -627,7 +627,7 @@ const renderStageDescription = (stage: Stage) => {
                   font: { size: 14 }
                 },
                 min: 0,
-                max: Math.ceil(stage.tunedHk / 100) * 100 + 20,
+                max: Math.ceil(stage.tunedHk / 100) * 100 + 100,
                 grid: {
                   color: 'rgba(255, 255, 255, 0.1)'
                 },
