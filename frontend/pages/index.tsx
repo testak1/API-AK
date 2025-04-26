@@ -684,22 +684,25 @@ const renderStageDescription = (stage: Stage) => {
 
 {/* Add spacer */}
 <div className="mt-6 mb-10 flex justify-center">
-<button
-  onClick={() => {
-    setSelected({
-      brand: selected.brand, // 👈 keep current selection
-      model: selected.model,
-      year: selected.year,
-      engine: selected.engine,
-    });
-    setSelectedStageOrOption(stage.name); // 👈 Set the stage name
-    setIsContactModalOpen(true); // 👈 Open modal
-  }}
-  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg transition-colors"
->
-  📩 BOKA/KONTAKTA OSS
-</button>
+  <button
+    onClick={() => {
+      setSelected({
+        brand: selected.brand,
+        model: selected.model,
+        year: selected.year,
+        engine: selected.engine,
+      });
+      setSelectedStageOrOption(stage.name); // Set the stage or option
+      setTimeout(() => {
+        setIsContactModalOpen(true); // ✅ Open modal slightly AFTER setting
+      }, 50);
+    }}
+    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg transition-colors"
+  >
+    📩 BOKA/KONTAKTA OSS
+  </button>
 </div>
+
 
 
 
@@ -780,7 +783,9 @@ const renderStageDescription = (stage: Stage) => {
       engine: selected.engine,
     });
     setSelectedStageOrOption(option.title); // 👈 Set AKT+ title
-    setIsContactModalOpen(true);
+    setTimeout(() => {
+      setIsContactModalOpen(true); // ✅ Open modal after small delay
+    }, 50);
   }}
   className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white transition-colors whitespace-nowrap"
 >
