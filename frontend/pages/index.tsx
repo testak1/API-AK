@@ -552,7 +552,7 @@ const renderStageDescription = (stage: Stage) => {
         </div>
        </div>
 
-        {/* Dyno graph */}
+       {/* Dyno graph */}
         <Line
           data={{
             labels: ['2000', '3000', '4000', '5000', '6000', '7000'],
@@ -770,8 +770,9 @@ const renderStageDescription = (stage: Stage) => {
         </div>
       </div>
     )}
-  </div>
+   </div>
 ))}
+
 </div>
 
                       </div>
