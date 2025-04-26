@@ -708,7 +708,7 @@ const renderStageDescription = (stage: Stage) => {
     </div>
 
     {/* GRID for options */}
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
   {allOptions.map((option) => (
     <div key={option._id} className="flex flex-col border border-gray-600 rounded-lg bg-gray-700 overflow-hidden">
       <button
@@ -768,6 +768,15 @@ const renderStageDescription = (stage: Stage) => {
     </div>
   ))}
 </div>
+
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       ) : (
         <div className="text-center py-12 bg-gray-800 rounded-xl">
           <p className="text-white">
