@@ -443,344 +443,243 @@ const renderStageDescription = (stage: Stage) => {
         </div>
       ) : stages.length > 0 ? (
         <div className="space-y-6">
-          {stages.map((stage) => {
-            const allOptions = getAllAktPlusOptions(stage);
-            const isExpanded = expandedStages[stage.name] ?? false;
+{stages.map((stage) => {
+  const allOptions = getAllAktPlusOptions(stage);
+  const isExpanded = expandedStages[stage.name] ?? false;
 
-            return (
-              <div key={stage.name} className="bg-gray-800 rounded-xl shadow-lg border border-gray-700 overflow-hidden">
-                <button
-                  onClick={() => toggleStage(stage.name)}
-                  className="w-full p-6 text-left">
-<div className="flex flex-col md:flex-row md:items-center md:justify-between">
-<div className="flex items-center gap-4">
-  {/* Brand logo first */}
-  {data.find(b => b.name === selected.brand)?.logo?.asset && (
-    <img
-      src={urlFor(data.find(b => b.name === selected.brand)?.logo).width(60).url()}
-      alt={selected.brand}
-      className="h-8 w-auto object-contain"
-    />
-  )}
-
-  {/* Engine name and stage */}
-  <h2 className="text-lg font-semibold text-white">
-    {selected.engine} – <span className="text-indigo-400 uppercase tracking-wide">{stage.name}</span>
-  </h2>
-</div>
-  
-  <div className="mt-3 md:mt-0 flex items-center gap-4">
-    {/* Stage badge image */}
-    <img
-      src={`/badges/${stage.name.toLowerCase().replace(/\s+/g, '')}.png`} // e.g. steg1.png
-      alt={stage.name}
-      className="h-8 object-contain"
-    />
-<span className="inline-block bg-red-600 text-black px-4 py-1 rounded-full text-xl font-semibold shadow-md">
-  {stage.price?.toLocaleString()} kr
-</span>
-    <svg
-      className={`h-5 w-5 text-orange-600 transition-transform ${
-        isExpanded ? 'rotate-180' : ''
-      }`}
-      viewBox="0 0 20 20"
-      fill="currentColor">
-      <path
-        fillRule="evenodd"
-        d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-        clipRule="evenodd"
-      />
-    </svg>
-  </div>
-</div>
-
-                </button>
-
-
-
-
-
-                {isExpanded && (
-                  <div className="px-6 pb-6">
-                    {renderStageDescription(stage)}
-
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                      <div className="border border-white rounded-lg p-3 text-center">
-                        <p className="text-sm text-white font-bold mb-1">ORIGINAL HK</p>
-                        <p className="text-xl text-white font-bold">{stage.origHk} hk</p>
-                      </div>
-                      <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
-                        <p className="text-sm text-white font-bold mb-1">{stage.name} HK</p>
-                        <p className="text-xl font-bold">{stage.tunedHk} hk</p>
-                        <p className="text-xs mt-1 text-red-400">+{stage.tunedHk - stage.origHk} hk</p>
-                      </div>
-                      <div className="border border-white rounded-lg p-3 text-center">
-                        <p className="text-sm text-white font-bold mb-1">ORIGINAL NM</p>
-                        <p className="text-xl text-white font-bold">{stage.origNm} Nm</p>
-                      </div>
-                      <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
-                        <p className="text-sm text-white font-bold mb-1">{stage.name} NM</p>
-                        <p className="text-xl font-bold">{stage.tunedNm} Nm</p>
-                        <p className="text-xs mt-1 text-red-400">+{stage.tunedNm - stage.origNm} Nm</p>
-                      </div>
-                    </div>
-
-                    <div className="mt-6">
-                      <h3 className="text-lg font-medium text-gray-300 mb-2">{stage.name}</h3>
- 
-
-                        <div className="absolute right-2 top-4 bg-gray-600 px-2 py-1 rounded text-sm">
-                          <p className="text-red-600">- -</p><p className="text-white">ORG HK: {stage.origHk}</p>
-                          <p className="text-red-600">⸺</p><p className="text-white">Max HK: {stage.tunedHk}</p>
-                        </div>
-
-
-                        <div className="absolute right-4 top-4 bg-gray-600 px-2 py-1 rounded text-sm">
-                          <p className="text-blue-600">- -</p><p className="text-white">ORG NM: {stage.origNm}</p>
-                          <p className="text-blue-600">⸺</p><p className="text-white">Max NM: {stage.tunedNm}</p>
-                          <p className="text-red-600">⸺</p><p className="text-white">Max HK: {stage.tunedHk}</p>
-                        </div>
-                    </div>
-                        
-                        <Line
-                          data={{
-                            labels: ['2000', '3000', '4000', '5000', '6000', '7000'],
-                            datasets: [
-                              {
-                                label: 'Original HK',
-                                data: generateDynoCurve(stage.origHk, true),
-                                borderColor: 'red',
-                                backgroundColor: 'transparent',
-                                borderWidth: 2,
-                                borderDash: [5, 3],
-                                tension: 0.3,
-                                pointRadius: 0,
-                                yAxisID: 'hp',
-                              },
-                              {
-                                label: 'Tuned HK',
-                                data: generateDynoCurve(stage.tunedHk, true),
-                                borderColor: 'red',
-                                backgroundColor: 'transparent',
-                                borderWidth: 3,
-                                tension: 0.4,
-                                pointRadius: 0,
-                                yAxisID: 'hp',
-                              },
-                              {
-                                label: 'Original NM',
-                                data: generateDynoCurve(stage.origNm, false),
-                                borderColor: 'white',
-                                backgroundColor: 'transparent',
-                                borderWidth: 2,
-                                borderDash: [5, 3],
-                                tension: 0.3,
-                                pointRadius: 0,
-                                yAxisID: 'nm',
-                              },
-                              {
-                                label: 'Tuned NM',
-                                data: generateDynoCurve(stage.tunedNm, false),
-                                borderColor: 'white',
-                                backgroundColor: 'transparent',
-                                borderWidth: 3,
-                                tension: 0.4,
-                                pointRadius: 0,
-                                yAxisID: 'nm',
-                              }
-                            ]
-                          }}
-                          options={{
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                              legend: {
-                                position: 'top',
-                                labels: {
-                                  color: '#E5E7EB',
-                                  font: { size: 12 },
-                                  boxWidth: 12,
-                                  padding: 20,
-                                  usePointStyle: true,
-                                }
-                              },
-                              tooltip: {
-                                mode: 'index',
-                                intersect: false,
-                              }
-                            },
-                            scales: {
-                              hp: {
-                                type: 'linear',
-                                display: true,
-                                position: 'left',
-                                title: {
-                                  display: true,
-                                  text: 'Effekt (HK)',
-                                  color: 'white',
-                                  font: { 
-                                    size: 14,
-                                  }
-                                },
-                                min: 0,
-                                max: Math.ceil(stage.tunedHk / 100) * 100 + 20,
-                                grid: {
-                                  color: 'rgba(255, 255, 255, 0.1)'
-                                },
-                                ticks: {
-                                  color: '#9CA3AF',
-                                  stepSize: 100,
-                                  callback: (value) => `${value}`
-                                }
-                              },
-                              nm: {
-                                type: 'linear',
-                                display: true,
-                                position: 'right',
-                                title: {
-                                  display: true,
-                                  text: 'Vridmoment (Nm)',
-                                  color: 'white',
-                                  font: { 
-                                    size: 14,
-                                  }
-                                },
-                                min: 0,
-                                max: Math.ceil(stage.tunedNm / 100) * 100 + 100,
-                                grid: {
-                                  drawOnChartArea: false,
-                                },
-                                ticks: {
-                                  color: '#9CA3AF',
-                                  stepSize: 100,
-                                  callback: (value) => `${value}`
-                                }
-                              },
-                              x: {
-                                title: {
-                                  display: true,
-                                  text: 'RPM',
-                                  color: '#E5E7EB',
-                                  font: { 
-                                    size: 14,
-                                  }
-                                },
-                                grid: {
-                                  color: 'rgba(255, 255, 255, 0.1)'
-                                },
-                                ticks: {
-                                  color: '#9CA3AF'
-                                }
-                              }
-                            },
-                            interaction: {
-                              intersect: false,
-                              mode: 'index',
-                            }
-                          }}
-                          plugins={[watermarkPlugin]}
-                        />
-
-
-
-
-                      </div>
-                    </div>
-
-<div className="text-center text-white text-sm">
-  <p>(Simulerad effektkurva)</p>
-</div>
-
-{/* Add spacer */}
-<div className="mt-6 mb-10 flex justify-center">
-<button
-  onClick={() => handleBookNow(stage.name)} 
-    className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg transition-colors">
-    📩 KONTAKT
-  </button>
-</div>
-
-
-
-
-{allOptions.length > 0 && (
-  <div className="mt-8">
-    {/* AKT+ HEADER WITH LOGO */}
-    <div className="flex items-center gap-4 mb-4">
-      <img
-        src="/logos/aktplus.png"
-        alt="AKT+ Logo"
-        className="h-8 w-auto object-contain"
-      />
-      <h3 className="text-xl font-semibold text-white">TILLÄGG</h3>
-    </div>
-
-    {/* GRID for options */}
-<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-{allOptions.map((option) => (
-  <div key={option._id} className="border border-gray-600 rounded-lg overflow-hidden bg-gray-700 transition-all duration-300">
-    <button
-      onClick={() => toggleOption(option._id)}
-      className="w-full flex justify-between items-center p-4 hover:bg-gray-600 transition-colors"
-    >
-      <div className="flex items-center gap-3">
-        {option.gallery?.[0]?.asset && (
-          <img
-            src={urlFor(option.gallery[0].asset).width(80).url()}
-            alt={option.gallery[0].alt || option.title}
-            className="h-10 w-10 object-contain"
-          />
-        )}
-        <span className="text-lg font-bold text-orange-600">{option.title}</span>
-      </div>
-      <svg
-        className={`h-5 w-5 text-orange-600 transition-transform ${
-          expandedOptions[option._id] ? 'rotate-180' : ''
-        }`}
-        viewBox="0 0 20 20"
-        fill="currentColor"
-      >
-        <path
-          fillRule="evenodd"
-          d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-          clipRule="evenodd"
-        />
-      </svg>
-    </button>
-
-    {expandedOptions[option._id] && (
-      <div className="bg-gray-800 border-t border-gray-600 p-4 space-y-4">
-        {option.description && (
-          <div className="prose prose-invert max-w-none text-sm">
-            <PortableText value={option.description} components={portableTextComponents} />
+  return (
+    <div key={stage.name} className="bg-gray-800 rounded-xl shadow-lg border border-gray-700 overflow-hidden">
+      <button
+        onClick={() => toggleStage(stage.name)}
+        className="w-full p-6 text-left">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center gap-4">
+            {data.find(b => b.name === selected.brand)?.logo?.asset && (
+              <img
+                src={urlFor(data.find(b => b.name === selected.brand)?.logo).width(60).url()}
+                alt={selected.brand}
+                className="h-8 w-auto object-contain"
+              />
+            )}
+            <h2 className="text-lg font-semibold text-white">
+              {selected.engine} – <span className="text-indigo-400 uppercase tracking-wide">{stage.name}</span>
+            </h2>
           </div>
-        )}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          {option.price && (
-            <p className="font-bold text-green-400">
-              Pris: {option.price.toLocaleString()} kr
-            </p>
-          )}
-          <button
-            onClick={() => handleBookNow(option.title)}
-            className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-white transition-colors whitespace-nowrap"
-          >
-            📩 KONTAKT
-          </button>
-        </div>
-      </div>
-    )}
-  </div>
-))}
-</div>
 
+          <div className="mt-3 md:mt-0 flex items-center gap-4">
+            <img
+              src={`/badges/${stage.name.toLowerCase().replace(/\s+/g, '')}.png`}
+              alt={stage.name}
+              className="h-8 object-contain"
+            />
+            <span className="inline-block bg-red-600 text-black px-4 py-1 rounded-full text-xl font-semibold shadow-md">
+              {stage.price?.toLocaleString()} kr
+            </span>
+            <svg
+              className={`h-5 w-5 text-orange-600 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+              viewBox="0 0 20 20"
+              fill="currentColor">
+              <path
+                fillRule="evenodd"
+                d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </div>
+        </div>
+      </button>
+
+      {isExpanded && (
+        <div className="px-6 pb-6 relative">
+          {/* Relative container for absolute boxes */}
+          <div className="absolute right-2 top-4 bg-gray-600 px-2 py-1 rounded text-sm">
+            <p className="text-red-600">- -</p>
+            <p className="text-white">ORG HK: {stage.origHk}</p>
+            <p className="text-red-600">⸺</p>
+            <p className="text-white">Max HK: {stage.tunedHk}</p>
+          </div>
+
+          <div className="absolute right-4 top-20 bg-gray-600 px-2 py-1 rounded text-sm">
+            <p className="text-blue-600">- -</p>
+            <p className="text-white">ORG NM: {stage.origNm}</p>
+            <p className="text-blue-600">⸺</p>
+            <p className="text-white">Max NM: {stage.tunedNm}</p>
+          </div>
+
+          {renderStageDescription(stage)}
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            {/* Power and torque info */}
+            <div className="border border-white rounded-lg p-3 text-center">
+              <p className="text-sm text-white font-bold mb-1">ORIGINAL HK</p>
+              <p className="text-xl text-white font-bold">{stage.origHk} hk</p>
+            </div>
+            <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
+              <p className="text-sm text-white font-bold mb-1">{stage.name} HK</p>
+              <p className="text-xl font-bold">{stage.tunedHk} hk</p>
+              <p className="text-xs mt-1 text-red-400">+{stage.tunedHk - stage.origHk} hk</p>
+            </div>
+            <div className="border border-white rounded-lg p-3 text-center">
+              <p className="text-sm text-white font-bold mb-1">ORIGINAL NM</p>
+              <p className="text-xl text-white font-bold">{stage.origNm} Nm</p>
+            </div>
+            <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
+              <p className="text-sm text-white font-bold mb-1">{stage.name} NM</p>
+              <p className="text-xl font-bold">{stage.tunedNm} Nm</p>
+              <p className="text-xs mt-1 text-red-400">+{stage.tunedNm - stage.origNm} Nm</p>
+            </div>
+          </div>
+
+          {/* Dyno Curve */}
+          <div className="h-96 w-full mb-8">
+            <Line
+              data={{
+                labels: ['2000', '3000', '4000', '5000', '6000', '7000'],
+                datasets: [
+                  {
+                    label: 'Original HK',
+                    data: generateDynoCurve(stage.origHk, true),
+                    borderColor: 'red',
+                    backgroundColor: 'transparent',
+                    borderWidth: 2,
+                    borderDash: [5, 3],
+                    tension: 0.3,
+                    pointRadius: 0,
+                    yAxisID: 'hp',
+                  },
+                  {
+                    label: 'Tuned HK',
+                    data: generateDynoCurve(stage.tunedHk, true),
+                    borderColor: 'red',
+                    backgroundColor: 'transparent',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    yAxisID: 'hp',
+                  },
+                  {
+                    label: 'Original NM',
+                    data: generateDynoCurve(stage.origNm, false),
+                    borderColor: 'white',
+                    backgroundColor: 'transparent',
+                    borderWidth: 2,
+                    borderDash: [5, 3],
+                    tension: 0.3,
+                    pointRadius: 0,
+                    yAxisID: 'nm',
+                  },
+                  {
+                    label: 'Tuned NM',
+                    data: generateDynoCurve(stage.tunedNm, false),
+                    borderColor: 'white',
+                    backgroundColor: 'transparent',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    yAxisID: 'nm',
+                  }
+                ]
+              }}
+              options={{
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { labels: { color: '#E5E7EB' } } },
+                scales: {
+                  hp: { type: 'linear', position: 'left', ticks: { color: '#9CA3AF' } },
+                  nm: { type: 'linear', position: 'right', ticks: { color: '#9CA3AF' } },
+                  x: { ticks: { color: '#9CA3AF' } },
+                },
+                interaction: { mode: 'index', intersect: false },
+              }}
+              plugins={[watermarkPlugin]}
+            />
+          </div>
+
+          <div className="text-center text-white text-sm">
+            <p>(Simulerad effektkurva)</p>
+          </div>
+
+          {/* Contact Button */}
+          <div className="mt-6 mb-10 flex justify-center">
+            <button
+              onClick={() => handleBookNow(stage.name)}
+              className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg transition-colors">
+              📩 KONTAKT
+            </button>
+          </div>
+
+          {/* AKT+ Options */}
+          {allOptions.length > 0 && (
+            <div className="mt-8">
+              <div className="flex items-center gap-4 mb-4">
+                <img
+                  src="/logos/aktplus.png"
+                  alt="AKT+ Logo"
+                  className="h-8 w-auto object-contain"
+                />
+                <h3 className="text-xl font-semibold text-white">TILLÄGG</h3>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {allOptions.map(option => (
+                  <div key={option._id} className="border border-gray-600 rounded-lg overflow-hidden bg-gray-700 transition-all">
+                    <button
+                      onClick={() => toggleOption(option._id)}
+                      className="w-full flex justify-between items-center p-4 hover:bg-gray-600 transition-colors">
+                      <div className="flex items-center gap-3">
+                        {option.gallery?.[0]?.asset && (
+                          <img
+                            src={urlFor(option.gallery[0].asset).width(80).url()}
+                            alt={option.gallery[0].alt || option.title}
+                            className="h-10 w-10 object-contain"
+                          />
+                        )}
+                        <span className="text-lg font-bold text-orange-600">{option.title}</span>
+                      </div>
+                      <svg
+                        className={`h-5 w-5 text-orange-600 transition-transform ${expandedOptions[option._id] ? 'rotate-180' : ''}`}
+                        viewBox="0 0 20 20"
+                        fill="currentColor">
+                        <path
+                          fillRule="evenodd"
+                          d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </button>
+
+                    {expandedOptions[option._id] && (
+                      <div className="bg-gray-800 border-t border-gray-600 p-4 space-y-4">
+                        {option.description && (
+                          <div className="prose prose-invert max-w-none text-sm">
+                            <PortableText value={option.description} components={portableTextComponents} />
+                          </div>
+                        )}
+                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                          {option.price && (
+                            <p className="font-bold text-green-400">
+                              Pris: {option.price.toLocaleString()} kr
+                            </p>
+                          )}
+                          <button
+                            onClick={() => handleBookNow(option.title)}
+                            className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-white transition-colors whitespace-nowrap">
+                            📩 KONTAKT
+                          </button>
+                        </div>
                       </div>
                     )}
                   </div>
-                )}
+                ))}
               </div>
-            );
-          })}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+})}
+
         </div>
       ) : (
         <div className="text-center py-12 bg-gray-800 rounded-xl">
