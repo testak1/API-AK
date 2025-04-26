@@ -78,9 +78,10 @@ const handleClose = () => {
 };
 
   return (
-<Dialog as="div" className="fixed z-50 inset-0 overflow-y-auto" onClose={handleClose} open={isOpen}>
-      <div className="flex items-center justify-center min-h-screen p-4 text-center bg-black bg-opacity-50">
-        <Dialog.Panel className="bg-gray-900 rounded-lg max-w-md w-full p-6 shadow-xl">
+<Dialog as="div" className="relative z-50" open={isOpen} onClose={handleClose}>
+  <div className="fixed inset-0 bg-black bg-opacity-50" />
+  <div className="fixed inset-0 flex items-center justify-center p-4">
+    <Dialog.Panel className="bg-gray-900 rounded-lg max-w-md w-full p-6 shadow-xl">
           <Dialog.Title className="text-white text-xl font-bold mb-4">
             {contactMode === 'thankyou' ? 'Tack för din förfrågan!' : 'VÄLJ METOD NEDANFÖR'}
           </Dialog.Title>
