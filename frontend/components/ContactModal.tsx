@@ -81,9 +81,7 @@ const handleClose = () => {
 <Dialog as="div" className="relative z-50" open={isOpen} onClose={handleClose}>
   <div className="fixed inset-0 bg-black bg-opacity-50" />
   <div className="fixed inset-0 flex items-center justify-center p-4">
-    <Dialog.Panel className="bg-gray-900 rounded-lg max-w-md w-full p-6 shadow-xl">
-    
-      {/* Close button */}
+    <Dialog.Panel static className="bg-gray-900 rounded-lg max-w-md w-full p-6 shadow-xl">
       <button
         type="button"
         onClick={handleClose}
