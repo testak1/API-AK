@@ -550,7 +550,7 @@ const renderStageDescription = (stage: Stage) => {
             <p className="text-white">NM AK: {stage.tunedNm} Nm</p>
           </div>
         </div>
-        </div>
+       </div>
 
         {/* Dyno graph */}
         <Line
@@ -700,7 +700,7 @@ const renderStageDescription = (stage: Stage) => {
         📩 KONTAKT
       </button>
     </div>
-
+   </div>
 
 
 {allOptions.length > 0 && (
