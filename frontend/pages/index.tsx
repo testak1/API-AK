@@ -684,15 +684,21 @@ const renderStageDescription = (stage: Stage) => {
 
 {/* Add spacer */}
 <div className="mt-6 mb-10 flex justify-center">
-  <button
-    onClick={() => {
-      setSelectedStageOrOption(stage.name); // 👈 Set the Stage name dynamically!
-      setIsContactModalOpen(true);
-    }}
-    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg transition-colors"
-  >
-    📩 BOKA/KONTAKTA OSS
-  </button>
+<button
+  onClick={() => {
+    setSelectedVehicle({
+      brand: stage.brand,
+      model: stage.model,
+      year: stage.year,
+      engine: stage.engine,
+    });
+    setSelectedStageOrOption(stage.name); // 👈 Correct
+    setIsContactModalOpen(true);
+  }}
+  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg transition-colors"
+>
+  📩 BOKA/KONTAKTA OSS
+</button>
 </div>
 
 
@@ -765,15 +771,21 @@ const renderStageDescription = (stage: Stage) => {
       </p>
     )}
   </div>
-  <button
-    onClick={() => {
-      setSelectedStageOrOption(option.title); // 👈 NEW: Set AKT+ title
-      setIsContactModalOpen(true); // 👈 Then open modal
-    }}
-    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white transition-colors whitespace-nowrap"
-  >
-    📩 BOKA/KONTAKTA OSS
-  </button>
+<button
+  onClick={() => {
+    setSelectedVehicle({
+      brand: stage.brand, // 👈 Still keep the same vehicle context
+      model: stage.model,
+      year: stage.year,
+      engine: stage.engine,
+    });
+    setSelectedStageOrOption(option.title); // 👈 Correct!
+    setIsContactModalOpen(true);
+  }}
+  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white transition-colors whitespace-nowrap"
+>
+  📩 BOKA/KONTAKTA OSS
+</button>
 </div>
   </div>
 )}

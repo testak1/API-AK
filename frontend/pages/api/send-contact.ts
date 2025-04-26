@@ -64,8 +64,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             <tr><td><strong>År:</strong></td><td>${vehicle?.year || '-'}</td></tr>
             <tr><td><strong>Motor:</strong></td><td>${vehicle?.engine || '-'}</td></tr>
           </table>
-
-          <p style="margin-top: 30px; font-size: 0.9em; color: #888;">Skickad automatiskt via AKTuning.se</p>
         </div>
       `,
     });
