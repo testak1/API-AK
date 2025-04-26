@@ -168,11 +168,22 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle, stageOr
 
           {contactMode === 'phone' && (
             <div className="text-white mt-4 space-y-2 text-left">
+<div className="bg-gray-800 p-3 rounded-md">
               <p><strong>GÖTEBORG (HQ) - </strong> <a href="tel:0313823300" className="text-blue-400 underline">031-382 33 00</a></p>
+</div>
+<div className="bg-gray-800 p-3 rounded-md">
               <p><strong>JÖNKÖPING - </strong> <a href="tel:0303332300" className="text-blue-400 underline">030-333 23 00</a></p>
+</div>
+<div className="bg-gray-800 p-3 rounded-md">
               <p><strong>SKÅNE - </strong> <a href="tel:041318166" className="text-blue-400 underline">041-31 81 66</a></p>
+</div>
+<div className="bg-gray-800 p-3 rounded-md">
               <p><strong>STOCKHOLM - </strong> <a href="tel:0708265573" className="text-blue-400 underline">070-826 55 73</a></p>
+</div>
+<div className="bg-gray-800 p-3 rounded-md">
               <p><strong>ÖREBRO - </strong> <a href="tel:0708265573" className="text-blue-400 underline">070-826 55 73</a></p>
+</div>
+<div className="bg-gray-800 p-3 rounded-md">
               <p><strong>STORVIK - </strong> <a href="tel:0708265573" className="text-blue-400 underline">070-826 55 73</a></p>
             </div>
           )}
