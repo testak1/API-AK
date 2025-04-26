@@ -772,15 +772,15 @@ const renderStageDescription = (stage: Stage) => {
   </div>
 )}
 
-<ContactModal
-  isOpen={contactModalData.isOpen}
-  onClose={() => setContactModalData({ isOpen: false, stageOrOption: '' })}
-  selectedVehicle={{
-    brand: selected.brand,
-    model: selected.model,
-    year: selected.year,
-    engine: selected.engine,
-  }}
-  stageOrOption={contactModalData.stageOrOption}
-/>
-</div>
+    </div> {/* Slut på sidan */}
+    <ContactModal
+      isOpen={contactModalData.isOpen}
+      onClose={() => setContactModalData({ isOpen: false, stageOrOption: '' })}
+      selectedVehicle={{
+        brand: selected.brand,
+        model: selected.model,
+        year: selected.year,
+        engine: selected.engine,
+      }}
+      stageOrOption={contactModalData.stageOrOption}
+    />
