@@ -75,96 +75,101 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle, stageOr
   };
 
   return (
-    <Dialog as="div" className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50" open={isOpen} onClose={handleClose}>
-      <Dialog.Panel className="relative bg-gray-900 rounded-lg max-w-md w-full p-6 shadow-xl">
-        <button
-          type="button"
-          onClick={handleClose}
-          className="absolute top-4 right-4 text-white text-2xl hover:text-red-400"
-        >
-          &times;
-        </button>
+    <Dialog as="div" className="relative z-50" open={isOpen} onClose={handleClose}>
+      <div className="fixed inset-0 flex items-center justify-center p-4">
+        {/* FIX: Dialog.Overlay for the background */}
+        <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-50" />
 
-        <Dialog.Title className="text-white text-xl font-bold mb-4">
-          {contactMode === 'thankyou' ? 'Tack för din förfrågan!' : 'VÄLJ METOD NEDANFÖR'}
-        </Dialog.Title>
+        <Dialog.Panel className="relative bg-gray-900 rounded-lg max-w-md w-full p-6 shadow-xl">
+          <button
+            type="button"
+            onClick={handleClose}
+            className="absolute top-4 right-4 text-white text-2xl hover:text-red-400"
+          >
+            &times;
+          </button>
 
-        {!contactMode && (
-          <div className="flex flex-col gap-4">
-            <button
-              type="button"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
-              onClick={() => setContactMode('form')}
-            >
-              📩 SKICKA FÖRFRÅGAN
-            </button>
-            <button
-              type="button"
-              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
-              onClick={() => setContactMode('phone')}
-            >
-              📞 RING OSS
-            </button>
-          </div>
-        )}
+          <Dialog.Title className="text-white text-xl font-bold mb-4">
+            {contactMode === 'thankyou' ? 'Tack för din förfrågan!' : 'VÄLJ METOD NEDANFÖR'}
+          </Dialog.Title>
 
-        {contactMode === 'form' && (
-          <form className="space-y-4 text-left mt-4 text-white" onSubmit={handleSubmit}>
-            <div className="text-sm text-gray-400 mb-2">
-              FÖRFRÅGAN FÖR: <strong>{selectedVehicle.brand} {selectedVehicle.model} {selectedVehicle.year} – {selectedVehicle.engine}</strong>
-              {formData.stage && formData.stage !== '-' && (
-                <div className="mt-1 text-green-400 text-xs">
-                  ➔ Vald Stage/AKT+: <strong>{formData.stage}</strong>
-                </div>
-              )}
+          {!contactMode && (
+            <div className="flex flex-col gap-4">
+              <button
+                type="button"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+                onClick={() => setContactMode('form')}
+              >
+                📩 SKICKA FÖRFRÅGAN
+              </button>
+              <button
+                type="button"
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
+                onClick={() => setContactMode('phone')}
+              >
+                📞 RING OSS
+              </button>
             </div>
+          )}
 
-            <input type="text" placeholder="NAMN" required className="w-full p-2 rounded bg-gray-800 border border-gray-600" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
-            <input type="email" placeholder="EMAIL" required className="w-full p-2 rounded bg-gray-800 border border-gray-600" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
-            <input type="tel" placeholder="TELNR" required className="w-full p-2 rounded bg-gray-800 border border-gray-600" value={formData.tel} onChange={(e) => setFormData({ ...formData, tel: e.target.value })} />
-            <textarea placeholder="MEDDELANDE" required className="w-full p-2 rounded bg-gray-800 border border-gray-600" rows={3} value={formData.message} onChange={(e) => setFormData({ ...formData, message: e.target.value })}></textarea>
-            <select required className="w-full p-2 rounded bg-gray-800 border border-gray-600" value={formData.branch} onChange={(e) => setFormData({ ...formData, branch: e.target.value })}>
-              <option value="">VÄLJ ANLÄGGNING</option>
-              <option value="TEST-AK">TEST-AK</option>
-              <option value="goteborg">GÖTEBORG (HQ)</option>
-              <option value="jonkoping">JÖNKÖPING</option>
-              <option value="malmo">MALMÖ</option>
-              <option value="stockholm">STOCKHOLM</option>
-              <option value="orebro">ÖREBRO</option>
-              <option value="storvik">STORVIK</option>
-            </select>
+          {contactMode === 'form' && (
+            <form className="space-y-4 text-left mt-4 text-white" onSubmit={handleSubmit}>
+              <div className="text-sm text-gray-400 mb-2">
+                FÖRFRÅGAN FÖR: <strong>{selectedVehicle.brand} {selectedVehicle.model} {selectedVehicle.year} – {selectedVehicle.engine}</strong>
+                {formData.stage && formData.stage !== '-' && (
+                  <div className="mt-1 text-green-400 text-xs">
+                    ➔ Vald Stage/AKT+: <strong>{formData.stage}</strong>
+                  </div>
+                )}
+              </div>
 
-            <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded" disabled={sending}>
-              {sending ? 'SKICKAR...' : '📩 SKICKA FÖRFRÅGAN'}
-            </button>
+              <input type="text" placeholder="NAMN" required className="w-full p-2 rounded bg-gray-800 border border-gray-600" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
+              <input type="email" placeholder="EMAIL" required className="w-full p-2 rounded bg-gray-800 border border-gray-600" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
+              <input type="tel" placeholder="TELNR" required className="w-full p-2 rounded bg-gray-800 border border-gray-600" value={formData.tel} onChange={(e) => setFormData({ ...formData, tel: e.target.value })} />
+              <textarea placeholder="MEDDELANDE" required className="w-full p-2 rounded bg-gray-800 border border-gray-600" rows={3} value={formData.message} onChange={(e) => setFormData({ ...formData, message: e.target.value })}></textarea>
+              <select required className="w-full p-2 rounded bg-gray-800 border border-gray-600" value={formData.branch} onChange={(e) => setFormData({ ...formData, branch: e.target.value })}>
+                <option value="">VÄLJ ANLÄGGNING</option>
+                <option value="TEST-AK">TEST-AK</option>
+                <option value="goteborg">GÖTEBORG (HQ)</option>
+                <option value="jonkoping">JÖNKÖPING</option>
+                <option value="malmo">MALMÖ</option>
+                <option value="stockholm">STOCKHOLM</option>
+                <option value="orebro">ÖREBRO</option>
+                <option value="storvik">STORVIK</option>
+              </select>
 
-            {error && <p className="text-red-400 text-center">{error}</p>}
-          </form>
-        )}
+              <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded" disabled={sending}>
+                {sending ? 'SKICKAR...' : '📩 SKICKA FÖRFRÅGAN'}
+              </button>
 
-        {contactMode === 'thankyou' && (
-          <div className="text-center text-white space-y-4 mt-6">
-            <p className="text-lg">✅ DIN FÖRFRÅGAN ÄR SKICKAD, VI BESVARAR SÅ FORT VI KAN!</p>
-            <button
-              onClick={handleClose}
-              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
-            >
-              STÄNG
-            </button>
-          </div>
-        )}
+              {error && <p className="text-red-400 text-center">{error}</p>}
+            </form>
+          )}
 
-        {contactMode === 'phone' && (
-          <div className="text-left text-white mt-4 space-y-2">
-            <p><strong>GÖTEBORG (HQ) - </strong> <a href="tel:0313823300" className="text-blue-400 underline">031-382 33 00</a></p>
-            <p><strong>JÖNKÖPING - </strong> <a href="tel:0303332300" className="text-blue-400 underline">030-333 23 00</a></p>
-            <p><strong>SKÅNE - </strong> <a href="tel:041318166" className="text-blue-400 underline">041-31 81 66</a></p>
-            <p><strong>STOCKHOLM - </strong> <a href="tel:0708265573" className="text-blue-400 underline">070-826 55 73</a></p>
-            <p><strong>ÖREBRO - </strong> <a href="tel:0708265573" className="text-blue-400 underline">070-826 55 73</a></p>
-            <p><strong>STORVIK - </strong> <a href="tel:0708265573" className="text-blue-400 underline">070-826 55 73</a></p>
-          </div>
-        )}
-      </Dialog.Panel>
+          {contactMode === 'thankyou' && (
+            <div className="text-center text-white space-y-4 mt-6">
+              <p className="text-lg">✅ DIN FÖRFRÅGAN ÄR SKICKAD, VI BESVARAR SÅ FORT VI KAN!</p>
+              <button
+                onClick={handleClose}
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+              >
+                STÄNG
+              </button>
+            </div>
+          )}
+
+          {contactMode === 'phone' && (
+            <div className="text-left text-white mt-4 space-y-2">
+              <p><strong>GÖTEBORG (HQ) - </strong> <a href="tel:0313823300" className="text-blue-400 underline">031-382 33 00</a></p>
+              <p><strong>JÖNKÖPING - </strong> <a href="tel:0303332300" className="text-blue-400 underline">030-333 23 00</a></p>
+              <p><strong>SKÅNE - </strong> <a href="tel:041318166" className="text-blue-400 underline">041-31 81 66</a></p>
+              <p><strong>STOCKHOLM - </strong> <a href="tel:0708265573" className="text-blue-400 underline">070-826 55 73</a></p>
+              <p><strong>ÖREBRO - </strong> <a href="tel:0708265573" className="text-blue-400 underline">070-826 55 73</a></p>
+              <p><strong>STORVIK - </strong> <a href="tel:0708265573" className="text-blue-400 underline">070-826 55 73</a></p>
+            </div>
+          )}
+        </Dialog.Panel>
+      </div>
     </Dialog>
   );
 }
