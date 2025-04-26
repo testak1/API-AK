@@ -682,7 +682,7 @@ const renderStageDescription = (stage: Stage) => {
                     </div>
 
 <div className="text-center text-orange-600 text-sm">
-  <p>Detta är en datorgenererad dyno-bild</p>
+  <p>(Simulerad effektkurva)</p>
 </div>
 
 {/* Add spacer */}
