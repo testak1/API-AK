@@ -527,25 +527,25 @@ const renderStageDescription = (stage: Stage) => {
     </div>
 
     <div className="mt-6">
-      <h3 className="text-lg font-medium text-gray-300 mb-2">{stage.name}</h3>
+      <h3 className="text-lg font-medium text-gray-300 mb-2 uppercase">{stage.name}</h3>
 
       <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
         {/* Split the spec boxes */}
         <div className="absolute flex flex-row justify-between top-4 left-0 right-0 px-16">
           {/* ORG HK / Max HK */}
           <div className="bg-gray-900 px-4 py-3 rounded text-sm text-white flex flex-col items-start w-32">
-            <p className="text-red-600">- -</p>
-            <p className="text-white">ORG: {stage.origHk} hk</p>
-            <p className="text-red-600">⸺</p>
-            <p className="text-white">MAX: {stage.tunedHk} hk</p>
+            <p className="text-red-600">- - -</p>
+            <p className="text-white">HK ORG: {stage.origHk} hk</p>
+            <p className="text-red-600">⸻</p>
+            <p className="text-white">HK AK: {stage.tunedHk} hk</p>
           </div>
 
           {/* ORG NM / Max NM */}
           <div className="bg-gray-900 px-4 py-3 rounded text-sm text-white flex flex-col items-start w-32">
-            <p className="text-white">- -</p>
-            <p className="text-white">ORG: {stage.origNm} Nm</p>
-            <p className="text-white">⸺</p>
-            <p className="text-white">MAX: {stage.tunedNm} Nm</p>
+            <p className="text-white">- - -</p>
+            <p className="text-white">NM ORG: {stage.origNm} Nm</p>
+            <p className="text-white">⸻</p>
+            <p className="text-white">NM AK: {stage.tunedNm} Nm</p>
           </div>
         </div>
 
