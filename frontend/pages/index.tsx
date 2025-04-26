@@ -18,27 +18,46 @@ interface SelectionState {
 
 export default function TuningViewer() {
   const [data, setData] = useState<Brand[]>([]);
-  const [selected, setSelected] = useState<SelectionState>({ brand: '', model: '', year: '', engine: '' });
+  const [selected, setSelected] = useState<SelectionState>({
+    brand: '',
+    model: '',
+    year: '',
+    engine: '',
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [expandedStages, setExpandedStages] = useState<Record<string, boolean>>({});
   const [expandedDescriptions, setExpandedDescriptions] = useState<Record<string, boolean>>({});
   const [expandedOptions, setExpandedOptions] = useState<Record<string, boolean>>({});
   const watermarkImageRef = useRef<HTMLImageElement | null>(null);
-  const [contactModalData, setContactModalData] = useState<{ isOpen: boolean; stageOrOption: string }>({
-    isOpen: false,
-    stageOrOption: '',
+const [contactModalData, setContactModalData] = useState<{
+  isOpen: boolean;
+  stageOrOption: string;
+}>({
+  isOpen: false,
+  stageOrOption: '',
+});
+
+
+
+
+// 👇 ADD IT HERE
+const handleBookNow = (stageOrOptionName: string) => {
+  setContactModalData({
+    isOpen: true,
+    stageOrOption: stageOrOptionName,
   });
+};
 
-  const handleBookNow = (stageOrOptionName: string) => {
-    setContactModalData({ isOpen: true, stageOrOption: stageOrOptionName });
-  };
-
+  // Load watermark image
   useEffect(() => {
     const img = new Image();
     img.src = '/ak-logo.png';
-    img.onload = () => { watermarkImageRef.current = img; };
+    img.onload = () => {
+      watermarkImageRef.current = img;
+    };
   }, []);
 
+  // Fetch brands and models (light query)
   useEffect(() => {
     const fetchBrands = async () => {
       try {
@@ -55,51 +74,80 @@ export default function TuningViewer() {
     fetchBrands();
   }, []);
 
-  useEffect(() => {
-    const fetchYears = async () => {
-      if (selected.brand && selected.model) {
-        setIsLoading(true);
-        try {
-          const res = await fetch(`/api/years?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}`);
-          if (!res.ok) throw new Error('Failed to fetch years');
-          const years = await res.json();
-          setData(prev => prev.map(brand => brand.name !== selected.brand ? brand : ({
-            ...brand,
-            models: brand.models.map(model => model.name !== selected.model ? model : ({
-              ...model,
-              years: years.result,
-            })),
-          })));
-        } catch (error) {
-          console.error('Error fetching years:', error);
-        } finally {
-          setIsLoading(false);
-        }
-      }
-    };
-    fetchYears();
-  }, [selected.brand, selected.model]);
 
+
+// Fetch years when brand and model are selected
+useEffect(() => {
+  const fetchYears = async () => {
+    if (selected.brand && selected.model) {
+      setIsLoading(true);
+      try {
+        const res = await fetch(
+          /api/years?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}
+        );
+        if (!res.ok) throw new Error('Failed to fetch years');
+        const years = await res.json();
+
+        setData(prev =>
+          prev.map(brand => {
+            if (brand.name !== selected.brand) return brand;
+            return {
+              ...brand,
+              models: brand.models.map(model => {
+                if (model.name !== selected.model) return model;
+                return {
+                  ...model,
+                  years: years.result
+                };
+              })
+            };
+          })
+        );
+      } catch (error) {
+        console.error('Error fetching years:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  fetchYears();
+}, [selected.brand, selected.model]);
+
+
+
+
+
+  // Fetch engines when brand, model, year are selected
   useEffect(() => {
     const fetchEngines = async () => {
       if (selected.brand && selected.model && selected.year) {
         setIsLoading(true);
         try {
           const res = await fetch(
-            `/api/engines?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}&year=${encodeURIComponent(selected.year)}`
+            /api/engines?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}&year=${encodeURIComponent(selected.year)}
           );
           if (!res.ok) throw new Error('Failed to fetch engines');
           const engines = await res.json();
-          setData(prev => prev.map(brand => brand.name !== selected.brand ? brand : ({
-            ...brand,
-            models: brand.models.map(model => model.name !== selected.model ? model : ({
-              ...model,
-              years: model.years.map(year => year.range !== selected.year ? year : ({
-                ...year,
-                engines: engines.result,
-              })),
-            })),
-          })));
+
+          setData(prev =>
+            prev.map(brand => {
+              if (brand.name !== selected.brand) return brand;
+              return {
+                ...brand,
+                models: brand.models.map(model => {
+                  if (model.name !== selected.model) return model;
+                  return {
+                    ...model,
+                    years: model.years.map(year => {
+                      if (year.range !== selected.year) return year;
+                      return { ...year, engines: engines.result };
+                    })
+                  };
+                })
+              };
+            })
+          );
         } catch (error) {
           console.error('Error fetching engines:', error);
         } finally {
@@ -117,14 +165,18 @@ export default function TuningViewer() {
     const engines = years.find(y => y.range === selected.year)?.engines || [];
     const selectedEngine = engines.find(e => e.label === selected.engine);
     const stages = selectedEngine?.stages || [];
+
     const groupedEngines = engines.reduce((acc, engine) => {
       const fuelType = engine.fuel;
       if (!acc[fuelType]) acc[fuelType] = [];
       acc[fuelType].push(engine);
       return acc;
     }, {} as Record<string, typeof engines>);
+
     return { brands, models, years, engines, selectedEngine, stages, groupedEngines };
   }, [data, selected]);
+
+
 
   useEffect(() => {
     if (stages.length > 0) {
@@ -141,47 +193,60 @@ export default function TuningViewer() {
     beforeDraw: (chart: Chart) => {
       const ctx = chart.ctx;
       const { chartArea: { top, left, width, height } } = chart;
+      
       if (watermarkImageRef.current?.complete) {
         ctx.save();
         ctx.globalAlpha = 0.2;
+        
         const img = watermarkImageRef.current;
         const ratio = img.width / img.height;
         const imgWidth = width * 0.4;
         const imgHeight = imgWidth / ratio;
+        
         const x = left + width / 2 - imgWidth / 2;
         const y = top + height / 2 - imgHeight / 2;
+        
         ctx.drawImage(img, x, y, imgWidth, imgHeight);
         ctx.restore();
       }
-    },
+    }
   };
 
-  const isExpandedAktPlusOption = (item: any): item is AktPlusOption => item && '_id' in item && 'title' in item;
+const isExpandedAktPlusOption = (item: any): item is AktPlusOption => {
+  return item && '_id' in item && 'title' in item;
+};
 
-  const getAllAktPlusOptions = useMemo(() => (stage: Stage) => {
-    if (!selectedEngine) return [];
-    const combinedOptions: AktPlusOptionReference[] = [
-      ...(selectedEngine.globalAktPlusOptions || []),
-      ...(stage.aktPlusOptions || []),
-    ];
-    const uniqueOptionsMap = new Map<string, AktPlusOption>();
-    (combinedOptions as AktPlusOptionReference[]).filter(isExpandedAktPlusOption).forEach(opt => {
+const getAllAktPlusOptions = useMemo(() => (stage: Stage) => {
+  if (!selectedEngine) return [];
+
+  const combinedOptions: AktPlusOptionReference[] = [
+    ...(selectedEngine.globalAktPlusOptions || []),
+    ...(stage.aktPlusOptions || [])
+  ];
+
+  const uniqueOptionsMap = new Map<string, AktPlusOption>();
+
+  (combinedOptions as AktPlusOptionReference[])
+    .filter(isExpandedAktPlusOption)
+    .forEach(opt => {
       if (
         (opt.isUniversal ||
-          opt.applicableFuelTypes?.includes(selectedEngine.fuel) ||
-          opt.manualAssignments?.some(ref => ref._ref === selectedEngine._id)) &&
+         opt.applicableFuelTypes?.includes(selectedEngine.fuel) ||
+         opt.manualAssignments?.some(ref => ref._ref === selectedEngine._id)) &&
         (!opt.stageCompatibility || opt.stageCompatibility === stage.name)
       ) {
         uniqueOptionsMap.set(opt._id, opt);
       }
     });
-    return Array.from(uniqueOptionsMap.values());
-  }, [selectedEngine]);
+
+  return Array.from(uniqueOptionsMap.values());
+}, [selectedEngine]);
 
   const generateDynoCurve = (peakValue: number, isHp: boolean) => {
     const rpmRange = [2000, 3000, 4000, 5000, 6000, 7000];
     const peakRpmIndex = isHp ? 3 : 2;
-    return rpmRange.map((_, i) => {
+    
+    return rpmRange.map((rpm, i) => {
       if (i <= peakRpmIndex) {
         const progress = i / peakRpmIndex;
         return peakValue * (0.4 + 0.6 * Math.pow(progress, 1.5));
@@ -195,52 +260,86 @@ export default function TuningViewer() {
   const toggleStage = (stageName: string) => {
     setExpandedStages(prev => ({
       ...prev,
-      [stageName]: !prev[stageName],
+      [stageName]: !prev[stageName]
     }));
   };
 
-  const toggleOption = (optionId: string) => {
-    setExpandedOptions(prev => ({
-      ...prev,
-      [optionId]: !prev[optionId],
-    }));
+const toggleOption = (optionId: string) => {
+  setExpandedOptions(prev => {
+    const newState: Record<string, boolean> = {};
+    // Stäng alla andra, öppna endast det nya
+    newState[optionId] = !prev[optionId];
+    return newState;
+  });
+};
+
+  const handleBrandChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelected({ brand: e.target.value, model: '', year: '', engine: '' });
+  };
+
+  const handleModelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelected(prev => ({ ...prev, model: e.target.value, year: '', engine: '' }));
+  };
+
+  const handleYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelected(prev => ({ ...prev, year: e.target.value, engine: '' }));
+  };
+
+  const handleEngineChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelected(prev => ({ ...prev, engine: e.target.value }));
   };
 
   const portableTextComponents = {
     types: {
       image: ({ value }: any) => (
-        <img src={urlFor(value).width(100).url()} alt={value.alt || ''} className="my-4 rounded-lg shadow-md" />
-      ),
+        <img 
+          src={urlFor(value).width(100).url()} 
+          alt={value.alt || ''}
+          className="my-4 rounded-lg shadow-md"
+        />
+      )
     },
     marks: {
       link: ({ children, value }: any) => (
         <a href={value.href} className="text-blue-400 hover:text-blue-300 underline">
           {children}
         </a>
-      ),
-    },
+      )
+    }
   };
 
-  const renderStageDescription = (stage: Stage) => {
-    const description = stage.descriptionRef?.description || stage.description;
-    const isExpanded = expandedDescriptions[stage.name] ?? false;
-    if (!description) return null;
-    return (
-      <div className="mb-6 border border-gray-700 rounded-lg overflow-hidden">
-        <button
-          onClick={() => setExpandedDescriptions(prev => ({
+const renderStageDescription = (stage: Stage) => {
+  const description = stage.descriptionRef?.description || stage.description;
+  const isExpanded = expandedDescriptions[stage.name] ?? false;
+
+  if (!description) return null;
+
+  return (
+    <div className="mb-6 border border-gray-700 rounded-lg overflow-hidden">
+      <button
+        onClick={() =>
+          setExpandedDescriptions(prev => ({
             ...prev,
-            [stage.name]: !prev[stage.name],
-          }))}
-          className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 text-left flex justify-between items-center"
-        >
-          <span className="text-white font-medium">
-            STAGE {stage.name.replace(/\D/g, '')} INFO
-          </span>
-          <svg className={`h-5 w-5 text-orange-600 transition-transform ${isExpanded ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
-          </svg>
-        </button>
+            [stage.name]: !prev[stage.name]
+          }))
+        }
+        className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 text-left flex justify-between items-center">
+        <span className="text-white font-medium">
+          STAGE {stage.name.replace(/\D/g, '')} INFO
+        </span>
+        <svg
+          className={h-5 w-5 text-orange-600 transition-transform ${
+            isExpanded ? 'rotate-180' : ''
+          }}
+          viewBox="0 0 20 20"
+          fill="currentColor">
+          <path
+            fillRule="evenodd"
+            d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+            clipRule="evenodd"
+          />
+        </svg>
+      </button>
         {isExpanded && (
           <div className="prose prose-invert max-w-none p-4 bg-gray-800">
             {typeof description === 'string' ? <p>{description}</p> : <PortableText value={description} components={portableTextComponents} />}
