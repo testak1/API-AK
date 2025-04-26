@@ -529,9 +529,9 @@ const renderStageDescription = (stage: Stage) => {
 
       <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
         {/* Split the spec boxes */}
-        <div className="absolute flex flex-col sm:flex-row gap-4 top-4 left-4 right-4">
+        <div className="absolute flex flex-col sm:flex-row gap-12 top-4 left-4 right-4 justify-center">
           {/* ORG HK / Max HK */}
-          <div className="px-3 py-2 rounded text-sm mb-2 sm:mb-0 ml-6">
+          <div className="px-3 py-2 rounded text-sm mb-2 sm:mb-0">
             <p className="text-red-600">- -</p>
             <p className="text-white">ORG HK: {stage.origHk}</p>
             <p className="text-red-600">⸺</p>
