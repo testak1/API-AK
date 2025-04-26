@@ -48,12 +48,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         <div style="font-family: 'Segoe UI', Tahoma, sans-serif; background: #f4f4f4; padding: 30px;">
           <div style="max-width: 600px; margin: auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
             <div style="background: #1f2937; color: white; padding: 20px;">
-              <h2 style="margin: 0;">📬 FÖRFRÅGAN</h2>
+              <h2 style="margin: 0; text-align:center;">📬 FÖRFRÅGAN 📬</h2>
             </div>
 
             <div style="padding: 20px; color: #111;">
               <h3 style="margin-bottom: 10px;">🔹 UPPGIFTER</h3>
-              <table cellpadding="8" cellspacing="0" style="width: 100%;">
+              <table cellpadding="6" cellspacing="0" style="width: 100%;">
                 <tr><td><strong>NAMN:</strong></td><td>${name}</td></tr>
                 <tr><td><strong>EMAIL:</strong></td><td>${email}</td></tr>
                 <tr><td><strong>TELNR:</strong></td><td>${tel}</td></tr>
@@ -68,14 +68,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 <tr><td><strong>VAL+:</strong></td><td><span style="color: #059669;"><strong>${stage || '-'}</strong></span></td></tr>
               </table>
 
-              <h3 style="margin-top: 30px; margin-bottom: 10px;">💬 MEDDELANDE</h3>
+              <h3 style="margin-top: 30px; margin-bottom: 10px; text-align:center;">💬 MEDDELANDE</h3>
               <div style="padding: 10px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 5px;">
                 ${message.replace(/\n/g, '<br>')}
               </div>
             </div>
 
-            <div style="background: #1f2937; color: #9ca3af; text-align: center; padding: 10px; font-size: 12px;">
-              Mejlet skickades automatiskt via <strong>AKTuning.se</strong>
+            <div style="background: #1f2937; color: red; text-align: center; padding: 10px; font-size: 12px;">
+              <strong>WWW.AKTUNING.SE</strong>
             </div>
           </div>
         </div>
