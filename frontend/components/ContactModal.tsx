@@ -106,7 +106,7 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle, stageOr
               <textarea placeholder="MEDDELANDE" required className="w-full p-2 rounded bg-gray-800 border border-gray-600" rows={3} value={formData.message} onChange={(e) => setFormData({ ...formData, message: e.target.value })}></textarea>
               <select required className="w-full p-2 rounded bg-gray-800 border border-gray-600" value={formData.branch} onChange={(e) => setFormData({ ...formData, branch: e.target.value })}>
                 <option value="">VÄLJ ANLÄGGNING</option>
-                <option value="test-ak">TEST-AK</option>
+                <option value="TEST-AK">TEST-AK</option>
                 <option value="goteborg">GÖTEBORG (HQ)</option>
                 <option value="jonkoping">JÖNKÖPING</option>
                 <option value="malmo">MALMÖ</option>
