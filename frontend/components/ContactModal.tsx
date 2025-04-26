@@ -72,13 +72,13 @@ useEffect(() => {
     }
   };
 
-  const handleClose = () => {
-    setContactMode(null);
-    onClose();
-  };
+const handleClose = () => {
+  setContactMode(null); // Reset inside modal
+  onClose();            // Tell parent to close modal
+};
 
   return (
-<Dialog as="div" className="fixed z-50 inset-0 overflow-y-auto" onClose={() => {}} open={isOpen}>
+<Dialog as="div" className="fixed z-50 inset-0 overflow-y-auto" onClose={handleClose} open={isOpen}>
       <div className="flex items-center justify-center min-h-screen p-4 text-center bg-black bg-opacity-50">
         <Dialog.Panel className="bg-gray-900 rounded-lg max-w-md w-full p-6 shadow-xl">
           <Dialog.Title className="text-white text-xl font-bold mb-4">
