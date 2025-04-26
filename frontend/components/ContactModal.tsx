@@ -38,6 +38,17 @@ export default function ContactModal({
     }));
   }, [stageOrOption]);
 
+
+
+useEffect(() => {
+  if (isOpen) {
+    setContactMode(null); // Reset mode when modal opens
+  }
+}, [isOpen]);
+
+
+
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSending(true);
