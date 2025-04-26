@@ -1,6 +1,6 @@
-// components/ContactModal.tsx
+// Correct version of ContactModal.tsx
 import { Dialog } from '@headlessui/react';
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface ContactModalProps {
   isOpen: boolean;
@@ -56,7 +56,7 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle, stageOr
         tel: '',
         message: '',
         branch: '',
-        stage: stageOrOption || '-',
+        stage: '-',
       });
       setContactMode('thankyou');
     } catch (err: any) {
@@ -81,43 +81,49 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle, stageOr
 
   return (
     <Dialog open={isOpen} onClose={handleClose} className="relative z-50">
+      {/* Background Overlay */}
       <div className="fixed inset-0 bg-black/50" aria-hidden="true" />
+
+      {/* Centered Panel */}
       <div className="fixed inset-0 flex items-center justify-center p-4">
-        <Dialog.Panel className="bg-gray-900 rounded-lg max-w-md w-full p-6 relative">
+        <Dialog.Panel className="bg-gray-900 rounded-lg max-w-md w-full p-6 relative shadow-xl">
+          {/* Close Button */}
           <button
+            type="button"
             onClick={handleClose}
-            className="absolute top-4 right-4 text-white hover:text-red-400 text-2xl"
+            className="absolute top-4 right-4 text-white text-2xl hover:text-red-400"
           >
             &times;
           </button>
 
-          {/* Dialog content */}
+          {/* Title */}
+          <Dialog.Title className="text-white text-xl font-bold mb-6 text-center">
+            {contactMode === 'thankyou' ? 'Tack för din förfrågan!' : 'VÄLJ ALTERNATIV'}
+          </Dialog.Title>
+
+          {/* Choose Method */}
           {contactMode === 'choose' && (
-            <>
-              <Dialog.Title className="text-white text-xl font-bold mb-6 text-center">
-                VÄLJ ALTERNATIV
-              </Dialog.Title>
-              <div className="flex flex-col gap-4">
-                <button
-                  type="button"
-                  onClick={() => setContactMode('form')}
-                  className="bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg"
-                >
-                  📩 SKICKA FÖRFRÅGAN
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setContactMode('phone')}
-                  className="bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg"
-                >
-                  📞 RING OSS
-                </button>
-              </div>
-            </>
+            <div className="flex flex-col gap-4">
+              <button
+                type="button"
+                onClick={() => setContactMode('form')}
+                className="bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg"
+              >
+                📩 SKICKA FÖRFRÅGAN
+              </button>
+              <button
+                type="button"
+                onClick={() => setContactMode('phone')}
+                className="bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg"
+              >
+                📞 RING OSS
+              </button>
+            </div>
           )}
 
+          {/* Form */}
           {contactMode === 'form' && (
-            <form onSubmit={handleSubmit} className="space-y-4 text-white mt-4">
+            <form onSubmit={handleSubmit} className="space-y-4 text-white">
               <div className="text-sm text-gray-400">
                 FÖRFRÅGAN FÖR: <strong>{selectedVehicle.brand} {selectedVehicle.model} {selectedVehicle.year} – {selectedVehicle.engine}</strong>
                 {formData.stage && formData.stage !== '-' && (
@@ -187,6 +193,7 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle, stageOr
             </form>
           )}
 
+          {/* Phone Numbers */}
           {contactMode === 'phone' && (
             <div className="text-white mt-6 text-left space-y-2">
               <p><strong>GÖTEBORG (HQ)</strong> — <a href="tel:0313823300" className="text-blue-400 underline">031-382 33 00</a></p>
@@ -198,6 +205,7 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle, stageOr
             </div>
           )}
 
+          {/* Thank you */}
           {contactMode === 'thankyou' && (
             <div className="text-center text-white mt-6 space-y-4">
               <p className="text-lg">✅ DIN FÖRFRÅGAN ÄR SKICKAD!</p>
