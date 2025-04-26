@@ -686,14 +686,14 @@ const renderStageDescription = (stage: Stage) => {
 <div className="mt-6 mb-10 flex justify-center">
 <button
   onClick={() => {
-    setSelectedVehicle({
-      brand: stage.brand,
-      model: stage.model,
-      year: stage.year,
-      engine: stage.engine,
+    setSelected({
+      brand: selected.brand, // 👈 keep current selection
+      model: selected.model,
+      year: selected.year,
+      engine: selected.engine,
     });
-    setSelectedStageOrOption(stage.name); // 👈 Correct
-    setIsContactModalOpen(true);
+    setSelectedStageOrOption(stage.name); // 👈 Set the stage name
+    setIsContactModalOpen(true); // 👈 Open modal
   }}
   className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg transition-colors"
 >
@@ -773,13 +773,13 @@ const renderStageDescription = (stage: Stage) => {
   </div>
 <button
   onClick={() => {
-    setSelectedVehicle({
-      brand: stage.brand, // 👈 Still keep the same vehicle context
-      model: stage.model,
-      year: stage.year,
-      engine: stage.engine,
+    setSelected({
+      brand: selected.brand,
+      model: selected.model,
+      year: selected.year,
+      engine: selected.engine,
     });
-    setSelectedStageOrOption(option.title); // 👈 Correct!
+    setSelectedStageOrOption(option.title); // 👈 Set AKT+ title
     setIsContactModalOpen(true);
   }}
   className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white transition-colors whitespace-nowrap"
