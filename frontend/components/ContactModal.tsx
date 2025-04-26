@@ -21,7 +21,7 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle, stageOr
     tel: '',
     message: '',
     branch: '',
-    stage: '-',
+    stage: '-', // default
   });
 
   useEffect(() => {
@@ -77,9 +77,12 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle, stageOr
 
   return (
     <Dialog as="div" className="relative z-50" open={isOpen} onClose={handleClose}>
-      <div className="fixed inset-0 bg-black bg-opacity-50" aria-hidden="true" />
+      {/* Overlay */}
+      <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-50" />
+
       <div className="fixed inset-0 flex items-center justify-center p-4">
         <Dialog.Panel className="relative bg-gray-900 rounded-lg max-w-md w-full p-6 shadow-xl">
+          {/* Close button */}
           <button
             type="button"
             onClick={handleClose}
@@ -88,35 +91,32 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle, stageOr
             &times;
           </button>
 
+          {/* Title */}
           <Dialog.Title className="text-white text-xl font-bold mb-4">
             {contactMode === 'thankyou' ? 'Tack för din förfrågan!' : 'VÄLJ METOD NEDANFÖR'}
           </Dialog.Title>
 
+          {/* Step 1: Choose */}
           {!contactMode && (
             <div className="flex flex-col gap-4">
               <button
                 type="button"
                 className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
-                onClick={(e) => {
-                  e.stopPropagation(); // Important to avoid closing!
-                  setContactMode('form');
-                }}
+                onClick={() => setContactMode('form')}
               >
                 📩 SKICKA FÖRFRÅGAN
               </button>
               <button
                 type="button"
                 className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
-                onClick={(e) => {
-                  e.stopPropagation(); // Important to avoid closing!
-                  setContactMode('phone');
-                }}
+                onClick={() => setContactMode('phone')}
               >
                 📞 RING OSS
               </button>
             </div>
           )}
 
+          {/* Step 2: Form */}
           {contactMode === 'form' && (
             <form className="space-y-4 text-left mt-4 text-white" onSubmit={handleSubmit}>
               <div className="text-sm text-gray-400 mb-2">
@@ -151,6 +151,7 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle, stageOr
             </form>
           )}
 
+          {/* Step 3: Thank You */}
           {contactMode === 'thankyou' && (
             <div className="text-center text-white space-y-4 mt-6">
               <p className="text-lg">✅ DIN FÖRFRÅGAN ÄR SKICKAD, VI BESVARAR SÅ FORT VI KAN!</p>
@@ -163,6 +164,7 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle, stageOr
             </div>
           )}
 
+          {/* Step 4: Phone info */}
           {contactMode === 'phone' && (
             <div className="text-left text-white mt-4 space-y-2">
               <p><strong>GÖTEBORG (HQ) - </strong> <a href="tel:0313823300" className="text-blue-400 underline">031-382 33 00</a></p>
