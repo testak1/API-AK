@@ -1,5 +1,6 @@
+// components/ContactModal.tsx
 import { Dialog } from '@headlessui/react';
-import { Fragment, useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 interface ContactModalProps {
   isOpen: boolean;
@@ -14,25 +15,23 @@ interface ContactModalProps {
 }
 
 export default function ContactModal({ isOpen, onClose, selectedVehicle, stageOrOption }: ContactModalProps) {
-  const [contactMode, setContactMode] = useState<'form' | 'phone' | 'thankyou' | null>(null);
+  const [contactMode, setContactMode] = useState<'choose' | 'form' | 'phone' | 'thankyou'>('choose');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     tel: '',
     message: '',
     branch: '',
-    stage: '-', // default
+    stage: '-', 
   });
-
-  useEffect(() => {
-    setFormData((prev) => ({
-      ...prev,
-      stage: stageOrOption || '-',
-    }));
-  }, [stageOrOption]);
-
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (stageOrOption) {
+      setFormData((prev) => ({ ...prev, stage: stageOrOption }));
+    }
+  }, [stageOrOption]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,17 +39,14 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle, stageOr
     setError('');
 
     try {
-      const response = await fetch('/api/send-contact', {
+      const res = await fetch('/api/send-contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...formData,
-          vehicle: selectedVehicle,
-        }),
+        body: JSON.stringify({ ...formData, vehicle: selectedVehicle }),
       });
 
-      if (!response.ok) {
-        const data = await response.json();
+      if (!res.ok) {
+        const data = await res.json();
         throw new Error(data.error || 'Misslyckades att skicka förfrågan');
       }
 
@@ -60,7 +56,7 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle, stageOr
         tel: '',
         message: '',
         branch: '',
-        stage: '-',
+        stage: stageOrOption || '-',
       });
       setContactMode('thankyou');
     } catch (err: any) {
@@ -71,55 +67,58 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle, stageOr
   };
 
   const handleClose = () => {
-    setContactMode(null);
+    setFormData({
+      name: '',
+      email: '',
+      tel: '',
+      message: '',
+      branch: '',
+      stage: '-',
+    });
+    setContactMode('choose');
     onClose();
   };
 
   return (
-    <Dialog as="div" className="relative z-50" open={isOpen} onClose={handleClose}>
-      {/* Overlay */}
-      <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-50" />
-
+    <Dialog open={isOpen} onClose={handleClose} className="relative z-50">
+      <div className="fixed inset-0 bg-black/50" aria-hidden="true" />
       <div className="fixed inset-0 flex items-center justify-center p-4">
-        <Dialog.Panel className="relative bg-gray-900 rounded-lg max-w-md w-full p-6 shadow-xl">
-          {/* Close button */}
+        <Dialog.Panel className="bg-gray-900 rounded-lg max-w-md w-full p-6 relative">
           <button
-            type="button"
             onClick={handleClose}
-            className="absolute top-4 right-4 text-white text-2xl hover:text-red-400"
+            className="absolute top-4 right-4 text-white hover:text-red-400 text-2xl"
           >
             &times;
           </button>
 
-          {/* Title */}
-          <Dialog.Title className="text-white text-xl font-bold mb-4">
-            {contactMode === 'thankyou' ? 'Tack för din förfrågan!' : 'VÄLJ METOD NEDANFÖR'}
-          </Dialog.Title>
-
-          {/* Step 1: Choose */}
-          {!contactMode && (
-            <div className="flex flex-col gap-4">
-              <button
-                type="button"
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
-                onClick={() => setContactMode('form')}
-              >
-                📩 SKICKA FÖRFRÅGAN
-              </button>
-              <button
-                type="button"
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
-                onClick={() => setContactMode('phone')}
-              >
-                📞 RING OSS
-              </button>
-            </div>
+          {/* Dialog content */}
+          {contactMode === 'choose' && (
+            <>
+              <Dialog.Title className="text-white text-xl font-bold mb-6 text-center">
+                VÄLJ ALTERNATIV
+              </Dialog.Title>
+              <div className="flex flex-col gap-4">
+                <button
+                  type="button"
+                  onClick={() => setContactMode('form')}
+                  className="bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg"
+                >
+                  📩 SKICKA FÖRFRÅGAN
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setContactMode('phone')}
+                  className="bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg"
+                >
+                  📞 RING OSS
+                </button>
+              </div>
+            </>
           )}
 
-          {/* Step 2: Form */}
           {contactMode === 'form' && (
-            <form className="space-y-4 text-left mt-4 text-white" onSubmit={handleSubmit}>
-              <div className="text-sm text-gray-400 mb-2">
+            <form onSubmit={handleSubmit} className="space-y-4 text-white mt-4">
+              <div className="text-sm text-gray-400">
                 FÖRFRÅGAN FÖR: <strong>{selectedVehicle.brand} {selectedVehicle.model} {selectedVehicle.year} – {selectedVehicle.engine}</strong>
                 {formData.stage && formData.stage !== '-' && (
                   <div className="mt-1 text-green-400 text-xs">
@@ -128,11 +127,44 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle, stageOr
                 )}
               </div>
 
-              <input type="text" placeholder="NAMN" required className="w-full p-2 rounded bg-gray-800 border border-gray-600" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
-              <input type="email" placeholder="EMAIL" required className="w-full p-2 rounded bg-gray-800 border border-gray-600" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
-              <input type="tel" placeholder="TELNR" required className="w-full p-2 rounded bg-gray-800 border border-gray-600" value={formData.tel} onChange={(e) => setFormData({ ...formData, tel: e.target.value })} />
-              <textarea placeholder="MEDDELANDE" required className="w-full p-2 rounded bg-gray-800 border border-gray-600" rows={3} value={formData.message} onChange={(e) => setFormData({ ...formData, message: e.target.value })}></textarea>
-              <select required className="w-full p-2 rounded bg-gray-800 border border-gray-600" value={formData.branch} onChange={(e) => setFormData({ ...formData, branch: e.target.value })}>
+              <input
+                type="text"
+                placeholder="NAMN"
+                required
+                className="w-full p-2 rounded bg-gray-800 border border-gray-600"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              />
+              <input
+                type="email"
+                placeholder="EMAIL"
+                required
+                className="w-full p-2 rounded bg-gray-800 border border-gray-600"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              />
+              <input
+                type="tel"
+                placeholder="TELNR"
+                required
+                className="w-full p-2 rounded bg-gray-800 border border-gray-600"
+                value={formData.tel}
+                onChange={(e) => setFormData({ ...formData, tel: e.target.value })}
+              />
+              <textarea
+                placeholder="MEDDELANDE"
+                required
+                className="w-full p-2 rounded bg-gray-800 border border-gray-600"
+                rows={3}
+                value={formData.message}
+                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+              />
+              <select
+                required
+                className="w-full p-2 rounded bg-gray-800 border border-gray-600"
+                value={formData.branch}
+                onChange={(e) => setFormData({ ...formData, branch: e.target.value })}
+              >
                 <option value="">VÄLJ ANLÄGGNING</option>
                 <option value="TEST-AK">TEST-AK</option>
                 <option value="goteborg">GÖTEBORG (HQ)</option>
@@ -143,7 +175,11 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle, stageOr
                 <option value="storvik">STORVIK</option>
               </select>
 
-              <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded" disabled={sending}>
+              <button
+                type="submit"
+                className="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-lg"
+                disabled={sending}
+              >
                 {sending ? 'SKICKAR...' : '📩 SKICKA FÖRFRÅGAN'}
               </button>
 
@@ -151,28 +187,27 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle, stageOr
             </form>
           )}
 
-          {/* Step 3: Thank You */}
-          {contactMode === 'thankyou' && (
-            <div className="text-center text-white space-y-4 mt-6">
-              <p className="text-lg">✅ DIN FÖRFRÅGAN ÄR SKICKAD, VI BESVARAR SÅ FORT VI KAN!</p>
-              <button
-                onClick={handleClose}
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
-              >
-                STÄNG
-              </button>
+          {contactMode === 'phone' && (
+            <div className="text-white mt-6 text-left space-y-2">
+              <p><strong>GÖTEBORG (HQ)</strong> — <a href="tel:0313823300" className="text-blue-400 underline">031-382 33 00</a></p>
+              <p><strong>JÖNKÖPING</strong> — <a href="tel:0303332300" className="text-blue-400 underline">030-333 23 00</a></p>
+              <p><strong>SKÅNE</strong> — <a href="tel:041318166" className="text-blue-400 underline">041-31 81 66</a></p>
+              <p><strong>STOCKHOLM</strong> — <a href="tel:0708265573" className="text-blue-400 underline">070-826 55 73</a></p>
+              <p><strong>ÖREBRO</strong> — <a href="tel:0708265573" className="text-blue-400 underline">070-826 55 73</a></p>
+              <p><strong>STORVIK</strong> — <a href="tel:0708265573" className="text-blue-400 underline">070-826 55 73</a></p>
             </div>
           )}
 
-          {/* Step 4: Phone info */}
-          {contactMode === 'phone' && (
-            <div className="text-left text-white mt-4 space-y-2">
-              <p><strong>GÖTEBORG (HQ) - </strong> <a href="tel:0313823300" className="text-blue-400 underline">031-382 33 00</a></p>
-              <p><strong>JÖNKÖPING - </strong> <a href="tel:0303332300" className="text-blue-400 underline">030-333 23 00</a></p>
-              <p><strong>SKÅNE - </strong> <a href="tel:041318166" className="text-blue-400 underline">041-31 81 66</a></p>
-              <p><strong>STOCKHOLM - </strong> <a href="tel:0708265573" className="text-blue-400 underline">070-826 55 73</a></p>
-              <p><strong>ÖREBRO - </strong> <a href="tel:0708265573" className="text-blue-400 underline">070-826 55 73</a></p>
-              <p><strong>STORVIK - </strong> <a href="tel:0708265573" className="text-blue-400 underline">070-826 55 73</a></p>
+          {contactMode === 'thankyou' && (
+            <div className="text-center text-white mt-6 space-y-4">
+              <p className="text-lg">✅ DIN FÖRFRÅGAN ÄR SKICKAD!</p>
+              <button
+                type="button"
+                onClick={handleClose}
+                className="bg-green-600 hover:bg-green-700 text-white py-2 px-6 rounded-lg"
+              >
+                STÄNG
+              </button>
             </div>
           )}
         </Dialog.Panel>
