@@ -507,7 +507,7 @@ const renderStageDescription = (stage: Stage) => {
         <p className="text-xl text-white font-bold">{stage.origHk} hk</p>
       </div>
       <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
-        <p className="text-sm text-white font-bold mb-1 uppercase">{stage.name} HK</p>
+        <p className="text-xl text-white font-bold mb-1 uppercase">{stage.name} HK</p>
         <p className="text-xl font-bold">{stage.tunedHk} hk</p>
         <p className="text-xs mt-1 text-red-400">+{stage.tunedHk - stage.origHk} hk</p>
       </div>
@@ -518,7 +518,7 @@ const renderStageDescription = (stage: Stage) => {
         <p className="text-xl text-white font-bold">{stage.origNm} Nm</p>
       </div>
       <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
-        <p className="text-sm text-white font-bold mb-1 uppercase">{stage.name} NM</p>
+        <p className="text-xl text-white font-bold mb-1 uppercase">{stage.name} NM</p>
         <p className="text-xl font-bold">{stage.tunedNm} Nm</p>
         <p className="text-xs mt-1 text-red-400">+{stage.tunedNm - stage.origNm} Nm</p>
       </div>
@@ -531,7 +531,7 @@ const renderStageDescription = (stage: Stage) => {
         {/* Split the spec boxes */}
         <div className="absolute flex flex-col sm:flex-row gap-12 top-4 left-4 right-4 justify-center">
           {/* ORG HK / Max HK */}
-          <div className="py-2 rounded text-sm mb-2 sm:mb-0" style={{ paddingRight: '500px' }}>
+          <div className="py-2 rounded text-sm mb-2 sm:mb-0 bg-gray-600" style={{ paddingRight: '500px' }}>
             <p className="text-red-600">- -</p>
             <p className="text-white">ORG HK: {stage.origHk}</p>
             <p className="text-red-600">⸺</p>
@@ -539,7 +539,7 @@ const renderStageDescription = (stage: Stage) => {
           </div>
 
           {/* ORG NM / Max NM */}
-          <div className="py-2 rounded text-sm">
+          <div className="py-2 rounded text-sm bg-gray-800">
             <p className="text-blue-600">- -</p>
             <p className="text-white">ORG NM: {stage.origNm}</p>
             <p className="text-blue-600">⸺</p>
