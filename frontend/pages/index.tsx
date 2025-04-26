@@ -321,8 +321,7 @@ const renderStageDescription = (stage: Stage) => {
             [stage.name]: !prev[stage.name]
           }))
         }
-        className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 text-left flex justify-between items-center"
-      >
+        className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 text-left flex justify-between items-center">
         <span className="text-white font-medium">
           STAGE {stage.name.replace(/\D/g, '')} INFO
         </span>
@@ -331,8 +330,7 @@ const renderStageDescription = (stage: Stage) => {
             isExpanded ? 'rotate-180' : ''
           }`}
           viewBox="0 0 20 20"
-          fill="currentColor"
-        >
+          fill="currentColor">
           <path
             fillRule="evenodd"
             d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
@@ -371,8 +369,7 @@ const renderStageDescription = (stage: Stage) => {
             }`}
             value={selected.brand}
             onChange={handleBrandChange}
-            disabled={isLoading}
-          >
+            disabled={isLoading}>
             <option value="">VÄLJ MÄRKE</option>
             {brands.map(brand => (
               <option key={brand} value={brand}>{brand}</option>
@@ -388,8 +385,7 @@ const renderStageDescription = (stage: Stage) => {
             }`}
             value={selected.model}
             onChange={handleModelChange}
-            disabled={!selected.brand}
-          >
+            disabled={!selected.brand}>
             <option value="">VÄLJ MODELL</option>
             {models.map(m => (
               <option key={m.name} value={m.name}>{m.name}</option>
@@ -405,8 +401,7 @@ const renderStageDescription = (stage: Stage) => {
             }`}
             value={selected.year}
             onChange={handleYearChange}
-            disabled={!selected.model}
-          >
+            disabled={!selected.model}>
             <option value="">VÄLJ ÅRSMODELL</option>
             {years.map(y => (
               <option key={y.range} value={y.range}>{y.range}</option>
@@ -422,14 +417,12 @@ const renderStageDescription = (stage: Stage) => {
             }`}
             value={selected.engine}
             onChange={handleEngineChange}
-            disabled={!selected.year}
-          >
+            disabled={!selected.year}>
             <option value="">VÄLJ MOTOR</option>
             {Object.entries(groupedEngines).map(([fuelType, engines]) => (
               <optgroup 
                 label={fuelType.charAt(0).toUpperCase() + fuelType.slice(1)} 
-                key={fuelType}
-              >
+                key={fuelType}>
                 {engines.map(engine => (
                   <option key={engine.label} value={engine.label}>
                     {engine.label}
@@ -455,8 +448,7 @@ const renderStageDescription = (stage: Stage) => {
               <div key={stage.name} className="bg-gray-800 rounded-xl shadow-lg border border-gray-700 overflow-hidden">
                 <button
                   onClick={() => toggleStage(stage.name)}
-                  className="w-full p-6 text-left"
-                >
+                  className="w-full p-6 text-left">
 <div className="flex flex-col md:flex-row md:items-center md:justify-between">
 <div className="flex items-center gap-4">
   {/* Brand logo first */}
@@ -489,8 +481,7 @@ const renderStageDescription = (stage: Stage) => {
         isExpanded ? 'rotate-180' : ''
       }`}
       viewBox="0 0 20 20"
-      fill="currentColor"
-    >
+      fill="currentColor">
       <path
         fillRule="evenodd"
         d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
@@ -695,8 +686,7 @@ const renderStageDescription = (stage: Stage) => {
 <div className="mt-6 mb-10 flex justify-center">
 <button
   onClick={() => handleBookNow(stage.name)} 
-    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg transition-colors"
-  >
+    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg transition-colors">
     📩 BOKA/KONTAKTA OSS
   </button>
 </div>
@@ -722,8 +712,7 @@ const renderStageDescription = (stage: Stage) => {
         <div key={option._id} className="border border-gray-600 rounded-lg overflow-hidden">
           <button
             onClick={() => toggleOption(option._id)}
-            className="w-full flex justify-between items-center p-4 bg-gray-700 hover:bg-gray-600 transition-colors"
-          >
+            className="w-full flex justify-between items-center p-4 bg-gray-700 hover:bg-gray-600 transition-colors">
             <div className="flex items-center gap-3">
               {option.gallery?.[0]?.asset && (
                 <img
@@ -739,8 +728,7 @@ const renderStageDescription = (stage: Stage) => {
                 expandedOptions[option._id] ? 'rotate-180' : ''
               }`}
               viewBox="0 0 20 20"
-              fill="currentColor"
-            >
+              fill="currentColor">
               <path
                 fillRule="evenodd"
                 d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
@@ -766,8 +754,7 @@ const renderStageDescription = (stage: Stage) => {
                 </div>
                 <button
                   onClick={() => handleBookNow(option.title)}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white transition-colors whitespace-nowrap"
-                >
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white transition-colors whitespace-nowrap">
                   📩 BOKA/KONTAKTA OSS
                 </button>
               </div>
