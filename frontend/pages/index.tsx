@@ -788,4 +788,4 @@ return (
       stageOrOption={contactModalData.stageOrOption}
     />
   </>
-)
+);
