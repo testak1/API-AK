@@ -510,7 +510,7 @@ const renderStageDescription = (stage: Stage) => {
                         <p className="text-xl text-white font-bold">{stage.origHk} hk</p>
                       </div>
                       <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
-                        <p className="text-sm text-white font-bold mb-1">OPTIMERAD HK</p>
+                        <p className="text-sm text-white font-bold mb-1">{stage.name} HK</p>
                         <p className="text-xl font-bold">{stage.tunedHk} hk</p>
                         <p className="text-xs mt-1 text-red-400">+{stage.tunedHk - stage.origHk} hk</p>
                       </div>
@@ -519,7 +519,7 @@ const renderStageDescription = (stage: Stage) => {
                         <p className="text-xl text-white font-bold">{stage.origNm} Nm</p>
                       </div>
                       <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
-                        <p className="text-sm text-white font-bold mb-1">OPTIMERAD NM</p>
+                        <p className="text-sm text-white font-bold mb-1">{stage.name} NM</p>
                         <p className="text-xl font-bold">{stage.tunedNm} Nm</p>
                         <p className="text-xs mt-1 text-red-400">+{stage.tunedNm - stage.origNm} Nm</p>
                       </div>
@@ -528,11 +528,11 @@ const renderStageDescription = (stage: Stage) => {
                     <div className="mt-6">
                       <h3 className="text-lg font-medium text-gray-300 mb-2">{stage.name}</h3>
                       <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
-                        <div className="absolute right-4 top-4 bg-gray-400 px-2 py-1 rounded text-sm">
-                          <p className="text-white">- - ORG HK: {stage.origHk}</p>
-                          <p className="text-red-600">-- Max HK: {stage.tunedHk}</p>
-                          <p className="text-white">- - ORG NM: {stage.origNm}</p>
-                          <p className="text-red-600">-- Max NM: {stage.tunedNm}</p>
+                        <div className="absolute right-4 top-4 bg-gray-600 px-2 py-1 rounded text-sm">
+                          <p className="text-red-600">- -</p><p className="text-white">ORG HK: {stage.origHk}</p>
+                          <p className="text-red-600">⸺</p><p className="text-white">Max HK: {stage.tunedHk}</p>
+                          <p className="text-blue-600">- -</p><p className="text-white">ORG NM: {stage.origNm}</p>
+                          <p className="text-blue-600">⸺</p><p className="text-white">Max NM: {stage.tunedNm}</p>
                         </div>
                         
                         <Line
