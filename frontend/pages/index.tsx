@@ -504,14 +504,6 @@ const renderStageDescription = (stage: Stage) => {
 
 
 
-<ContactModal
-  isOpen={contactModalData.isOpen}
-  onClose={() => setContactModalData({ isOpen: false, stageOrOption: '' })}
-  selectedVehicle={selected}
-  stageOrOption={contactModalData.stageOrOption}
-/>
-
-
                 {isExpanded && (
                   <div className="px-6 pb-6">
                     {renderStageDescription(stage)}
