@@ -348,9 +348,10 @@ const renderStageDescription = (stage: Stage) => {
           ) : (
             <PortableText value={description} components={portableTextComponents} />
           )}
-      </div>
-)}
-);
+        </div>
+      )}
+    </div>
+  );
 
 
 
@@ -771,7 +772,6 @@ const renderStageDescription = (stage: Stage) => {
     )}
    </div>
 ))}
-
 </div>
 
                       </div>
