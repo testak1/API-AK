@@ -55,7 +55,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
             <div style="padding: 20px; color: #111;">
               <h3 style="margin-bottom: 10px;">🔹 UPPGIFTER</h3>
-              <table cellpadding="6" cellspacing="0" style="width: 40%;">
+              <table cellpadding="6" cellspacing="0" style="width: 55%;">
                 <tr><td><strong>NAMN:</strong></td><td>${name}</td></tr>
                 <tr><td><strong>EMAIL:</strong></td><td>${email}</td></tr>
                 <tr><td><strong>TELNR:</strong></td><td>${tel}</td></tr>
