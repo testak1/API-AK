@@ -551,6 +551,7 @@ const renderStageDescription = (stage: Stage) => {
           </div>
         </div>
       </div>
+    </div>
 
         {/* Dyno graph */}
         <Line
