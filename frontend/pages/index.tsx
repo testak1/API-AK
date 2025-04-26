@@ -323,7 +323,7 @@ const renderStageDescription = (stage: Stage) => {
             [stage.name]: !prev[stage.name]
           }))
         }
-        className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 text-left flex justify-between items-center">
+        className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 flex justify-between sm:justify-start items-center text-center"
         <span className="text-white font-medium">
           STEG {stage.name.replace(/\D/g, '')} information
         </span>
@@ -470,7 +470,7 @@ const renderStageDescription = (stage: Stage) => {
     </h2>
   </div>
 
-  <div className="mt-3 md:mt-0 flex items-center gap-4">
+  <div className="mt-3 md:mt-0 flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-4 text-center">
     {/* Stage badge image */}
     <img
       src={`/badges/${stage.name.toLowerCase().replace(/\s+/g, '')}.png`}
@@ -703,7 +703,7 @@ const renderStageDescription = (stage: Stage) => {
 {allOptions.length > 0 && (
   <div className="mt-8">
     {/* AKT+ HEADER WITH LOGO */}
-    <div className="flex items-center gap-4 mb-4">
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-start items-center justify-center gap-4 mb-4 text-center">
       <img
         src="/logos/aktplus.png"
         alt="AKT+ Logo"
