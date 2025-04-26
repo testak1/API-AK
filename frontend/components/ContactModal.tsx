@@ -1,5 +1,5 @@
 import { Dialog } from '@headlessui/react';
-import { useState, useEffect } from 'react';
+import { Fragment, useState, useEffect } from 'react';
 
 interface ContactModalProps {
   isOpen: boolean;
@@ -21,10 +21,8 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle, stageOr
     tel: '',
     message: '',
     branch: '',
-    stage: '-', // Default
+    stage: '-',
   });
-  const [sending, setSending] = useState(false);
-  const [error, setError] = useState('');
 
   useEffect(() => {
     setFormData((prev) => ({
@@ -32,6 +30,9 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle, stageOr
       stage: stageOrOption || '-',
     }));
   }, [stageOrOption]);
+
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,10 +77,8 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle, stageOr
 
   return (
     <Dialog as="div" className="relative z-50" open={isOpen} onClose={handleClose}>
+      <div className="fixed inset-0 bg-black bg-opacity-50" aria-hidden="true" />
       <div className="fixed inset-0 flex items-center justify-center p-4">
-        {/* FIX: Dialog.Overlay for the background */}
-        <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-50" />
-
         <Dialog.Panel className="relative bg-gray-900 rounded-lg max-w-md w-full p-6 shadow-xl">
           <button
             type="button"
@@ -98,14 +97,20 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle, stageOr
               <button
                 type="button"
                 className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
-                onClick={() => setContactMode('form')}
+                onClick={(e) => {
+                  e.stopPropagation(); // Important to avoid closing!
+                  setContactMode('form');
+                }}
               >
                 📩 SKICKA FÖRFRÅGAN
               </button>
               <button
                 type="button"
                 className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
-                onClick={() => setContactMode('phone')}
+                onClick={(e) => {
+                  e.stopPropagation(); // Important to avoid closing!
+                  setContactMode('phone');
+                }}
               >
                 📞 RING OSS
               </button>
