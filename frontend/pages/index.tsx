@@ -681,7 +681,7 @@ const renderStageDescription = (stage: Stage) => {
                       </div>
                     </div>
 
-<div className="text-center text-orange-600 text-sm">
+<div className="text-center text-white text-sm">
   <p>(Simulerad effektkurva)</p>
 </div>
 
