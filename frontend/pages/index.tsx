@@ -528,9 +528,11 @@ const renderStageDescription = (stage: Stage) => {
                     <div className="mt-6">
                       <h3 className="text-lg font-medium text-gray-300 mb-2">{stage.name}</h3>
                       <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
-                        <div className="absolute right-4 top-4 bg-gray-800 px-2 py-1 rounded text-sm">
+                        <div className="absolute right-4 top-4 bg-gray-600 px-2 py-1 rounded text-sm">
+                          <p className="text-white">ORG HK: {stage.origHk}</p>
                           <p className="text-red-600">Max HK: {stage.tunedHk}</p>
-                          <p className="text-yellow-600">Max NM: {stage.tunedNm}</p>
+                          <p className="text-grey">ORG NM: {stage.origNm}</p>
+                          <p className="text-red-600">Max NM: {stage.tunedNm}</p>
                         </div>
                         
                         <Line
@@ -540,7 +542,7 @@ const renderStageDescription = (stage: Stage) => {
                               {
                                 label: 'Original HK',
                                 data: generateDynoCurve(stage.origHk, true),
-                                borderColor: 'rgba(255, 0, 0)',
+                                borderColor: 'white',
                                 backgroundColor: 'transparent',
                                 borderWidth: 2,
                                 borderDash: [5, 3],
@@ -551,7 +553,7 @@ const renderStageDescription = (stage: Stage) => {
                               {
                                 label: 'Tuned HK',
                                 data: generateDynoCurve(stage.tunedHk, true),
-                                borderColor: 'rgba(200, 0, 0)',
+                                borderColor: 'red',
                                 backgroundColor: 'transparent',
                                 borderWidth: 3,
                                 tension: 0.3,
@@ -561,7 +563,7 @@ const renderStageDescription = (stage: Stage) => {
                               {
                                 label: 'Original NM',
                                 data: generateDynoCurve(stage.origNm, false),
-                                borderColor: 'rgba(251, 191, 36)',
+                                borderColor: 'grey',
                                 backgroundColor: 'transparent',
                                 borderWidth: 2,
                                 borderDash: [5, 3],
@@ -572,7 +574,7 @@ const renderStageDescription = (stage: Stage) => {
                               {
                                 label: 'Tuned NM',
                                 data: generateDynoCurve(stage.tunedNm, false),
-                                borderColor: 'rgba(251, 191, 36)',
+                                borderColor: 'red',
                                 backgroundColor: 'transparent',
                                 borderWidth: 3,
                                 tension: 0.3,
@@ -608,10 +610,9 @@ const renderStageDescription = (stage: Stage) => {
                                 title: {
                                   display: true,
                                   text: 'Effekt (HK)',
-                                  color: 'red',
+                                  color: 'white',
                                   font: { 
                                     size: 14,
-                                    weight: 'bold'
                                   }
                                 },
                                 min: 0,
@@ -632,10 +633,9 @@ const renderStageDescription = (stage: Stage) => {
                                 title: {
                                   display: true,
                                   text: 'Vridmoment (Nm)',
-                                  color: 'yellow',
+                                  color: 'white',
                                   font: { 
                                     size: 14,
-                                    weight: 'bold'
                                   }
                                 },
                                 min: 0,
