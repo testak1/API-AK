@@ -325,7 +325,7 @@ const renderStageDescription = (stage: Stage) => {
         }
         className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 text-left flex justify-between items-center">
         <span className="text-white font-medium">
-          STAGE {stage.name.replace(/\D/g, '')} INFO
+          STEG {stage.name.replace(/\D/g, '')} information
         </span>
         <svg
           className={`h-5 w-5 text-orange-600 transition-transform ${
@@ -529,9 +529,9 @@ const renderStageDescription = (stage: Stage) => {
 
       <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
         {/* Split the spec boxes */}
-        <div className="absolute flex flex-col sm:flex-row gap-24 top-4 left-0 right-0 justify-center items-start">
+        <div className="absolute flex flex-col sm:flex-row top-4 left-6 right-6 justify-between items-start">
           {/* ORG HK / Max HK */}
-          <div className="bg-gray-800 px-6 py-3 rounded text-sm text-white flex flex-col items-start w-48">
+          <div className="bg-gray-600 px-6 py-3 rounded text-sm text-white flex flex-col items-start w-48">
             <p className="text-red-600">- -</p>
             <p className="text-white">org hk: {stage.origHk}</p>
             <p className="text-red-600">⸺</p>
@@ -539,7 +539,7 @@ const renderStageDescription = (stage: Stage) => {
           </div>
 
           {/* ORG NM / Max NM */}
-          <div className="bg-gray-800 px-6 py-3 rounded text-sm text-white flex flex-col items-start w-48">
+          <div className="bg-gray-600 px-6 py-3 rounded text-sm text-white flex flex-col items-start w-48">
             <p className="text-white">- -</p>
             <p className="text-white">org nm: {stage.origNm}</p>
             <p className="text-white">⸺</p>
