@@ -758,34 +758,41 @@ return (
                   onClick={() => handleBookNow(option.title)}
                   className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white transition-colors whitespace-nowrap">
                   📩 BOKA/KONTAKTA OSS
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      ))}
-    </div> {/* ✅ Stänger grid-cols-2 här */}
-  </div>  {/* ✅ Stänger hela AKT+ sektionen här */}
-)}
-
-{!allOptions.length && (
-  <div className="text-center py-12 bg-gray-800 rounded-xl mt-8">
-    <p className="text-white">EXTRA INFO RUTA KANSKE?</p>
+  </button>
+</div>
   </div>
 )}
 
-    </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="text-center py-12 bg-gray-800 rounded-xl">
+          <p className="text-white">
+EXTRA INFO RUTA KANSKE?
+          </p>
+        </div>
+      )}
 
-    <ContactModal 
-      isOpen={contactModalData.isOpen}
-      onClose={() => setContactModalData({ isOpen: false, stageOrOption: '' })}
-      selectedVehicle={{
-        brand: selected.brand,
-        model: selected.model,
-        year: selected.year,
-        engine: selected.engine,
-      }}
-      stageOrOption={contactModalData.stageOrOption}
-    />
-  </>
-);
+<ContactModal
+  isOpen={contactModalData.isOpen}
+  onClose={() => setContactModalData({ isOpen: false, stageOrOption: '' })}
+  selectedVehicle={{
+    brand: selected.brand,
+    model: selected.model,
+    year: selected.year,
+    engine: selected.engine,
+  }}
+  stageOrOption={contactModalData.stageOrOption}
+/>
+    </div>
+  );
+}
