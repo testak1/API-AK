@@ -538,9 +538,9 @@ const renderStageDescription = (stage: Stage) => {
                         <div className="absolute right-4 top-4 bg-gray-600 px-2 py-1 rounded text-sm">
                           <p className="text-blue-600">- -</p><p className="text-white">ORG NM: {stage.origNm}</p>
                           <p className="text-blue-600">⸺</p><p className="text-white">Max NM: {stage.tunedNm}</p>
+                          <p className="text-red-600">⸺</p><p className="text-white">Max HK: {stage.tunedHk}</p>
                         </div>
-                     </div>
-		</div>
+                    </div>
                         
                         <Line
                           data={{
