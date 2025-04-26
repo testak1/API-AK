@@ -45,7 +45,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       subject: `FÖRFRÅGAN - ${vehicle?.brand || ''} ${vehicle?.model || ''} ${vehicle?.year || ''} ${vehicle?.engine || ''} | ${(stage || '-').toUpperCase()}`,      
       replyTo: email,
       html: `
-        <div style="font-family: 'Segoe UI', Tahoma, sans-serif; background: #f4f4f4; padding: 30px;">
           <div style="max-width: 800px; margin: auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
             <div style="background: #1f2937; color: white; padding: 20px;">
               <h2 style="text-align: center;">FÖRFRÅGAN 📬</h2>
@@ -78,12 +77,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
             <div style="background: #1f2937; color: red; text-align: center; padding: 10px; font-size: 12px;">
               <img src="https://api.aktuning.se/ak-logo.png" width="110" height="110">
-              <br>
-              <br>
-              WWW.AKTUNING.SE
+<div style="padding-top: 10px;">WWW.AKTUNING.SE</div>
             </div>
           </div>
-        </div>
       `,
     });
 
