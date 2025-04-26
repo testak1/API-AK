@@ -87,18 +87,26 @@ useEffect(() => {
 
           {!contactMode && (
             <div className="flex flex-col gap-4">
-              <button
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
-                onClick={() => setContactMode('form')}
-              >
-                📩 SKICKA FÖRFRÅGAN
-              </button>
-              <button
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
-                onClick={() => setContactMode('phone')}
-              >
-                📞 RING OSS
-              </button>
+<button
+  type="button"
+  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+  onClick={(e) => {
+    e.stopPropagation(); // 👈 ADD THIS to fix
+    setContactMode('form');
+  }}
+>
+  📩 SKICKA FÖRFRÅGAN
+</button>
+<button
+  type="button"
+  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
+  onClick={(e) => {
+    e.stopPropagation(); // 👈 ADD THIS too
+    setContactMode('phone');
+  }}
+>
+  📞 RING OSS
+</button>
             </div>
           )}
 
