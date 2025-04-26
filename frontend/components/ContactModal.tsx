@@ -1,4 +1,3 @@
-// components/ContactModal.tsx
 import { Dialog } from '@headlessui/react';
 import { Fragment, useState } from 'react';
 
@@ -11,7 +10,7 @@ interface ContactModalProps {
     year: string;
     engine: string;
   };
-  stageOrOption?: string; // 👈 NEW: Pass stage name or AKT+ title
+  stageOrOption?: string;
 }
 
 export default function ContactModal({ isOpen, onClose, selectedVehicle, stageOrOption }: ContactModalProps) {
@@ -22,6 +21,7 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle, stageOr
     tel: '',
     message: '',
     branch: '',
+    stage: stageOrOption || '-',   // <-- Correct here
   });
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');
@@ -39,7 +39,6 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle, stageOr
         body: JSON.stringify({
           ...formData,
           vehicle: selectedVehicle,
-          stage: stageOrOption || '-', // 👈 Pass Stage or AKT+ to backend
         }),
       });
 
@@ -48,13 +47,13 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle, stageOr
         throw new Error(data.error || 'Misslyckades att skicka förfrågan');
       }
 
-      // ✅ Switch to Thank you view
       setFormData({
         name: '',
         email: '',
         tel: '',
         message: '',
         branch: '',
+        stage: stageOrOption || '-',
       });
       setContactMode('thankyou');
     } catch (err: any) {
@@ -116,7 +115,7 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle, stageOr
               </select>
 
               <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded" disabled={sending}>
-                {sending ? 'Skickar...' : '📩 SKICKA FÖRFRÅGAN'}
+                {sending ? 'SKICKAR...' : '📩 SKICKA FÖRFRÅGAN'}
               </button>
 
               {error && <p className="text-red-400 text-center">{error}</p>}
@@ -125,7 +124,7 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle, stageOr
 
           {contactMode === 'thankyou' && (
             <div className="text-center text-white space-y-4 mt-6">
-              <p className="text-lg">✅ Ditt meddelande är skickat!</p>
+              <p className="text-lg">✅ DIN FÖRFRÅGAN ÄR SKICKAD, VI BESVARAR SÅ FORT VI KAN!</p>
               <button
                 onClick={handleClose}
                 className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
