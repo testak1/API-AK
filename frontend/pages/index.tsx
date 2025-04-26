@@ -505,7 +505,7 @@ const renderStageDescription = (stage: Stage) => {
                     {renderStageDescription(stage)}
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                      <div className="border border-gray-700 rounded-lg p-3 text-center">
+                      <div className="border border-white rounded-lg p-3 text-center">
                         <p className="text-sm text-gray-400 mb-1">ORIGINAL HK</p>
                         <p className="text-xl text-white font-bold">{stage.origHk} hk</p>
                       </div>
@@ -514,7 +514,7 @@ const renderStageDescription = (stage: Stage) => {
                         <p className="text-xl font-bold">{stage.tunedHk} hk</p>
                         <p className="text-xs mt-1 text-red-400">+{stage.tunedHk - stage.origHk} hk</p>
                       </div>
-                      <div className="border border-gray-700 rounded-lg p-3 text-center">
+                      <div className="border border-white rounded-lg p-3 text-center">
                         <p className="text-sm text-gray-400 mb-1">ORIGINAL NM</p>
                         <p className="text-xl text-white font-bold">{stage.origNm} Nm</p>
                       </div>
