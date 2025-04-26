@@ -577,7 +577,7 @@ const renderStageDescription = (stage: Stage) => {
                                 borderColor: 'red',
                                 backgroundColor: 'transparent',
                                 borderWidth: 3,
-                                tension: 0.3,
+                                tension: 0.8,
                                 pointRadius: 0,
                                 yAxisID: 'nm',
                               }
@@ -656,7 +656,6 @@ const renderStageDescription = (stage: Stage) => {
                                   color: '#E5E7EB',
                                   font: { 
                                     size: 14,
-                                    weight: 'bold'
                                   }
                                 },
                                 grid: {
