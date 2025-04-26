@@ -715,24 +715,22 @@ const renderStageDescription = (stage: Stage) => {
       />
       <h3 className="text-xl font-semibold text-white">TILLÄGG</h3>
     </div>
-
-    <div className="space-y-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {allOptions.map((option) => (
         <div key={option._id} className="border border-gray-600 rounded-lg overflow-hidden">
           <button
             onClick={() => toggleOption(option._id)}
             className="w-full flex justify-between items-center p-4 bg-gray-700 hover:bg-gray-600 transition-colors"
           >
-<div className="flex items-center gap-3">
-  {option.gallery?.[0]?.asset && (
-    <img
-      src={urlFor(option.gallery[0].asset).width(80).url()}
-      alt={option.gallery[0].alt || option.title}
-      className="h-10 w-10 object-contain"
-    />
-  )}
-  <span className="text-lg font-bold text-orange-600">{option.title}</span>
-
+            <div className="flex items-center gap-3">
+              {option.gallery?.[0]?.asset && (
+                <img
+                  src={urlFor(option.gallery[0].asset).width(80).url()}
+                  alt={option.gallery[0].alt || option.title}
+                  className="h-10 w-10 object-contain"
+                />
+              )}
+              <span className="text-lg font-bold text-orange-600">{option.title}</span>
             </div>
             <svg
               className={`h-5 w-5 text-orange-600 transition-transform ${
@@ -748,52 +746,40 @@ const renderStageDescription = (stage: Stage) => {
               />
             </svg>
           </button>
-                              
-{expandedOptions[option._id] && (
-  <div className="p-4 bg-gray-800">
-    {/* Description Text */}
-    {option.description && (
-      <div className="prose prose-invert max-w-none mb-4">
-        <PortableText
-          value={option.description}
-          components={portableTextComponents}
-        />
-      </div>
-    )}
 
-    {/* Gallery removed */}
+          {expandedOptions[option._id] && (
+            <div className="p-4 bg-gray-800">
+              {/* Description Text */}
+              {option.description && (
+                <div className="prose prose-invert max-w-none mb-4">
+                  <PortableText
+                    value={option.description}
+                    components={portableTextComponents}
+                  />
+                </div>
+              )}
 
-{/* Cost and CTA */}
-<div className="mt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-  <div>
-    {option.price && (
-      <p className="font-bold text-green-400">
-        Pris: {option.price.toLocaleString()} kr
-      </p>
-    )}
-  </div>
-<button
-  onClick={() => handleBookNow(option.title)}
-    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white transition-colors whitespace-nowrap"
-  >
-    📩 BOKA/KONTAKTA OSS
-  </button>
-</div>
-  </div>
-)}
-
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
+              {/* Cost and CTA */}
+              <div className="mt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                  {option.price && (
+                    <p className="font-bold text-green-400">
+                      Pris: {option.price.toLocaleString()} kr
+                    </p>
+                  )}
+                </div>
+                <button
+                  onClick={() => handleBookNow(option.title)}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white transition-colors whitespace-nowrap"
+                >
+                  📩 BOKA/KONTAKTA OSS
+                </button>
               </div>
-            );
-          })}
+            </div>
+          )}
         </div>
-      ) : (
+      ))}
+    </div>
         <div className="text-center py-12 bg-gray-800 rounded-xl">
           <p className="text-white">
 EXTRA INFO RUTA KANSKE?
