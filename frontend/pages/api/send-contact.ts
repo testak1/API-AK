@@ -46,7 +46,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       replyTo: email,
       html: `
         <div style="font-family: 'Segoe UI', Tahoma, sans-serif; background: #f4f4f4; padding: 30px;">
-          <div style="max-width: 600px; margin: auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+          <div style="max-width: 800px; margin: auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
             <div style="background: #1f2937; color: white; padding: 20px;">
               <h2 style="text-align: center;">FÖRFRÅGAN 📬</h2>
 
