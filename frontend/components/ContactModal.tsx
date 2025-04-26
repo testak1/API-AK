@@ -100,8 +100,8 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle, stageOr
                 &times;
               </button>
 
-              <Dialog.Title className="text-white text-xl font-bold mb-4 text-center">
-                {contactMode === 'thankyou' ? 'Tack för din förfrågan!' : 'VÄLJ METOD'}
+              <Dialog.Title className="text-green text-xl font-bold mb-4 text-center">
+                {contactMode === 'thankyou' ? 'TACK FÖR DIN FÖRFRÅGAN. VI BESVARAR SÅ FORT VI KAN!' : 'VÄLJ METOD'}
               </Dialog.Title>
 
               {!contactMode && (
