@@ -29,25 +29,24 @@ export default function TuningViewer() {
   const [expandedDescriptions, setExpandedDescriptions] = useState<Record<string, boolean>>({});
   const [expandedOptions, setExpandedOptions] = useState<Record<string, boolean>>({});
   const watermarkImageRef = useRef<HTMLImageElement | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
-  const [selectedStageOrOption, setSelectedStageOrOption] = useState<string>('');
+const [contactModalData, setContactModalData] = useState<{
+  isOpen: boolean;
+  stageOrOption: string;
+}>({
+  isOpen: false,
+  stageOrOption: '',
+});
 
 
 
 
 // 👇 ADD IT HERE
-  const handleBookNow = (stageOrOptionName: string) => {
-    setSelectedStageOrOption(stageOrOptionName);
-    setIsContactModalOpen(true); // optional: directly open modal too
-  };
-
-// ✨ New effect:
-useEffect(() => {
-  if (selectedStageOrOption) {
-    setIsContactModalOpen(true);
-  }
-}, [selectedStageOrOption]);
+const handleBookNow = (stageOrOptionName: string) => {
+  setContactModalData({
+    isOpen: true,
+    stageOrOption: stageOrOptionName,
+  });
+};
 
   // Load watermark image
   useEffect(() => {
@@ -699,12 +698,12 @@ const renderStageDescription = (stage: Stage) => {
 
 {/* Add spacer */}
 <div className="mt-6 mb-10 flex justify-center">
-  <button
-    onClick={() => handleBookNow(stage.name)}
-    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg transition-colors"
-  >
-    📩 BOKA/KONTAKTA OSS
-  </button>
+<button
+  onClick={() => handleBookNow(stage.name)} 
+  className="..." 
+>
+  📩 BOKA/KONTAKTA OSS
+</button>
 </div>
 
 
@@ -778,12 +777,12 @@ const renderStageDescription = (stage: Stage) => {
       </p>
     )}
   </div>
-  <button
-    onClick={() => handleBookNow(option.title)}
-    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-white transition-colors whitespace-nowrap"
-  >
-    📩 BOKA/KONTAKTA OSS
-  </button>
+<button
+  onClick={() => handleBookNow(option.title)}
+  className="..."
+>
+  📩 BOKA/KONTAKTA OSS
+</button>
 </div>
   </div>
 )}
@@ -808,19 +807,16 @@ EXTRA INFO RUTA KANSKE?
       )}
 
 <ContactModal
-  isOpen={isContactModalOpen}
-  onClose={() => {
-    setIsContactModalOpen(false);
-    setSelectedStageOrOption(''); // ✨ Clear after close
-  }}
+  isOpen={contactModalData.isOpen}
+  onClose={() => setContactModalData({ isOpen: false, stageOrOption: '' })}
   selectedVehicle={{
     brand: selected.brand,
     model: selected.model,
     year: selected.year,
-    engine: selected.engine
+    engine: selected.engine,
   }}
-  stageOrOption={selectedStageOrOption} // ✨ Pass selected stage or option name!
- />
+  stageOrOption={contactModalData.stageOrOption}
+/>
     </div>
   );
 }
