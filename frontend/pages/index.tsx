@@ -550,7 +550,7 @@ const renderStageDescription = (stage: Stage) => {
             <p className="text-white">MAX: {stage.tunedNm} Nm</p>
           </div>
         </div>
-       </div>
+      </div>
 
         {/* Dyno graph */}
         <Line
