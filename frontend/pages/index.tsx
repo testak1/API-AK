@@ -551,7 +551,7 @@ const renderStageDescription = (stage: Stage) => {
                               {
                                 label: 'Tuned HK',
                                 data: generateDynoCurve(stage.tunedHk, true),
-                                borderColor: 'rgba(251, 191, 36, 1)',
+                                borderColor: 'rgba(200, 0, 0)',
                                 backgroundColor: 'transparent',
                                 borderWidth: 3,
                                 tension: 0.3,
@@ -561,7 +561,7 @@ const renderStageDescription = (stage: Stage) => {
                               {
                                 label: 'Original NM',
                                 data: generateDynoCurve(stage.origNm, false),
-                                borderColor: 'rgba(96, 165, 250, 0.7)',
+                                borderColor: 'rgba(0, 255, 0)',
                                 backgroundColor: 'transparent',
                                 borderWidth: 2,
                                 borderDash: [5, 3],
@@ -572,7 +572,7 @@ const renderStageDescription = (stage: Stage) => {
                               {
                                 label: 'Tuned NM',
                                 data: generateDynoCurve(stage.tunedNm, false),
-                                borderColor: 'rgba(96, 165, 250, 1)',
+                                borderColor: 'rgba(0, 255, 0)',
                                 backgroundColor: 'transparent',
                                 borderWidth: 3,
                                 tension: 0.3,
