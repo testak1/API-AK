@@ -129,7 +129,7 @@ export default function ContactModal({ isOpen, onClose, selectedVehicle, stageOr
                     FÖRFRÅGAN FÖR: <strong>{selectedVehicle.brand} {selectedVehicle.model} {selectedVehicle.year} – {selectedVehicle.engine}</strong>
                     {formData.stage && formData.stage !== '-' && (
                       <div className="mt-1 text-green-400 text-xs">
-                        ➔ Vald Stage/AKT+: <strong>{formData.stage}</strong>
+                        ➔ VAL: <strong>{formData.stage}</strong>
                       </div>
                     )}
                   </div>
