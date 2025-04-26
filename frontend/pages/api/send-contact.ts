@@ -45,24 +45,39 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       subject: `FÖRFRÅGAN - ${vehicle?.brand || ''} ${vehicle?.model || ''} ${vehicle?.year || ''} ${vehicle?.engine || ''} / ${stage || '-'}`,
       replyTo: email,
       html: `
-        <div style="font-family: Arial, sans-serif; padding: 20px; color: #222;">
-          <h2 style="color: #333;">📬 FÖRFRÅGAN</h2>
+        <div style="font-family: 'Segoe UI', Tahoma, sans-serif; background: #f4f4f4; padding: 30px;">
+          <div style="max-width: 600px; margin: auto; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+            <div style="background: #1f2937; color: white; padding: 20px;">
+              <h2 style="margin: 0;">📬 FÖRFRÅGAN</h2>
+            </div>
 
-          <table cellpadding="8">
-            <tr><td><strong>NAMN:</strong></td><td>${name}</td></tr>
-            <tr><td><strong>EMAIL:</strong></td><td>${email}</td></tr>
-            <tr><td><strong>TELNR:</strong></td><td>${tel}</td></tr>
-          </table>
+            <div style="padding: 20px; color: #111;">
+              <h3 style="margin-bottom: 10px;">🔹 UPPGIFTER</h3>
+              <table cellpadding="8" cellspacing="0" style="width: 100%;">
+                <tr><td><strong>NAMN:</strong></td><td>${name}</td></tr>
+                <tr><td><strong>EMAIL:</strong></td><td>${email}</td></tr>
+                <tr><td><strong>TELNR:</strong></td><td>${tel}</td></tr>
+              </table>
 
-          <h3 style="margin-top: 30px;">🚗 Fordon</h3>
-          <table cellpadding="8">
-            <tr><td><strong>MÄRKE:</strong></td><td>${vehicle?.brand || '-'}</td></tr>
-            <tr><td><strong>MODELL:</strong></td><td>${vehicle?.model || '-'}</td></tr>
-            <tr><td><strong>VARIANT:</strong></td><td>${vehicle?.year || '-'}</td></tr>
-            <tr><td><strong>MOTOR:</strong></td><td>${vehicle?.engine || '-'}</td></tr>
-            <tr><td><strong>VAL:</strong></td><td>${stage || '-'}</td></tr>
-            <tr><td><strong>MEDDELANDE:</strong></td><td>${message}</td></tr>
-          </table>
+              <h3 style="margin-top: 30px; margin-bottom: 10px;">🚗 FORDON</h3>
+              <table cellpadding="8" cellspacing="0" style="width: 100%;">
+                <tr><td><strong>MÄRKE:</strong></td><td>${vehicle?.brand || '-'}</td></tr>
+                <tr><td><strong>MODELL:</strong></td><td>${vehicle?.model || '-'}</td></tr>
+                <tr><td><strong>VARIANT:</strong></td><td>${vehicle?.year || '-'}</td></tr>
+                <tr><td><strong>MOTOR:</strong></td><td>${vehicle?.engine || '-'}</td></tr>
+                <tr><td><strong>VAL+:</strong></td><td><span style="color: #059669;"><strong>${stage || '-'}</strong></span></td></tr>
+              </table>
+
+              <h3 style="margin-top: 30px; margin-bottom: 10px;">💬 MEDDELANDE</h3>
+              <div style="padding: 10px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 5px;">
+                ${message.replace(/\n/g, '<br>')}
+              </div>
+            </div>
+
+            <div style="background: #1f2937; color: #9ca3af; text-align: center; padding: 10px; font-size: 12px;">
+              Mejlet skickades automatiskt via <strong>AKTuning.se</strong>
+            </div>
+          </div>
         </div>
       `,
     });
