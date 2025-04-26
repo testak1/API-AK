@@ -354,7 +354,8 @@ const renderStageDescription = (stage: Stage) => {
 
 
 return (
-  <div className="max-w-4xl mx-auto p-4 md:p-6 min-h-screen">
+  <>
+    <div className="max-w-4xl mx-auto p-4 md:p-6 min-h-screen">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-indigo-600 bg-clip-text text-transparent">
           AK-TUNING
@@ -773,8 +774,9 @@ return (
   </div>
 )}
 
-    </div> {/* Slut på sidan */}
-    <ContactModal
+    </div>
+
+    <ContactModal 
       isOpen={contactModalData.isOpen}
       onClose={() => setContactModalData({ isOpen: false, stageOrOption: '' })}
       selectedVehicle={{
@@ -784,5 +786,6 @@ return (
         engine: selected.engine,
       }}
       stageOrOption={contactModalData.stageOrOption}
-  </div>
+    />
+  </>
 )
