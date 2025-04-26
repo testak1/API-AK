@@ -462,7 +462,6 @@ const renderStageDescription = (stage: Stage) => {
         className="h-8 w-auto object-contain"
       />
     )}
-
     {/* Engine name and stage */}
     <h2 className="text-lg font-semibold text-white">
       {selected.engine} – <span className="text-indigo-400 uppercase tracking-wide">{stage.name}</span>
@@ -476,11 +475,9 @@ const renderStageDescription = (stage: Stage) => {
       alt={stage.name}
       className="h-8 object-contain"
     />
-
     <span className="inline-block bg-red-600 text-black px-4 py-1 rounded-full text-xl font-semibold shadow-md">
       {stage.price?.toLocaleString()} kr
     </span>
-
     <svg
       className={`h-5 w-5 text-orange-600 transition-transform ${
         isExpanded ? 'rotate-180' : ''
@@ -504,26 +501,22 @@ const renderStageDescription = (stage: Stage) => {
     {renderStageDescription(stage)}
 
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-      {/* Original HK */}
+      {/* HK */}
       <div className="border border-white rounded-lg p-3 text-center">
         <p className="text-sm text-white font-bold mb-1">ORIGINAL HK</p>
         <p className="text-xl text-white font-bold">{stage.origHk} hk</p>
       </div>
-
-      {/* Tuned HK */}
       <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
         <p className="text-sm text-white font-bold mb-1 uppercase">{stage.name} HK</p>
         <p className="text-xl font-bold">{stage.tunedHk} hk</p>
         <p className="text-xs mt-1 text-red-400">+{stage.tunedHk - stage.origHk} hk</p>
       </div>
 
-      {/* Original NM */}
+      {/* NM */}
       <div className="border border-white rounded-lg p-3 text-center">
         <p className="text-sm text-white font-bold mb-1">ORIGINAL NM</p>
         <p className="text-xl text-white font-bold">{stage.origNm} Nm</p>
       </div>
-
-      {/* Tuned NM */}
       <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
         <p className="text-sm text-white font-bold mb-1 uppercase">{stage.name} NM</p>
         <p className="text-xl font-bold">{stage.tunedNm} Nm</p>
@@ -535,17 +528,26 @@ const renderStageDescription = (stage: Stage) => {
       <h3 className="text-lg font-medium text-gray-300 mb-2">{stage.name}</h3>
 
       <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
-        <div className="absolute right-4 top-4 bg-gray-600 px-2 py-1 rounded text-sm">
-          <p className="text-red-600">- -</p>
-          <p className="text-white">ORG HK: {stage.origHk}</p>
-          <p className="text-red-600">⸺</p>
-          <p className="text-white">Max HK: {stage.tunedHk}</p>
-          <p className="text-blue-600">- -</p>
-          <p className="text-white">ORG NM: {stage.origNm}</p>
-          <p className="text-blue-600">⸺</p>
-          <p className="text-white">Max NM: {stage.tunedNm}</p>
+        {/* Split the spec boxes */}
+        <div className="absolute flex flex-col sm:flex-row justify-between top-4 left-4 right-4">
+          {/* ORG HK / Max HK */}
+          <div className="bg-gray-600 px-3 py-2 rounded text-sm mb-2 sm:mb-0">
+            <p className="text-red-600">- -</p>
+            <p className="text-white">ORG HK: {stage.origHk}</p>
+            <p className="text-red-600">⸺</p>
+            <p className="text-white">Max HK: {stage.tunedHk}</p>
+          </div>
+
+          {/* ORG NM / Max NM */}
+          <div className="bg-gray-600 px-3 py-2 rounded text-sm">
+            <p className="text-blue-600">- -</p>
+            <p className="text-white">ORG NM: {stage.origNm}</p>
+            <p className="text-blue-600">⸺</p>
+            <p className="text-white">Max NM: {stage.tunedNm}</p>
+          </div>
         </div>
 
+        {/* Dyno graph */}
         <Line
           data={{
             labels: ['2000', '3000', '4000', '5000', '6000', '7000'],
@@ -693,7 +695,6 @@ const renderStageDescription = (stage: Stage) => {
         📩 KONTAKT
       </button>
     </div>
-
 
 
 
