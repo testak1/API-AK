@@ -19,6 +19,7 @@ export default function ContactModal({
   onClose,
   selectedVehicle,
   stageOrOption,
+  link,
 }: ContactModalProps) {
   const [contactMode, setContactMode] = useState<
     "form" | "phone" | "thankyou" | null
