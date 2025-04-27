@@ -632,7 +632,7 @@ export default function TuningViewer() {
 
                 {isExpanded && (
                   <div className="px-6 pb-6">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 mt-4">
                       {/* HK */}
                       <div className="border border-white rounded-lg p-3 text-center">
                         <p className="text-sm text-white font-bold mb-1">
