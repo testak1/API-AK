@@ -56,7 +56,7 @@ export default function TuningViewer() {
   const [contactModalData, setContactModalData] = useState<{
     isOpen: boolean;
     stageOrOption: string;
-    link?: string;
+    link: string;
   }>({
     isOpen: false,
     stageOrOption: "",

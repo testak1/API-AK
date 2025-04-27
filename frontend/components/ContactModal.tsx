@@ -116,7 +116,7 @@ export default function ContactModal({
 
               <Dialog.Title className="text-green-400 text-xl font-bold mb-4 text-center">
                 {contactMode === "thankyou"
-                  ? "TACK FÖR DIN FÖRFRÅGAN. VI BESVARAR SÅ FORT VI KAN!"
+                  ? "TACK FÖR DIN FÖRFRÅGAN!<br /r>VI BESVARAR SÅ FORT VI KAN"
                   : "VÄLJ METOD"}
               </Dialog.Title>
 
