@@ -212,6 +212,25 @@ useEffect(() => {
     }
   };
 
+
+const shadowPlugin = {
+  id: 'shadowPlugin',
+  beforeDatasetDraw(chart: Chart, args: any, options: any) {
+    const { ctx } = chart;
+    const dataset = chart.data.datasets[args.index];
+    
+    ctx.save();
+    ctx.shadowColor = dataset.borderColor as string;
+    ctx.shadowBlur = 8;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 4;
+  },
+  afterDatasetDraw(chart: Chart, args: any, options: any) {
+    chart.ctx.restore();
+  }
+};
+
+
 const isExpandedAktPlusOption = (item: any): item is AktPlusOption => {
   return item && '_id' in item && 'title' in item;
 };
@@ -559,42 +578,42 @@ const renderStageDescription = (stage: Stage) => {
               {
                 label: 'Original HK',
                 data: generateDynoCurve(stage.origHk, true),
-                borderColor: 'red',
+                borderColor: '#f87171',
                 backgroundColor: 'transparent',
                 borderWidth: 2,
                 borderDash: [5, 3],
-                tension: 0.3,
+                tension: 0.5,
                 pointRadius: 0,
                 yAxisID: 'hp',
               },
               {
                 label: 'Tuned HK',
                 data: generateDynoCurve(stage.tunedHk, true),
-                borderColor: 'red',
+                borderColor: '#f87171',
                 backgroundColor: 'transparent',
                 borderWidth: 3,
-                tension: 0.4,
+                tension: 0.5,
                 pointRadius: 0,
                 yAxisID: 'hp',
               },
               {
                 label: 'Original NM',
                 data: generateDynoCurve(stage.origNm, false),
-                borderColor: 'white',
+                borderColor: '#d1d5db',
                 backgroundColor: 'transparent',
                 borderWidth: 2,
                 borderDash: [5, 3],
-                tension: 0.3,
+                tension: 0.5,
                 pointRadius: 0,
                 yAxisID: 'nm',
               },
               {
                 label: 'Tuned NM',
                 data: generateDynoCurve(stage.tunedNm, false),
-                borderColor: 'white',
+                borderColor: '#d1d5db',
                 backgroundColor: 'transparent',
                 borderWidth: 3,
-                tension: 0.4,
+                tension: 0.5,
                 pointRadius: 0,
                 yAxisID: 'nm',
               }
@@ -682,7 +701,7 @@ const renderStageDescription = (stage: Stage) => {
               mode: 'index',
             }
           }}
-          plugins={[watermarkPlugin]}
+          plugins={[watermarkPlugin, shadowPlugin]}
         />
       </div>
     </div>
