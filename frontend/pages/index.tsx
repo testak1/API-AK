@@ -706,13 +706,16 @@ const renderStageDescription = (stage: Stage) => {
           }}
           plugins={[watermarkPlugin, shadowPlugin]}
         />
+        <div className="text-center text-white text-xs mt-4 italic">
+          (Simulerad effektkurva)
+        </div>
         {/* Mobile-only small tuned specs */}
         <div className="block md:hidden text-center mt-4 space-y-1">
-          <p className="text-base text-white font-semibold">
-            {stage.tunedHk} HK / {stage.tunedNm} NM <span className="text-gray-400 text-sm">({stage.name.replace('Steg', 'ST').replace(/\s+/g, '').toUpperCase()})</span>
+          <p className="text-sm text-white font-semibold">
+            {stage.tunedHk} HK / {stage.tunedNm} NM 
+          <span className="text-gray-400 text-xs">({stage.name.replace('Steg', 'ST').replace(/\s+/g, '').toUpperCase()})</span>
           </p>
-          <p className="text-xs text-gray-500 italic">(Simulerad effektkurva)</p>
-        </div>
+         </div>
       </div>
     </div>
 
