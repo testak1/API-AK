@@ -706,6 +706,13 @@ const renderStageDescription = (stage: Stage) => {
           }}
           plugins={[watermarkPlugin, shadowPlugin]}
         />
+        {/* Mobile-only small tuned specs */}
+        <div className="block md:hidden text-center mt-4 space-y-1">
+          <p className="text-sm text-white font-semibold">
+            {stage.tunedHk} hk / {stage.tunedNm} Nm
+          </p>
+          <p className="text-xs text-gray-400">(Simulerad effektkurva)</p>
+        </div>
       </div>
     </div>
 
