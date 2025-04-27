@@ -868,7 +868,7 @@ export default function TuningViewer() {
                       <div className="mt-6 mb-10 flex justify-center">
                         <button
                           onClick={() => handleBookNow(stage.name)}
-                          className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg transition-colors"
+                          className="bg-green-600 hover:bg-green-700 hover:scale-105 transform transition-all text-white px-6 py-3 rounded-lg font-medium shadow-lg"
                         >
                           📩 KONTAKT
                         </button>
