@@ -699,6 +699,8 @@ export default function TuningViewer() {
                           </div>
                         </div>
 
+                        <div className="border-t border-gray-700 my-4"></div>
+
                         {/* Dyno graph */}
                         <Line
                           data={{
