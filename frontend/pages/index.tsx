@@ -67,10 +67,10 @@ export default function TuningViewer() {
       str
         .toLowerCase()
         .trim()
-        .replace(/[^\w\s-]/g, "")
+        .replace(/[^\w\d\s\.-]/g, "")
         .replace(/\s+/g, "-")
         .replace(/-+/g, "-")
-        .replace(/-$/, "");
+        .replace(/^-|-$/g, "");
 
     const brandSlug = slugify(selected.brand);
     const modelSlug = slugify(selected.model);
