@@ -1033,7 +1033,7 @@ export default function TuningViewer() {
       <ContactModal
         isOpen={contactModalData.isOpen}
         onClose={() =>
-          setContactModalData({ isOpen: false, stageOrOption: "" })
+          setContactModalData({ isOpen: false, stageOrOption: "", link: "" })
         }
         selectedVehicle={{
           brand: selected.brand,
@@ -1042,6 +1042,7 @@ export default function TuningViewer() {
           engine: selected.engine,
         }}
         stageOrOption={contactModalData.stageOrOption}
+        link={contactModalData.link}
       />
     </div>
   );
