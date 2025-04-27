@@ -554,7 +554,7 @@ const renderStageDescription = (stage: Stage) => {
         {/* Dyno graph */}
         <Line
           data={{
-            labels: ['2000', '3000', '4000', '5000', '6000', '7000'],
+            labels: ['2000', '2500', '3000', '3500', '4000', '4500', '5000', '5500', '6000', '6500', '7000'],
             datasets: [
               {
                 label: 'Original HK',
