@@ -24,7 +24,7 @@ Chart.register(
   LinearScale,
   PointElement,
   LineElement,
-  LineController
+  LineController,
 );
 
 interface SelectionState {
@@ -44,7 +44,7 @@ export default function TuningViewer() {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [expandedStages, setExpandedStages] = useState<Record<string, boolean>>(
-    {}
+    {},
   );
   const [expandedDescriptions, setExpandedDescriptions] = useState<
     Record<string, boolean>
@@ -54,33 +54,31 @@ export default function TuningViewer() {
   >({});
   const watermarkImageRef = useRef<HTMLImageElement | null>(null);
   const [contactModalData, setContactModalData] = useState<{
-  isOpen: boolean;
-  stageOrOption: string;
-  link?: string;
-}>({
-  isOpen: false,
-  stageOrOption: "",
-  link: "",
-});
-
-  // 👇 ADD IT HERE
-  const handleBookNow = (stageOrOptionName: string) => {
-  const brandSlug = selected.brand.toLowerCase().replace(/\s+/g, '-');
-  const modelSlug = selected.model.toLowerCase().replace(/\s+/g, '-');
-  const yearSlug = selected.year;
-  const engineSlug = selected.engine.toLowerCase().replace(/\s+/g, '-');
-  const stageSlug = stageOrOptionName.toLowerCase().replace(/\s+/g, '');
-
-  const finalLink = `https://api.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}#${stageSlug}`;
-
-  setContactModalData({
-    isOpen: true,
-    stageOrOption: stageOrOptionName,
-    link: finalLink, // << Add the generated link here!
+    isOpen: boolean;
+    stageOrOption: string;
+    link?: string;
+  }>({
+    isOpen: false,
+    stageOrOption: "",
+    link: "",
   });
+  const handleBookNow = (stageOrOptionName: string) => {
+    const brandSlug = selected.brand.toLowerCase().replace(/\s+/g, "-");
+    const modelSlug = selected.model.toLowerCase().replace(/\s+/g, "-");
+    const yearSlug = selected.year;
+    const engineSlug = selected.engine.toLowerCase().replace(/\s+/g, "-");
+    const stageSlug = stageOrOptionName.toLowerCase().replace(/\s+/g, "");
 
-  console.log('Generated Link:', finalLink);
-};
+    const finalLink = `https://api.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}#${stageSlug}`;
+
+    setContactModalData({
+      isOpen: true,
+      stageOrOption: stageOrOptionName,
+      link: finalLink,
+    });
+
+    console.log("Generated Link:", finalLink);
+  };
 
   // Load watermark image
   useEffect(() => {
@@ -115,7 +113,7 @@ export default function TuningViewer() {
         setIsLoading(true);
         try {
           const res = await fetch(
-            `/api/years?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}`
+            `/api/years?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}`,
           );
           if (!res.ok) throw new Error("Failed to fetch years");
           const years = await res.json();
@@ -133,7 +131,7 @@ export default function TuningViewer() {
                   };
                 }),
               };
-            })
+            }),
           );
         } catch (error) {
           console.error("Error fetching years:", error);
@@ -153,7 +151,7 @@ export default function TuningViewer() {
         setIsLoading(true);
         try {
           const res = await fetch(
-            `/api/engines?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}&year=${encodeURIComponent(selected.year)}`
+            `/api/engines?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}&year=${encodeURIComponent(selected.year)}`,
           );
           if (!res.ok) throw new Error("Failed to fetch engines");
           const engines = await res.json();
@@ -174,7 +172,7 @@ export default function TuningViewer() {
                   };
                 }),
               };
-            })
+            }),
           );
         } catch (error) {
           console.error("Error fetching engines:", error);
@@ -209,7 +207,7 @@ export default function TuningViewer() {
         acc[fuelType].push(engine);
         return acc;
       },
-      {} as Record<string, typeof engines>
+      {} as Record<string, typeof engines>,
     );
 
     return {
@@ -230,7 +228,7 @@ export default function TuningViewer() {
           acc[stage.name] = stage.name === "Steg 1";
           return acc;
         },
-        {} as Record<string, boolean>
+        {} as Record<string, boolean>,
       );
       setExpandedStages(initialExpandedStates);
     }
@@ -301,7 +299,7 @@ export default function TuningViewer() {
             (opt.isUniversal ||
               opt.applicableFuelTypes?.includes(selectedEngine.fuel) ||
               opt.manualAssignments?.some(
-                (ref) => ref._ref === selectedEngine._id
+                (ref) => ref._ref === selectedEngine._id,
               )) &&
             (!opt.stageCompatibility || opt.stageCompatibility === stage.name)
           ) {
@@ -311,7 +309,7 @@ export default function TuningViewer() {
 
       return Array.from(uniqueOptionsMap.values());
     },
-    [selectedEngine]
+    [selectedEngine],
   );
 
   const generateDynoCurve = (peakValue: number, isHp: boolean) => {
@@ -592,7 +590,7 @@ export default function TuningViewer() {
                         ?.asset && (
                         <img
                           src={urlFor(
-                            data.find((b) => b.name === selected.brand)?.logo
+                            data.find((b) => b.name === selected.brand)?.logo,
                           )
                             .width(60)
                             .url()}
@@ -884,9 +882,9 @@ export default function TuningViewer() {
                         {/* Mobile-only small tuned specs */}
                         <div className="block md:hidden text-center mt-4 space-y-1">
                           <p className="text-sm text-white font-semibold">
-                            {stage.tunedHk} HK & {stage.tunedNm} NM 
+                            {stage.tunedHk} HK & {stage.tunedNm} NM
                             <span className="text-gray-400 text-sm">
-                               [
+                              [
                               {stage.name
                                 .replace("Steg", "STEG ")
                                 .replace(/\s+/g, "")
