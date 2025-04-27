@@ -585,6 +585,7 @@ export default function TuningViewer() {
                       </h2>
                     </div>
 
+                    {/* Right section with badge, price, and new arrow */}
                     <div className="mt-3 md:mt-0 flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-4 text-center">
                       {/* Stage badge image */}
                       <img
@@ -592,22 +593,28 @@ export default function TuningViewer() {
                         alt={stage.name}
                         className="h-8 object-contain"
                       />
+
+                      {/* Price */}
                       <span className="inline-block bg-red-600 text-black px-4 py-1 rounded-full text-xl font-semibold shadow-md">
                         {stage.price?.toLocaleString()} kr
                       </span>
-                      <svg
-                        className={`h-5 w-5 text-orange-600 transition-transform ${
-                          isExpanded ? "rotate-180" : ""
-                        }`}
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
+
+                      {/* Arrow button - new */}
+                      <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-700 hover:bg-gray-600 hover:scale-110 transform transition-all duration-300">
+                        <svg
+                          className={`h-6 w-6 text-orange-500 transform transition-transform duration-300 ${
+                            isExpanded ? "rotate-180" : ""
+                          }`}
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </div>
                     </div>
                   </div>
                 </button>
