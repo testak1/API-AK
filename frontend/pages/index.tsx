@@ -257,9 +257,9 @@ export default function TuningViewer() {
 
       ctx.save();
       ctx.shadowColor = dataset.borderColor as string;
-      ctx.shadowBlur = 8;
+      ctx.shadowBlur = 6;
       ctx.shadowOffsetX = 0;
-      ctx.shadowOffsetY = 4;
+      ctx.shadowOffsetY = 2;
     },
     afterDatasetDraw(chart: Chart, args: any, options: any) {
       chart.ctx.restore();
