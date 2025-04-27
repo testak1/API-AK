@@ -54,12 +54,14 @@ export default function TuningViewer() {
   >({});
   const watermarkImageRef = useRef<HTMLImageElement | null>(null);
   const [contactModalData, setContactModalData] = useState<{
-    isOpen: boolean;
-    stageOrOption: string;
-  }>({
-    isOpen: false,
-    stageOrOption: "",
-  });
+  isOpen: boolean;
+  stageOrOption: string;
+  link?: string;
+}>({
+  isOpen: false,
+  stageOrOption: "",
+  link: "",
+});
 
   // 👇 ADD IT HERE
   const handleBookNow = (stageOrOptionName: string) => {
@@ -74,9 +76,10 @@ export default function TuningViewer() {
   setContactModalData({
     isOpen: true,
     stageOrOption: stageOrOptionName,
+    link: finalLink, // << Add the generated link here!
   });
 
-  console.log('Generated Link:', finalLink); // Optional: just for testing
+  console.log('Generated Link:', finalLink);
 };
 
   // Load watermark image
