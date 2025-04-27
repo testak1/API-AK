@@ -63,11 +63,21 @@ export default function TuningViewer() {
 
   // 👇 ADD IT HERE
   const handleBookNow = (stageOrOptionName: string) => {
-    setContactModalData({
-      isOpen: true,
-      stageOrOption: stageOrOptionName,
-    });
-  };
+  const brandSlug = selected.brand.toLowerCase().replace(/\s+/g, '-');
+  const modelSlug = selected.model.toLowerCase().replace(/\s+/g, '-');
+  const yearSlug = selected.year;
+  const engineSlug = selected.engine.toLowerCase().replace(/\s+/g, '-');
+  const stageSlug = stageOrOptionName.toLowerCase().replace(/\s+/g, '');
+
+  const finalLink = `https://api.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}#${stageSlug}`;
+
+  setContactModalData({
+    isOpen: true,
+    stageOrOption: stageOrOptionName,
+  });
+
+  console.log('Generated Link:', finalLink); // Optional: just for testing
+};
 
   // Load watermark image
   useEffect(() => {
