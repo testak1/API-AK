@@ -387,7 +387,7 @@ export default function TuningViewer() {
     if (!description) return null;
 
     return (
-      <div className="mb-6 border border-gray-700 rounded-lg overflow-hidden">
+      <div className="mt-4 mb-6 border border-gray-700 rounded-lg overflow-hidden">
         <button
           onClick={() =>
             setExpandedDescriptions((prev) => ({
