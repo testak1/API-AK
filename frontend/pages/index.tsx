@@ -69,7 +69,8 @@ export default function TuningViewer() {
         .trim()
         .replace(/[^\w\s-]/g, "")
         .replace(/\s+/g, "-")
-        .replace(/-+/g, "-");
+        .replace(/-+/g, "-")
+        .replace(/-$/, "");
 
     const brandSlug = slugify(selected.brand);
     const modelSlug = slugify(selected.model);
