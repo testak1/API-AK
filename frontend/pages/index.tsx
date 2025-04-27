@@ -873,7 +873,7 @@ export default function TuningViewer() {
                           <p className="text-sm text-white font-semibold">
                             {stage.tunedHk} HK & {stage.tunedNm} NM 
                             <span className="text-gray-400 text-sm">
-                              [
+                               [
                               {stage.name
                                 .replace("Steg", "STEG ")
                                 .replace(/\s+/g, "")
