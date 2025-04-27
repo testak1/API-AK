@@ -715,10 +715,9 @@ const renderStageDescription = (stage: Stage) => {
             {stage.tunedHk} HK / {stage.tunedNm} NM 
           <span className="text-gray-400 text-xs">({stage.name.replace('Steg', 'ST').replace(/\s+/g, '').toUpperCase()})</span>
           </p>
-         </div>
+        </div>
       </div>
-    </div>
-
+      
     <div className="mt-6 mb-10 flex justify-center">
       <button
         onClick={() => handleBookNow(stage.name)}
