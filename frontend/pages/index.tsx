@@ -395,24 +395,26 @@ export default function TuningViewer() {
               [stage.name]: !prev[stage.name],
             }))
           }
-          className="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 flex justify-between sm:justify-start items-center text-center"
+          className="w-full px-4 py-3 bg-gray-700 hover:bg-gray-600 flex items-center justify-between text-left transition-colors"
         >
-          <span className="text-white font-medium">
-            STEG {stage.name.replace(/\D/g, "")} information
+          <span className="text-white font-semibold text-sm sm:text-base">
+            STEG {stage.name.replace(/\D/g, "")} INFORMATION
           </span>
-          <svg
-            className={`h-5 w-5 text-orange-600 transition-transform ${
-              isExpanded ? "rotate-180" : ""
-            }`}
-            viewBox="0 0 20 20"
-            fill="currentColor"
-          >
-            <path
-              fillRule="evenodd"
-              d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-              clipRule="evenodd"
-            />
-          </svg>
+          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-800">
+            <svg
+              className={`h-5 w-5 text-orange-500 transition-transform duration-300 ${
+                isExpanded ? "rotate-180" : ""
+              }`}
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </div>
         </button>
 
         {isExpanded && (
@@ -699,8 +701,6 @@ export default function TuningViewer() {
                           </div>
                         </div>
 
-                        <div className="border-t border-gray-700 my-4"></div>
-
                         {/* Dyno graph */}
                         <Line
                           data={{
@@ -955,7 +955,7 @@ export default function TuningViewer() {
                                       onClick={() =>
                                         handleBookNow(option.title)
                                       }
-                                      className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-white transition-colors whitespace-nowrap"
+                                      className="bg-green-600 hover:bg-green-700 hover:scale-105 transform transition-all text-white px-6 py-3 rounded-lg font-medium shadow-lg"
                                     >
                                       📩 KONTAKT
                                     </button>
