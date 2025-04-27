@@ -552,7 +552,7 @@ const renderStageDescription = (stage: Stage) => {
 
       <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
         {/* Split the spec boxes */}
-        <div className="bg-gray-800/80 hover:bg-gray-800/90 px-4 py-1 rounded-md text-xs text-white flex flex-col items-start w-auto transition duration-300">
+        <div className="absolute hidden md:flex flex-row justify-between top-4 left-0 right-0 px-16">
           {/* ORG HK / Max HK */}
           <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
             <p className="text-red-400">- - -</p>
@@ -562,7 +562,7 @@ const renderStageDescription = (stage: Stage) => {
           </div>
 
           {/* ORG NM / Max NM */}
-          <div className="bg-gray-800/80 hover:bg-gray-800/90 px-4 py-1 rounded-md text-xs text-white flex flex-col items-start w-auto transition duration-300">
+          <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
             <p className="text-white">- - -</p>
             <p className="text-white">ORG: {stage.origNm} Nm</p>
             <p className="text-white">⸻</p>
@@ -709,7 +709,7 @@ const renderStageDescription = (stage: Stage) => {
         {/* Mobile-only small tuned specs */}
         <div className="block md:hidden text-center mt-4 space-y-1">
           <p className="text-sm text-white font-semibold">
-            {stage.tunedHk} hk / {stage.tunedNm} Nm
+            {stage.tunedHk} HK / {stage.tunedNm} NM ({stage.name.replace('Steg', 'ST').replace(/\s+/g, '').toUpperCase()})
           </p>
           <p className="text-xs text-gray-400">(Simulerad effektkurva)</p>
         </div>
