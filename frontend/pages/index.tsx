@@ -557,7 +557,7 @@ export default function TuningViewer() {
               >
                 <button
                   onClick={() => toggleStage(stage.name)}
-                  className="w-full p-6 text-left"
+                  className="w-full p-6 text-left hover:bg-gray-700 transition-colors duration-200"
                 >
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                     <div className="flex items-center gap-4">
