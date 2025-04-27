@@ -632,8 +632,6 @@ export default function TuningViewer() {
 
                 {isExpanded && (
                   <div className="px-6 pb-6">
-                    {renderStageDescription(stage)}
-
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                       {/* HK */}
                       <div className="border border-white rounded-lg p-3 text-center">
@@ -673,6 +671,8 @@ export default function TuningViewer() {
                         </p>
                       </div>
                     </div>
+
+                    {renderStageDescription(stage)}
 
                     <div className="mt-6">
                       <h3 className="text-lg font-medium text-gray-300 mb-2 uppercase">
