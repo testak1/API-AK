@@ -717,7 +717,7 @@ const renderStageDescription = (stage: Stage) => {
           </p>
         </div>
       </div>
-      
+
     <div className="mt-6 mb-10 flex justify-center">
       <button
         onClick={() => handleBookNow(stage.name)}
