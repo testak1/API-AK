@@ -63,11 +63,19 @@ export default function TuningViewer() {
     link: "",
   });
   const handleBookNow = (stageOrOptionName: string) => {
-    const brandSlug = selected.brand.toLowerCase().replace(/\s+/g, "-");
-    const modelSlug = selected.model.toLowerCase().replace(/\s+/g, "-");
-    const yearSlug = selected.year;
-    const engineSlug = selected.engine.toLowerCase().replace(/\s+/g, "-");
-    const stageSlug = stageOrOptionName.toLowerCase().replace(/\s+/g, "");
+    const slugify = (str: string) =>
+      str
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s-]/g, "")
+        .replace(/\s+/g, "-")
+        .replace(/-+/g, "-");
+
+    const brandSlug = slugify(selected.brand);
+    const modelSlug = slugify(selected.model);
+    const yearSlug = slugify(selected.year);
+    const engineSlug = slugify(selected.engine);
+    const stageSlug = slugify(stageOrOptionName);
 
     const finalLink = `https://api.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}#${stageSlug}`;
 
