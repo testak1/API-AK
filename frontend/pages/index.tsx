@@ -716,10 +716,6 @@ const renderStageDescription = (stage: Stage) => {
       </div>
     </div>
 
-    <div className="text-center text-white text-sm mt-4">
-      <p>(Simulerad effektkurva)</p>
-    </div>
-
     <div className="mt-6 mb-10 flex justify-center">
       <button
         onClick={() => handleBookNow(stage.name)}
