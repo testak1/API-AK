@@ -558,7 +558,7 @@ const renderStageDescription = (stage: Stage) => {
             <p className="text-red-400">- - -</p>
             <p className="text-white">HK ORG: {stage.origHk} hk</p>
             <p className="text-red-800">⸻</p>
-            <p className="text-white">HK AK: {stage.tunedHk} hk</p>
+            <p className="text-white">HK "{stage.name.replace('Steg', 'ST').replace(/\s+/g, '')}"</p>
           </div>
 
           {/* ORG NM / Max NM */}
@@ -566,7 +566,7 @@ const renderStageDescription = (stage: Stage) => {
             <p className="text-white">- - -</p>
             <p className="text-white">NM ORG: {stage.origNm} Nm</p>
             <p className="text-white">⸻</p>
-            <p className="text-white">NM AK: {stage.tunedNm} Nm</p>
+            <p className="text-white">NM "{stage.name.replace('Steg', 'ST').replace(/\s+/g, '')}"</p>
           </div>
         </div>
 
