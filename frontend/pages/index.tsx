@@ -243,16 +243,18 @@ const getAllAktPlusOptions = useMemo(() => (stage: Stage) => {
 }, [selectedEngine]);
 
   const generateDynoCurve = (peakValue: number, isHp: boolean) => {
-    const rpmRange = [2000, 3000, 4000, 5000, 6000, 7000];
-    const peakRpmIndex = isHp ? 3 : 2;
+    const rpmRange = [2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000];
+    const peakIndex = isHp ? 7 : 4;
     
     return rpmRange.map((rpm, i) => {
-      if (i <= peakRpmIndex) {
-        const progress = i / peakRpmIndex;
-        return peakValue * (0.4 + 0.6 * Math.pow(progress, 1.5));
+      const peakRpm = rpmRange[peakIndex];
+
+      if (rpm <= peakRpm) {
+        const progress = (rpm - rpmRange[0]) / (peakRpm - rpmRange[0]);
+        return peakValue * (0.5 + 0.5 * Math.pow(progress, 1.5));
       } else {
-        const fallProgress = (i - peakRpmIndex) / (rpmRange.length - 1 - peakRpmIndex);
-        return peakValue * (1 - 0.5 * Math.pow(fallProgress, 1.2));
+        const fallProgress = (rpm - peakRpm) / (rpmRange[rpmRange.length - 1] - peakRpm);
+        return peakValue * (1 - 0.3 * fallProgress);
       }
     });
   };
@@ -534,9 +536,9 @@ const renderStageDescription = (stage: Stage) => {
         <div className="absolute flex flex-row justify-between top-4 left-0 right-0 px-16">
           {/* ORG HK / Max HK */}
           <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
-            <p className="text-red-600">- - -</p>
+            <p className="text-red-400">- - -</p>
             <p className="text-white">HK ORG: {stage.origHk} hk</p>
-            <p className="text-red-600">⸻</p>
+            <p className="text-red-800">⸻</p>
             <p className="text-white">HK AK: {stage.tunedHk} hk</p>
           </div>
 
