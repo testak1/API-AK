@@ -665,7 +665,9 @@ export default function TuningViewer() {
                           {/* ORG HK / Max HK */}
                           <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
                             <p className="text-red-400">- - -</p>
-                            <p className="text-white">ORG: {stage.origHk} hk</p>
+                            <p className="text-white">
+                              HK ORG: {stage.origHk} hk
+                            </p>
                             <p className="text-red-800">⸻</p>
                             <p className="text-white">
                               HK{" "}
@@ -680,7 +682,9 @@ export default function TuningViewer() {
                           {/* ORG NM / Max NM */}
                           <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
                             <p className="text-white">- - -</p>
-                            <p className="text-white">ORG: {stage.origNm} Nm</p>
+                            <p className="text-white">
+                              NM ORG: {stage.origNm} Nm
+                            </p>
                             <p className="text-white">⸻</p>
                             <p className="text-white">
                               <span className="text-gray-400 text-xs mr-1">
