@@ -602,7 +602,7 @@ export default function TuningViewer() {
                         />
                       )}
                       {/* Engine name and stage */}
-                      <h2 className="text-lg font-semibold text-white">
+                      <h2 className="text-lg font-semibold text-white uppercase">
                         {selected.engine} –{" "}
                         <span className="text-indigo-400 uppercase tracking-wide">
                           {stage.name}
