@@ -16,15 +16,17 @@ interface Props {
   };
 }
 
-// Helper to normalize slugs
+// Clean helper
 function normalize(str: string) {
   return str
     .toLowerCase()
-    .replace(/[^\w\s-]/g, "") // Remove weird characters
-    .replace(/\s+/g, "-")     // Replace spaces with hyphens
-    .replace(/-+/g, "-")      // Collapse hyphens
-    .replace(/→/g, "-")       // Special fix for arrows
-    .replace(/–/g, "-");      // Special fix for en-dash
+    .replace(/[^\w\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/→/g, "-")
+    .replace(/–/g, "-")
+    .replace(/\//g, "-")
+    .replace(/\./g, "-");
 }
 
 export default async function EnginePage({ params }: Props) {
@@ -44,15 +46,17 @@ export default async function EnginePage({ params }: Props) {
   if (!modelData) notFound();
 
   const yearData = modelData.years.find((y: any) => {
-    const yNorm = normalize(y.range);
-    const paramNorm = normalize(year);
-    return yNorm === paramNorm;
+    const normalizedRange = normalize(y.range);
+    const normalizedParam = normalize(year);
+    return normalizedRange === normalizedParam;
   });
   if (!yearData) notFound();
 
-  const engineData = yearData.engines.find(
-    (e: any) => normalize(e.label) === normalize(engine)
-  );
+  const engineData = yearData.engines.find((e: any) => {
+    const normalizedLabel = normalize(e.label);
+    const normalizedParam = normalize(engine);
+    return normalizedLabel === normalizedParam;
+  });
   if (!engineData) notFound();
 
   return (
