@@ -2,8 +2,10 @@
 
 import { notFound } from "next/navigation";
 import { PortableText } from "@portabletext/react";
-import client from "@/lib/sanity"; // <-- use "client" here
+import client from "@/lib/sanity";
 import { allBrandsQuery } from "@/src/lib/queries";
+
+export const dynamic = "force-dynamic";
 
 interface Props {
   params: {
@@ -17,7 +19,7 @@ interface Props {
 export default async function EnginePage({ params }: Props) {
   const { brand, model, year, engine } = params;
 
-  const brandsData = await client.fetch(allBrandsQuery); // <-- fixed here
+  const brandsData = await client.fetch(allBrandsQuery);
   if (!brandsData) notFound();
 
   const brandData = brandsData.find(
@@ -46,7 +48,6 @@ export default async function EnginePage({ params }: Props) {
         {brandData.name} {modelData.name} {yearData.range} – {engineData.label}
       </h1>
 
-      {/* Show tuning stages */}
       <div className="space-y-8">
         {engineData.stages?.length > 0 ? (
           engineData.stages.map((stage: any) => (
@@ -72,9 +73,7 @@ export default async function EnginePage({ params }: Props) {
             </div>
           ))
         ) : (
-          <p className="text-center text-white">
-            Inga steg hittades för denna motor.
-          </p>
+          <p className="text-center text-white">Inga steg hittades för denna motor.</p>
         )}
       </div>
     </div>
