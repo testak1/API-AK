@@ -3,7 +3,7 @@
 import { notFound } from "next/navigation";
 import { PortableText } from "@portabletext/react";
 import client from "@/lib/sanity"; // Correct import!
-import { allBrandsQuery } from "@/lib/queries"; // Correct import!
+import { allBrandsQuery } from "@/src/lib/queries"; // Correct import!
 
 export const dynamic = "force-dynamic"; // Important to make it dynamic loading!
 
