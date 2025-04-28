@@ -24,22 +24,22 @@ export default async function EnginePage({ params }: Props) {
   if (!brandsData) notFound();
 
   const brandData = brandsData.find(
-    (b) => b.slug?.toLowerCase() === brand.toLowerCase()
+    (b) => b.slug?.toLowerCase() === brand.toLowerCase(),
   );
   if (!brandData) notFound();
 
   const modelData = brandData.models?.find(
-    (m) => m.name?.toLowerCase().replace(/\s+/g, "-") === model.toLowerCase()
+    (m) => m.name?.toLowerCase().replace(/\s+/g, "-") === model.toLowerCase(),
   );
   if (!modelData) notFound();
 
   const yearData = modelData.years?.find(
-    (y) => y.range?.toLowerCase().replace(/\s+/g, "-") === year.toLowerCase()
+    (y) => y.range?.toLowerCase().replace(/\s+/g, "-") === year.toLowerCase(),
   );
   if (!yearData) notFound();
 
   const engineData = yearData.engines?.find(
-    (e) => e.label?.toLowerCase().replace(/\s+/g, "-") === engine.toLowerCase()
+    (e) => e.label?.toLowerCase().replace(/\s+/g, "-") === engine.toLowerCase(),
   );
   if (!engineData) notFound();
 
@@ -53,7 +53,10 @@ export default async function EnginePage({ params }: Props) {
       <div className="space-y-8">
         {engineData.stages?.length > 0 ? (
           engineData.stages.map((stage) => (
-            <div key={stage.name} className="bg-gray-800 p-6 rounded-lg shadow-md">
+            <div
+              key={stage.name}
+              className="bg-gray-800 p-6 rounded-lg shadow-md"
+            >
               <h2 className="text-xl font-bold text-indigo-400 mb-2">
                 {stage.name}
               </h2>
