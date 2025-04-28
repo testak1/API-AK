@@ -5,7 +5,7 @@ import { PortableText } from "@portabletext/react";
 import client from "@/lib/sanity";
 import { allBrandsQuery } from "@/src/lib/queries";
 
-export const dynamic = "force-dynamic"; // <-- this forces dynamic render
+export const dynamic = "force-dynamic";
 
 interface Props {
   params: {
@@ -16,13 +16,15 @@ interface Props {
   };
 }
 
-// Normalize function for matching
+// Helper to normalize slugs
 function normalize(str: string) {
   return str
     .toLowerCase()
-    .replace(/[^\w\s-]/g, "") // Remove special characters
+    .replace(/[^\w\s-]/g, "") // Remove weird characters
     .replace(/\s+/g, "-")     // Replace spaces with hyphens
-    .replace(/-+/g, "-");     // Collapse multiple hyphens
+    .replace(/-+/g, "-")      // Collapse hyphens
+    .replace(/→/g, "-")       // Special fix for arrows
+    .replace(/–/g, "-");      // Special fix for en-dash
 }
 
 export default async function EnginePage({ params }: Props) {
@@ -41,9 +43,11 @@ export default async function EnginePage({ params }: Props) {
   );
   if (!modelData) notFound();
 
-  const yearData = modelData.years.find(
-    (y: any) => normalize(y.range) === normalize(year)
-  );
+  const yearData = modelData.years.find((y: any) => {
+    const yNorm = normalize(y.range);
+    const paramNorm = normalize(year);
+    return yNorm === paramNorm;
+  });
   if (!yearData) notFound();
 
   const engineData = yearData.engines.find(
@@ -57,7 +61,6 @@ export default async function EnginePage({ params }: Props) {
         {brandData.name} {modelData.name} {yearData.range} – {engineData.label}
       </h1>
 
-      {/* Show tuning stages */}
       <div className="space-y-8">
         {engineData.stages?.length > 0 ? (
           engineData.stages.map((stage: any) => (
@@ -86,9 +89,7 @@ export default async function EnginePage({ params }: Props) {
             </div>
           ))
         ) : (
-          <p className="text-center text-white">
-            Inga steg hittades för denna motor.
-          </p>
+          <p className="text-center text-white">Inga steg hittades för denna motor.</p>
         )}
       </div>
     </div>
