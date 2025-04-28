@@ -319,7 +319,7 @@ export default function TuningViewer() {
     const rpmRange = [
       2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000,
     ];
-    const peakIndex = isHp ? 5 : 4; // Peak later for HP, earlier for Nm
+    const peakIndex = isHp ? 5 : 4; // Peak a little later for HP, earlier for Nm
     const startIndex = 0;
 
     return rpmRange.map((rpm, i) => {
@@ -329,11 +329,9 @@ export default function TuningViewer() {
 
       if (rpm <= peakRpm) {
         const progress = (rpm - startRpm) / (peakRpm - startRpm);
-        // Smooth curve rising - realistic acceleration
         return peakValue * (0.4 + 0.6 * Math.sin(progress * (Math.PI / 2)));
       } else {
         const fallProgress = (rpm - peakRpm) / (endRpm - peakRpm);
-        // Smooth curve falling
         return peakValue * (1 - 0.5 * fallProgress);
       }
     });
