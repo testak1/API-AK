@@ -2,7 +2,7 @@
 
 import { notFound } from "next/navigation";
 import { PortableText } from "@portabletext/react";
-import client from "@/lib/sanity";
+import client from "@/lib/sanity"; // <-- use "client" here
 import { allBrandsQuery } from "@/src/lib/queries";
 
 interface Props {
@@ -17,7 +17,7 @@ interface Props {
 export default async function EnginePage({ params }: Props) {
   const { brand, model, year, engine } = params;
 
-  const brandsData = await sanityClient.fetch(allBrandsQuery);
+  const brandsData = await client.fetch(allBrandsQuery); // <-- fixed here
   if (!brandsData) notFound();
 
   const brandData = brandsData.find(
@@ -72,7 +72,9 @@ export default async function EnginePage({ params }: Props) {
             </div>
           ))
         ) : (
-          <p className="text-center text-white">Inga steg hittades för denna motor.</p>
+          <p className="text-center text-white">
+            Inga steg hittades för denna motor.
+          </p>
         )}
       </div>
     </div>
