@@ -2,10 +2,11 @@
 
 import { notFound } from "next/navigation";
 import { PortableText } from "@portabletext/react";
-import client from "@/lib/sanity";
-import { allBrandsQuery } from "@/src/lib/queries";
+import client from "@/lib/sanity"; // ✅ your working client
+import { allBrandsQuery } from "@/src/lib/queries"; // ✅ correct query location
+import { Brand } from "@/types/sanity"; // ✅ if you want types
 
-export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic"; // ✅ tell Next.js to not statically generate
 
 interface Props {
   params: {
@@ -19,26 +20,26 @@ interface Props {
 export default async function EnginePage({ params }: Props) {
   const { brand, model, year, engine } = params;
 
-  const brandsData = await client.fetch(allBrandsQuery);
+  const brandsData: Brand[] = await client.fetch(allBrandsQuery);
   if (!brandsData) notFound();
 
   const brandData = brandsData.find(
-    (b: any) => b.slug.toLowerCase() === brand.toLowerCase()
+    (b) => b.slug?.toLowerCase() === brand.toLowerCase()
   );
   if (!brandData) notFound();
 
-  const modelData = brandData.models.find(
-    (m: any) => m.name.toLowerCase().replace(/\s+/g, "-") === model.toLowerCase()
+  const modelData = brandData.models?.find(
+    (m) => m.name?.toLowerCase().replace(/\s+/g, "-") === model.toLowerCase()
   );
   if (!modelData) notFound();
 
-  const yearData = modelData.years.find(
-    (y: any) => y.range.toLowerCase().replace(/\s+/g, "-") === year.toLowerCase()
+  const yearData = modelData.years?.find(
+    (y) => y.range?.toLowerCase().replace(/\s+/g, "-") === year.toLowerCase()
   );
   if (!yearData) notFound();
 
-  const engineData = yearData.engines.find(
-    (e: any) => e.label.toLowerCase().replace(/\s+/g, "-") === engine.toLowerCase()
+  const engineData = yearData.engines?.find(
+    (e) => e.label?.toLowerCase().replace(/\s+/g, "-") === engine.toLowerCase()
   );
   if (!engineData) notFound();
 
@@ -48,9 +49,10 @@ export default async function EnginePage({ params }: Props) {
         {brandData.name} {modelData.name} {yearData.range} – {engineData.label}
       </h1>
 
+      {/* Tuning stages */}
       <div className="space-y-8">
         {engineData.stages?.length > 0 ? (
-          engineData.stages.map((stage: any) => (
+          engineData.stages.map((stage) => (
             <div key={stage.name} className="bg-gray-800 p-6 rounded-lg shadow-md">
               <h2 className="text-xl font-bold text-indigo-400 mb-2">
                 {stage.name}
@@ -61,6 +63,7 @@ export default async function EnginePage({ params }: Props) {
               <p className="text-green-400 mb-2">
                 Tuned: {stage.tunedHk} HK / {stage.tunedNm} NM
               </p>
+
               {stage.descriptionRef?.description ? (
                 <div className="prose prose-invert text-white mt-4">
                   <PortableText value={stage.descriptionRef.description} />
@@ -73,7 +76,9 @@ export default async function EnginePage({ params }: Props) {
             </div>
           ))
         ) : (
-          <p className="text-center text-white">Inga steg hittades för denna motor.</p>
+          <p className="text-center text-white">
+            Inga steg hittades för denna motor.
+          </p>
         )}
       </div>
     </div>
