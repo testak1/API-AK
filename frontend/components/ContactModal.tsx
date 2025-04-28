@@ -214,7 +214,6 @@ export default function ContactModal({
                     }
                   >
                     <option value="">VÄLJ ANLÄGGNING</option>
-                    <option value="TEST-AK">TEST-AK</option>
                     <option value="goteborg">GÖTEBORG (HQ)</option>
                     <option value="jonkoping">JÖNKÖPING</option>
                     <option value="malmo">MALMÖ</option>
@@ -263,7 +262,7 @@ export default function ContactModal({
                 <div className="text-white mt-4 space-y-4 text-left">
                   {[
                     { city: "GÖTEBORG (HQ)", number: "0313823300" },
-                    { city: "JÖNKÖPING", number: "0303332300" },
+                    { city: "JÖNKÖPING", number: "0362907887" },
                     { city: "SKÅNE", number: "041318166" },
                     { city: "STOCKHOLM", number: "0708265573" },
                     { city: "ÖREBRO", number: "0708265573" },
