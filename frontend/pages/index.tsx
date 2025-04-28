@@ -319,24 +319,23 @@ export default function TuningViewer() {
     const rpmRange = [
       2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000,
     ];
-    const peakIndex = isHp ? 5 : 4; // HP peaks a little later
+    const peakIndex = isHp ? 5 : 4; // Peak later for HP, earlier for Nm
+    const startIndex = 0;
 
-    return rpmRange.map((rpm) => {
+    return rpmRange.map((rpm, i) => {
+      const startRpm = rpmRange[startIndex];
       const peakRpm = rpmRange[peakIndex];
-      const rpmSpan = rpmRange[rpmRange.length - 1] - rpmRange[0];
+      const endRpm = rpmRange[rpmRange.length - 1];
 
-      const normalizedRpm = (rpm - rpmRange[0]) / rpmSpan;
-      const peakNormalized = (peakRpm - rpmRange[0]) / rpmSpan;
-
-      const distanceToPeak = Math.abs(normalizedRpm - peakNormalized);
-
-      // Create a smooth bell shape: sharper up, softer down
-      const curve =
-        distanceToPeak < 0.2
-          ? 1 - Math.pow(distanceToPeak * 5, 2) * 0.5 // sharp rise and peak
-          : 1 - Math.pow(distanceToPeak * 2.5, 2); // smoother fall-off
-
-      return Math.max(0, peakValue * curve);
+      if (rpm <= peakRpm) {
+        const progress = (rpm - startRpm) / (peakRpm - startRpm);
+        // Smooth curve rising - realistic acceleration
+        return peakValue * (0.4 + 0.6 * Math.sin(progress * (Math.PI / 2)));
+      } else {
+        const fallProgress = (rpm - peakRpm) / (endRpm - peakRpm);
+        // Smooth curve falling
+        return peakValue * (1 - 0.5 * fallProgress);
+      }
     });
   };
 
