@@ -17,9 +17,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   let recipientEmail = '';
   switch (branch) {
-    case 'TEST-AK':
-      recipientEmail = 'info@aktuning.se';
-      break;
     case 'stockholm':
     case 'orebro':
     case 'storvik':
