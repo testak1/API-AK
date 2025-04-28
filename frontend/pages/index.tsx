@@ -603,7 +603,7 @@ export default function TuningViewer() {
                       )}
                       {/* Engine name and stage */}
                       <h2 className="text-lg font-semibold text-white">
-                        {selected.engine} {stage.origHk} hk{" "}
+                        {selected.engine}
                         <span className="text-indigo-400 uppercase tracking-wide">
                           – {stage.name}
                         </span>
