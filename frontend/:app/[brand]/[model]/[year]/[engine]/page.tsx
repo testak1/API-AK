@@ -2,10 +2,10 @@
 
 import { notFound } from "next/navigation";
 import { PortableText } from "@portabletext/react";
-import client from "@/lib/sanity";
-import { allBrandsQuery } from "@/src/lib/queries";
+import client from "@/lib/sanity"; // Correct import!
+import { allBrandsQuery } from "@/lib/queries"; // Correct import!
 
-export const dynamic = "force-dynamic";
+export const dynamic = "force-dynamic"; // Important to make it dynamic loading!
 
 interface Props {
   params: {
@@ -16,17 +16,17 @@ interface Props {
   };
 }
 
-// Clean helper
+// Normalizes strings for matching (lowercase, no spaces, no special chars)
 function normalize(str: string) {
   return str
     .toLowerCase()
-    .replace(/[^\w\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/→/g, "-")
-    .replace(/–/g, "-")
-    .replace(/\//g, "-")
-    .replace(/\./g, "-");
+    .replace(/[^\w\s-]/g, "")  // remove everything except words, spaces, hyphens
+    .replace(/\s+/g, "-")       // spaces to hyphens
+    .replace(/-+/g, "-")        // multiple hyphens collapsed
+    .replace(/→/g, "-")         // arrow to hyphen
+    .replace(/–/g, "-")         // en-dash to hyphen
+    .replace(/\//g, "-")        // slashes to hyphen
+    .replace(/\./g, "");        // remove dots
 }
 
 export default async function EnginePage({ params }: Props) {
