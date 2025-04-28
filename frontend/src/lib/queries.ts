@@ -108,3 +108,98 @@ export const allBrandsQuery = `
   }
 }
 `;
+
+
+
+// NEW: Admin-specific query (keeps your existing structure but adds _key fields)
+export const adminBrandsQuery = `
+*[_type == "brand"]{
+  _id,
+  name,
+  "models": models[]{
+    name,
+    _key,
+    "years": years[]{
+      range,
+      _key,
+      "engines": engines[]{
+        _key,
+        label,
+        fuel,
+        "stages": stages[]{
+          _key,
+          name,
+          price,
+          description,
+          descriptionRef->{ _id },
+          origHk,
+          tunedHk,
+          origNm,
+          tunedNm
+        }
+      }
+    }
+  }
+}
+`;
+
+// NEW: Query for stage management dropdowns
+export const stageManagementQueries = {
+  getStageNames: `*[_type == "brand"]{
+    "stages": models[].years[].engines[].stages[].name
+  }.stages`,
+  
+  getDescriptions: `*[_type == "stageDescription"]{
+    _id,
+    title,
+    stageName,
+    description
+  }`,
+  
+  getEnginePaths: `*[_type == "brand"]{
+    _id,
+    name,
+    "models": models[]{
+      name,
+      _key,
+      "years": years[]{
+        range,
+        _key,
+        "engines": engines[]{
+          _key,
+          label
+        }
+      }
+    }
+  }`
+};
+
+// NEW: Helper queries for bulk operations (won't conflict with existing)
+export const bulkOperationQueries = {
+  getStageByPath: `*[_type == "brand" && _id == $brandId] {
+    "model": models[_key == $modelKey] {
+      "year": years[_key == $yearKey] {
+        "engine": engines[_key == $engineKey] {
+          "stage": stages[_key == $stageKey] {
+            ...,
+            descriptionRef->{ _id }
+          }
+        }
+      }
+    }
+  }`,
+  
+  getEnginesByPath: `*[_type == "brand" && _id == $brandId] {
+    "model": models[_key == $modelKey] {
+      "year": years[_key == $yearKey] {
+        "engine": engines[_key == $engineKey] {
+          _key,
+          "stages": stages[]{
+            _key,
+            name
+          }
+        }
+      }
+    }
+  }`
+};
