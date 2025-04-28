@@ -2,10 +2,17 @@
 
 import { notFound } from "next/navigation";
 import { PortableText } from "@portabletext/react";
-import client from "@/lib/sanity"; // Correct import!
-import { allBrandsQuery } from "@/src/lib/queries"; // Correct import!
+import client from "@/lib/sanity";
+import { allBrandsQuery } from "@/src/lib/queries";
 
-export const dynamic = "force-dynamic"; // Important to make it dynamic loading!
+function slugifySafe(text: string) {
+  return text
+    .toLowerCase()
+    .replace(/[\s\/]+/g, "-") // replace spaces and slashes with dash
+    .replace(/[^\w-]+/g, "")  // remove everything except words and dash
+    .replace(/-{2,}/g, "-")   // collapse multiple dashes
+    .replace(/^-+|-+$/g, ""); // remove starting or ending dash
+}
 
 interface Props {
   params: {
@@ -16,19 +23,6 @@ interface Props {
   };
 }
 
-// Normalizes strings for matching (lowercase, no spaces, no special chars)
-function normalize(str: string) {
-  return str
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, "")  // remove everything except words, spaces, hyphens
-    .replace(/\s+/g, "-")       // spaces to hyphens
-    .replace(/-+/g, "-")        // multiple hyphens collapsed
-    .replace(/→/g, "-")         // arrow to hyphen
-    .replace(/–/g, "-")         // en-dash to hyphen
-    .replace(/\//g, "-")        // slashes to hyphen
-    .replace(/\./g, "");        // remove dots
-}
-
 export default async function EnginePage({ params }: Props) {
   const { brand, model, year, engine } = params;
 
@@ -36,27 +30,23 @@ export default async function EnginePage({ params }: Props) {
   if (!brandsData) notFound();
 
   const brandData = brandsData.find(
-    (b: any) => normalize(b.slug) === normalize(brand)
+    (b: any) => slugifySafe(b.slug) === brand
   );
   if (!brandData) notFound();
 
   const modelData = brandData.models.find(
-    (m: any) => normalize(m.name) === normalize(model)
+    (m: any) => slugifySafe(m.name) === model
   );
   if (!modelData) notFound();
 
-  const yearData = modelData.years.find((y: any) => {
-    const normalizedRange = normalize(y.range);
-    const normalizedParam = normalize(year);
-    return normalizedRange === normalizedParam;
-  });
+  const yearData = modelData.years.find(
+    (y: any) => slugifySafe(y.range) === year
+  );
   if (!yearData) notFound();
 
-  const engineData = yearData.engines.find((e: any) => {
-    const normalizedLabel = normalize(e.label);
-    const normalizedParam = normalize(engine);
-    return normalizedLabel === normalizedParam;
-  });
+  const engineData = yearData.engines.find(
+    (e: any) => slugifySafe(e.label) === engine
+  );
   if (!engineData) notFound();
 
   return (
@@ -65,13 +55,11 @@ export default async function EnginePage({ params }: Props) {
         {brandData.name} {modelData.name} {yearData.range} – {engineData.label}
       </h1>
 
+      {/* Show tuning stages */}
       <div className="space-y-8">
         {engineData.stages?.length > 0 ? (
           engineData.stages.map((stage: any) => (
-            <div
-              key={stage.name}
-              className="bg-gray-800 p-6 rounded-lg shadow-md"
-            >
+            <div key={stage.name} className="bg-gray-800 p-6 rounded-lg shadow-md">
               <h2 className="text-xl font-bold text-indigo-400 mb-2">
                 {stage.name}
               </h2>
