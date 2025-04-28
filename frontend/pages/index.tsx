@@ -603,9 +603,9 @@ export default function TuningViewer() {
                       )}
                       {/* Engine name and stage */}
                       <h2 className="text-lg font-semibold text-white">
-                        {selected.engine}
+                        {selected.engine} –{" "}
                         <span className="text-indigo-400 uppercase tracking-wide">
-                          – {stage.name}
+                          {stage.name}
                         </span>
                       </h2>
                     </div>
