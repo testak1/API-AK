@@ -62,19 +62,24 @@ export default function TuningViewer() {
     stageOrOption: "",
     link: "",
   });
-  const sanitizeSlug = (text: string) =>
-    text
+  const slugify = (str: string) => {
+    return str
       .toLowerCase()
+      .replace(/[^\w\s-]/g, "") // Remove special chars except spaces and hyphens
       .replace(/\s+/g, "-") // Replace spaces with hyphens
-      .replace(/[^\w-]/g, "") // Remove all non-word characters except hyphens
-      .replace(/-+/g, "-"); // Replace multiple hyphens with single one
+      .replace(/-+/g, "-"); // Collapse multiple hyphens
+  };
+
+  const slugifyStage = (stage: string) => {
+    return stage.toLowerCase().replace(/\s+/g, "-");
+  };
 
   const handleBookNow = (stageOrOptionName: string) => {
-    const brandSlug = sanitizeSlug(selected.brand);
-    const modelSlug = sanitizeSlug(selected.model);
-    const yearSlug = sanitizeSlug(selected.year);
-    const engineSlug = sanitizeSlug(selected.engine);
-    const stageSlug = sanitizeSlug(stageOrOptionName);
+    const brandSlug = slugify(selected.brand);
+    const modelSlug = slugify(selected.model);
+    const yearSlug = slugify(selected.year);
+    const engineSlug = slugify(selected.engine);
+    const stageSlug = slugifyStage(stageOrOptionName); // <- use special slugifyStage
 
     const finalLink = `https://api.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}#${stageSlug}`;
 
