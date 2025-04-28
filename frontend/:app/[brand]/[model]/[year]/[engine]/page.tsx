@@ -1,8 +1,11 @@
-// /app/[brand]/[model]/[year]/[engine]/page.tsx
+// app/[brand]/[model]/[year]/[engine]/page.tsx
+
 import { notFound } from "next/navigation";
 import { PortableText } from "@portabletext/react";
-import client from "@/lib/sanity"; // your existing sanity.ts
+import client from "@/lib/sanity";
 import { allBrandsQuery } from "@/src/lib/queries";
+
+export const dynamic = "force-dynamic"; // <-- this forces dynamic render
 
 interface Props {
   params: {
@@ -13,42 +16,38 @@ interface Props {
   };
 }
 
-export const dynamic = "force-dynamic"; // 🛡️ ensures it runs dynamically even in production
+// Normalize function for matching
+function normalize(str: string) {
+  return str
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, "") // Remove special characters
+    .replace(/\s+/g, "-")     // Replace spaces with hyphens
+    .replace(/-+/g, "-");     // Collapse multiple hyphens
+}
 
 export default async function EnginePage({ params }: Props) {
   const { brand, model, year, engine } = params;
 
-  // Fetch from Sanity
   const brandsData = await client.fetch(allBrandsQuery);
+  if (!brandsData) notFound();
 
-  if (!brandsData) {
-    notFound();
-  }
-
-  // Find the brand
   const brandData = brandsData.find(
-    (b: any) => b.slug?.toLowerCase() === brand.toLowerCase()
+    (b: any) => normalize(b.slug) === normalize(brand)
   );
   if (!brandData) notFound();
 
-  // Find the model
   const modelData = brandData.models.find(
-    (m: any) =>
-      m.name?.toLowerCase().replace(/\s+/g, "-") === model.toLowerCase()
+    (m: any) => normalize(m.name) === normalize(model)
   );
   if (!modelData) notFound();
 
-  // Find the year
   const yearData = modelData.years.find(
-    (y: any) =>
-      y.range?.toLowerCase().replace(/\s+/g, "-") === year.toLowerCase()
+    (y: any) => normalize(y.range) === normalize(year)
   );
   if (!yearData) notFound();
 
-  // Find the engine
   const engineData = yearData.engines.find(
-    (e: any) =>
-      e.label?.toLowerCase().replace(/\s+/g, "-") === engine.toLowerCase()
+    (e: any) => normalize(e.label) === normalize(engine)
   );
   if (!engineData) notFound();
 
@@ -58,11 +57,14 @@ export default async function EnginePage({ params }: Props) {
         {brandData.name} {modelData.name} {yearData.range} – {engineData.label}
       </h1>
 
-      {/* Tuning Stages */}
+      {/* Show tuning stages */}
       <div className="space-y-8">
         {engineData.stages?.length > 0 ? (
           engineData.stages.map((stage: any) => (
-            <div key={stage.name} className="bg-gray-800 p-6 rounded-lg shadow-md">
+            <div
+              key={stage.name}
+              className="bg-gray-800 p-6 rounded-lg shadow-md"
+            >
               <h2 className="text-xl font-bold text-indigo-400 mb-2">
                 {stage.name}
               </h2>
