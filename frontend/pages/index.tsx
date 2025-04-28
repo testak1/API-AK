@@ -62,42 +62,30 @@ export default function TuningViewer() {
     stageOrOption: "",
     link: "",
   });
+  const sanitizeSlug = (text: string) =>
+    text
+      .toLowerCase()
+      .replace(/\s+/g, "-") // Replace spaces with hyphens
+      .replace(/[^\w-]/g, "") // Remove all non-word characters except hyphens
+      .replace(/-+/g, "-"); // Replace multiple hyphens with single one
+
   const handleBookNow = (stageOrOptionName: string) => {
-    const brandSlug = encodeURIComponent(
-      selected.brand.toLowerCase().replace(/\s+/g, "-"),
-    );
-    const modelSlug = encodeURIComponent(
-      selected.model.toLowerCase().replace(/\s+/g, "-"),
-    );
-    const yearSlug = encodeURIComponent(
-      selected.year.toLowerCase().replace(/\s+/g, "-"),
-    );
-    const engineSlug = encodeURIComponent(
-      selected.engine.toLowerCase().replace(/\s+/g, "-"),
-    );
-    const stageSlug = encodeURIComponent(
-      stageOrOptionName.toLowerCase().replace(/\s+/g, ""),
-    );
+    const brandSlug = sanitizeSlug(selected.brand);
+    const modelSlug = sanitizeSlug(selected.model);
+    const yearSlug = sanitizeSlug(selected.year);
+    const engineSlug = sanitizeSlug(selected.engine);
+    const stageSlug = sanitizeSlug(stageOrOptionName);
 
     const finalLink = `https://api.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}#${stageSlug}`;
 
     setContactModalData({
       isOpen: true,
       stageOrOption: stageOrOptionName,
-      link: finalLink, // <-- very important
+      link: finalLink,
     });
 
     console.log("Generated Link:", finalLink);
   };
-
-  // Load watermark image
-  useEffect(() => {
-    const img = new Image();
-    img.src = "/ak-logo.png";
-    img.onload = () => {
-      watermarkImageRef.current = img;
-    };
-  }, []);
 
   // Fetch brands and models (light query)
   useEffect(() => {
