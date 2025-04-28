@@ -3,7 +3,7 @@
 import { notFound } from "next/navigation";
 import { PortableText } from "@portabletext/react";
 import client from "@/lib/sanity";
-import { allBrandsQuery } from "@/lib/queries";
+import { allBrandsQuery } from "@/src/lib/queries";
 
 interface Props {
   params: {
