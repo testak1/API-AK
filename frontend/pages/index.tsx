@@ -473,6 +473,12 @@ export default function TuningViewer() {
         />
       </div>
 
+
+      <div className="mb-4">
+        <p className="text-white text-center text-lg font-semibold">
+           Välj din bil nedan för att se vad vi kan erbjuda
+        </p>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-8">
         <div>
           <label className="block text-sm font-bold text-black mb-1">
