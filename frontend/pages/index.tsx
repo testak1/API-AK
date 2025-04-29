@@ -466,7 +466,7 @@ export default function TuningViewer() {
     <div className="max-w-5xl mx-auto p-4 md:p-8">
       <div className="flex items-center mb-8">
         <img
-          src="/ak-logo.png" // or wherever your logo is
+          src="/ak-logo-svart.png" // or wherever your logo is
           alt="AK-TUNING"
           className="h-12 object-contain"
         />
