@@ -63,21 +63,43 @@ export default function TuningViewer() {
     link: "",
   });
 
-  // ⬇️ THIS useEffect block handles iframe behavior
+  // NEW: When modal opens, tell parent iframe to scroll to this element
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (contactModalData.isOpen) {
       const bodyHeight = document.body.scrollHeight;
       window.parent.postMessage({ height: bodyHeight }, "*");
 
-      // Scroll to top inside iframe smoothly
+      // Ask parent to scroll smoothly to our iframe (not all the way top)
       setTimeout(() => {
-        window.scrollTo({
-          top: 0,
-          behavior: "smooth",
-        });
-      }, 100);
+        window.parent.postMessage({ action: "scrollToIframe" }, "*");
+      }, 100); // small delay
     }
   }, [contactModalData.isOpen]);
+
+  // Notify parent iframe to resize when content changes
+  useEffect(() => {
+    const sendHeight = () => {
+      const height = document.body.scrollHeight;
+      window.parent.postMessage({ height }, "*");
+    };
+
+    sendHeight(); // Initial
+
+    const observer = new MutationObserver(sendHeight);
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+    });
+    window.addEventListener("resize", sendHeight);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", sendHeight);
+    };
+  }, []);
 
   const slugify = (str: string) =>
     str
@@ -95,15 +117,13 @@ export default function TuningViewer() {
     const yearSlug = slugify(selected.year);
     const engineSlug = slugify(selected.engine);
     const stageSlug = slugifyStage(stageOrOptionName);
-    const finalLink = `https://api.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}#${stageSlug}`;
 
+    const finalLink = `https://api.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}#${stageSlug}`;
     setContactModalData({
       isOpen: true,
       stageOrOption: stageOrOptionName,
       link: finalLink,
     });
-
-    console.log("Generated Link:", finalLink);
   };
 
   // Fetch brands and models (light query)
