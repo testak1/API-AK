@@ -627,6 +627,11 @@ export default function TuningViewer() {
                       <span className="inline-block bg-red-600 text-black px-4 py-1 rounded-full text-xl font-semibold shadow-md">
                         {stage.price?.toLocaleString()} kr
                       </span>
+                      {(stage.name.includes("Steg 2") || stage.name.includes("Steg 3") || stage.name.includes("Steg 4")) && (
+                      <p className="text-xs text-gray-400 mt-2 italic">
+                       Priset omfattar enbart mjukvaran.<br />Kontakta oss för offert inkl hårdvara!
+                      </p>
+                      )}
 
                       {/* Arrow button - new */}
                       <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-700 hover:bg-gray-600 hover:scale-110 transform transition-all duration-300">
@@ -889,7 +894,7 @@ export default function TuningViewer() {
                         {/* Mobile-only small tuned specs */}
                         <div className="block md:hidden text-center mt-4 space-y-1">
                           <p className="text-sm text-white font-semibold">
-                            {stage.tunedHk} HK & {stage.tunedNm} NM " "
+                            {stage.tunedHk} HK & {stage.tunedNm} NM 
                             <span className="text-gray-400 text-sm">
                               [
                               {stage.name
