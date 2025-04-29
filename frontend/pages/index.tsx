@@ -340,10 +340,13 @@ export default function TuningViewer() {
   };
 
   const toggleStage = (stageName: string) => {
-    setExpandedStages((prev) => ({
-      ...prev,
-      [stageName]: !prev[stageName],
-    }));
+    setExpandedStages((prev) => {
+      const newState: Record<string, boolean> = {};
+      Object.keys(prev).forEach((key) => {
+        newState[key] = key === stageName ? !prev[key] : false;
+      });
+      return newState;
+    });
   };
 
   const toggleOption = (optionId: string) => {
