@@ -1,15 +1,18 @@
 // pages/embed.tsx
-import { useEffect } from "react";
-import TuningViewer from "./index"; // or the correct path if it’s in a component
+import { useEffect, useState } from "react";
+import TuningViewer from "./index"; // Adjust the path if needed
 
 export default function Embed() {
+  const [modalOpen, setModalOpen] = useState(false);
+
+  // Resize & notify parent on DOM changes
   useEffect(() => {
     const sendHeight = () => {
       const height = document.body.scrollHeight;
       window.parent.postMessage({ height }, "*");
     };
 
-    sendHeight(); // Initial send
+    sendHeight();
 
     const observer = new MutationObserver(sendHeight);
     observer.observe(document.body, {
@@ -26,9 +29,18 @@ export default function Embed() {
     };
   }, []);
 
+  // Scroll iframe into view when modal is opened
+  useEffect(() => {
+    if (modalOpen) {
+      const height = document.body.scrollHeight;
+      window.parent.postMessage({ height }, "*");
+      window.parent.postMessage("scrollTop", "*");
+    }
+  }, [modalOpen]);
+
   return (
     <div style={{ padding: 0, margin: 0 }}>
-      <TuningViewer />
+      <TuningViewer onModalToggle={setModalOpen} />
     </div>
   );
 }
