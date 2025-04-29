@@ -62,25 +62,32 @@ export default function TuningViewer() {
     stageOrOption: "",
     link: "",
   });
-  const slugify = (str: string) => {
-    return str
-      .toLowerCase()
-      .replace(/[^\w\s-]/g, "") // Remove special chars except spaces and hyphens
-      .replace(/\s+/g, "-") // Replace spaces with hyphens
-      .replace(/-+/g, "-"); // Collapse multiple hyphens
-  };
 
-  const slugifyStage = (stage: string) => {
-    return stage.toLowerCase().replace(/\s+/g, "-");
-  };
+  // ⬇️ THIS useEffect block handles iframe behavior
+  useEffect(() => {
+    if (contactModalData.isOpen) {
+      const height = document.body.scrollHeight;
+      window.parent.postMessage({ height }, "*");
+      window.parent.postMessage("scrollTop", "*");
+    }
+  }, [contactModalData.isOpen]);
+
+  const slugify = (str: string) =>
+    str
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-");
+
+  const slugifyStage = (stage: string) =>
+    stage.toLowerCase().replace(/\s+/g, "-");
 
   const handleBookNow = (stageOrOptionName: string) => {
     const brandSlug = slugify(selected.brand);
     const modelSlug = slugify(selected.model);
     const yearSlug = slugify(selected.year);
     const engineSlug = slugify(selected.engine);
-    const stageSlug = slugifyStage(stageOrOptionName); // <- use special slugifyStage
-
+    const stageSlug = slugifyStage(stageOrOptionName);
     const finalLink = `https://api.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}#${stageSlug}`;
 
     setContactModalData({
