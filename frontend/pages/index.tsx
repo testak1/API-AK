@@ -62,68 +62,34 @@ export default function TuningViewer() {
     stageOrOption: "",
     link: "",
   });
-
-  // NEW: When modal opens, tell parent iframe to scroll to this element
-  const wrapperRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (contactModalData.isOpen) {
-      const bodyHeight = document.body.scrollHeight;
-      window.parent.postMessage({ height: bodyHeight }, "*");
-
-      // Ask parent to scroll smoothly to our iframe (not all the way top)
-      setTimeout(() => {
-        window.parent.postMessage({ action: "scrollToIframe" }, "*");
-      }, 100); // small delay
-    }
-  }, [contactModalData.isOpen]);
-
-  // Notify parent iframe to resize when content changes
-  useEffect(() => {
-    const sendHeight = () => {
-      const height = document.body.scrollHeight;
-      window.parent.postMessage({ height }, "*");
-    };
-
-    sendHeight(); // Initial
-
-    const observer = new MutationObserver(sendHeight);
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-    });
-    window.addEventListener("resize", sendHeight);
-
-    return () => {
-      observer.disconnect();
-      window.removeEventListener("resize", sendHeight);
-    };
-  }, []);
-
-  const slugify = (str: string) =>
-    str
+  const slugify = (str: string) => {
+    return str
       .toLowerCase()
-      .replace(/[^\w\s-]/g, "")
-      .replace(/\s+/g, "-")
-      .replace(/-+/g, "-");
+      .replace(/[^\w\s-]/g, "") // Remove special chars except spaces and hyphens
+      .replace(/\s+/g, "-") // Replace spaces with hyphens
+      .replace(/-+/g, "-"); // Collapse multiple hyphens
+  };
 
-  const slugifyStage = (stage: string) =>
-    stage.toLowerCase().replace(/\s+/g, "-");
+  const slugifyStage = (stage: string) => {
+    return stage.toLowerCase().replace(/\s+/g, "-");
+  };
 
   const handleBookNow = (stageOrOptionName: string) => {
     const brandSlug = slugify(selected.brand);
     const modelSlug = slugify(selected.model);
     const yearSlug = slugify(selected.year);
     const engineSlug = slugify(selected.engine);
-    const stageSlug = slugifyStage(stageOrOptionName);
+    const stageSlug = slugifyStage(stageOrOptionName); // <- use special slugifyStage
 
     const finalLink = `https://api.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}#${stageSlug}`;
+
     setContactModalData({
       isOpen: true,
       stageOrOption: stageOrOptionName,
       link: finalLink,
     });
+
+    console.log("Generated Link:", finalLink);
   };
 
   // Fetch brands and models (light query)
