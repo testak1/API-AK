@@ -629,7 +629,7 @@ export default function TuningViewer() {
                       </span>
                       {(stage.name.includes("Steg 2") || stage.name.includes("Steg 3") || stage.name.includes("Steg 4")) && (
                       <p className="text-xs text-gray-400 mt-2 italic">
-                       * Extra anpassning kan krävas vid vissa fordon.
+                       Priset omfattar enbart mjukvaran.<br />Kontakta oss för offert inkl hårdvara!
                       </p>
                       )}
 
