@@ -475,7 +475,7 @@ export default function TuningViewer() {
 
 
       <div className="mb-4">
-        <p className="text-white text-center text-lg font-semibold">
+        <p className="text-black text-center text-lg font-semibold">
            Välj din bil nedan för att se vad vi kan erbjuda
         </p>
       </div>
