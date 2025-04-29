@@ -468,7 +468,7 @@ export default function TuningViewer() {
         <img
           src="/ak-logo-svart.png"
           alt="AK-TUNING"
-          style="height: 80px;"
+          style={{ height: "80px" }}
           className="h-12 object-contain"
         />
       </div>
