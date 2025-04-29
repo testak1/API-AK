@@ -66,9 +66,16 @@ export default function TuningViewer() {
   // ⬇️ THIS useEffect block handles iframe behavior
   useEffect(() => {
     if (contactModalData.isOpen) {
-      const height = document.body.scrollHeight;
-      window.parent.postMessage({ height }, "*");
-      window.parent.postMessage("scrollTop", "*");
+      const bodyHeight = document.body.scrollHeight;
+      window.parent.postMessage({ height: bodyHeight }, "*");
+
+      // Scroll to top inside iframe smoothly
+      setTimeout(() => {
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
+      }, 100);
     }
   }, [contactModalData.isOpen]);
 

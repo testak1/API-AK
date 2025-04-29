@@ -1,6 +1,6 @@
 // pages/embed.tsx
 import { useEffect } from "react";
-import TuningViewer from "./index"; // or the correct path if it’s in a component
+import TuningViewer from "./index"; // adjust if needed
 
 export default function Embed() {
   useEffect(() => {
