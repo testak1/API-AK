@@ -89,7 +89,10 @@ export default function TuningViewer() {
 
     const stageSlug = slugifyStage(stageOrOptionName);
 
-    const finalLink = `${window.location.origin}/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}#${stageSlug}`;
+    const finalLink =
+      typeof window !== "undefined"
+        ? `${window.location.origin}/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}#${stageSlug}`
+        : `/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}#${stageSlug}`;
 
     setContactModalData({
       isOpen: true,
