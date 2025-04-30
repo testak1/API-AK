@@ -1,160 +1,64 @@
-// pages/[brand]/[model]/[year]/[engine].tsx
-import { GetServerSideProps } from "next";
-import { useRouter } from "next/router";
-import client from "@/lib/sanity";
-import { engineByParamsQuery } from "@/src/lib/queries";
-import type { Brand, Model, Year, Engine, Stage } from "@/types/sanity";
-import { urlFor } from "@/lib/sanity";
-import { PortableText } from "@portabletext/react";
-import { useState, useEffect } from "react";
-import Head from "next/head";
-import ContactModal from "@/components/ContactModal";
+// pages/index.tsx
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import {
-  Chart as ChartJS,
+  Chart,
   CategoryScale,
   LinearScale,
   PointElement,
   LineElement,
-  Tooltip,
-  Legend,
+  LineController,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
+import { PortableText } from "@portabletext/react";
+import { urlFor } from "@/lib/sanity";
+import type {
+  Brand,
+  Stage,
+  AktPlusOption,
+  AktPlusOptionReference,
+} from "@/types/sanity";
+import ContactModal from "@/components/ContactModal";
+import { link } from "fs";
 
-ChartJS.register(
+Chart.register(
   CategoryScale,
   LinearScale,
   PointElement,
   LineElement,
-  Tooltip,
-  Legend
+  LineController
 );
 
-interface EnginePageProps {
-  brandData: Brand | null;
-  modelData: Model | null;
-  yearData: Year | null;
-  engineData: Engine | null;
+interface SelectionState {
+  brand: string;
+  model: string;
+  year: string;
+  engine: string;
 }
 
-const normalizeString = (str: string) =>
-  str.toLowerCase().replace(/[^a-z0-9]/g, "");
+interface Slug {
+  _type: "slug";
+  current: string;
+}
 
-export const getServerSideProps: GetServerSideProps<EnginePageProps> = async (
-  context
-) => {
-  const brand = decodeURIComponent((context.params?.brand as string) || "");
-  const model = decodeURIComponent((context.params?.model as string) || "");
-  const year = decodeURIComponent((context.params?.year as string) || "");
-  const engine = decodeURIComponent((context.params?.engine as string) || "");
-
-  try {
-    const brandData = await client.fetch(engineByParamsQuery, {
-      brand: brand.toLowerCase(),
-    });
-
-    if (!brandData) return { notFound: true };
-
-    const modelData =
-      brandData.models?.find(
-        (m: Model) =>
-          normalizeString(m.name) === normalizeString(model) ||
-          (m.slug &&
-            normalizeString(
-              typeof m.slug === "string" ? m.slug : m.slug.current
-            ) === normalizeString(model))
-      ) || null;
-
-    if (!modelData) return { notFound: true };
-
-    const yearData =
-      modelData.years?.find(
-        (y: Year) =>
-          normalizeString(y.range) === normalizeString(year) ||
-          (y.slug && normalizeString(y.slug) === normalizeString(year))
-      ) || null;
-
-    if (!yearData) return { notFound: true };
-
-    const engineData =
-      yearData.engines?.find(
-        (e: Engine) =>
-          normalizeString(e.label) === normalizeString(engine) ||
-          (e.slug && normalizeString(e.slug) === normalizeString(engine))
-      ) || null;
-
-    if (!engineData) return { notFound: true };
-
-    return {
-      props: {
-        brandData,
-        modelData,
-        yearData,
-        engineData,
-      },
-    };
-  } catch (err) {
-    console.error("Engine fetch failed:", err);
-    return { notFound: true };
-  }
-};
-
-const portableTextComponents = {
-  types: {
-    image: ({ value }: any) => (
-      <img
-        src={urlFor(value).width(600).url()}
-        alt={value.alt || ""}
-        className="my-4 rounded-lg shadow-md"
-      />
-    ),
-  },
-  marks: {
-    link: ({ children, value }: any) => (
-      <a
-        href={value.href}
-        className="text-blue-400 hover:text-blue-300 underline"
-      >
-        {children}
-      </a>
-    ),
-  },
-};
-
-const generateDynoCurve = (peakValue: number, isHp: boolean) => {
-  const rpmRange = [
-    2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000,
-  ];
-  const peakIndex = isHp ? 6 : 4;
-  const startIndex = 0;
-
-  return rpmRange.map((rpm, i) => {
-    const startRpm = rpmRange[startIndex];
-    const peakRpm = rpmRange[peakIndex];
-    const endRpm = rpmRange[rpmRange.length - 1];
-
-    if (rpm <= peakRpm) {
-      const progress = (rpm - startRpm) / (peakRpm - startRpm);
-      return peakValue * (0.5 + 0.5 * Math.pow(progress, 1.2));
-    } else {
-      const fallProgress = (rpm - peakRpm) / (endRpm - peakRpm);
-      return peakValue * (1 - 0.35 * Math.pow(fallProgress, 1));
-    }
+export default function TuningViewer() {
+  const [data, setData] = useState<Brand[]>([]);
+  const [selected, setSelected] = useState<SelectionState>({
+    brand: "",
+    model: "",
+    year: "",
+    engine: "",
   });
-};
-
-export default function EnginePage({
-  brandData,
-  modelData,
-  yearData,
-  engineData,
-}: EnginePageProps) {
-  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
   const [expandedStages, setExpandedStages] = useState<Record<string, boolean>>(
     {}
   );
   const [expandedDescriptions, setExpandedDescriptions] = useState<
     Record<string, boolean>
   >({});
+  const [expandedOptions, setExpandedOptions] = useState<
+    Record<string, boolean>
+  >({});
+  const watermarkImageRef = useRef<HTMLImageElement | null>(null);
   const [contactModalData, setContactModalData] = useState<{
     isOpen: boolean;
     stageOrOption: string;
@@ -168,22 +72,48 @@ export default function EnginePage({
       .replace(/\s+/g, "-")
       .replace(/-+/g, "-");
 
+  const slugifyStage = (str: string) =>
+    str
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^\w-]/g, "");
+
   const handleBookNow = (stageOrOptionName: string) => {
+    const selectedBrand = data.find((b) => b.name === selected.brand);
+    if (!selectedBrand) return;
+
     const brandSlug =
-      brandData?.slug?.current || slugify(brandData?.name || "");
-    const modelSlug =
-      typeof modelData?.slug === "object"
-        ? modelData.slug.current
-        : modelData?.slug || slugify(modelData?.name || "");
-    const yearSlug = yearData?.range.includes(" ")
-      ? slugify(yearData.range)
-      : yearData?.range || "";
-    const engineSlug = engineData?.label.includes(" ")
-      ? slugify(engineData.label)
-      : engineData?.label || "";
-    const stageSlug = slugify(
-      stageOrOptionName.replace(/\s+/g, "-").replace(/[^\w-]/g, "")
+      selectedBrand.slug?.current || slugify(selectedBrand.name);
+
+    const selectedModel = selectedBrand.models?.find(
+      (m) => m.name === selected.model
     );
+    if (!selectedModel) return;
+
+    const modelSlug =
+      typeof selectedModel.slug === "object"
+        ? selectedModel.slug.current
+        : selectedModel.slug || slugify(selectedModel.name);
+
+    const selectedYear = selectedModel.years?.find(
+      (y) => y.range === selected.year
+    );
+    if (!selectedYear) return;
+
+    const yearSlug = selectedYear.range.includes(" ")
+      ? slugify(selectedYear.range)
+      : selectedYear.range;
+
+    const selectedEngine = selectedYear.engines?.find(
+      (e) => e.label === selected.engine
+    );
+    if (!selectedEngine) return;
+
+    const engineSlug = selectedEngine.label.includes(" ")
+      ? slugify(selectedEngine.label)
+      : selectedEngine.label;
+
+    const stageSlug = slugifyStage(stageOrOptionName);
 
     const finalLink = `https://api.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}#${stageSlug}`;
 
@@ -195,8 +125,146 @@ export default function EnginePage({
   };
 
   useEffect(() => {
-    if (engineData?.stages) {
-      const initialExpandedStates = engineData.stages.reduce(
+    const img = new Image();
+    img.src = "/ak-logo.png";
+    img.onload = () => {
+      watermarkImageRef.current = img;
+    };
+  }, []);
+
+  useEffect(() => {
+    const fetchBrands = async () => {
+      try {
+        const res = await fetch("/api/brands");
+        if (!res.ok) throw new Error("Failed to fetch brands");
+        const json = await res.json();
+        setData(json.result || []);
+      } catch (error) {
+        console.error("Error fetching brands:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchBrands();
+  }, []);
+
+  useEffect(() => {
+    const fetchYears = async () => {
+      if (selected.brand && selected.model) {
+        setIsLoading(true);
+        try {
+          const res = await fetch(
+            `/api/years?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}`
+          );
+          if (!res.ok) throw new Error("Failed to fetch years");
+          const years = await res.json();
+
+          setData((prev) =>
+            prev.map((brand) =>
+              brand.name !== selected.brand
+                ? brand
+                : {
+                    ...brand,
+                    models: brand.models.map((model) =>
+                      model.name !== selected.model
+                        ? model
+                        : { ...model, years: years.result }
+                    ),
+                  }
+            )
+          );
+        } catch (error) {
+          console.error("Error fetching years:", error);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+    fetchYears();
+  }, [selected.brand, selected.model]);
+
+  useEffect(() => {
+    const fetchEngines = async () => {
+      if (selected.brand && selected.model && selected.year) {
+        setIsLoading(true);
+        try {
+          const res = await fetch(
+            `/api/engines?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}&year=${encodeURIComponent(selected.year)}`
+          );
+          if (!res.ok) throw new Error("Failed to fetch engines");
+          const engines = await res.json();
+
+          setData((prev) =>
+            prev.map((brand) =>
+              brand.name !== selected.brand
+                ? brand
+                : {
+                    ...brand,
+                    models: brand.models.map((model) =>
+                      model.name !== selected.model
+                        ? model
+                        : {
+                            ...model,
+                            years: model.years.map((year) =>
+                              year.range !== selected.year
+                                ? year
+                                : { ...year, engines: engines.result }
+                            ),
+                          }
+                    ),
+                  }
+            )
+          );
+        } catch (error) {
+          console.error("Error fetching engines:", error);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+    fetchEngines();
+  }, [selected.brand, selected.model, selected.year]);
+
+  const {
+    brands,
+    models,
+    years,
+    engines,
+    selectedEngine,
+    stages,
+    groupedEngines,
+  } = useMemo(() => {
+    const brands = data.map((b) => b.name);
+    const models = data.find((b) => b.name === selected.brand)?.models || [];
+    const years = models.find((m) => m.name === selected.model)?.years || [];
+    const engines = years.find((y) => y.range === selected.year)?.engines || [];
+    const selectedEngine = engines.find((e) => e.label === selected.engine);
+    const stages = selectedEngine?.stages || [];
+
+    const groupedEngines = engines.reduce(
+      (acc, engine) => {
+        const fuelType = engine.fuel;
+        if (!acc[fuelType]) acc[fuelType] = [];
+        acc[fuelType].push(engine);
+        return acc;
+      },
+      {} as Record<string, typeof engines>
+    );
+
+    return {
+      brands,
+      models,
+      years,
+      engines,
+      selectedEngine,
+      stages,
+      groupedEngines,
+    };
+  }, [data, selected]);
+
+  useEffect(() => {
+    if (stages.length > 0) {
+      const initialExpandedStates = stages.reduce(
         (acc, stage) => {
           acc[stage.name] = stage.name === "Steg 1";
           return acc;
@@ -205,7 +273,107 @@ export default function EnginePage({
       );
       setExpandedStages(initialExpandedStates);
     }
-  }, [engineData]);
+  }, [stages]);
+
+  const watermarkPlugin = {
+    id: "watermark",
+    beforeDraw: (chart: Chart) => {
+      const ctx = chart.ctx;
+      const {
+        chartArea: { top, left, width, height },
+      } = chart;
+
+      if (watermarkImageRef.current?.complete) {
+        ctx.save();
+        ctx.globalAlpha = 0.2;
+
+        const img = watermarkImageRef.current;
+        const ratio = img.width / img.height;
+        const imgWidth = width * 0.4;
+        const imgHeight = imgWidth / ratio;
+
+        const x = left + width / 2 - imgWidth / 2;
+        const y = top + height / 2 - imgHeight / 2;
+
+        ctx.drawImage(img, x, y, imgWidth, imgHeight);
+        ctx.restore();
+      }
+    },
+  };
+
+  const shadowPlugin = {
+    id: "shadowPlugin",
+    beforeDatasetDraw(chart: Chart, args: any, options: any) {
+      const { ctx } = chart;
+      const dataset = chart.data.datasets[args.index];
+
+      ctx.save();
+      ctx.shadowColor = dataset.borderColor as string;
+      ctx.shadowBlur = 6;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 2;
+    },
+    afterDatasetDraw(chart: Chart, args: any, options: any) {
+      chart.ctx.restore();
+    },
+  };
+
+  const isExpandedAktPlusOption = (item: any): item is AktPlusOption => {
+    return item && "_id" in item && "title" in item;
+  };
+
+  const getAllAktPlusOptions = useMemo(
+    () => (stage: Stage) => {
+      if (!selectedEngine) return [];
+
+      const combinedOptions: AktPlusOptionReference[] = [
+        ...(selectedEngine.globalAktPlusOptions || []),
+        ...(stage.aktPlusOptions || []),
+      ];
+
+      const uniqueOptionsMap = new Map<string, AktPlusOption>();
+
+      (combinedOptions as AktPlusOptionReference[])
+        .filter(isExpandedAktPlusOption)
+        .forEach((opt) => {
+          if (
+            (opt.isUniversal ||
+              opt.applicableFuelTypes?.includes(selectedEngine.fuel) ||
+              opt.manualAssignments?.some(
+                (ref) => ref._ref === selectedEngine._id
+              )) &&
+            (!opt.stageCompatibility || opt.stageCompatibility === stage.name)
+          ) {
+            uniqueOptionsMap.set(opt._id, opt);
+          }
+        });
+
+      return Array.from(uniqueOptionsMap.values());
+    },
+    [selectedEngine]
+  );
+
+  const generateDynoCurve = (peakValue: number, isHp: boolean) => {
+    const rpmRange = [
+      2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000,
+    ];
+    const peakIndex = isHp ? 6 : 4;
+    const startIndex = 0;
+
+    return rpmRange.map((rpm, i) => {
+      const startRpm = rpmRange[startIndex];
+      const peakRpm = rpmRange[peakIndex];
+      const endRpm = rpmRange[rpmRange.length - 1];
+
+      if (rpm <= peakRpm) {
+        const progress = (rpm - startRpm) / (peakRpm - startRpm);
+        return peakValue * (0.5 + 0.5 * Math.pow(progress, 1.2));
+      } else {
+        const fallProgress = (rpm - peakRpm) / (endRpm - peakRpm);
+        return peakValue * (1 - 0.35 * Math.pow(fallProgress, 1));
+      }
+    });
+  };
 
   const toggleStage = (stageName: string) => {
     setExpandedStages((prev) => {
@@ -215,6 +383,68 @@ export default function EnginePage({
       });
       return newState;
     });
+  };
+
+  const toggleOption = (optionId: string) => {
+    setExpandedOptions((prev) => {
+      const newState: Record<string, boolean> = {};
+      newState[optionId] = !prev[optionId];
+      return newState;
+    });
+  };
+
+  const handleBrandChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelected({ brand: e.target.value, model: "", year: "", engine: "" });
+  };
+
+  const handleModelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelected((prev) => ({
+      ...prev,
+      model: e.target.value,
+      year: "",
+      engine: "",
+    }));
+  };
+
+  const handleYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelected((prev) => ({ ...prev, year: e.target.value, engine: "" }));
+  };
+
+  const handleEngineChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelected((prev) => ({ ...prev, engine: e.target.value }));
+  };
+
+  const portableTextComponents = {
+    types: {
+      image: ({ value }: any) => (
+        <img
+          src={urlFor(value).width(100).url()}
+          alt={value.alt || ""}
+          className="my-4 rounded-lg shadow-md"
+        />
+      ),
+    },
+    marks: {
+      link: ({ children, value }: any) => (
+        <a
+          href={value.href}
+          className="text-blue-400 hover:text-blue-300 underline"
+        >
+          {children}
+        </a>
+      ),
+    },
+  };
+
+  const [expandedAktPlus, setExpandedAktPlus] = useState<
+    Record<string, boolean>
+  >({});
+
+  const toggleAktPlus = (stageName: string) => {
+    setExpandedAktPlus((prev) => ({
+      ...prev,
+      [stageName]: !prev[stageName],
+    }));
   };
 
   const renderStageDescription = (stage: Stage) => {
@@ -270,18 +500,6 @@ export default function EnginePage({
     );
   };
 
-  if (!engineData) {
-    return (
-      <div className="max-w-5xl mx-auto p-4 md:p-8">
-        <h1 className="text-2xl font-bold mb-4">
-          {router.query.brand} / {router.query.model} / {router.query.year} /{" "}
-          {router.query.engine}
-        </h1>
-        <p className="text-lg text-red-500">Motorinformation saknas.</p>
-      </div>
-    );
-  }
-
   return (
     <div className="max-w-5xl mx-auto p-4 md:p-8">
       <div className="flex items-center mb-4">
@@ -294,18 +512,119 @@ export default function EnginePage({
         />
       </div>
 
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-center">
-          {brandData?.name} {modelData?.name} {yearData?.range}
-        </h1>
-        <p className="text-lg text-center text-gray-300">
-          {engineData.label} ({engineData.fuel})
+      <div className="mb-4">
+        <p className="text-black text-center text-lg font-semibold">
+          Välj din bil nedan för att se vad vi kan erbjuda
         </p>
       </div>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-8">
+        <div>
+          <label className="block text-sm font-bold text-black mb-1">
+            MÄRKE
+          </label>
+          <select
+            className={`w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
+              isLoading
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:border-gray-600"
+            }`}
+            value={selected.brand}
+            onChange={handleBrandChange}
+            disabled={isLoading}
+          >
+            <option value="">VÄLJ MÄRKE</option>
+            {brands.map((brand) => (
+              <option key={brand} value={brand}>
+                {brand}
+              </option>
+            ))}
+          </select>
+        </div>
 
-      {engineData.stages?.length > 0 ? (
+        <div>
+          <label className="block text-sm font-bold text-black mb-1">
+            MODELL
+          </label>
+          <select
+            className={`w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
+              !selected.brand
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:border-gray-600"
+            }`}
+            value={selected.model}
+            onChange={handleModelChange}
+            disabled={!selected.brand}
+          >
+            <option value="">VÄLJ MODELL</option>
+            {models.map((m) => (
+              <option key={m.name} value={m.name}>
+                {m.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-bold text-black mb-1">
+            ÅRSMODELL
+          </label>
+          <select
+            className={`w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
+              !selected.model
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:border-gray-600"
+            }`}
+            value={selected.year}
+            onChange={handleYearChange}
+            disabled={!selected.model}
+          >
+            <option value="">VÄLJ ÅRSMODELL</option>
+            {years.map((y) => (
+              <option key={y.range} value={y.range}>
+                {y.range}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-bold text-black mb-1">
+            MOTOR
+          </label>
+          <select
+            className={`w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
+              !selected.year
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:border-gray-600"
+            }`}
+            value={selected.engine}
+            onChange={handleEngineChange}
+            disabled={!selected.year}
+          >
+            <option value="">VÄLJ MOTOR</option>
+            {Object.entries(groupedEngines).map(([fuelType, engines]) => (
+              <optgroup
+                label={fuelType.charAt(0).toUpperCase() + fuelType.slice(1)}
+                key={fuelType}
+              >
+                {engines.map((engine) => (
+                  <option key={engine.label} value={engine.label}>
+                    {engine.label}
+                  </option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {isLoading ? (
+        <div className="flex justify-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+        </div>
+      ) : stages.length > 0 ? (
         <div className="space-y-6">
-          {engineData.stages.map((stage) => {
+          {stages.map((stage) => {
+            const allOptions = getAllAktPlusOptions(stage);
             const isExpanded = expandedStages[stage.name] ?? false;
 
             return (
@@ -319,15 +638,20 @@ export default function EnginePage({
                 >
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                     <div className="flex items-center gap-4">
-                      {brandData?.logo?.asset && (
+                      {data.find((b) => b.name === selected.brand)?.logo
+                        ?.asset && (
                         <img
-                          src={urlFor(brandData.logo).width(60).url()}
-                          alt={brandData.name}
+                          src={urlFor(
+                            data.find((b) => b.name === selected.brand)?.logo
+                          )
+                            .width(60)
+                            .url()}
+                          alt={selected.brand}
                           className="h-8 w-auto object-contain"
                         />
                       )}
                       <h2 className="text-lg font-semibold text-white">
-                        {engineData.label} –{" "}
+                        {selected.engine} –{" "}
                         <span className="text-indigo-400 uppercase tracking-wide">
                           {stage.name}
                         </span>
@@ -373,39 +697,36 @@ export default function EnginePage({
                 {isExpanded && (
                   <div className="px-6 pb-6">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 mt-6">
+                      {/* ORIGINAL & TUNED SPECS */}
                       <div className="border border-white rounded-lg p-3 text-center">
                         <p className="text-sm text-white font-bold mb-1">
                           ORIGINAL HK
                         </p>
                         <p className="text-xl text-white font-bold">
-                          {stage.origHk} hk
+                          287,055 hk
                         </p>
                       </div>
                       <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
                         <p className="text-xl text-white font-bold mb-1 uppercase">
-                          {stage.name} HK
+                          TUNED HK
                         </p>
-                        <p className="text-xl font-bold">{stage.tunedHk} hk</p>
-                        <p className="text-xs mt-1 text-red-400">
-                          +{stage.tunedHk - stage.origHk} hk
-                        </p>
+                        <p className="text-xl font-bold">337,29 hk</p>
+                        <p className="text-xs mt-1 text-red-400">+50,235 hk</p>
                       </div>
                       <div className="border border-white rounded-lg p-3 text-center">
                         <p className="text-sm text-white font-bold mb-1">
                           ORIGINAL NM
                         </p>
                         <p className="text-xl text-white font-bold">
-                          {stage.origNm} Nm
+                          409,936 Nm
                         </p>
                       </div>
                       <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
                         <p className="text-xl text-white font-bold mb-1 uppercase">
-                          {stage.name} NM
+                          TUNED NM
                         </p>
-                        <p className="text-xl font-bold">{stage.tunedNm} Nm</p>
-                        <p className="text-xs mt-1 text-red-400">
-                          +{stage.tunedNm - stage.origNm} Nm
-                        </p>
+                        <p className="text-xl font-bold">529,5 Nm</p>
+                        <p className="text-xs mt-1 text-red-400">+119,564 Nm</p>
                       </div>
                     </div>
                     {renderStageDescription(stage)}
@@ -416,42 +737,31 @@ export default function EnginePage({
                       </h3>
 
                       <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
+                        {/* Split the spec boxes */}
                         <div className="absolute hidden md:flex flex-row justify-between top-4 left-0 right-0 px-16">
+                          {/* ORG HK / Max HK */}
                           <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
                             <p className="text-red-400">- - -</p>
-                            <p className="text-white">
-                              HK ORG: {stage.origHk} hk
-                            </p>
+                            <p className="text-white">HK ORG: 287,055 hk</p>
                             <p className="text-red-800">⸻</p>
-                            <p className="text-white">
-                              HK{" "}
-                              {stage.name
-                                .replace("Steg", "ST")
-                                .replace(/\s+/g, "")
-                                .toUpperCase()}
-                              : {stage.tunedHk} HK
-                            </p>
+                            <p className="text-white">HK TUNED: 337,29 HK</p>
                           </div>
 
+                          {/* ORG NM / Max NM */}
                           <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
                             <p className="text-white">- - -</p>
-                            <p className="text-white">
-                              NM ORG: {stage.origNm} Nm
-                            </p>
+                            <p className="text-white">NM ORG: 409,936 Nm</p>
                             <p className="text-white">⸻</p>
                             <p className="text-white">
                               <span className="text-gray-400 text-xs mr-1">
                                 NM
                               </span>
-                              {stage.name
-                                .replace("Steg", "ST")
-                                .replace(/\s+/g, "")
-                                .toUpperCase()}
-                              : {stage.tunedNm} Nm
+                              TUNED: 529,5 Nm
                             </p>
                           </div>
                         </div>
 
+                        {/* Dyno graph */}
                         <Line
                           data={{
                             labels: [
@@ -470,41 +780,45 @@ export default function EnginePage({
                             datasets: [
                               {
                                 label: "Original HK",
-                                data: generateDynoCurve(stage.origHk, true),
+                                data: generateDynoCurve(287.055, true),
                                 borderColor: "#f87171",
                                 backgroundColor: "transparent",
                                 borderWidth: 2,
                                 borderDash: [5, 3],
                                 tension: 0.5,
                                 pointRadius: 0,
+                                yAxisID: "hp",
                               },
                               {
                                 label: "Tuned HK",
-                                data: generateDynoCurve(stage.tunedHk, true),
+                                data: generateDynoCurve(337.29, true),
                                 borderColor: "#f87171",
                                 backgroundColor: "transparent",
                                 borderWidth: 3,
                                 tension: 0.5,
                                 pointRadius: 0,
+                                yAxisID: "hp",
                               },
                               {
                                 label: "Original NM",
-                                data: generateDynoCurve(stage.origNm, false),
+                                data: generateDynoCurve(409.936, false),
                                 borderColor: "#d1d5db",
                                 backgroundColor: "transparent",
                                 borderWidth: 2,
                                 borderDash: [5, 3],
                                 tension: 0.5,
                                 pointRadius: 0,
+                                yAxisID: "nm",
                               },
                               {
                                 label: "Tuned NM",
-                                data: generateDynoCurve(stage.tunedNm, false),
+                                data: generateDynoCurve(529.5, false),
                                 borderColor: "#d1d5db",
                                 backgroundColor: "transparent",
                                 borderWidth: 3,
                                 tension: 0.5,
                                 pointRadius: 0,
+                                yAxisID: "nm",
                               },
                             ],
                           }}
@@ -528,7 +842,7 @@ export default function EnginePage({
                               },
                             },
                             scales: {
-                              y: {
+                              hp: {
                                 type: "linear",
                                 display: true,
                                 position: "left",
@@ -539,9 +853,30 @@ export default function EnginePage({
                                   font: { size: 14 },
                                 },
                                 min: 0,
-                                max: Math.ceil(stage.tunedHk / 100) * 100 + 100,
+                                max: 500,
                                 grid: {
                                   color: "rgba(255, 255, 255, 0.1)",
+                                },
+                                ticks: {
+                                  color: "#9CA3AF",
+                                  stepSize: 100,
+                                  callback: (value) => `${value}`,
+                                },
+                              },
+                              nm: {
+                                type: "linear",
+                                display: true,
+                                position: "right",
+                                title: {
+                                  display: true,
+                                  text: "Vridmoment (Nm)",
+                                  color: "white",
+                                  font: { size: 14 },
+                                },
+                                min: 0,
+                                max: 600,
+                                grid: {
+                                  drawOnChartArea: false,
                                 },
                                 ticks: {
                                   color: "#9CA3AF",
@@ -569,26 +904,24 @@ export default function EnginePage({
                               mode: "index",
                             },
                           }}
+                          plugins={[watermarkPlugin, shadowPlugin]}
                         />
                         <div className="text-center text-white text-xs mt-4 italic">
                           (Simulerad effektkurva)
                         </div>
 
+                        {/* Mobile-only small tuned specs */}
                         <div className="block md:hidden text-center mt-4 space-y-1">
                           <p className="text-sm text-white font-semibold">
-                            {stage.tunedHk} HK & {stage.tunedNm} NM
+                            337,29 HK & 529,5 NM
                             <span className="text-gray-400 text-sm">
-                              [
-                              {stage.name
-                                .replace("Steg", "STEG ")
-                                .replace(/\s+/g, "")
-                                .toUpperCase()}
-                              ]
+                              [TUNED]
                             </span>
                           </p>
                         </div>
                       </div>
 
+                      {/* Contact button */}
                       <div className="mt-6 mb-10 flex justify-center">
                         <button
                           onClick={() => handleBookNow(stage.name)}
@@ -598,30 +931,141 @@ export default function EnginePage({
                         </button>
                       </div>
                     </div>
+
+                    {allOptions.length > 0 && (
+                      <div className="mt-8">
+                        {/* AKT+ Toggle Button */}
+                        <button
+                          onClick={() => toggleAktPlus(stage.name)}
+                          className="flex justify-between items-center w-full px-6 py-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+                        >
+                          <div className="flex items-center gap-4">
+                            <img
+                              src="/logos/aktplus.png"
+                              alt="AKT+ Logo"
+                              className="h-8 w-auto object-contain"
+                            />
+                            <h3 className="text-xl font-semibold text-white">
+                              TILLÄGG
+                            </h3>
+                          </div>
+
+                          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-800">
+                            <svg
+                              className={`h-5 w-5 text-orange-500 transform transition-transform duration-300 ${
+                                expandedAktPlus[stage.name] ? "rotate-180" : ""
+                              }`}
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          </div>
+                        </button>
+
+                        {/* Expandable AKT+ Grid */}
+                        {expandedAktPlus[stage.name] && (
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                            {allOptions.map((option) => (
+                              <div
+                                key={option._id}
+                                className="border border-gray-600 rounded-lg overflow-hidden bg-gray-700 transition-all duration-300"
+                              >
+                                <button
+                                  onClick={() => toggleOption(option._id)}
+                                  className="w-full flex justify-between items-center p-4 hover:bg-gray-600 transition-colors"
+                                >
+                                  <div className="flex items-center gap-3">
+                                    {option.gallery?.[0]?.asset && (
+                                      <img
+                                        src={urlFor(option.gallery[0].asset)
+                                          .width(80)
+                                          .url()}
+                                        alt={
+                                          option.gallery[0].alt || option.title
+                                        }
+                                        className="h-10 w-10 object-contain"
+                                      />
+                                    )}
+                                    <span className="text-lg font-bold text-orange-600">
+                                      {option.title}
+                                    </span>
+                                  </div>
+
+                                  <svg
+                                    className={`h-5 w-5 text-orange-600 transition-transform ${
+                                      expandedOptions[option._id]
+                                        ? "rotate-180"
+                                        : ""
+                                    }`}
+                                    viewBox="0 0 20 20"
+                                    fill="currentColor"
+                                  >
+                                    <path
+                                      fillRule="evenodd"
+                                      d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                                      clipRule="evenodd"
+                                    />
+                                  </svg>
+                                </button>
+
+                                {expandedOptions[option._id] && (
+                                  <div className="bg-gray-800 border-t border-gray-600 p-4 space-y-4">
+                                    {option.description && (
+                                      <div className="prose prose-invert max-w-none text-sm">
+                                        <PortableText
+                                          value={option.description}
+                                          components={portableTextComponents}
+                                        />
+                                      </div>
+                                    )}
+                                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                                      {option.price && (
+                                        <p className="font-bold text-green-400">
+                                          Pris: {option.price.toLocaleString()}{" "}
+                                          kr
+                                        </p>
+                                      )}
+                                      <button
+                                        onClick={() =>
+                                          handleBookNow(option.title)
+                                        }
+                                        className="bg-green-600 hover:bg-green-700 hover:scale-105 transform transition-all text-white px-6 py-3 rounded-lg font-medium shadow-lg"
+                                      >
+                                        📩 KONTAKT
+                                      </button>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
             );
           })}
         </div>
-      ) : (
-        <div className="text-center py-12">
-          <p className="text-lg text-gray-300">
-            Ingen steginformation tillgänglig för denna motor.
-          </p>
-        </div>
-      )}
+      ) : null}
 
+      {/* Modal */}
       <ContactModal
         isOpen={contactModalData.isOpen}
         onClose={() =>
           setContactModalData({ isOpen: false, stageOrOption: "", link: "" })
         }
         selectedVehicle={{
-          brand: brandData?.name || "",
-          model: modelData?.name || "",
-          year: yearData?.range || "",
-          engine: engineData.label || "",
+          brand: selected.brand,
+          model: selected.model,
+          year: selected.year,
+          engine: selected.engine,
         }}
         stageOrOption={contactModalData.stageOrOption}
         link={contactModalData.link}
