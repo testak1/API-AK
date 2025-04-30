@@ -1,4 +1,3 @@
-// pages/api/engines.ts
 import { NextApiRequest, NextApiResponse } from 'next';
 import client from '@/lib/sanity';
 
@@ -19,7 +18,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             label,
             fuel,
             "slug": label,
-            "stages": stages[]{
+            stages[]{
               name,
               "slug": name,
               origHk,
@@ -32,24 +31,36 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 _id,
                 stageName,
                 description
+              },
+              aktPlusOptions[]->{
+                _id,
+                title,
+                price,
+                isUniversal,
+                applicableFuelTypes,
+                stageCompatibility,
+                compatibilityNotes,
+                description,
+                gallery[]{
+                  _key,
+                  alt,
+                  caption,
+                  "asset": asset->{
+                    _id,
+                    url
+                  }
+                }
               }
             },
-            "globalAktPlusOptions": *[
-              _type == "aktPlus" &&
-              (
-                isUniversal == true ||
-                fuel in applicableFuelTypes
-              ) &&
-              !defined(stageCompatibility)
-            ]{
+            globalAktPlusOptions[]->{
               _id,
               title,
               price,
               isUniversal,
               applicableFuelTypes,
               stageCompatibility,
+              compatibilityNotes,
               description,
-              manualAssignments[]->,
               gallery[]{
                 _key,
                 alt,
@@ -58,13 +69,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                   _id,
                   url
                 }
-              },
-              compatibilityNotes
+              }
             }
           }
         }
       }
-    }.models[0].years[0].engines
+    }.models.years.engines
   `;
 
   try {
