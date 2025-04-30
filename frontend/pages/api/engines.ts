@@ -4,80 +4,91 @@ import client from '@/lib/sanity';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { brand, model, year } = req.query;
-  if (!brand || !model || !year) return res.status(400).json({ error: 'Missing parameters' });
+  if (!brand || !model || !year) {
+    return res.status(400).json({ error: 'Missing parameters' });
+  }
 
   const query = `
-    *[_type == "brand" && name == $brand][0]
-      .models[name == $model][0]
-      .years[range == $year][0]
-      .engines[]{
-        _id,
-        _key,
-        label,
-        fuel,
-	      "slug": label,
-        "stages": stages[]{
-          name,
-          origHk,
-          tunedHk,
-          origNm,
-          tunedNm,
-          price,
-          description,
-          descriptionRef->{
+    *[_type == "brand" && name == $brand][0]{
+      name,
+      "models": models[name == $model]{
+        name,
+        "slug": name,
+        "years": years[range == $year]{
+          range,
+          "slug": range,
+          "engines": engines[]{
             _id,
-            stageName,
-            description
-          },
-          "aktPlusOptions": *[_type == "aktPlus" && (
-            isUniversal == true || 
-            ^.^.fuel in applicableFuelTypes
-          ) && (
-            !defined(stageCompatibility) || 
-            stageCompatibility == ^.name
-          )]{
-            _id,
-            title,
-            price,
-            isUniversal,
-            applicableFuelTypes,
-            stageCompatibility,
-            description,
-            gallery[]{
-              _key,
-              alt,
-              caption,
-              "asset": asset->{
+            _key,
+            label,
+            fuel,
+            "slug": label,
+            "stages": stages[]{
+              name,
+              "slug": name,
+              origHk,
+              tunedHk,
+              origNm,
+              tunedNm,
+              price,
+              description,
+              descriptionRef->{
                 _id,
-                url
+                stageName,
+                description
+              },
+              "aktPlusOptions": *[_type == "aktPlus" && (
+                isUniversal == true || 
+                ^.^.fuel in applicableFuelTypes
+              ) && (
+                !defined(stageCompatibility) || 
+                stageCompatibility == ^.name
+              )]{
+                _id,
+                title,
+                price,
+                isUniversal,
+                applicableFuelTypes,
+                stageCompatibility,
+                description,
+                gallery[]{
+                  _key,
+                  alt,
+                  caption,
+                  "asset": asset->{
+                    _id,
+                    url
+                  }
+                },
+                compatibilityNotes
               }
             },
-            compatibilityNotes
-          }
-        },
-        "globalAktPlusOptions": *[_type == "aktPlus" && (
-          isUniversal == true || 
-          ^.fuel in applicableFuelTypes
-        ) && !defined(stageCompatibility)]{
-          _id,
-          title,
-          price,
-          isUniversal,
-          applicableFuelTypes,
-          stageCompatibility,
-          description,
-          gallery[]{
-            _key,
-            alt,
-            caption,
-            "asset": asset->{
+            "globalAktPlusOptions": *[_type == "aktPlus" && (
+              isUniversal == true || 
+              ^.fuel in applicableFuelTypes
+            ) && !defined(stageCompatibility)]{
               _id,
-              url
+              title,
+              price,
+              isUniversal,
+              applicableFuelTypes,
+              stageCompatibility,
+              description,
+              gallery[]{
+                _key,
+                alt,
+                caption,
+                "asset": asset->{
+                  _id,
+                  url
+                }
+              },
+              compatibilityNotes
             }
-          },
-          compatibilityNotes
+          }
         }
       }
+    }.models[0].years[0].engines
   `;
 
   try {
