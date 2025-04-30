@@ -162,9 +162,14 @@ export default function ContactModal({
                       </div>
                     )}
                     {link && (
-                      <div className="mt-1 text-gray-500 text-[11px] italic break-words">
-                        {link}
-                      </div>
+                      <a
+                        href={link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-block mt-1 text-blue-400 text-xs underline hover:text-blue-300"
+                      >
+                        DELA LÄNK
+                      </a>
                     )}
                   </div>
 
