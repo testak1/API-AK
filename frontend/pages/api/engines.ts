@@ -4,20 +4,16 @@ import client from '@/lib/sanity';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { brand, model, year } = req.query;
+
   if (!brand || !model || !year) {
     return res.status(400).json({ error: 'Missing parameters' });
   }
 
   const query = `
     *[_type == "brand" && name == $brand][0]{
-      name,
-      "models": models[name == $model]{
-        name,
-        "slug": name,
-        "years": years[range == $year]{
-          range,
-          "slug": range,
-          "engines": engines[]{
+      models[name == $model][0]{
+        years[range == $year][0]{
+          engines[]{
             _id,
             _key,
             label,
@@ -36,37 +32,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 _id,
                 stageName,
                 description
-              },
-              "aktPlusOptions": *[_type == "aktPlus" && (
-                isUniversal == true || 
-                ^.^.fuel in applicableFuelTypes
-              ) && (
-                !defined(stageCompatibility) || 
-                stageCompatibility == ^.name
-              )]{
-                _id,
-                title,
-                price,
-                isUniversal,
-                applicableFuelTypes,
-                stageCompatibility,
-                description,
-                gallery[]{
-                  _key,
-                  alt,
-                  caption,
-                  "asset": asset->{
-                    _id,
-                    url
-                  }
-                },
-                compatibilityNotes
               }
             },
-            "globalAktPlusOptions": *[_type == "aktPlus" && (
-              isUniversal == true || 
-              ^.fuel in applicableFuelTypes
-            ) && !defined(stageCompatibility)]{
+            "globalAktPlusOptions": *[
+              _type == "aktPlus" &&
+              (
+                isUniversal == true ||
+                fuel in applicableFuelTypes
+              ) &&
+              !defined(stageCompatibility)
+            ]{
               _id,
               title,
               price,
@@ -74,6 +49,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               applicableFuelTypes,
               stageCompatibility,
               description,
+              manualAssignments[]->,
               gallery[]{
                 _key,
                 alt,
