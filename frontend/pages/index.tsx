@@ -79,40 +79,42 @@ export default function TuningViewer() {
 
   const handleBookNow = (stageOrOptionName: string) => {
     const selectedBrand = data.find((b) => b.name === selected.brand);
-    const brandSlug = selectedBrand?.slug?.current || slugify(selected.brand);
+    if (!selectedBrand) return;
 
-    const selectedModel = selectedBrand?.models?.find(
+    // Get brand slug (fallback to slugified name)
+    const brandSlug =
+      selectedBrand.slug?.current || slugify(selectedBrand.name);
+
+    const selectedModel = selectedBrand.models?.find(
       (m) => m.name === selected.model
     );
+    if (!selectedModel) return;
 
-    // Handle model slug which could be string or Slug object
-    let modelSlug: string;
-    if (selectedModel?.slug) {
-      if (
-        typeof selectedModel.slug === "object" &&
-        "current" in selectedModel.slug
-      ) {
-        modelSlug = selectedModel.slug.current;
-      } else {
-        modelSlug = selectedModel.slug as string;
-      }
-    } else {
-      modelSlug = slugify(selected.model);
-    }
+    // Get model slug (handle both string and object slugs)
+    const modelSlug =
+      typeof selectedModel.slug === "object"
+        ? selectedModel.slug.current
+        : selectedModel.slug || slugify(selectedModel.name);
 
-    const selectedYear = selectedModel?.years?.find(
+    const selectedYear = selectedModel.years?.find(
       (y) => y.range === selected.year
     );
-    const yearSlug = selectedYear?.range
-      ? slugify(selectedYear.range)
-      : slugify(selected.year);
+    if (!selectedYear) return;
 
-    const selectedEngine = selectedYear?.engines?.find(
+    // Use the exact year range (slugify only if needed)
+    const yearSlug = selectedYear.range.includes(" ")
+      ? slugify(selectedYear.range)
+      : selectedYear.range;
+
+    const selectedEngine = selectedYear.engines?.find(
       (e) => e.label === selected.engine
     );
-    const engineSlug = selectedEngine?.label
+    if (!selectedEngine) return;
+
+    // Use the exact engine label (slugify only if needed)
+    const engineSlug = selectedEngine.label.includes(" ")
       ? slugify(selectedEngine.label)
-      : slugify(selected.engine);
+      : selectedEngine.label;
 
     const stageSlug = slugifyStage(stageOrOptionName);
 

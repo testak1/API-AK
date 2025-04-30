@@ -12,53 +12,59 @@ interface EnginePageProps {
   engineData: Engine | null;
 }
 
+// Helper function to normalize strings for comparison
+const normalizeString = (str: string) =>
+  str.toLowerCase().replace(/[^a-z0-9]/g, "");
+
 export const getServerSideProps: GetServerSideProps<EnginePageProps> = async (
   context
 ) => {
-  const { brand, model, year, engine } = context.params as {
-    brand: string;
-    model: string;
-    year: string;
-    engine: string;
-  };
-
-  // Validate parameters
-  if (!brand || !model || !year || !engine) {
-    return { notFound: true };
-  }
+  // Decode all URL parameters
+  const brand = decodeURIComponent((context.params?.brand as string) || "");
+  const model = decodeURIComponent((context.params?.model as string) || "");
+  const year = decodeURIComponent((context.params?.year as string) || "");
+  const engine = decodeURIComponent((context.params?.engine as string) || "");
 
   try {
-    const brandData = await client.fetch(engineByParamsQuery, { brand });
+    // Fetch brand data with case-insensitive slug matching
+    const brandData = await client.fetch(engineByParamsQuery, {
+      brand: brand.toLowerCase(),
+    });
 
-    if (!brandData) {
-      return { notFound: true };
-    }
+    if (!brandData) return { notFound: true };
 
-    // Find matching model (case insensitive)
+    // Find model using normalized comparison
     const modelData =
       brandData.models?.find(
-        (m: Model) => m.name.toLowerCase() === model.toLowerCase()
+        (m: Model) =>
+          normalizeString(m.name) === normalizeString(model) ||
+          (m.slug &&
+            normalizeString(
+              typeof m.slug === "string" ? m.slug : m.slug.current
+            ) === normalizeString(model))
       ) || null;
 
-    if (!modelData) {
-      return { notFound: true };
-    }
+    if (!modelData) return { notFound: true };
 
-    // Find matching year (case insensitive)
+    // Find year using normalized comparison
     const yearData =
       modelData.years?.find(
-        (y: Year) => y.range.toLowerCase() === year.toLowerCase()
+        (y: Year) =>
+          normalizeString(y.range) === normalizeString(year) ||
+          (y.slug && normalizeString(y.slug) === normalizeString(year))
       ) || null;
 
-    if (!yearData) {
-      return { notFound: true };
-    }
+    if (!yearData) return { notFound: true };
 
-    // Find matching engine (case insensitive)
+    // Find engine using normalized comparison
     const engineData =
       yearData.engines?.find(
-        (e: Engine) => e.label.toLowerCase() === engine.toLowerCase()
+        (e: Engine) =>
+          normalizeString(e.label) === normalizeString(engine) ||
+          (e.slug && normalizeString(e.slug) === normalizeString(engine))
       ) || null;
+
+    if (!engineData) return { notFound: true };
 
     return {
       props: {
@@ -69,13 +75,7 @@ export const getServerSideProps: GetServerSideProps<EnginePageProps> = async (
       },
     };
   } catch (err) {
-    console.error("Engine fetch failed:", {
-      brand,
-      model,
-      year,
-      engine,
-      error: err instanceof Error ? err.message : "Unknown error",
-    });
+    console.error("Engine fetch failed:", err);
     return { notFound: true };
   }
 };
@@ -132,9 +132,6 @@ export default function EnginePage({
                     {" "}
                     Tuned: {stage.tunedHk}
                   </span>
-                  <span className="ml-2 text-green-600">
-                    (+{stage.tunedHk - stage.origHk})
-                  </span>
                 </p>
               </div>
               <div>
@@ -146,17 +143,9 @@ export default function EnginePage({
                     {" "}
                     Tuned: {stage.tunedNm}
                   </span>
-                  <span className="ml-2 text-green-600">
-                    (+{stage.tunedNm - stage.origNm})
-                  </span>
                 </p>
               </div>
             </div>
-            {stage.price && (
-              <p className="mt-3 font-medium">
-                Pris: {stage.price.toLocaleString()} kr
-              </p>
-            )}
           </div>
         ))}
       </div>
