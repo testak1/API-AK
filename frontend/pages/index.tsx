@@ -118,7 +118,7 @@ export default function TuningViewer() {
 
     const stageSlug = slugifyStage(stageOrOptionName);
 
-    const finalLink = `/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}#${stageSlug}`;
+    const finalLink = `https://api.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}#${stageSlug}`;
 
     setContactModalData({
       isOpen: true,
