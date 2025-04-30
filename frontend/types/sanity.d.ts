@@ -66,6 +66,7 @@ export interface Engine {
   _key?: string;
   label: string;
   fuel: 'Diesel' | 'Bensin' | 'Hybrid' | 'Electric';
+  slug: string;
   stages: Stage[];
   globalAktPlusOptions?: AktPlusOptionReference[];
 }
