@@ -11,7 +11,7 @@ interface ContactModalProps {
     engine: string;
   };
   stageOrOption?: string;
-  link?: string;
+  finallink?: string;
 }
 
 export default function ContactModal({
@@ -19,7 +19,7 @@ export default function ContactModal({
   onClose,
   selectedVehicle,
   stageOrOption,
-  link,
+  finallink,
 }: ContactModalProps) {
   const [contactMode, setContactMode] = useState<
     "form" | "phone" | "thankyou" | null
@@ -61,7 +61,7 @@ export default function ContactModal({
         body: JSON.stringify({
           ...formData,
           vehicle: selectedVehicle,
-          link,
+          finallink,
         }),
       });
 
@@ -161,9 +161,9 @@ export default function ContactModal({
                         <strong>VAL ➔ {formData.stage.toUpperCase()}</strong>
                       </div>
                     )}
-                    {link && (
+                    {finallink && (
                       <a
-                        href={link}
+                        href={finallink}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-block mt-1 text-blue-400 text-xs underline hover:text-blue-300"
