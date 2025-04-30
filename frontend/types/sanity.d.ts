@@ -51,6 +51,7 @@ export type AktPlusOptionReference = Reference | AktPlusOption;
 
 export interface Stage {
   name: string;
+  slug?: string;
   origHk: number;
   origNm: number;
   tunedHk: number;
@@ -73,11 +74,13 @@ export interface Engine {
 
 export interface Year {
   range: string;
+  slug?: string;
   engines: Engine[];
 }
 
 export interface Model {
   name: string;
+  slug?: string;
   years: Year[];
 }
 
