@@ -2,8 +2,9 @@
 export const brandsLightQuery = `
 *[_type == "brand"]{
   _id,
+  _type,
   name,
-  "slug": slug.current,
+  slug,
   "slugSafe": lower(
     replace(
       replace(name, "[^a-zA-Z0-9\\s-]", ""),

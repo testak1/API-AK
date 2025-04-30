@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import client from '@/lib/sanity';
-import { brandsLightQuery } from '@/src/lib/queries'; // 🔥 Use light query here!
+import { brandsLightQuery } from '@/src/lib/queries';
 
 let cachedData: any = null;
 let lastFetch = 0;
@@ -14,7 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(200).json({ result: cachedData });
     }
 
-    const fetchPromise = client.fetch(brandsLightQuery); // 🔥 Light query here!
+    const fetchPromise = client.fetch(brandsLightQuery);
     const timeoutPromise = new Promise((_, reject) =>
       setTimeout(() => reject(new Error('Sanity fetch timeout')), 8000)
     );
