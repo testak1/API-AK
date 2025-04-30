@@ -5,23 +5,9 @@ import client from "@/lib/sanity";
 import { engineByParamsQuery } from "@/src/lib/queries";
 import type { Brand, Model, Year, Engine, Stage } from "@/types/sanity";
 import { urlFor } from "@/lib/sanity";
-import {
-  Chart,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  LineController,
-} from "chart.js";
-import { Line } from "react-chartjs-2";
-
-Chart.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  LineController
-);
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { PortableText } from "@portabletext/react";
 
 interface EnginePageProps {
   brandData: Brand | null;
@@ -92,26 +78,16 @@ export const getServerSideProps: GetServerSideProps<EnginePageProps> = async (
   }
 };
 
-const generateDynoCurve = (peakValue: number, isHp: boolean) => {
-  const rpmRange = [
-    2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000,
-  ];
-  const peakIndex = isHp ? 6 : 4;
-  const startIndex = 0;
-
-  return rpmRange.map((rpm, i) => {
-    const startRpm = rpmRange[startIndex];
-    const peakRpm = rpmRange[peakIndex];
-    const endRpm = rpmRange[rpmRange.length - 1];
-
-    if (rpm <= peakRpm) {
-      const progress = (rpm - startRpm) / (peakRpm - startRpm);
-      return peakValue * (0.5 + 0.5 * Math.pow(progress, 1.2));
-    } else {
-      const fallProgress = (rpm - peakRpm) / (endRpm - peakRpm);
-      return peakValue * (1 - 0.35 * Math.pow(fallProgress, 1));
-    }
-  });
+const portableTextComponents = {
+  types: {
+    image: ({ value }: any) => (
+      <img
+        src={urlFor(value).width(100).url()}
+        alt={value.alt || ""}
+        className="my-4 rounded-lg shadow-md"
+      />
+    ),
+  },
 };
 
 export default function EnginePage({
@@ -121,6 +97,14 @@ export default function EnginePage({
   engineData,
 }: EnginePageProps) {
   const router = useRouter();
+  const [flippedCards, setFlippedCards] = useState<Record<string, boolean>>({});
+
+  const toggleFlip = (stageName: string) => {
+    setFlippedCards((prev) => ({
+      ...prev,
+      [stageName]: !prev[stageName],
+    }));
+  };
 
   if (!engineData) {
     return (
@@ -135,207 +119,115 @@ export default function EnginePage({
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-4">
-      <div className="flex flex-col md:flex-row gap-8 mb-12">
-        {/* Vehicle Info */}
-        <div className="md:w-1/3 bg-gray-800 rounded-xl p-6">
-          <div className="flex items-center gap-4 mb-6">
-            {brandData?.logo?.asset && (
-              <img
-                src={urlFor(brandData.logo).width(80).url()}
-                alt={brandData.name}
-                className="h-12 w-auto"
-              />
-            )}
-            <h1 className="text-2xl font-bold">{brandData?.name}</h1>
-          </div>
-
-          <div className="space-y-4">
-            <div>
-              <p className="text-gray-400 text-sm">Modell</p>
-              <p className="text-lg">{modelData?.name}</p>
-            </div>
-            <div>
-              <p className="text-gray-400 text-sm">Årsmodell</p>
-              <p className="text-lg">{yearData?.range}</p>
-            </div>
-            <div>
-              <p className="text-gray-400 text-sm">Motor</p>
-              <p className="text-lg">{engineData.label}</p>
-            </div>
-            <div>
-              <p className="text-gray-400 text-sm">Bränsle</p>
-              <p className="text-lg capitalize">{engineData.fuel}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Performance Overview */}
-        <div className="md:w-2/3 bg-gray-800 rounded-xl p-6">
-          <h2 className="text-xl font-bold mb-6">Prestandajämförelse</h2>
-
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-700">
-                  <th className="pb-3 text-left">Steg</th>
-                  <th className="pb-3 text-right">HK (Original)</th>
-                  <th className="pb-3 text-right">HK (Tuned)</th>
-                  <th className="pb-3 text-right">NM (Original)</th>
-                  <th className="pb-3 text-right">NM (Tuned)</th>
-                  <th className="pb-3 text-right">Pris</th>
-                </tr>
-              </thead>
-              <tbody>
-                {engineData.stages?.map((stage) => (
-                  <tr
-                    key={stage.name}
-                    className="border-b border-gray-700 hover:bg-gray-700"
-                  >
-                    <td className="py-4 font-medium">{stage.name}</td>
-                    <td className="py-4 text-right">{stage.origHk}</td>
-                    <td className="py-4 text-right text-green-400 font-bold">
-                      {stage.tunedHk} (+{stage.tunedHk - stage.origHk})
-                    </td>
-                    <td className="py-4 text-right">{stage.origNm}</td>
-                    <td className="py-4 text-right text-cyan-400 font-bold">
-                      {stage.tunedNm} (+{stage.tunedNm - stage.origNm})
-                    </td>
-                    <td className="py-4 text-right">
-                      <span className="bg-red-600 text-white px-3 py-1 rounded-full text-sm">
-                        {stage.price?.toLocaleString()} kr
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+    <div className="max-w-5xl mx-auto p-4">
+      {/* Vehicle Header */}
+      <div className="text-center mb-12">
+        <h1 className="text-3xl font-bold mb-2">
+          {brandData?.name}{" "}
+          <span className="text-indigo-400">{modelData?.name}</span>
+        </h1>
+        <div className="flex justify-center gap-4">
+          <span className="bg-gray-800 px-3 py-1 rounded-full">
+            {yearData?.range}
+          </span>
+          <span className="bg-indigo-600 px-3 py-1 rounded-full">
+            {engineData.label}
+          </span>
+          <span className="bg-amber-500 text-black px-3 py-1 rounded-full">
+            {engineData.fuel}
+          </span>
         </div>
       </div>
 
-      {/* Visual Comparison */}
-      <div className="grid md:grid-cols-2 gap-8">
+      {/* Stage Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {engineData.stages?.map((stage) => (
-          <div key={stage.name} className="bg-gray-800 rounded-xl p-6">
-            <h3 className="text-xl font-bold mb-4">{stage.name}</h3>
-
-            <div className="h-64">
-              <Line
-                data={{
-                  labels: ["2000", "3000", "4000", "5000", "6000", "7000"],
-                  datasets: [
-                    {
-                      label: "Original HK",
-                      data: generateDynoCurve(stage.origHk, true),
-                      borderColor: "#f87171",
-                      borderWidth: 2,
-                      borderDash: [5, 3],
-                      tension: 0.4,
-                      pointRadius: 0,
-                    },
-                    {
-                      label: "Tuned HK",
-                      data: generateDynoCurve(stage.tunedHk, true),
-                      borderColor: "#4ade80",
-                      borderWidth: 3,
-                      tension: 0.4,
-                      pointRadius: 0,
-                    },
-                    {
-                      label: "Original NM",
-                      data: generateDynoCurve(stage.origNm, false),
-                      borderColor: "#93c5fd",
-                      borderWidth: 2,
-                      borderDash: [5, 3],
-                      tension: 0.4,
-                      pointRadius: 0,
-                    },
-                    {
-                      label: "Tuned NM",
-                      data: generateDynoCurve(stage.tunedNm, false),
-                      borderColor: "#22d3ee",
-                      borderWidth: 3,
-                      tension: 0.4,
-                      pointRadius: 0,
-                    },
-                  ],
-                }}
-                options={{
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  plugins: {
-                    legend: {
-                      position: "top",
-                      labels: {
-                        color: "#e5e7eb",
-                      },
-                    },
-                  },
-                  scales: {
-                    y: {
-                      beginAtZero: true,
-                      grid: {
-                        color: "rgba(255,255,255,0.1)",
-                      },
-                      ticks: {
-                        color: "#9ca3af",
-                      },
-                    },
-                    x: {
-                      grid: {
-                        color: "rgba(255,255,255,0.1)",
-                      },
-                      ticks: {
-                        color: "#9ca3af",
-                      },
-                    },
-                  },
-                }}
-              />
-            </div>
-
-            <div className="mt-4 grid grid-cols-2 gap-4">
-              <div className="bg-gray-900 p-4 rounded-lg">
-                <h4 className="font-bold text-green-400 mb-2">Hästkrafter</h4>
-                <div className="flex justify-between">
-                  <span>Original:</span>
-                  <span>{stage.origHk} hk</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Tuned:</span>
-                  <span className="text-green-400 font-bold">
-                    {stage.tunedHk} hk
+          <div key={stage.name} className="perspective-1000 h-96">
+            <motion.div
+              className="relative w-full h-full transition-transform duration-500 transform-style-preserve-3d"
+              animate={{ rotateY: flippedCards[stage.name] ? 180 : 0 }}
+              onClick={() => toggleFlip(stage.name)}
+            >
+              {/* Front Side */}
+              <div className="absolute w-full h-full bg-gray-800 rounded-xl p-6 backface-hidden flex flex-col border-2 border-indigo-500/30">
+                <div className="flex justify-between items-start mb-4">
+                  <h3 className="text-xl font-bold text-indigo-400">
+                    {stage.name}
+                  </h3>
+                  <span className="bg-red-600 text-white px-3 py-1 rounded-full text-sm">
+                    {stage.price?.toLocaleString()} kr
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span>Ökning:</span>
-                  <span className="text-green-400">
-                    +{stage.tunedHk - stage.origHk} hk
-                  </span>
+
+                <div className="flex-1 grid place-items-center">
+                  <div className="text-center">
+                    <div className="text-5xl font-bold text-green-400 mb-2">
+                      +{stage.tunedHk - stage.origHk} hk
+                    </div>
+                    <p className="text-gray-400">
+                      {stage.origHk} →{" "}
+                      <span className="text-white font-bold">
+                        {stage.tunedHk} hk
+                      </span>
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex justify-between mt-auto pt-4 border-t border-gray-700">
+                  <div>
+                    <p className="text-sm text-gray-400">Vridmoment</p>
+                    <p>
+                      {stage.origNm} →{" "}
+                      <span className="text-cyan-400">{stage.tunedNm} Nm</span>
+                    </p>
+                  </div>
+                  <button className="text-indigo-400 hover:text-indigo-300 text-sm font-medium">
+                    Mer info ↓
+                  </button>
                 </div>
               </div>
 
-              <div className="bg-gray-900 p-4 rounded-lg">
-                <h4 className="font-bold text-cyan-400 mb-2">Vridmoment</h4>
-                <div className="flex justify-between">
-                  <span>Original:</span>
-                  <span>{stage.origNm} Nm</span>
+              {/* Back Side */}
+              <div className="absolute w-full h-full bg-gray-800 rounded-xl p-6 backface-hidden transform-rotate-y-180 overflow-y-auto border-2 border-indigo-500/30">
+                <button
+                  className="absolute top-4 right-4 text-indigo-400 hover:text-indigo-300"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleFlip(stage.name);
+                  }}
+                >
+                  ✕
+                </button>
+
+                <h3 className="text-xl font-bold mb-4">{stage.name}</h3>
+
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  <div className="bg-gray-900 p-3 rounded-lg">
+                    <p className="text-sm text-gray-400">Original</p>
+                    <p className="text-lg">{stage.origHk} hk</p>
+                    <p className="text-lg">{stage.origNm} Nm</p>
+                  </div>
+                  <div className="bg-gray-900 p-3 rounded-lg border border-green-500/30">
+                    <p className="text-sm text-gray-400">Efter tuning</p>
+                    <p className="text-lg text-green-400">{stage.tunedHk} hk</p>
+                    <p className="text-lg text-cyan-400">{stage.tunedNm} Nm</p>
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span>Tuned:</span>
-                  <span className="text-cyan-400 font-bold">
-                    {stage.tunedNm} Nm
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Ökning:</span>
-                  <span className="text-cyan-400">
-                    +{stage.tunedNm - stage.origNm} Nm
-                  </span>
-                </div>
+
+                {stage.descriptionRef?.description && (
+                  <div className="prose prose-invert text-sm">
+                    <PortableText
+                      value={stage.descriptionRef.description}
+                      components={portableTextComponents}
+                    />
+                  </div>
+                )}
+
+                <button className="mt-6 w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg font-medium">
+                  Kontakta oss
+                </button>
               </div>
-            </div>
+            </motion.div>
           </div>
         ))}
       </div>
