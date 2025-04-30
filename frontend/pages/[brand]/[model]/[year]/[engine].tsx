@@ -5,9 +5,8 @@ import client from "@/lib/sanity";
 import { engineByParamsQuery } from "@/src/lib/queries";
 import type { Brand, Model, Year, Engine, Stage } from "@/types/sanity";
 import { urlFor } from "@/lib/sanity";
-import { useState } from "react";
-import { motion } from "framer-motion";
 import { PortableText } from "@portabletext/react";
+import Head from "next/head";
 
 interface EnginePageProps {
   brandData: Brand | null;
@@ -90,6 +89,41 @@ const portableTextComponents = {
   },
 };
 
+const PerformanceBar = ({
+  original,
+  tuned,
+  max,
+  color,
+  unit,
+}: {
+  original: number;
+  tuned: number;
+  max: number;
+  color: string;
+  unit: string;
+}) => {
+  return (
+    <div className="mb-4">
+      <div className="flex justify-between mb-1">
+        <span className="text-gray-400">
+          Original: {original} {unit}
+        </span>
+        <span className={`text-${color}`}>
+          Tuned: {tuned} {unit} (+{tuned - original})
+        </span>
+      </div>
+      <div className="h-3 bg-gray-700 rounded-full overflow-hidden">
+        <div
+          className={`h-full bg-gradient-to-r from-gray-600 to-${color}`}
+          style={{
+            width: `${(tuned / max) * 100}%`,
+          }}
+        ></div>
+      </div>
+    </div>
+  );
+};
+
 export default function EnginePage({
   brandData,
   modelData,
@@ -97,14 +131,6 @@ export default function EnginePage({
   engineData,
 }: EnginePageProps) {
   const router = useRouter();
-  const [flippedCards, setFlippedCards] = useState<Record<string, boolean>>({});
-
-  const toggleFlip = (stageName: string) => {
-    setFlippedCards((prev) => ({
-      ...prev,
-      [stageName]: !prev[stageName],
-    }));
-  };
 
   if (!engineData) {
     return (
@@ -118,110 +144,124 @@ export default function EnginePage({
     );
   }
 
-  return (
-    <div className="max-w-5xl mx-auto p-4">
-      {/* Vehicle Header */}
-      <div className="text-center mb-12">
-        <h1 className="text-3xl font-bold mb-2">
-          {brandData?.name}{" "}
-          <span className="text-indigo-400">{modelData?.name}</span>
-        </h1>
-        <div className="flex justify-center gap-4">
-          <span className="bg-gray-800 px-3 py-1 rounded-full">
-            {yearData?.range}
-          </span>
-          <span className="bg-indigo-600 px-3 py-1 rounded-full">
-            {engineData.label}
-          </span>
-          <span className="bg-amber-500 text-black px-3 py-1 rounded-full">
-            {engineData.fuel}
-          </span>
-        </div>
-      </div>
+  // Calculate max values for scaling
+  const maxHp = Math.max(
+    ...(engineData.stages?.map((s) => s.tunedHk) || []),
+    ...(engineData.stages?.map((s) => s.origHk) || [])
+  );
+  const maxNm = Math.max(
+    ...(engineData.stages?.map((s) => s.tunedNm) || []),
+    ...(engineData.stages?.map((s) => s.origNm) || [])
+  );
 
-      {/* Stage Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {engineData.stages?.map((stage) => (
-          <div key={stage.name} className="perspective-1000 h-96">
-            <motion.div
-              className="relative w-full h-full transition-transform duration-500 transform-style-preserve-3d"
-              animate={{ rotateY: flippedCards[stage.name] ? 180 : 0 }}
-              onClick={() => toggleFlip(stage.name)}
-            >
-              {/* Front Side */}
-              <div className="absolute w-full h-full bg-gray-800 rounded-xl p-6 backface-hidden flex flex-col border-2 border-indigo-500/30">
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-xl font-bold text-indigo-400">
-                    {stage.name}
-                  </h3>
-                  <span className="bg-red-600 text-white px-3 py-1 rounded-full text-sm">
-                    {stage.price?.toLocaleString()} kr
+  return (
+    <>
+      <Head>
+        <title>
+          {brandData?.name} {modelData?.name} {engineData.label} | AK-Tuning
+        </title>
+      </Head>
+
+      <div className="min-h-screen bg-gray-900 text-white">
+        {/* Racing Header */}
+        <div className="bg-black py-12 px-4 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-red-900/30 to-black/70"></div>
+          <div className="max-w-6xl mx-auto relative z-10">
+            <div className="flex flex-col md:flex-row items-center gap-8">
+              {brandData?.logo?.asset && (
+                <img
+                  src={urlFor(brandData.logo).width(160).url()}
+                  alt={brandData.name}
+                  className="h-24 w-auto"
+                />
+              )}
+              <div>
+                <h1 className="text-4xl font-bold mb-2">
+                  {brandData?.name}{" "}
+                  <span className="text-red-500">{modelData?.name}</span>
+                </h1>
+                <div className="flex flex-wrap gap-2">
+                  <span className="bg-gray-800 px-3 py-1 rounded-full">
+                    {yearData?.range}
+                  </span>
+                  <span className="bg-red-600 px-3 py-1 rounded-full">
+                    {engineData.label}
+                  </span>
+                  <span className="bg-yellow-500 text-black px-3 py-1 rounded-full">
+                    {engineData.fuel}
                   </span>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
-                <div className="flex-1 grid place-items-center">
-                  <div className="text-center">
-                    <div className="text-5xl font-bold text-green-400 mb-2">
-                      +{stage.tunedHk - stage.origHk} hk
-                    </div>
-                    <p className="text-gray-400">
-                      {stage.origHk} →{" "}
-                      <span className="text-white font-bold">
-                        {stage.tunedHk} hk
-                      </span>
-                    </p>
+        {/* Stage Cards */}
+        <div className="max-w-6xl mx-auto py-12 px-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {engineData.stages?.map((stage) => (
+              <div
+                key={stage.name}
+                className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden transform hover:scale-[1.02] transition-transform duration-300"
+              >
+                <div className="bg-gradient-to-r from-gray-900 to-gray-800 p-6 border-b border-gray-700">
+                  <div className="flex justify-between items-center">
+                    <h2 className="text-2xl font-bold">
+                      <span className="text-red-500">{stage.name}</span>
+                    </h2>
+                    <span className="bg-red-600 text-white px-4 py-1 rounded-full text-lg font-bold">
+                      {stage.price?.toLocaleString()} kr
+                    </span>
                   </div>
                 </div>
 
-                <div className="flex justify-between mt-auto pt-4 border-t border-gray-700">
-                  <div>
-                    <p className="text-sm text-gray-400">Vridmoment</p>
-                    <p>
-                      {stage.origNm} →{" "}
-                      <span className="text-cyan-400">{stage.tunedNm} Nm</span>
-                    </p>
+                <div className="p-6">
+                  <PerformanceBar
+                    original={stage.origHk}
+                    tuned={stage.tunedHk}
+                    max={maxHp}
+                    color="red-500"
+                    unit="hk"
+                  />
+                  <PerformanceBar
+                    original={stage.origNm}
+                    tuned={stage.tunedNm}
+                    max={maxNm}
+                    color="yellow-500"
+                    unit="Nm"
+                  />
+
+                  <div className="mt-8 grid grid-cols-2 gap-4">
+                    <div className="bg-gray-900 p-4 rounded-lg">
+                      <h3 className="text-lg font-bold mb-2 text-red-400">
+                        Original
+                      </h3>
+                      <p>{stage.origHk} hk</p>
+                      <p>{stage.origNm} Nm</p>
+                    </div>
+                    <div className="bg-gray-900 p-4 rounded-lg border border-red-500/30">
+                      <h3 className="text-lg font-bold mb-2 text-green-400">
+                        Efter tuning
+                      </h3>
+                      <p className="text-green-400">{stage.tunedHk} hk</p>
+                      <p className="text-yellow-400">{stage.tunedNm} Nm</p>
+                    </div>
                   </div>
-                  <button className="text-indigo-400 hover:text-indigo-300 text-sm font-medium">
-                    Mer info ↓
+
+                  <button className="mt-6 w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-bold text-lg transition-colors duration-300">
+                    BOKA {stage.name.toUpperCase()}
                   </button>
                 </div>
               </div>
-
-              {/* Back Side */}
-              <div className="absolute w-full h-full bg-gray-800 rounded-xl p-6 backface-hidden transform-rotate-y-180 overflow-y-auto border-2 border-indigo-500/30">
-                <button
-                  className="absolute top-4 right-4 text-indigo-400 hover:text-indigo-300"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleFlip(stage.name);
-                  }}
-                >
-                  ✕
-                </button>
-
-                <h3 className="text-xl font-bold mb-4">{stage.name}</h3>
-
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div className="bg-gray-900 p-3 rounded-lg">
-                    <p className="text-sm text-gray-400">Original</p>
-                    <p className="text-lg">{stage.origHk} hk</p>
-                    <p className="text-lg">{stage.origNm} Nm</p>
-                  </div>
-                  <div className="bg-gray-900 p-3 rounded-lg border border-green-500/30">
-                    <p className="text-sm text-gray-400">Efter tuning</p>
-                    <p className="text-lg text-green-400">{stage.tunedHk} hk</p>
-                    <p className="text-lg text-cyan-400">{stage.tunedNm} Nm</p>
-                  </div>
-                </div>
-
-                <button className="mt-6 w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg font-medium">
-                  Kontakta oss
-                </button>
-              </div>
-            </motion.div>
+            ))}
           </div>
-        ))}
+        </div>
+
+        {/* Footer */}
+        <div className="bg-black py-8 text-center text-gray-400">
+          <p>AK-Tuning Performance Solutions</p>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
