@@ -158,9 +158,12 @@ export default function ContactModal({
                     </strong>
                     {formData.stage && formData.stage !== "-" && (
                       <div className="mt-1 text-green-400 text-xs">
-                        <strong>
-                          VAL ➔ {(formData.stage || "-").toUpperCase()}
-                        </strong>
+                        <strong>VAL ➔ {formData.stage.toUpperCase()}</strong>
+                      </div>
+                    )}
+                    {link && (
+                      <div className="mt-1 text-gray-500 text-[11px] italic break-words">
+                        {link}
                       </div>
                     )}
                   </div>
