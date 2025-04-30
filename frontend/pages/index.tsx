@@ -699,20 +699,232 @@ export default function TuningViewer() {
                         </p>
                       </div>
                     </div>
-
                     {renderStageDescription(stage)}
 
-                    <div className="mt-6 mb-10 flex justify-center">
-                      <button
-                        onClick={() => handleBookNow(stage.name)}
-                        className="mt-8 bg-green-600 hover:bg-green-700 hover:scale-105 transform transition-all text-white px-6 py-3 rounded-lg font-medium shadow-lg"
-                      >
-                        📩 KONTAKT
-                      </button>
+                    <div className="mt-6">
+                      <h3 className="text-lg font-medium text-gray-300 mb-2 uppercase">
+                        {stage.name}
+                      </h3>
+
+                      <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
+                        {/* Split the spec boxes */}
+                        <div className="absolute hidden md:flex flex-row justify-between top-4 left-0 right-0 px-16">
+                          {/* ORG HK / Max HK */}
+                          <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
+                            <p className="text-red-400">- - -</p>
+                            <p className="text-white">
+                              HK ORG: {stage.origHk} hk
+                            </p>
+                            <p className="text-red-800">⸻</p>
+                            <p className="text-white">
+                              HK{" "}
+                              {stage.name
+                                .replace("Steg", "ST")
+                                .replace(/\s+/g, "")
+                                .toUpperCase()}
+                              : {stage.tunedHk} HK
+                            </p>
+                          </div>
+
+                          {/* ORG NM / Max NM */}
+                          <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
+                            <p className="text-white">- - -</p>
+                            <p className="text-white">
+                              NM ORG: {stage.origNm} Nm
+                            </p>
+                            <p className="text-white">⸻</p>
+                            <p className="text-white">
+                              <span className="text-gray-400 text-xs mr-1">
+                                NM
+                              </span>
+                              {stage.name
+                                .replace("Steg", "ST")
+                                .replace(/\s+/g, "")
+                                .toUpperCase()}
+                              : {stage.tunedNm} Nm
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Dyno graph */}
+                        <Line
+                          data={{
+                            labels: [
+                              "2000",
+                              "2500",
+                              "3000",
+                              "3500",
+                              "4000",
+                              "4500",
+                              "5000",
+                              "5500",
+                              "6000",
+                              "6500",
+                              "7000",
+                            ],
+                            datasets: [
+                              {
+                                label: "Original HK",
+                                data: generateDynoCurve(stage.origHk, true),
+                                borderColor: "#f87171",
+                                backgroundColor: "transparent",
+                                borderWidth: 2,
+                                borderDash: [5, 3],
+                                tension: 0.5,
+                                pointRadius: 0,
+                                yAxisID: "hp",
+                              },
+                              {
+                                label: "Tuned HK",
+                                data: generateDynoCurve(stage.tunedHk, true),
+                                borderColor: "#f87171",
+                                backgroundColor: "transparent",
+                                borderWidth: 3,
+                                tension: 0.5,
+                                pointRadius: 0,
+                                yAxisID: "hp",
+                              },
+                              {
+                                label: "Original NM",
+                                data: generateDynoCurve(stage.origNm, false),
+                                borderColor: "#d1d5db",
+                                backgroundColor: "transparent",
+                                borderWidth: 2,
+                                borderDash: [5, 3],
+                                tension: 0.5,
+                                pointRadius: 0,
+                                yAxisID: "nm",
+                              },
+                              {
+                                label: "Tuned NM",
+                                data: generateDynoCurve(stage.tunedNm, false),
+                                borderColor: "#d1d5db",
+                                backgroundColor: "transparent",
+                                borderWidth: 3,
+                                tension: 0.5,
+                                pointRadius: 0,
+                                yAxisID: "nm",
+                              },
+                            ],
+                          }}
+                          options={{
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                              legend: {
+                                position: "top",
+                                labels: {
+                                  color: "#E5E7EB",
+                                  font: { size: 12 },
+                                  boxWidth: 12,
+                                  padding: 20,
+                                  usePointStyle: true,
+                                },
+                              },
+                              tooltip: {
+                                mode: "index",
+                                intersect: false,
+                              },
+                            },
+                            scales: {
+                              hp: {
+                                type: "linear",
+                                display: true,
+                                position: "left",
+                                title: {
+                                  display: true,
+                                  text: "Effekt (HK)",
+                                  color: "white",
+                                  font: { size: 14 },
+                                },
+                                min: 0,
+                                max: Math.ceil(stage.tunedHk / 100) * 100 + 100,
+                                grid: {
+                                  color: "rgba(255, 255, 255, 0.1)",
+                                },
+                                ticks: {
+                                  color: "#9CA3AF",
+                                  stepSize: 100,
+                                  callback: (value) => `${value}`,
+                                },
+                              },
+                              nm: {
+                                type: "linear",
+                                display: true,
+                                position: "right",
+                                title: {
+                                  display: true,
+                                  text: "Vridmoment (Nm)",
+                                  color: "white",
+                                  font: { size: 14 },
+                                },
+                                min: 0,
+                                max: Math.ceil(stage.tunedNm / 100) * 100 + 100,
+                                grid: {
+                                  drawOnChartArea: false,
+                                },
+                                ticks: {
+                                  color: "#9CA3AF",
+                                  stepSize: 100,
+                                  callback: (value) => `${value}`,
+                                },
+                              },
+                              x: {
+                                title: {
+                                  display: true,
+                                  text: "RPM",
+                                  color: "#E5E7EB",
+                                  font: { size: 14 },
+                                },
+                                grid: {
+                                  color: "rgba(255, 255, 255, 0.1)",
+                                },
+                                ticks: {
+                                  color: "#9CA3AF",
+                                },
+                              },
+                            },
+                            interaction: {
+                              intersect: false,
+                              mode: "index",
+                            },
+                          }}
+                          plugins={[watermarkPlugin, shadowPlugin]}
+                        />
+                        <div className="text-center text-white text-xs mt-4 italic">
+                          (Simulerad effektkurva)
+                        </div>
+
+                        {/* Mobile-only small tuned specs */}
+                        <div className="block md:hidden text-center mt-4 space-y-1">
+                          <p className="text-sm text-white font-semibold">
+                            {stage.tunedHk} HK & {stage.tunedNm} NM
+                            <span className="text-gray-400 text-sm">
+                              [
+                              {stage.name
+                                .replace("Steg", "STEG ")
+                                .replace(/\s+/g, "")
+                                .toUpperCase()}
+                              ]
+                            </span>
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* NOW start new block for the contact button */}
+                      <div className="mt-6 mb-10 flex justify-center">
+                        <button
+                          onClick={() => handleBookNow(stage.name)}
+                          className="mt-8 bg-green-600 hover:bg-green-700 hover:scale-105 transform transition-all text-white px-6 py-3 rounded-lg font-medium shadow-lg"
+                        >
+                          📩 KONTAKT
+                        </button>
+                      </div>
                     </div>
 
                     {allOptions.length > 0 && (
                       <div className="mt-8">
+                        {/* AKT+ Toggle Button */}
                         <button
                           onClick={() => toggleAktPlus(stage.name)}
                           className="flex justify-between items-center w-full px-6 py-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
@@ -727,6 +939,7 @@ export default function TuningViewer() {
                               TILLÄGG
                             </h3>
                           </div>
+
                           <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-800">
                             <svg
                               className={`h-5 w-5 text-orange-500 transform transition-transform duration-300 ${
@@ -737,13 +950,14 @@ export default function TuningViewer() {
                             >
                               <path
                                 fillRule="evenodd"
-                                d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                                d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
                                 clipRule="evenodd"
                               />
                             </svg>
                           </div>
                         </button>
 
+                        {/* Expandable AKT+ Grid */}
                         {expandedAktPlus[stage.name] && (
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                             {allOptions.map((option) => (
@@ -771,6 +985,7 @@ export default function TuningViewer() {
                                       {option.title}
                                     </span>
                                   </div>
+
                                   <svg
                                     className={`h-5 w-5 text-orange-600 transition-transform ${
                                       expandedOptions[option._id]
@@ -830,6 +1045,7 @@ export default function TuningViewer() {
         </div>
       ) : null}
 
+      {/* Modal */}
       <ContactModal
         isOpen={contactModalData.isOpen}
         onClose={() =>
