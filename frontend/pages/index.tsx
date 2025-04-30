@@ -960,6 +960,26 @@ export default function TuningViewer() {
                       </div>
                     </div>
 
+                    {navigator.share && (
+                      <button
+                        onClick={() => {
+                          const shareData = {
+                            title: `Tuning – ${selected.brand} ${selected.model} ${selected.year} ${selected.engine}`,
+                            text: `Kolla in ${stage.name} tuning för ${selected.brand} ${selected.model}`,
+                            url: `${window.location.origin}/${slugify(selected.brand)}/${slugify(selected.model)}/${slugify(selected.year)}/${slugify(selected.engine)}#${slugifyStage(stage.name)}`,
+                          };
+                          navigator
+                            .share(shareData)
+                            .catch((err) =>
+                              console.error("Share failed:", err)
+                            );
+                        }}
+                        className="mt-4 bg-blue-600 hover:bg-blue-700 hover:scale-105 transform transition-all text-white px-6 py-2 rounded-lg font-medium shadow-md"
+                      >
+                        🔗 DELA
+                      </button>
+                    )}
+
                     {allOptions.length > 0 && (
                       <div className="mt-8">
                         {/* AKT+ Toggle Button */}
