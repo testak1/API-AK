@@ -5,12 +5,11 @@ import TuningViewer from "./index";
 export default function Embed() {
   useEffect(() => {
     const sendHeight = () => {
-      // Get the full height including any open modal
-      const height = document.documentElement.scrollHeight;
+      const height = document.body.scrollHeight;
       window.parent.postMessage({ height }, "*");
     };
 
-    sendHeight(); // Initial
+    sendHeight(); // Initial send
 
     const observer = new MutationObserver(sendHeight);
     observer.observe(document.body, {
@@ -20,12 +19,10 @@ export default function Embed() {
     });
 
     window.addEventListener("resize", sendHeight);
-    window.addEventListener("modalStateChange", sendHeight); // Add this if you can trigger custom events
 
     return () => {
       observer.disconnect();
       window.removeEventListener("resize", sendHeight);
-      window.removeEventListener("modalStateChange", sendHeight);
     };
   }, []);
 
