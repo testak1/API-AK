@@ -166,9 +166,9 @@ export default function ContactModal({
                         href={link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-block mt-1 text-blue-400 text-xs underline hover:text-blue-300"
+                        className="inline-block mt-1 text-white-400 text-xs hover:text-green-300"
                       >
-                        DELA LÄNK
+                        KOPIERA LÄNK
                       </a>
                     )}
                   </div>
