@@ -23,6 +23,7 @@ interface Props {
   };
 }
 
+export const dynamicParams = false;
 export default async function EnginePage({ params }: Props) {
   const { brand, model, year, engine } = params;
 
