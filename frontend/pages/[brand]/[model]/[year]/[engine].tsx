@@ -214,15 +214,6 @@ export default function EnginePage({
                   </div>
                 </div>
 
-                {stage.descriptionRef?.description && (
-                  <div className="prose prose-invert text-sm">
-                    <PortableText
-                      value={stage.descriptionRef.description}
-                      components={portableTextComponents}
-                    />
-                  </div>
-                )}
-
                 <button className="mt-6 w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-lg font-medium">
                   Kontakta oss
                 </button>
