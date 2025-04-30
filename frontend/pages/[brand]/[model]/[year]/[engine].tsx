@@ -4,25 +4,29 @@ import { useRouter } from "next/router";
 import client from "@/lib/sanity";
 import { engineByParamsQuery } from "@/src/lib/queries";
 import type { Brand, Model, Year, Engine, Stage } from "@/types/sanity";
-import { PortableText } from "@portabletext/react";
 import { urlFor } from "@/lib/sanity";
+import { PortableText } from "@portabletext/react";
+import { useState, useEffect } from "react";
+import Head from "next/head";
+import ContactModal from "@/components/ContactModal";
 import {
-  Chart,
+  Chart as ChartJS,
   CategoryScale,
   LinearScale,
   PointElement,
   LineElement,
-  LineController,
+  Tooltip,
+  Legend,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
-import { useEffect, useRef, useState } from "react";
 
-Chart.register(
+ChartJS.register(
   CategoryScale,
   LinearScale,
   PointElement,
   LineElement,
-  LineController
+  Tooltip,
+  Legend
 );
 
 interface EnginePageProps {
@@ -98,7 +102,7 @@ const portableTextComponents = {
   types: {
     image: ({ value }: any) => (
       <img
-        src={urlFor(value).width(100).url()}
+        src={urlFor(value).width(600).url()}
         alt={value.alt || ""}
         className="my-4 rounded-lg shadow-md"
       />
@@ -138,23 +142,6 @@ const generateDynoCurve = (peakValue: number, isHp: boolean) => {
   });
 };
 
-const shadowPlugin = {
-  id: "shadowPlugin",
-  beforeDatasetDraw(chart: any, args: any, options: any) {
-    const { ctx } = chart;
-    const dataset = chart.data.datasets[args.index];
-
-    ctx.save();
-    ctx.shadowColor = dataset.borderColor as string;
-    ctx.shadowBlur = 6;
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 2;
-  },
-  afterDatasetDraw(chart: any, args: any, options: any) {
-    chart.ctx.restore();
-  },
-};
-
 export default function EnginePage({
   brandData,
   modelData,
@@ -168,10 +155,47 @@ export default function EnginePage({
   const [expandedDescriptions, setExpandedDescriptions] = useState<
     Record<string, boolean>
   >({});
-  const watermarkImageRef = useRef<HTMLImageElement | null>(null);
+  const [contactModalData, setContactModalData] = useState<{
+    isOpen: boolean;
+    stageOrOption: string;
+    link: string;
+  }>({ isOpen: false, stageOrOption: "", link: "" });
+
+  const slugify = (str: string) =>
+    str
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-");
+
+  const handleBookNow = (stageOrOptionName: string) => {
+    const brandSlug =
+      brandData?.slug?.current || slugify(brandData?.name || "");
+    const modelSlug =
+      typeof modelData?.slug === "object"
+        ? modelData.slug.current
+        : modelData?.slug || slugify(modelData?.name || "");
+    const yearSlug = yearData?.range.includes(" ")
+      ? slugify(yearData.range)
+      : yearData?.range || "";
+    const engineSlug = engineData?.label.includes(" ")
+      ? slugify(engineData.label)
+      : engineData?.label || "";
+    const stageSlug = slugify(
+      stageOrOptionName.replace(/\s+/g, "-").replace(/[^\w-]/g, "")
+    );
+
+    const finalLink = `https://api.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}#${stageSlug}`;
+
+    setContactModalData({
+      isOpen: true,
+      stageOrOption: stageOrOptionName,
+      link: finalLink,
+    });
+  };
 
   useEffect(() => {
-    if (engineData?.stages && engineData.stages.length > 0) {
+    if (engineData?.stages) {
       const initialExpandedStates = engineData.stages.reduce(
         (acc, stage) => {
           acc[stage.name] = stage.name === "Steg 1";
@@ -182,32 +206,6 @@ export default function EnginePage({
       setExpandedStages(initialExpandedStates);
     }
   }, [engineData]);
-
-  const watermarkPlugin = {
-    id: "watermark",
-    beforeDraw: (chart: any) => {
-      const ctx = chart.ctx;
-      const {
-        chartArea: { top, left, width, height },
-      } = chart;
-
-      if (watermarkImageRef.current?.complete) {
-        ctx.save();
-        ctx.globalAlpha = 0.2;
-
-        const img = watermarkImageRef.current;
-        const ratio = img.width / img.height;
-        const imgWidth = width * 0.4;
-        const imgHeight = imgWidth / ratio;
-
-        const x = left + width / 2 - imgWidth / 2;
-        const y = top + height / 2 - imgHeight / 2;
-
-        ctx.drawImage(img, x, y, imgWidth, imgHeight);
-        ctx.restore();
-      }
-    },
-  };
 
   const toggleStage = (stageName: string) => {
     setExpandedStages((prev) => {
@@ -274,7 +272,7 @@ export default function EnginePage({
 
   if (!engineData) {
     return (
-      <div className="max-w-3xl mx-auto p-4">
+      <div className="max-w-5xl mx-auto p-4 md:p-8">
         <h1 className="text-2xl font-bold mb-4">
           {router.query.brand} / {router.query.model} / {router.query.year} /{" "}
           {router.query.engine}
@@ -297,11 +295,12 @@ export default function EnginePage({
       </div>
 
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-center mb-2">
-          {brandData?.name} / {modelData?.name} / {yearData?.range} /{" "}
-          {engineData.label}
+        <h1 className="text-2xl font-bold text-center">
+          {brandData?.name} {modelData?.name} {yearData?.range}
         </h1>
-        <p className="text-lg text-center text-gray-300">{engineData.fuel}</p>
+        <p className="text-lg text-center text-gray-300">
+          {engineData.label} ({engineData.fuel})
+        </p>
       </div>
 
       {engineData.stages?.length > 0 ? (
@@ -478,7 +477,6 @@ export default function EnginePage({
                                 borderDash: [5, 3],
                                 tension: 0.5,
                                 pointRadius: 0,
-                                yAxisID: "hp",
                               },
                               {
                                 label: "Tuned HK",
@@ -488,7 +486,6 @@ export default function EnginePage({
                                 borderWidth: 3,
                                 tension: 0.5,
                                 pointRadius: 0,
-                                yAxisID: "hp",
                               },
                               {
                                 label: "Original NM",
@@ -499,7 +496,6 @@ export default function EnginePage({
                                 borderDash: [5, 3],
                                 tension: 0.5,
                                 pointRadius: 0,
-                                yAxisID: "nm",
                               },
                               {
                                 label: "Tuned NM",
@@ -509,7 +505,6 @@ export default function EnginePage({
                                 borderWidth: 3,
                                 tension: 0.5,
                                 pointRadius: 0,
-                                yAxisID: "nm",
                               },
                             ],
                           }}
@@ -533,7 +528,7 @@ export default function EnginePage({
                               },
                             },
                             scales: {
-                              hp: {
+                              y: {
                                 type: "linear",
                                 display: true,
                                 position: "left",
@@ -547,27 +542,6 @@ export default function EnginePage({
                                 max: Math.ceil(stage.tunedHk / 100) * 100 + 100,
                                 grid: {
                                   color: "rgba(255, 255, 255, 0.1)",
-                                },
-                                ticks: {
-                                  color: "#9CA3AF",
-                                  stepSize: 100,
-                                  callback: (value) => `${value}`,
-                                },
-                              },
-                              nm: {
-                                type: "linear",
-                                display: true,
-                                position: "right",
-                                title: {
-                                  display: true,
-                                  text: "Vridmoment (Nm)",
-                                  color: "white",
-                                  font: { size: 14 },
-                                },
-                                min: 0,
-                                max: Math.ceil(stage.tunedNm / 100) * 100 + 100,
-                                grid: {
-                                  drawOnChartArea: false,
                                 },
                                 ticks: {
                                   color: "#9CA3AF",
@@ -595,7 +569,6 @@ export default function EnginePage({
                               mode: "index",
                             },
                           }}
-                          plugins={[watermarkPlugin, shadowPlugin]}
                         />
                         <div className="text-center text-white text-xs mt-4 italic">
                           (Simulerad effektkurva)
@@ -615,6 +588,15 @@ export default function EnginePage({
                           </p>
                         </div>
                       </div>
+
+                      <div className="mt-6 mb-10 flex justify-center">
+                        <button
+                          onClick={() => handleBookNow(stage.name)}
+                          className="mt-8 bg-green-600 hover:bg-green-700 hover:scale-105 transform transition-all text-white px-6 py-3 rounded-lg font-medium shadow-lg"
+                        >
+                          📩 KONTAKT
+                        </button>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -630,11 +612,19 @@ export default function EnginePage({
         </div>
       )}
 
-      <img
-        ref={watermarkImageRef}
-        src="/ak-logo-svart.png"
-        alt="Watermark"
-        className="hidden"
+      <ContactModal
+        isOpen={contactModalData.isOpen}
+        onClose={() =>
+          setContactModalData({ isOpen: false, stageOrOption: "", link: "" })
+        }
+        selectedVehicle={{
+          brand: brandData?.name || "",
+          model: modelData?.name || "",
+          year: yearData?.range || "",
+          engine: engineData.label || "",
+        }}
+        stageOrOption={contactModalData.stageOrOption}
+        link={contactModalData.link}
       />
     </div>
   );
