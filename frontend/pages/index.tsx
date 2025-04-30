@@ -471,8 +471,9 @@ export default function TuningViewer() {
         <img
           src="/ak-logo-svart.png"
           alt="AK-TUNING"
-          style={{ height: "80px" }}
+          style={{ height: "80px", cursor: "pointer" }}
           className="h-12 object-contain"
+          onClick={() => window.location.reload()}
         />
       </div>
 
