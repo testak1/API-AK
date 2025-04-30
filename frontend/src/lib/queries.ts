@@ -4,6 +4,13 @@ export const brandsLightQuery = `
   _id,
   name,
   "slug": slug.current,
+  "slugSafe": lower(
+    replace(
+      replace(name, "[^a-zA-Z0-9\\s-]", ""),
+      "\\s+",
+      "-"
+    )
+  ),
   logo {
     "asset": asset->{
       _id,
@@ -16,6 +23,7 @@ export const brandsLightQuery = `
   }
 }
 `;
+
 
 export const engineByParamsQuery = `
   query EngineByParams($brand: String!, $model: String!, $year: String!, $engine: String!) {

@@ -57,22 +57,16 @@ export default function TuningViewer() {
     isOpen: boolean;
     stageOrOption: string;
     link: string;
-  }>({
-    isOpen: false,
-    stageOrOption: "",
-    link: "",
-  });
-  const slugify = (str: string) => {
-    return str
-      .toLowerCase()
-      .replace(/[^\w\s-]/g, "") // Remove special chars except spaces and hyphens
-      .replace(/\s+/g, "-") // Replace spaces with hyphens
-      .replace(/-+/g, "-"); // Collapse multiple hyphens
-  };
+  }>({ isOpen: false, stageOrOption: "", link: "" });
 
-  const slugifyStage = (stage: string) => {
-    return stage.toLowerCase().replace(/\s+/g, "-");
-  };
+  const slugify = (str: string) =>
+    str
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-");
+
+  const slugifyStage = (str: string) => str.toLowerCase().replace(/\s+/g, "-");
 
   const handleBookNow = (stageOrOptionName: string) => {
     const selectedBrand = data.find((b) => b.name === selected.brand);
@@ -91,7 +85,7 @@ export default function TuningViewer() {
     const selectedEngine = selectedYear?.engines?.find(
       (e) => e.label === selected.engine
     );
-    const engineSlug = slugify(selected.engine);
+    const engineSlug = selectedEngine?.slug || slugify(selected.engine);
 
     const stageSlug = slugifyStage(stageOrOptionName);
 
@@ -105,8 +99,7 @@ export default function TuningViewer() {
 
     console.log("Generated Link:", finalLink);
   };
-
-  // Fetch brands and models (light query)
+  // Fetch brands and models
   useEffect(() => {
     const fetchBrands = async () => {
       try {
@@ -123,7 +116,7 @@ export default function TuningViewer() {
     fetchBrands();
   }, []);
 
-  // Fetch years when brand and model are selected
+  // Fetch years
   useEffect(() => {
     const fetchYears = async () => {
       if (selected.brand && selected.model) {
@@ -136,19 +129,18 @@ export default function TuningViewer() {
           const years = await res.json();
 
           setData((prev) =>
-            prev.map((brand) => {
-              if (brand.name !== selected.brand) return brand;
-              return {
-                ...brand,
-                models: brand.models.map((model) => {
-                  if (model.name !== selected.model) return model;
-                  return {
-                    ...model,
-                    years: years.result,
-                  };
-                }),
-              };
-            })
+            prev.map((brand) =>
+              brand.name !== selected.brand
+                ? brand
+                : {
+                    ...brand,
+                    models: brand.models.map((model) =>
+                      model.name !== selected.model
+                        ? model
+                        : { ...model, years: years.result }
+                    ),
+                  }
+            )
           );
         } catch (error) {
           console.error("Error fetching years:", error);
@@ -157,11 +149,10 @@ export default function TuningViewer() {
         }
       }
     };
-
     fetchYears();
   }, [selected.brand, selected.model]);
 
-  // Fetch engines when brand, model, year are selected
+  // Fetch engines
   useEffect(() => {
     const fetchEngines = async () => {
       if (selected.brand && selected.model && selected.year) {
@@ -174,22 +165,25 @@ export default function TuningViewer() {
           const engines = await res.json();
 
           setData((prev) =>
-            prev.map((brand) => {
-              if (brand.name !== selected.brand) return brand;
-              return {
-                ...brand,
-                models: brand.models.map((model) => {
-                  if (model.name !== selected.model) return model;
-                  return {
-                    ...model,
-                    years: model.years.map((year) => {
-                      if (year.range !== selected.year) return year;
-                      return { ...year, engines: engines.result };
-                    }),
-                  };
-                }),
-              };
-            })
+            prev.map((brand) =>
+              brand.name !== selected.brand
+                ? brand
+                : {
+                    ...brand,
+                    models: brand.models.map((model) =>
+                      model.name !== selected.model
+                        ? model
+                        : {
+                            ...model,
+                            years: model.years.map((year) =>
+                              year.range !== selected.year
+                                ? year
+                                : { ...year, engines: engines.result }
+                            ),
+                          }
+                    ),
+                  }
+            )
           );
         } catch (error) {
           console.error("Error fetching engines:", error);
@@ -200,7 +194,6 @@ export default function TuningViewer() {
     };
     fetchEngines();
   }, [selected.brand, selected.model, selected.year]);
-
   const {
     brands,
     models,
@@ -276,7 +269,6 @@ export default function TuningViewer() {
       }
     },
   };
-
   const shadowPlugin = {
     id: "shadowPlugin",
     beforeDatasetDraw(chart: Chart, args: any, options: any) {
@@ -343,11 +335,9 @@ export default function TuningViewer() {
 
       if (rpm <= peakRpm) {
         const progress = (rpm - startRpm) / (peakRpm - startRpm);
-        // Smoother "ramp-up" to peak
         return peakValue * (0.5 + 0.5 * Math.pow(progress, 1.2));
       } else {
         const fallProgress = (rpm - peakRpm) / (endRpm - peakRpm);
-        // Smoother "fall-off" but keep more power/torque longer
         return peakValue * (1 - 0.35 * Math.pow(fallProgress, 1));
       }
     });
@@ -366,12 +356,10 @@ export default function TuningViewer() {
   const toggleOption = (optionId: string) => {
     setExpandedOptions((prev) => {
       const newState: Record<string, boolean> = {};
-      // Stäng alla andra, öppna endast det nya
       newState[optionId] = !prev[optionId];
       return newState;
     });
   };
-
   const handleBrandChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelected({ brand: e.target.value, model: "", year: "", engine: "" });
   };
@@ -478,7 +466,6 @@ export default function TuningViewer() {
       </div>
     );
   };
-
   return (
     <div className="max-w-5xl mx-auto p-4 md:p-8">
       <div className="flex items-center mb-4">
@@ -565,7 +552,6 @@ export default function TuningViewer() {
             ))}
           </select>
         </div>
-
         <div>
           <label className="block text-sm font-bold text-black mb-1">
             MOTOR
@@ -618,7 +604,6 @@ export default function TuningViewer() {
                 >
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                     <div className="flex items-center gap-4">
-                      {/* Brand logo first */}
                       {data.find((b) => b.name === selected.brand)?.logo
                         ?.asset && (
                         <img
@@ -631,7 +616,6 @@ export default function TuningViewer() {
                           className="h-8 w-auto object-contain"
                         />
                       )}
-                      {/* Engine name and stage */}
                       <h2 className="text-lg font-semibold text-white">
                         {selected.engine} –{" "}
                         <span className="text-indigo-400 uppercase tracking-wide">
@@ -640,16 +624,12 @@ export default function TuningViewer() {
                       </h2>
                     </div>
 
-                    {/* Right section with badge, price, and new arrow */}
                     <div className="mt-3 md:mt-0 flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-4 text-center">
-                      {/* Stage badge image */}
                       <img
                         src={`/badges/${stage.name.toLowerCase().replace(/\s+/g, "")}.png`}
                         alt={stage.name}
                         className="h-8 object-contain"
                       />
-
-                      {/* Price */}
                       <span className="inline-block bg-red-600 text-black px-4 py-1 rounded-full text-xl font-semibold shadow-md">
                         {stage.price?.toLocaleString()} kr
                       </span>
@@ -662,8 +642,6 @@ export default function TuningViewer() {
                           Kontakta oss för offert inkl hårdvara!
                         </p>
                       )}
-
-                      {/* Arrow button - new */}
                       <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-700 hover:bg-gray-600 hover:scale-110 transform transition-all duration-300">
                         <svg
                           className={`h-6 w-6 text-orange-500 transform transition-transform duration-300 ${
@@ -682,11 +660,10 @@ export default function TuningViewer() {
                     </div>
                   </div>
                 </button>
-
                 {isExpanded && (
                   <div className="px-6 pb-6">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 mt-6">
-                      {/* HK */}
+                      {/* ORIGINAL & TUNED SPECS */}
                       <div className="border border-white rounded-lg p-3 text-center">
                         <p className="text-sm text-white font-bold mb-1">
                           ORIGINAL HK
@@ -704,8 +681,6 @@ export default function TuningViewer() {
                           +{stage.tunedHk - stage.origHk} hk
                         </p>
                       </div>
-
-                      {/* NM */}
                       <div className="border border-white rounded-lg p-3 text-center">
                         <p className="text-sm text-white font-bold mb-1">
                           ORIGINAL NM
@@ -727,230 +702,17 @@ export default function TuningViewer() {
 
                     {renderStageDescription(stage)}
 
-                    <div className="mt-6">
-                      <h3 className="text-lg font-medium text-gray-300 mb-2 uppercase">
-                        {stage.name}
-                      </h3>
-
-                      <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
-                        {/* Split the spec boxes */}
-                        <div className="absolute hidden md:flex flex-row justify-between top-4 left-0 right-0 px-16">
-                          {/* ORG HK / Max HK */}
-                          <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
-                            <p className="text-red-400">- - -</p>
-                            <p className="text-white">
-                              HK ORG: {stage.origHk} hk
-                            </p>
-                            <p className="text-red-800">⸻</p>
-                            <p className="text-white">
-                              HK{" "}
-                              {stage.name
-                                .replace("Steg", "ST")
-                                .replace(/\s+/g, "")
-                                .toUpperCase()}
-                              : {stage.tunedHk} HK
-                            </p>
-                          </div>
-
-                          {/* ORG NM / Max NM */}
-                          <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
-                            <p className="text-white">- - -</p>
-                            <p className="text-white">
-                              NM ORG: {stage.origNm} Nm
-                            </p>
-                            <p className="text-white">⸻</p>
-                            <p className="text-white">
-                              <span className="text-gray-400 text-xs mr-1">
-                                NM
-                              </span>
-                              {stage.name
-                                .replace("Steg", "ST")
-                                .replace(/\s+/g, "")
-                                .toUpperCase()}
-                              : {stage.tunedNm} Nm
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Dyno graph */}
-                        <Line
-                          data={{
-                            labels: [
-                              "2000",
-                              "2500",
-                              "3000",
-                              "3500",
-                              "4000",
-                              "4500",
-                              "5000",
-                              "5500",
-                              "6000",
-                              "6500",
-                              "7000",
-                            ],
-                            datasets: [
-                              {
-                                label: "Original HK",
-                                data: generateDynoCurve(stage.origHk, true),
-                                borderColor: "#f87171",
-                                backgroundColor: "transparent",
-                                borderWidth: 2,
-                                borderDash: [5, 3],
-                                tension: 0.5,
-                                pointRadius: 0,
-                                yAxisID: "hp",
-                              },
-                              {
-                                label: "Tuned HK",
-                                data: generateDynoCurve(stage.tunedHk, true),
-                                borderColor: "#f87171",
-                                backgroundColor: "transparent",
-                                borderWidth: 3,
-                                tension: 0.5,
-                                pointRadius: 0,
-                                yAxisID: "hp",
-                              },
-                              {
-                                label: "Original NM",
-                                data: generateDynoCurve(stage.origNm, false),
-                                borderColor: "#d1d5db",
-                                backgroundColor: "transparent",
-                                borderWidth: 2,
-                                borderDash: [5, 3],
-                                tension: 0.5,
-                                pointRadius: 0,
-                                yAxisID: "nm",
-                              },
-                              {
-                                label: "Tuned NM",
-                                data: generateDynoCurve(stage.tunedNm, false),
-                                borderColor: "#d1d5db",
-                                backgroundColor: "transparent",
-                                borderWidth: 3,
-                                tension: 0.5,
-                                pointRadius: 0,
-                                yAxisID: "nm",
-                              },
-                            ],
-                          }}
-                          options={{
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                              legend: {
-                                position: "top",
-                                labels: {
-                                  color: "#E5E7EB",
-                                  font: { size: 12 },
-                                  boxWidth: 12,
-                                  padding: 20,
-                                  usePointStyle: true,
-                                },
-                              },
-                              tooltip: {
-                                mode: "index",
-                                intersect: false,
-                              },
-                            },
-                            scales: {
-                              hp: {
-                                type: "linear",
-                                display: true,
-                                position: "left",
-                                title: {
-                                  display: true,
-                                  text: "Effekt (HK)",
-                                  color: "white",
-                                  font: { size: 14 },
-                                },
-                                min: 0,
-                                max: Math.ceil(stage.tunedHk / 100) * 100 + 100,
-                                grid: {
-                                  color: "rgba(255, 255, 255, 0.1)",
-                                },
-                                ticks: {
-                                  color: "#9CA3AF",
-                                  stepSize: 100,
-                                  callback: (value) => `${value}`,
-                                },
-                              },
-                              nm: {
-                                type: "linear",
-                                display: true,
-                                position: "right",
-                                title: {
-                                  display: true,
-                                  text: "Vridmoment (Nm)",
-                                  color: "white",
-                                  font: { size: 14 },
-                                },
-                                min: 0,
-                                max: Math.ceil(stage.tunedNm / 100) * 100 + 100,
-                                grid: {
-                                  drawOnChartArea: false,
-                                },
-                                ticks: {
-                                  color: "#9CA3AF",
-                                  stepSize: 100,
-                                  callback: (value) => `${value}`,
-                                },
-                              },
-                              x: {
-                                title: {
-                                  display: true,
-                                  text: "RPM",
-                                  color: "#E5E7EB",
-                                  font: { size: 14 },
-                                },
-                                grid: {
-                                  color: "rgba(255, 255, 255, 0.1)",
-                                },
-                                ticks: {
-                                  color: "#9CA3AF",
-                                },
-                              },
-                            },
-                            interaction: {
-                              intersect: false,
-                              mode: "index",
-                            },
-                          }}
-                          plugins={[watermarkPlugin, shadowPlugin]}
-                        />
-                        <div className="text-center text-white text-xs mt-4 italic">
-                          (Simulerad effektkurva)
-                        </div>
-
-                        {/* Mobile-only small tuned specs */}
-                        <div className="block md:hidden text-center mt-4 space-y-1">
-                          <p className="text-sm text-white font-semibold">
-                            {stage.tunedHk} HK & {stage.tunedNm} NM
-                            <span className="text-gray-400 text-sm">
-                              [
-                              {stage.name
-                                .replace("Steg", "STEG ")
-                                .replace(/\s+/g, "")
-                                .toUpperCase()}
-                              ]
-                            </span>
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* NOW start new block for the contact button */}
-                      <div className="mt-6 mb-10 flex justify-center">
-                        <button
-                          onClick={() => handleBookNow(stage.name)}
-                          className="mt-8 bg-green-600 hover:bg-green-700 hover:scale-105 transform transition-all text-white px-6 py-3 rounded-lg font-medium shadow-lg"
-                        >
-                          📩 KONTAKT
-                        </button>
-                      </div>
+                    <div className="mt-6 mb-10 flex justify-center">
+                      <button
+                        onClick={() => handleBookNow(stage.name)}
+                        className="mt-8 bg-green-600 hover:bg-green-700 hover:scale-105 transform transition-all text-white px-6 py-3 rounded-lg font-medium shadow-lg"
+                      >
+                        📩 KONTAKT
+                      </button>
                     </div>
 
                     {allOptions.length > 0 && (
                       <div className="mt-8">
-                        {/* AKT+ Toggle Button */}
                         <button
                           onClick={() => toggleAktPlus(stage.name)}
                           className="flex justify-between items-center w-full px-6 py-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
@@ -965,7 +727,6 @@ export default function TuningViewer() {
                               TILLÄGG
                             </h3>
                           </div>
-
                           <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-800">
                             <svg
                               className={`h-5 w-5 text-orange-500 transform transition-transform duration-300 ${
@@ -976,14 +737,13 @@ export default function TuningViewer() {
                             >
                               <path
                                 fillRule="evenodd"
-                                d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                                d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
                                 clipRule="evenodd"
                               />
                             </svg>
                           </div>
                         </button>
 
-                        {/* Expandable AKT+ Grid */}
                         {expandedAktPlus[stage.name] && (
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                             {allOptions.map((option) => (
@@ -1011,7 +771,6 @@ export default function TuningViewer() {
                                       {option.title}
                                     </span>
                                   </div>
-
                                   <svg
                                     className={`h-5 w-5 text-orange-600 transition-transform ${
                                       expandedOptions[option._id]
@@ -1071,7 +830,6 @@ export default function TuningViewer() {
         </div>
       ) : null}
 
-      {/* Modal */}
       <ContactModal
         isOpen={contactModalData.isOpen}
         onClose={() =>
