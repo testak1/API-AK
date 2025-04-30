@@ -2,16 +2,9 @@
 export const brandsLightQuery = `
 *[_type == "brand"]{
   _id,
-  _type,
   name,
-  slug,
-  "slugSafe": lower(
-    replace(
-      replace(name, "[^a-zA-Z0-9\\s-]", ""),
-      "\\s+",
-      "-"
-    )
-  ),
+  "slug": slug.current,
+  "slugSafe": lower(replace(replace(name, "[^a-zA-Z0-9\\s-]", ""), "\\s+", "-")),
   logo {
     "asset": asset->{
       _id,
@@ -20,7 +13,12 @@ export const brandsLightQuery = `
     alt
   },
   "models": models[]{
-    name
+    name,
+    "slug": lower(replace(replace(name, "[^a-zA-Z0-9\\s-]", ""), "\\s+", "-")),
+    "years": years[]{
+      range,
+      "slug": lower(replace(replace(range, "[^a-zA-Z0-9\\s-]", ""), "\\s+", "-"))
+    }
   }
 }
 `;
