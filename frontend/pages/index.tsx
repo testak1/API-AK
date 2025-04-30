@@ -950,19 +950,19 @@ export default function TuningViewer() {
                       </div>
 
                       {/* NOW start new block for the contact button */}
-                      <div className="mt-6 mb-10 flex justify-center">
+                      <div className="mt-6 mb-10 flex flex-col items-center space-y-3">
                         <button
                           onClick={() => handleBookNow(stage.name)}
-                          className="mt-8 bg-green-600 hover:bg-green-700 hover:scale-105 transform transition-all text-white px-6 py-3 rounded-lg font-medium shadow-lg"
+                          className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg flex items-center gap-2"
                         >
-                          📩 KONTAKT
+                          <span>📩</span> KONTAKT
                         </button>
 
                         {typeof window !== "undefined" && navigator.share && (
                           <button
                             onClick={() => {
                               const shareData = {
-                                title: `Tuning – ${selected.brand} ${selected.model} ${selected.year} ${selected.engine}`,
+                                title: `AK-TUNING – ${selected.brand} ${selected.model} ${selected.year} ${selected.engine}`,
                                 text: `Kolla in ${stage.name} tuning för ${selected.brand} ${selected.model}`,
                                 url: `${window.location.origin}/${slugify(selected.brand)}/${slugify(selected.model)}/${slugify(selected.year)}/${slugify(selected.engine)}#${slugifyStage(stage.name)}`,
                               };
@@ -972,9 +972,9 @@ export default function TuningViewer() {
                                   console.error("Share failed:", err)
                                 );
                             }}
-                            className="bg-blue-600 hover:bg-blue-700 hover:scale-105 transform transition-all text-white px-6 py-3 rounded-lg font-medium shadow-lg"
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium shadow-md text-sm flex items-center gap-1"
                           >
-                            🔗 DELA
+                            <span>🔗</span> DELA
                           </button>
                         )}
                       </div>
