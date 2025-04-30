@@ -58,7 +58,8 @@ export const allBrandsQuery = `
 *[_type == "brand"]{
   _id,
   name,
-  "slug": slug.current,
+  slug,
+"slugCurrent": slug.current,
   "models": models[]{
     name,
     "years": years[]{
