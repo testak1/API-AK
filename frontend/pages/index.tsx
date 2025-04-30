@@ -283,6 +283,13 @@ export default function TuningViewer() {
         ctx.save();
         ctx.globalAlpha = 0.2;
 
+        <img
+          ref={watermarkImageRef}
+          src="/ak-logo.png"
+          alt="Watermark"
+          className="hidden"
+        />;
+
         const img = watermarkImageRef.current;
         const ratio = img.width / img.height;
         const imgWidth = width * 0.4;
