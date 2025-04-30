@@ -34,6 +34,11 @@ interface SelectionState {
   engine: string;
 }
 
+interface Slug {
+  _type: "slug";
+  current: string;
+}
+
 export default function TuningViewer() {
   const [data, setData] = useState<Brand[]>([]);
   const [selected, setSelected] = useState<SelectionState>({
@@ -66,7 +71,11 @@ export default function TuningViewer() {
       .replace(/\s+/g, "-")
       .replace(/-+/g, "-");
 
-  const slugifyStage = (str: string) => str.toLowerCase().replace(/\s+/g, "-");
+  const slugifyStage = (str: string) =>
+    str
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^\w-]/g, "");
 
   const handleBookNow = (stageOrOptionName: string) => {
     const selectedBrand = data.find((b) => b.name === selected.brand);
@@ -75,32 +84,45 @@ export default function TuningViewer() {
     const selectedModel = selectedBrand?.models?.find(
       (m) => m.name === selected.model
     );
-    const modelSlug = slugify(selected.model);
+
+    // Handle model slug which could be string or Slug object
+    let modelSlug: string;
+    if (selectedModel?.slug) {
+      if (
+        typeof selectedModel.slug === "object" &&
+        "current" in selectedModel.slug
+      ) {
+        modelSlug = selectedModel.slug.current;
+      } else {
+        modelSlug = selectedModel.slug as string;
+      }
+    } else {
+      modelSlug = slugify(selected.model);
+    }
 
     const selectedYear = selectedModel?.years?.find(
       (y) => y.range === selected.year
     );
-    const yearSlug = slugify(selected.year);
+    const yearSlug = selectedYear?.range
+      ? slugify(selectedYear.range)
+      : slugify(selected.year);
 
     const selectedEngine = selectedYear?.engines?.find(
       (e) => e.label === selected.engine
     );
-    const engineSlug = selectedEngine?.slug || slugify(selected.engine);
+    const engineSlug = selectedEngine?.label
+      ? slugify(selectedEngine.label)
+      : slugify(selected.engine);
 
     const stageSlug = slugifyStage(stageOrOptionName);
 
-    const finalLink =
-      typeof window !== "undefined"
-        ? `${window.location.origin}/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}#${stageSlug}`
-        : `/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}#${stageSlug}`;
+    const finalLink = `/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}#${stageSlug}`;
 
     setContactModalData({
       isOpen: true,
       stageOrOption: stageOrOptionName,
       link: finalLink,
     });
-
-    console.log("Generated Link:", finalLink);
   };
   // Fetch brands and models
   useEffect(() => {

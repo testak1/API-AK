@@ -80,7 +80,7 @@ export interface Year {
 
 export interface Model {
   name: string;
-  slug?: string;
+  slug?: Slug;
   years: Year[];
 }
 
