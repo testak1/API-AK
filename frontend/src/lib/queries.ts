@@ -17,6 +17,37 @@ export const brandsLightQuery = `
 }
 `;
 
+export const engineByParamsQuery = (brand: string, model: string, year: string, engine: string) => `
+  *[_type == "brand" && slug.current == "${brand}"][0]{
+    name,
+    "models": models[name == "${model}"][0]{
+      name,
+      "years": years[range == "${year}"][0]{
+        range,
+        "engines": engines[label == "${engine}"][0]{
+          label,
+          fuel,
+          "stages": stages[]{
+            name,
+            origHk,
+            tunedHk,
+            origNm,
+            tunedNm,
+            price,
+            description,
+            descriptionRef->{
+              _id,
+              stageName,
+              description
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+
 // Heavy query (when you need full info like stages, aktplus, engines)
 export const allBrandsQuery = `
 *[_type == "brand"]{

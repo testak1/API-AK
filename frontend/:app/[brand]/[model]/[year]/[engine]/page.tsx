@@ -3,7 +3,7 @@
 import { notFound } from "next/navigation";
 import { PortableText } from "@portabletext/react";
 import client from "@/lib/sanity";
-import { allBrandsQuery } from "@/src/lib/queries";
+import { engineByParamsQuery } from "@/src/lib/queries";
 import { useEffect } from "react";
 
 // Match exactly what's in your index.tsx
