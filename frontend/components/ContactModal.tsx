@@ -112,7 +112,6 @@ export default function ContactModal({
         className={`relative z-50 ${isOpen ? "contact-modal-open" : ""}`}
         onClose={handleClose}
       >
-        <div className="fixed inset-0 bg-black bg-opacity-50" />
         <div className="absolute top-0 left-0 w-full min-h-screen flex justify-center p-4 pt-20 bg-black bg-opacity-50 z-50">
           <Transition.Child
             as={Fragment}
