@@ -5,6 +5,23 @@ import client from "@/lib/sanity";
 import { engineByParamsQuery } from "@/src/lib/queries";
 import type { Brand, Model, Year, Engine, Stage } from "@/types/sanity";
 import { urlFor } from "@/lib/sanity";
+import {
+  Chart,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  LineController,
+} from "chart.js";
+import { Line } from "react-chartjs-2";
+
+Chart.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  LineController
+);
 
 interface EnginePageProps {
   brandData: Brand | null;
@@ -75,6 +92,28 @@ export const getServerSideProps: GetServerSideProps<EnginePageProps> = async (
   }
 };
 
+const generateDynoCurve = (peakValue: number, isHp: boolean) => {
+  const rpmRange = [
+    2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000,
+  ];
+  const peakIndex = isHp ? 6 : 4;
+  const startIndex = 0;
+
+  return rpmRange.map((rpm, i) => {
+    const startRpm = rpmRange[startIndex];
+    const peakRpm = rpmRange[peakIndex];
+    const endRpm = rpmRange[rpmRange.length - 1];
+
+    if (rpm <= peakRpm) {
+      const progress = (rpm - startRpm) / (peakRpm - startRpm);
+      return peakValue * (0.5 + 0.5 * Math.pow(progress, 1.2));
+    } else {
+      const fallProgress = (rpm - peakRpm) / (endRpm - peakRpm);
+      return peakValue * (1 - 0.35 * Math.pow(fallProgress, 1));
+    }
+  });
+};
+
 export default function EnginePage({
   brandData,
   modelData,
@@ -96,130 +135,208 @@ export default function EnginePage({
   }
 
   return (
-    <div className="max-w-7xl mx-auto p-4">
-      {/* Hero Header */}
-      <div className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-xl p-6 mb-8 text-center">
-        <h1 className="text-3xl font-bold mb-2">
-          {brandData?.name} {modelData?.name}
-        </h1>
-        <div className="flex flex-wrap justify-center gap-4 text-lg">
-          <span className="bg-gray-700 px-3 py-1 rounded-full">
-            {yearData?.range}
-          </span>
-          <span className="bg-indigo-600 px-3 py-1 rounded-full">
-            {engineData.label}
-          </span>
-          <span className="bg-amber-500 text-black px-3 py-1 rounded-full">
-            {engineData.fuel}
-          </span>
+    <div className="max-w-6xl mx-auto p-4">
+      <div className="flex flex-col md:flex-row gap-8 mb-12">
+        {/* Vehicle Info */}
+        <div className="md:w-1/3 bg-gray-800 rounded-xl p-6">
+          <div className="flex items-center gap-4 mb-6">
+            {brandData?.logo?.asset && (
+              <img
+                src={urlFor(brandData.logo).width(80).url()}
+                alt={brandData.name}
+                className="h-12 w-auto"
+              />
+            )}
+            <h1 className="text-2xl font-bold">{brandData?.name}</h1>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <p className="text-gray-400 text-sm">Modell</p>
+              <p className="text-lg">{modelData?.name}</p>
+            </div>
+            <div>
+              <p className="text-gray-400 text-sm">Årsmodell</p>
+              <p className="text-lg">{yearData?.range}</p>
+            </div>
+            <div>
+              <p className="text-gray-400 text-sm">Motor</p>
+              <p className="text-lg">{engineData.label}</p>
+            </div>
+            <div>
+              <p className="text-gray-400 text-sm">Bränsle</p>
+              <p className="text-lg capitalize">{engineData.fuel}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Performance Overview */}
+        <div className="md:w-2/3 bg-gray-800 rounded-xl p-6">
+          <h2 className="text-xl font-bold mb-6">Prestandajämförelse</h2>
+
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-700">
+                  <th className="pb-3 text-left">Steg</th>
+                  <th className="pb-3 text-right">HK (Original)</th>
+                  <th className="pb-3 text-right">HK (Tuned)</th>
+                  <th className="pb-3 text-right">NM (Original)</th>
+                  <th className="pb-3 text-right">NM (Tuned)</th>
+                  <th className="pb-3 text-right">Pris</th>
+                </tr>
+              </thead>
+              <tbody>
+                {engineData.stages?.map((stage) => (
+                  <tr
+                    key={stage.name}
+                    className="border-b border-gray-700 hover:bg-gray-700"
+                  >
+                    <td className="py-4 font-medium">{stage.name}</td>
+                    <td className="py-4 text-right">{stage.origHk}</td>
+                    <td className="py-4 text-right text-green-400 font-bold">
+                      {stage.tunedHk} (+{stage.tunedHk - stage.origHk})
+                    </td>
+                    <td className="py-4 text-right">{stage.origNm}</td>
+                    <td className="py-4 text-right text-cyan-400 font-bold">
+                      {stage.tunedNm} (+{stage.tunedNm - stage.origNm})
+                    </td>
+                    <td className="py-4 text-right">
+                      <span className="bg-red-600 text-white px-3 py-1 rounded-full text-sm">
+                        {stage.price?.toLocaleString()} kr
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
-      {/* Performance Comparison Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
+      {/* Visual Comparison */}
+      <div className="grid md:grid-cols-2 gap-8">
         {engineData.stages?.map((stage) => (
-          <div
-            key={stage.name}
-            className="bg-gray-800 rounded-xl p-6 border border-gray-700"
-          >
-            <div className="flex justify-between items-start mb-4">
-              <h3 className="text-xl font-bold text-indigo-400">
-                {stage.name}
-              </h3>
-              <span className="bg-red-600 text-white px-3 py-1 rounded-full text-sm">
-                {stage.price?.toLocaleString()} kr
-              </span>
+          <div key={stage.name} className="bg-gray-800 rounded-xl p-6">
+            <h3 className="text-xl font-bold mb-4">{stage.name}</h3>
+
+            <div className="h-64">
+              <Line
+                data={{
+                  labels: ["2000", "3000", "4000", "5000", "6000", "7000"],
+                  datasets: [
+                    {
+                      label: "Original HK",
+                      data: generateDynoCurve(stage.origHk, true),
+                      borderColor: "#f87171",
+                      borderWidth: 2,
+                      borderDash: [5, 3],
+                      tension: 0.4,
+                      pointRadius: 0,
+                    },
+                    {
+                      label: "Tuned HK",
+                      data: generateDynoCurve(stage.tunedHk, true),
+                      borderColor: "#4ade80",
+                      borderWidth: 3,
+                      tension: 0.4,
+                      pointRadius: 0,
+                    },
+                    {
+                      label: "Original NM",
+                      data: generateDynoCurve(stage.origNm, false),
+                      borderColor: "#93c5fd",
+                      borderWidth: 2,
+                      borderDash: [5, 3],
+                      tension: 0.4,
+                      pointRadius: 0,
+                    },
+                    {
+                      label: "Tuned NM",
+                      data: generateDynoCurve(stage.tunedNm, false),
+                      borderColor: "#22d3ee",
+                      borderWidth: 3,
+                      tension: 0.4,
+                      pointRadius: 0,
+                    },
+                  ],
+                }}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: {
+                      position: "top",
+                      labels: {
+                        color: "#e5e7eb",
+                      },
+                    },
+                  },
+                  scales: {
+                    y: {
+                      beginAtZero: true,
+                      grid: {
+                        color: "rgba(255,255,255,0.1)",
+                      },
+                      ticks: {
+                        color: "#9ca3af",
+                      },
+                    },
+                    x: {
+                      grid: {
+                        color: "rgba(255,255,255,0.1)",
+                      },
+                      ticks: {
+                        color: "#9ca3af",
+                      },
+                    },
+                  },
+                }}
+              />
             </div>
 
-            {/* Performance Bars */}
-            <div className="space-y-4">
-              <div>
-                <div className="flex justify-between mb-1">
-                  <span>Hästkrafter</span>
-                  <span className="font-mono">
-                    {stage.origHk} →{" "}
-                    <span className="text-green-400">{stage.tunedHk}</span>
+            <div className="mt-4 grid grid-cols-2 gap-4">
+              <div className="bg-gray-900 p-4 rounded-lg">
+                <h4 className="font-bold text-green-400 mb-2">Hästkrafter</h4>
+                <div className="flex justify-between">
+                  <span>Original:</span>
+                  <span>{stage.origHk} hk</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Tuned:</span>
+                  <span className="text-green-400 font-bold">
+                    {stage.tunedHk} hk
                   </span>
                 </div>
-                <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-red-500 to-green-500"
-                    style={{
-                      width: `${(stage.tunedHk / (stage.tunedHk + 100)) * 100}%`,
-                    }}
-                  />
+                <div className="flex justify-between">
+                  <span>Ökning:</span>
+                  <span className="text-green-400">
+                    +{stage.tunedHk - stage.origHk} hk
+                  </span>
                 </div>
               </div>
 
-              <div>
-                <div className="flex justify-between mb-1">
-                  <span>Vridmoment</span>
-                  <span className="font-mono">
-                    {stage.origNm} →{" "}
-                    <span className="text-green-400">{stage.tunedNm}</span>
+              <div className="bg-gray-900 p-4 rounded-lg">
+                <h4 className="font-bold text-cyan-400 mb-2">Vridmoment</h4>
+                <div className="flex justify-between">
+                  <span>Original:</span>
+                  <span>{stage.origNm} Nm</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Tuned:</span>
+                  <span className="text-cyan-400 font-bold">
+                    {stage.tunedNm} Nm
                   </span>
                 </div>
-                <div className="h-2 bg-gray-700 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-blue-500 to-cyan-400"
-                    style={{
-                      width: `${(stage.tunedNm / (stage.tunedNm + 100)) * 100}%`,
-                    }}
-                  />
+                <div className="flex justify-between">
+                  <span>Ökning:</span>
+                  <span className="text-cyan-400">
+                    +{stage.tunedNm - stage.origNm} Nm
+                  </span>
                 </div>
-              </div>
-            </div>
-
-            {/* Quick Stats */}
-            <div className="grid grid-cols-2 gap-3 mt-6">
-              <div className="bg-gray-900 p-3 rounded-lg text-center">
-                <p className="text-sm text-gray-400">Ökning</p>
-                <p className="text-xl font-bold text-green-400">
-                  +{stage.tunedHk - stage.origHk} hk
-                </p>
-              </div>
-              <div className="bg-gray-900 p-3 rounded-lg text-center">
-                <p className="text-sm text-gray-400">Ökning</p>
-                <p className="text-xl font-bold text-cyan-400">
-                  +{stage.tunedNm - stage.origNm} Nm
-                </p>
               </div>
             </div>
           </div>
-        ))}
-      </div>
-
-      {/* Detailed Stage Comparison */}
-      <div className="bg-gray-800 rounded-xl overflow-hidden">
-        <div className="grid grid-cols-5 bg-gray-900 p-4 font-bold">
-          <div className="col-span-2">Specifikation</div>
-          <div className="text-center">Original</div>
-          <div className="text-center">Tuned</div>
-          <div className="text-center">Skillnad</div>
-        </div>
-        {engineData.stages?.map((stage) => (
-          <>
-            <div className="grid grid-cols-5 p-4 border-b border-gray-700 items-center">
-              <div className="col-span-2 font-medium">{stage.name}</div>
-              <div className="text-center">{stage.origHk} hk</div>
-              <div className="text-center text-green-400">
-                {stage.tunedHk} hk
-              </div>
-              <div className="text-center text-green-400">
-                +{stage.tunedHk - stage.origHk} hk
-              </div>
-            </div>
-            <div className="grid grid-cols-5 p-4 border-b border-gray-700 items-center">
-              <div className="col-span-2"></div>
-              <div className="text-center">{stage.origNm} Nm</div>
-              <div className="text-center text-cyan-400">
-                {stage.tunedNm} Nm
-              </div>
-              <div className="text-center text-cyan-400">
-                +{stage.tunedNm - stage.origNm} Nm
-              </div>
-            </div>
-          </>
         ))}
       </div>
     </div>
