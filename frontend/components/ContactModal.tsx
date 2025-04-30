@@ -112,7 +112,8 @@ export default function ContactModal({
         className={`relative z-50 ${isOpen ? "contact-modal-open" : ""}`}
         onClose={handleClose}
       >
-        <div className="absolute top-0 left-0 w-full min-h-screen flex justify-center p-4 pt-20 bg-black bg-opacity-50 z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50" />
+        <div className="fixed inset-0 flex items-center justify-center p-4 overflow-y-auto max-h-screen">
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
@@ -122,7 +123,7 @@ export default function ContactModal({
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-90"
           >
-            <Dialog.Panel className="bg-gray-900 rounded-lg text-white w-full max-w-md p-6 shadow-xl relative z-50">
+            <Dialog.Panel className="bg-gray-900 rounded-lg text-white max-w-md w-full p-6 shadow-xl relative">
               <button
                 type="button"
                 onClick={handleClose}
