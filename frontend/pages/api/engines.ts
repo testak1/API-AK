@@ -31,36 +31,44 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 _id,
                 stageName,
                 description
-              },
-              aktPlusOptions[]->{
-                _id,
-                title,
-                price,
-                isUniversal,
-                applicableFuelTypes,
-                stageCompatibility,
-                compatibilityNotes,
-                description,
-                gallery[]{
-                  _key,
-                  alt,
-                  caption,
-                  "asset": asset->{
-                    _id,
-                    url
-                  }
-                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
               }
             },
-            globalAktPlusOptions[]->{
+            "globalAktPlusOptions": *[
+              _type == "aktPlus" &&
+              (
+                isUniversal == true ||
+                fuel in applicableFuelTypes
+              ) &&
+              !defined(stageCompatibility)
+            ]{
               _id,
               title,
               price,
               isUniversal,
               applicableFuelTypes,
               stageCompatibility,
-              compatibilityNotes,
+
               description,
+              manualAssignments[]->,
               gallery[]{
                 _key,
                 alt,
@@ -69,12 +77,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                   _id,
                   url
                 }
-              }
+              },
+              compatibilityNotes
             }
           }
         }
       }
-    }.models.years.engines
+    }.models[0].years[0].engines
   `;
 
   try {
