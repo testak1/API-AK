@@ -126,6 +126,16 @@ export default function TuningViewer() {
       link: finalLink,
     });
   };
+
+  // Load watermark image
+  useEffect(() => {
+    const img = new Image();
+    img.src = "/ak-logo.png";
+    img.onload = () => {
+      watermarkImageRef.current = img;
+    };
+  }, []);
+
   // Fetch brands and models
   useEffect(() => {
     const fetchBrands = async () => {
@@ -282,13 +292,6 @@ export default function TuningViewer() {
       if (watermarkImageRef.current?.complete) {
         ctx.save();
         ctx.globalAlpha = 0.2;
-
-        <img
-          ref={watermarkImageRef}
-          src="/ak-logo.png"
-          alt="Watermark"
-          className="hidden"
-        />;
 
         const img = watermarkImageRef.current;
         const ratio = img.width / img.height;
