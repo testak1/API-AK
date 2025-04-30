@@ -4,18 +4,16 @@ import { notFound } from "next/navigation";
 import { PortableText } from "@portabletext/react";
 import client from "@/lib/sanity";
 import { engineByParamsQuery } from "@/src/lib/queries";
-import { useEffect } from "react";
 
-// Match exactly what's in your index.tsx
 function slugify(str: string) {
   return str
     .toLowerCase()
-    .replace(/[^\w\s-]/g, "") // Remove special chars except spaces and hyphens
-    .replace(/\s+/g, "-") // Replace spaces with hyphens
-    .replace(/-+/g, "-"); // Collapse multiple hyphens
+    .replace(/[^\w\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
-// Match exactly what's in your index.tsx
 function slugifyStage(stage: string) {
   return stage.toLowerCase().replace(/\s+/g, "-");
 }
@@ -30,54 +28,28 @@ interface Props {
 }
 
 export const dynamicParams = false;
+
 export default async function EnginePage({ params }: Props) {
   const { brand, model, year, engine } = params;
 
-  // Handle anchor scrolling on client-side
-  useEffect(() => {
-    if (typeof window !== "undefined" && window.location.hash) {
-      const element = document.getElementById(
-        window.location.hash.substring(1)
-      );
-      if (element) {
-        setTimeout(() => {
-          element.scrollIntoView({ behavior: "smooth" });
-          // Add temporary highlight
-          element.classList.add("ring-2", "ring-indigo-500");
-          setTimeout(() => {
-            element.classList.remove("ring-2", "ring-indigo-500");
-          }, 2000);
-        }, 300);
-      }
-    }
-  }, []);
+  const query = engineByParamsQuery(brand, model, year, engine);
+  const result = await client.fetch(query);
 
-  const brandsData = await client.fetch(allBrandsQuery);
-  if (!brandsData) notFound();
+  if (!result || !result.models?.years?.engines) {
+    notFound();
+  }
 
-  const brandData = brandsData.find((b: any) => slugify(b.slug) === brand);
-  if (!brandData) notFound();
-
-  const modelData = brandData.models.find(
-    (m: any) => slugify(m.name) === model
-  );
-  if (!modelData) notFound();
-
-  const yearData = modelData.years.find((y: any) => slugify(y.range) === year);
-  if (!yearData) notFound();
-
-  const engineData = yearData.engines.find(
-    (e: any) => slugify(e.label) === engine
-  );
-  if (!engineData) notFound();
+  const brandName = result.name;
+  const modelData = result.models;
+  const yearData = modelData.years;
+  const engineData = yearData.engines;
 
   return (
     <div className="max-w-5xl mx-auto p-4 md:p-8">
       <h1 className="text-2xl font-bold text-center mb-6">
-        {brandData.name} {modelData.name} {yearData.range} – {engineData.label}
+        {brandName} {modelData.name} {yearData.range} – {engineData.label}
       </h1>
 
-      {/* Show tuning stages */}
       <div className="space-y-8">
         {engineData.stages?.length > 0 ? (
           engineData.stages.map((stage: any) => {
@@ -119,9 +91,18 @@ export default async function EnginePage({ params }: Props) {
   );
 }
 
+// Pre-render static paths
 export async function generateStaticParams() {
-  const brandsData = await client.fetch(allBrandsQuery);
-  if (!brandsData) return [];
+  const brandsData = await client.fetch(`*[_type == "brand"]{
+    "slug": slug.current,
+    models[]{
+      name,
+      years[]{
+        range,
+        engines[]{ label }
+      }
+    }
+  }`);
 
   const paths = [];
 
