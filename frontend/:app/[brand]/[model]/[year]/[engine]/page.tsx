@@ -8,10 +8,10 @@ import { allBrandsQuery } from "@/src/lib/queries";
 function slugifySafe(text: string) {
   return text
     .toLowerCase()
-    .replace(/[\s\/]+/g, "-") // replace spaces and slashes with dash
-    .replace(/[^\w-]+/g, "")  // remove everything except words and dash
-    .replace(/-{2,}/g, "-")   // collapse multiple dashes
-    .replace(/^-+|-+$/g, ""); // remove starting or ending dash
+    .replace(/[\s\/]+/g, "-")
+    .replace(/[^\w-]+/g, "")
+    .replace(/-{2,}/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
 interface Props {
@@ -30,21 +30,21 @@ export default async function EnginePage({ params }: Props) {
   if (!brandsData) notFound();
 
   const brandData = brandsData.find(
-    (b: any) => slugifySafe(b.slug) === brand
+    (b: any) => slugifySafe(b.slug?.current) === brand
   );
   if (!brandData) notFound();
 
-  const modelData = brandData.models.find(
+  const modelData = brandData.models?.find(
     (m: any) => slugifySafe(m.name) === model
   );
   if (!modelData) notFound();
 
-  const yearData = modelData.years.find(
+  const yearData = modelData.years?.find(
     (y: any) => slugifySafe(y.range) === year
   );
   if (!yearData) notFound();
 
-  const engineData = yearData.engines.find(
+  const engineData = yearData.engines?.find(
     (e: any) => slugifySafe(e.label) === engine
   );
   if (!engineData) notFound();
@@ -55,20 +55,23 @@ export default async function EnginePage({ params }: Props) {
         {brandData.name} {modelData.name} {yearData.range} – {engineData.label}
       </h1>
 
-      {/* Show tuning stages */}
       <div className="space-y-8">
         {engineData.stages?.length > 0 ? (
           engineData.stages.map((stage: any) => (
-            <div key={stage.name} className="bg-gray-800 p-6 rounded-lg shadow-md">
+            <div
+              key={stage.name}
+              className="bg-gray-800 p-6 rounded-lg shadow-md"
+            >
               <h2 className="text-xl font-bold text-indigo-400 mb-2">
                 {stage.name}
               </h2>
               <p className="text-white mb-2">
-                Original: {stage.origHk} HK / {stage.origNm} NM
+                Original: {stage.origHk ?? "–"} HK / {stage.origNm ?? "–"} NM
               </p>
               <p className="text-green-400 mb-2">
-                Tuned: {stage.tunedHk} HK / {stage.tunedNm} NM
+                Tuned: {stage.tunedHk ?? "–"} HK / {stage.tunedNm ?? "–"} NM
               </p>
+
               {stage.descriptionRef?.description ? (
                 <div className="prose prose-invert text-white mt-4">
                   <PortableText value={stage.descriptionRef.description} />
@@ -81,7 +84,9 @@ export default async function EnginePage({ params }: Props) {
             </div>
           ))
         ) : (
-          <p className="text-center text-white">Inga steg hittades för denna motor.</p>
+          <p className="text-center text-white">
+            Inga steg hittades för denna motor.
+          </p>
         )}
       </div>
     </div>
