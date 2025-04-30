@@ -75,15 +75,27 @@ export default function TuningViewer() {
   };
 
   const handleBookNow = (stageOrOptionName: string) => {
-    const brandSlug = slugify(selected.brand);
+    const selectedBrand = data.find((b) => b.name === selected.brand);
+    const brandSlug = selectedBrand?.slug?.current || slugify(selected.brand);
+
+    const selectedModel = selectedBrand?.models?.find(
+      (m) => m.name === selected.model
+    );
     const modelSlug = slugify(selected.model);
+
+    const selectedYear = selectedModel?.years?.find(
+      (y) => y.range === selected.year
+    );
     const yearSlug = slugify(selected.year);
+
+    const selectedEngine = selectedYear?.engines?.find(
+      (e) => e.label === selected.engine
+    );
     const engineSlug = slugify(selected.engine);
+
     const stageSlug = slugifyStage(stageOrOptionName);
 
-    // Use window.location.origin to get the current site's base URL
-    const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
-    const finalLink = `${baseUrl}/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}#${stageSlug}`;
+    const finalLink = `${window.location.origin}/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}#${stageSlug}`;
 
     setContactModalData({
       isOpen: true,
