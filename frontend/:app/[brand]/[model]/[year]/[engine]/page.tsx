@@ -1,11 +1,10 @@
 // app/[brand]/[model]/[year]/[engine]/page.tsx
 
-import { PortableText } from "@portabletext/react";
 import { notFound } from "next/navigation";
+import { PortableText } from "@portabletext/react";
 import client from "@/lib/sanity";
-import { engineByParamsQuery } from "@/src/lib/queries";
+import { allBrandsQuery } from "@/src/lib/queries";
 
-// Matches frontend slug logic
 function slugify(str: string) {
   return str
     .toLowerCase()
@@ -27,19 +26,31 @@ interface Props {
   };
 }
 
+export const dynamicParams = false;
+
 export default async function EnginePage({ params }: Props) {
   const { brand, model, year, engine } = params;
 
-  const result = await client.fetch(engineByParamsQuery, {
-    brand,
-    model,
-    year,
-    engine,
-  });
+  const brandsData = await client.fetch(allBrandsQuery);
+  if (!brandsData) notFound();
 
-  if (!result || !result.engineData) notFound();
+  const brandData = brandsData.find(
+    (b: any) => slugify(b.slugCurrent) === brand
+  );
+  if (!brandData) notFound();
 
-  const { brandData, modelData, yearData, engineData } = result;
+  const modelData = brandData.models.find(
+    (m: any) => slugify(m.name) === model
+  );
+  if (!modelData) notFound();
+
+  const yearData = modelData.years.find((y: any) => slugify(y.range) === year);
+  if (!yearData) notFound();
+
+  const engineData = yearData.engines.find(
+    (e: any) => slugify(e.label) === engine
+  );
+  if (!engineData) notFound();
 
   return (
     <div className="max-w-5xl mx-auto p-4 md:p-8">
@@ -86,4 +97,32 @@ export default async function EnginePage({ params }: Props) {
       </div>
     </div>
   );
+}
+
+export async function generateStaticParams() {
+  const brandsData = await client.fetch(allBrandsQuery);
+  if (!brandsData) return [];
+
+  const paths = [];
+
+  for (const b of brandsData) {
+    const brandSlug = slugify(b.slugCurrent);
+    for (const m of b.models || []) {
+      const modelSlug = slugify(m.name);
+      for (const y of m.years || []) {
+        const yearSlug = slugify(y.range);
+        for (const e of y.engines || []) {
+          const engineSlug = slugify(e.label);
+          paths.push({
+            brand: brandSlug,
+            model: modelSlug,
+            year: yearSlug,
+            engine: engineSlug,
+          });
+        }
+      }
+    }
+  }
+
+  return paths;
 }
