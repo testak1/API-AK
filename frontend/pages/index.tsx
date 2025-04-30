@@ -24,7 +24,7 @@ Chart.register(
   LinearScale,
   PointElement,
   LineElement,
-  LineController,
+  LineController
 );
 
 interface SelectionState {
@@ -44,7 +44,7 @@ export default function TuningViewer() {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [expandedStages, setExpandedStages] = useState<Record<string, boolean>>(
-    {},
+    {}
   );
   const [expandedDescriptions, setExpandedDescriptions] = useState<
     Record<string, boolean>
@@ -79,9 +79,11 @@ export default function TuningViewer() {
     const modelSlug = slugify(selected.model);
     const yearSlug = slugify(selected.year);
     const engineSlug = slugify(selected.engine);
-    const stageSlug = slugifyStage(stageOrOptionName); // <- use special slugifyStage
+    const stageSlug = slugifyStage(stageOrOptionName);
 
-    const finalLink = `https://api.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}#${stageSlug}`;
+    // Use window.location.origin to get the current site's base URL
+    const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
+    const finalLink = `${baseUrl}/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}#${stageSlug}`;
 
     setContactModalData({
       isOpen: true,
@@ -116,7 +118,7 @@ export default function TuningViewer() {
         setIsLoading(true);
         try {
           const res = await fetch(
-            `/api/years?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}`,
+            `/api/years?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}`
           );
           if (!res.ok) throw new Error("Failed to fetch years");
           const years = await res.json();
@@ -134,7 +136,7 @@ export default function TuningViewer() {
                   };
                 }),
               };
-            }),
+            })
           );
         } catch (error) {
           console.error("Error fetching years:", error);
@@ -154,7 +156,7 @@ export default function TuningViewer() {
         setIsLoading(true);
         try {
           const res = await fetch(
-            `/api/engines?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}&year=${encodeURIComponent(selected.year)}`,
+            `/api/engines?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}&year=${encodeURIComponent(selected.year)}`
           );
           if (!res.ok) throw new Error("Failed to fetch engines");
           const engines = await res.json();
@@ -175,7 +177,7 @@ export default function TuningViewer() {
                   };
                 }),
               };
-            }),
+            })
           );
         } catch (error) {
           console.error("Error fetching engines:", error);
@@ -210,7 +212,7 @@ export default function TuningViewer() {
         acc[fuelType].push(engine);
         return acc;
       },
-      {} as Record<string, typeof engines>,
+      {} as Record<string, typeof engines>
     );
 
     return {
@@ -231,7 +233,7 @@ export default function TuningViewer() {
           acc[stage.name] = stage.name === "Steg 1";
           return acc;
         },
-        {} as Record<string, boolean>,
+        {} as Record<string, boolean>
       );
       setExpandedStages(initialExpandedStates);
     }
@@ -302,7 +304,7 @@ export default function TuningViewer() {
             (opt.isUniversal ||
               opt.applicableFuelTypes?.includes(selectedEngine.fuel) ||
               opt.manualAssignments?.some(
-                (ref) => ref._ref === selectedEngine._id,
+                (ref) => ref._ref === selectedEngine._id
               )) &&
             (!opt.stageCompatibility || opt.stageCompatibility === stage.name)
           ) {
@@ -312,7 +314,7 @@ export default function TuningViewer() {
 
       return Array.from(uniqueOptionsMap.values());
     },
-    [selectedEngine],
+    [selectedEngine]
   );
 
   const generateDynoCurve = (peakValue: number, isHp: boolean) => {
@@ -609,7 +611,7 @@ export default function TuningViewer() {
                         ?.asset && (
                         <img
                           src={urlFor(
-                            data.find((b) => b.name === selected.brand)?.logo,
+                            data.find((b) => b.name === selected.brand)?.logo
                           )
                             .width(60)
                             .url()}
