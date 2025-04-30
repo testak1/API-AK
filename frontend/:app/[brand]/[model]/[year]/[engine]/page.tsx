@@ -1,17 +1,17 @@
 // app/[brand]/[model]/[year]/[engine]/page.tsx
 
-import { notFound } from "next/navigation";
 import { PortableText } from "@portabletext/react";
+import { notFound } from "next/navigation";
 import client from "@/lib/sanity";
 import { engineByParamsQuery } from "@/src/lib/queries";
 
+// Matches frontend slug logic
 function slugify(str: string) {
   return str
     .toLowerCase()
     .replace(/[^\w\s-]/g, "")
     .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-+|-+$/g, "");
+    .replace(/-+/g, "-");
 }
 
 function slugifyStage(stage: string) {
@@ -27,27 +27,24 @@ interface Props {
   };
 }
 
-export const dynamicParams = false;
-
 export default async function EnginePage({ params }: Props) {
   const { brand, model, year, engine } = params;
 
-  const query = engineByParamsQuery(brand, model, year, engine);
-  const result = await client.fetch(query);
+  const result = await client.fetch(engineByParamsQuery, {
+    brand,
+    model,
+    year,
+    engine,
+  });
 
-  if (!result || !result.models?.years?.engines) {
-    notFound();
-  }
+  if (!result || !result.engineData) notFound();
 
-  const brandName = result.name;
-  const modelData = result.models;
-  const yearData = modelData.years;
-  const engineData = yearData.engines;
+  const { brandData, modelData, yearData, engineData } = result;
 
   return (
     <div className="max-w-5xl mx-auto p-4 md:p-8">
       <h1 className="text-2xl font-bold text-center mb-6">
-        {brandName} {modelData.name} {yearData.range} – {engineData.label}
+        {brandData.name} {modelData.name} {yearData.range} – {engineData.label}
       </h1>
 
       <div className="space-y-8">
@@ -58,7 +55,7 @@ export default async function EnginePage({ params }: Props) {
               <div
                 key={stage.name}
                 id={stageSlug}
-                className="bg-gray-800 p-6 rounded-lg shadow-md transition-all duration-300"
+                className="bg-gray-800 p-6 rounded-lg shadow-md"
               >
                 <h2 className="text-xl font-bold text-indigo-400 mb-2">
                   {stage.name}
@@ -89,41 +86,4 @@ export default async function EnginePage({ params }: Props) {
       </div>
     </div>
   );
-}
-
-// Pre-render static paths
-export async function generateStaticParams() {
-  const brandsData = await client.fetch(`*[_type == "brand"]{
-    "slug": slug.current,
-    models[]{
-      name,
-      years[]{
-        range,
-        engines[]{ label }
-      }
-    }
-  }`);
-
-  const paths = [];
-
-  for (const b of brandsData) {
-    const brandSlug = slugify(b.slug);
-    for (const m of b.models || []) {
-      const modelSlug = slugify(m.name);
-      for (const y of m.years || []) {
-        const yearSlug = slugify(y.range);
-        for (const e of y.engines || []) {
-          const engineSlug = slugify(e.label);
-          paths.push({
-            brand: brandSlug,
-            model: modelSlug,
-            year: yearSlug,
-            engine: engineSlug,
-          });
-        }
-      }
-    }
-  }
-
-  return paths;
 }
