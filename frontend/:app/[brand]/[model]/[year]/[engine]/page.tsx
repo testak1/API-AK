@@ -6,13 +6,18 @@ import client from "@/lib/sanity";
 import { allBrandsQuery } from "@/src/lib/queries";
 import { useEffect } from "react";
 
-function slugifySafe(text: string) {
-  return text
+// Match exactly what's in your index.tsx
+function slugify(str: string) {
+  return str
     .toLowerCase()
-    .replace(/[\s\/]+/g, "-") // replace spaces and slashes with dash
-    .replace(/[^\w-]+/g, "") // remove everything except words and dash
-    .replace(/-{2,}/g, "-") // collapse multiple dashes
-    .replace(/^-+|-+$/g, ""); // remove starting or ending dash
+    .replace(/[^\w\s-]/g, "") // Remove special chars except spaces and hyphens
+    .replace(/\s+/g, "-") // Replace spaces with hyphens
+    .replace(/-+/g, "-"); // Collapse multiple hyphens
+}
+
+// Match exactly what's in your index.tsx
+function slugifyStage(stage: string) {
+  return stage.toLowerCase().replace(/\s+/g, "-");
 }
 
 interface Props {
@@ -50,21 +55,19 @@ export default async function EnginePage({ params }: Props) {
   const brandsData = await client.fetch(allBrandsQuery);
   if (!brandsData) notFound();
 
-  const brandData = brandsData.find((b: any) => slugifySafe(b.slug) === brand);
+  const brandData = brandsData.find((b: any) => slugify(b.slug) === brand);
   if (!brandData) notFound();
 
   const modelData = brandData.models.find(
-    (m: any) => slugifySafe(m.name) === model
+    (m: any) => slugify(m.name) === model
   );
   if (!modelData) notFound();
 
-  const yearData = modelData.years.find(
-    (y: any) => slugifySafe(y.range) === year
-  );
+  const yearData = modelData.years.find((y: any) => slugify(y.range) === year);
   if (!yearData) notFound();
 
   const engineData = yearData.engines.find(
-    (e: any) => slugifySafe(e.label) === engine
+    (e: any) => slugify(e.label) === engine
   );
   if (!engineData) notFound();
 
@@ -78,7 +81,7 @@ export default async function EnginePage({ params }: Props) {
       <div className="space-y-8">
         {engineData.stages?.length > 0 ? (
           engineData.stages.map((stage: any) => {
-            const stageSlug = slugifySafe(stage.name);
+            const stageSlug = slugifyStage(stage.name);
             return (
               <div
                 key={stage.name}
@@ -123,13 +126,13 @@ export async function generateStaticParams() {
   const paths = [];
 
   for (const b of brandsData) {
-    const brandSlug = slugifySafe(b.slug);
+    const brandSlug = slugify(b.slug);
     for (const m of b.models || []) {
-      const modelSlug = slugifySafe(m.name);
+      const modelSlug = slugify(m.name);
       for (const y of m.years || []) {
-        const yearSlug = slugifySafe(y.range);
+        const yearSlug = slugify(y.range);
         for (const e of y.engines || []) {
-          const engineSlug = slugifySafe(e.label);
+          const engineSlug = slugify(e.label);
           paths.push({
             brand: brandSlug,
             model: modelSlug,
