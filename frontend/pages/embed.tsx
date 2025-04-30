@@ -5,12 +5,9 @@ import TuningViewer from "./index";
 export default function Embed() {
   useEffect(() => {
     const sendHeight = () => {
-      // Kontrollera om modal är öppen
-      const modalOpen = document.querySelector(".contact-modal-open");
-      if (!modalOpen) {
-        const height = document.body.scrollHeight;
-        window.parent.postMessage({ height }, "*");
-      }
+      // Get the full height including any open modal
+      const height = document.documentElement.scrollHeight;
+      window.parent.postMessage({ height }, "*");
     };
 
     sendHeight(); // Initial
@@ -23,10 +20,12 @@ export default function Embed() {
     });
 
     window.addEventListener("resize", sendHeight);
+    window.addEventListener("modalStateChange", sendHeight); // Add this if you can trigger custom events
 
     return () => {
       observer.disconnect();
       window.removeEventListener("resize", sendHeight);
+      window.removeEventListener("modalStateChange", sendHeight);
     };
   }, []);
 
