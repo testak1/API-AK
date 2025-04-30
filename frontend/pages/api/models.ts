@@ -9,7 +9,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const query = `
     *[_type == "brand" && name == $brand][0].models[]{
       name
-      "slug": label,
     }
   `;
   try {

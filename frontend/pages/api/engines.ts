@@ -15,7 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         _key,
         label,
         fuel,
-	"slug": label,
+	      "slug": label,
         "stages": stages[]{
           name,
           origHk,
