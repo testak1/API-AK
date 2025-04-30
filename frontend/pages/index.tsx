@@ -18,6 +18,7 @@ import type {
   AktPlusOptionReference,
 } from "@/types/sanity";
 import ContactModal from "@/components/ContactModal";
+import { link } from "fs";
 
 Chart.register(
   CategoryScale,
