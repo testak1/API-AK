@@ -59,6 +59,14 @@ export default function ContactModal({
     };
   }, [isOpen]);
 
+  useEffect(() => {
+    if (isOpen) {
+      setTimeout(() => {
+        window.parent.postMessage({ height: document.body.scrollHeight }, "*");
+      }, 300);
+    }
+  }, [isOpen]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSending(true);
@@ -115,10 +123,9 @@ export default function ContactModal({
 
         {/* ✅ MODAL POSITIONING FIXED HERE */}
         <div
-          className="fixed left-1/2 z-50 px-4"
+          className="fixed left-1/2 transform -translate-x-1/2 z-50 px-4"
           style={{
-            top: modalTop,
-            transform: modalTransform,
+            top: "850px", // 🔧 Adjust this value until it's visually correct
           }}
         >
           <Transition.Child
