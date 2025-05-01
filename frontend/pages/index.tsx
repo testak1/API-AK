@@ -757,11 +757,11 @@ export default function TuningViewer() {
                         <div className="absolute hidden md:flex flex-row justify-between top-4 left-0 right-0 px-16">
                           {/* ORG HK / Max HK */}
                           <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
-                            <p className="text-red-400">- - -</p>
+                            <p className="text-red-600">- - -</p>
                             <p className="text-white">
                               HK ORG: {stage.origHk} hk
                             </p>
-                            <p className="text-red-800">⸻</p>
+                            <p className="text-red-600">_____</p>
                             <p className="text-white">
                               HK{" "}
                               {stage.name
@@ -778,16 +778,14 @@ export default function TuningViewer() {
                             <p className="text-white">
                               NM ORG: {stage.origNm} Nm
                             </p>
-                            <p className="text-white">⸻</p>
+                            <p className="text-white">_____</p>
                             <p className="text-white">
-                              <span className="text-gray-400 text-xs mr-1">
-                                NM
-                              </span>
+                              NM{" "}
                               {stage.name
                                 .replace("Steg", "ST")
                                 .replace(/\s+/g, "")
                                 .toUpperCase()}
-                              : {stage.tunedNm} Nm
+                              : {stage.tunedHk} NM
                             </p>
                           </div>
                         </div>
