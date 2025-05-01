@@ -1,12 +1,14 @@
 // pages/index.tsx
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import {
-  Chart,
+  Chart as ChartJS,
   CategoryScale,
   LinearScale,
   PointElement,
   LineElement,
   LineController,
+  Tooltip,
+  Legend,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 import { PortableText } from "@portabletext/react";
@@ -20,12 +22,14 @@ import type {
 import ContactModal from "@/components/ContactModal";
 import { link } from "fs";
 
-Chart.register(
+ChartJS.register(
   CategoryScale,
   LinearScale,
   PointElement,
   LineElement,
   LineController,
+  Tooltip,
+  Legend,
 );
 
 interface SelectionState {
@@ -292,7 +296,7 @@ export default function TuningViewer() {
 
   const watermarkPlugin = {
     id: "watermark",
-    beforeDraw: (chart: Chart) => {
+    beforeDraw: (chart: ChartJS) => {
       const ctx = chart.ctx;
       const {
         chartArea: { top, left, width, height },
@@ -320,7 +324,7 @@ export default function TuningViewer() {
   };
   const shadowPlugin = {
     id: "shadowPlugin",
-    beforeDatasetDraw(chart: Chart, args: any, options: any) {
+    beforeDatasetDraw(chart: ChartJS, args: any, options: any) {
       const { ctx } = chart;
       const dataset = chart.data.datasets[args.index];
 
@@ -330,7 +334,7 @@ export default function TuningViewer() {
       ctx.shadowOffsetX = 0;
       ctx.shadowOffsetY = 2;
     },
-    afterDatasetDraw(chart: Chart, args: any, options: any) {
+    afterDatasetDraw(chart: ChartJS, args: any, options: any) {
       chart.ctx.restore();
     },
   };
