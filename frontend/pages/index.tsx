@@ -307,7 +307,7 @@ export default function TuningViewer() {
 
         // Adjust size based on screen width
         const isMobile = window.innerWidth <= 768;
-        const imgWidth = isMobile ? width * 0.6 : width * 0.4;
+        const imgWidth = isMobile ? width * 0.8 : width * 0.4;
         const imgHeight = imgWidth / ratio;
 
         const x = left + width / 2 - imgWidth / 2;
