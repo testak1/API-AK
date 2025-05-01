@@ -956,33 +956,15 @@ export default function TuningViewer() {
                       </div>
 
                       {/* NOW start new block for the contact button */}
-                      <div className="mt-6 mb-10 flex flex-col items-center space-y-3">
+
+                      {/* KONTAKT button */}
+                      <div className="mt-8 mb-10 flex flex-col items-center">
                         <button
                           onClick={(e) => handleBookNow(stage.name, e)}
                           className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg flex items-center gap-2"
                         >
                           <span>📩</span> KONTAKT
                         </button>
-
-                        {typeof window !== "undefined" && navigator.share && (
-                          <button
-                            onClick={() => {
-                              const shareData = {
-                                title: `AK-TUNING – ${selected.brand} ${selected.model} ${selected.year} ${selected.engine}`,
-                                text: `Kolla in ${stage.name} tuning för ${selected.brand} ${selected.model}`,
-                                url: `${window.location.origin}/${slugify(selected.brand)}/${slugify(selected.model)}/${slugify(selected.year)}/${slugify(selected.engine)}#${slugifyStage(stage.name)}`,
-                              };
-                              navigator
-                                .share(shareData)
-                                .catch((err) =>
-                                  console.error("Share failed:", err),
-                                );
-                            }}
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium shadow-md text-sm flex items-center gap-1"
-                          >
-                            <span>🔗</span> DELA
-                          </button>
-                        )}
                       </div>
                     </div>
 
