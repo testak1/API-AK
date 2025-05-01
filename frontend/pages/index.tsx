@@ -860,7 +860,7 @@ export default function TuningViewer() {
                                 yAxisID: "hp",
                               },
                               {
-                                label: "OPTIMERAD HK",
+                                label: `ST ${stage.name.replace(/\D/g, "")} hk`,
                                 data: generateDynoCurve(stage.tunedHk, true),
                                 borderColor: "#f87171",
                                 backgroundColor: "transparent",
@@ -881,7 +881,7 @@ export default function TuningViewer() {
                                 yAxisID: "nm",
                               },
                               {
-                                label: "OPTIMERAD NM",
+                                label: `ST ${stage.name.replace(/\D/g, "")} Nm`,
                                 data: generateDynoCurve(stage.tunedNm, false),
                                 borderColor: "#d1d5db",
                                 backgroundColor: "transparent",
