@@ -127,7 +127,7 @@ export default function ContactModal({
           style={{
             top:
               typeof window !== "undefined" && window.innerWidth <= 768
-                ? "800px" // mobile
+                ? "950px" // mobile
                 : "600px", // desktop
           }}
         >
