@@ -897,14 +897,7 @@ export default function TuningViewer() {
                             maintainAspectRatio: false,
                             plugins: {
                               legend: {
-                                position: "top",
-                                labels: {
-                                  color: "#E5E7EB",
-                                  font: { size: 12 },
-                                  boxWidth: 12,
-                                  padding: 20,
-                                  usePointStyle: true,
-                                },
+                                display: false,
                               },
                               tooltip: {
                                 enabled: true,
