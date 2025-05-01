@@ -796,7 +796,7 @@ export default function TuningViewer() {
                           <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
                             <p className="text-red-600">- - -</p>
                             <p className="text-white">
-                              HK ORG: {stage.origHk} hk
+                              HK ORG: {stage.origHk} HK
                             </p>
                             <p className="text-red-600">_____</p>
                             <p className="text-white">
@@ -813,7 +813,7 @@ export default function TuningViewer() {
                           <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
                             <p className="text-white">- - -</p>
                             <p className="text-white">
-                              NM ORG: {stage.origNm} Nm
+                              NM ORG: {stage.origNm} NM
                             </p>
                             <p className="text-white">_____</p>
                             <p className="text-white">
@@ -905,6 +905,20 @@ export default function TuningViewer() {
                               tooltip: {
                                 mode: "index",
                                 intersect: false,
+                                backgroundColor: "#1f2937",
+                                titleColor: "#ffffff",
+                                bodyColor: "#ffffff",
+                                borderColor: "#6b7280",
+                                borderWidth: 1,
+                                padding: 10,
+                                displayColors: true,
+                                callbacks: {
+                                  label: function (context) {
+                                    const label = context.dataset.label || "";
+                                    const value = context.parsed.y;
+                                    return `${label}: ${value.toLocaleString("sv-SE")}`;
+                                  },
+                                },
                               },
                             },
                             scales: {
