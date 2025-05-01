@@ -46,7 +46,7 @@ export default function ContactModal({
     }));
   }, [stageOrOption]);
 
-  // Prevent scrolling in background when modal is open
+  // Lock background scroll
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -104,7 +104,10 @@ export default function ContactModal({
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" className="fixed z-50 inset-0" onClose={handleClose}>
         <div className="fixed inset-0 bg-black bg-opacity-50" />
-        <div className="fixed inset-0 flex items-start justify-center pt-20 z-50 px-4">
+        <div
+          className="fixed left-1/2 transform -translate-x-1/2 z-50 px-4"
+          style={{ top: "500px" }}
+        >
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
