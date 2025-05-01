@@ -792,39 +792,7 @@ export default function TuningViewer() {
                             </p>
                           </div>
                         </div>
-                        {/* Mobile-only legend above chart */}
-                        <div className="flex justify-center items-center gap-4 mt-4 md:hidden text-xs text-white">
-                          <div className="flex items-center gap-1">
-                            <span className="w-3 h-3 rounded-full border-2 border-red-400"></span>
-                            <span>ORG HK</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <span className="w-3 h-3 rounded-full bg-red-400"></span>
-                            <span>
-                              {" "}
-                              {stage.name
-                                .replace("Steg", "ST")
-                                .replace(/\s+/g, "")
-                                .toUpperCase()}{" "}
-                              HK
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <span className="w-3 h-3 rounded-full border-2 border-gray-300"></span>
-                            <span>ORG NM</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <span className="w-3 h-3 rounded-full bg-gray-300"></span>
-                            <span>
-                              {" "}
-                              {stage.name
-                                .replace("Steg", "ST")
-                                .replace(/\s+/g, "")
-                                .toUpperCase()}{" "}
-                              NM
-                            </span>
-                          </div>
-                        </div>
+
                         {/* Dyno graph */}
                         <Line
                           data={{
