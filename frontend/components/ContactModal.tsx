@@ -1,5 +1,5 @@
 import { Dialog, Transition } from "@headlessui/react";
-import { Fragment, useState, useEffect } from "react";
+import { Fragment, useEffect, useState } from "react";
 
 interface ContactModalProps {
   isOpen: boolean;
@@ -21,7 +21,7 @@ export default function ContactModal({
   selectedVehicle,
   stageOrOption,
   link,
-  scrollPosition,
+  scrollPosition = 0,
 }: ContactModalProps) {
   const [contactMode, setContactMode] = useState<
     "form" | "phone" | "thankyou" | null
@@ -57,11 +57,7 @@ export default function ContactModal({
       const response = await fetch("/api/send-contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...formData,
-          vehicle: selectedVehicle,
-          link,
-        }),
+        body: JSON.stringify({ ...formData, vehicle: selectedVehicle, link }),
       });
 
       if (!response.ok) {
@@ -92,10 +88,14 @@ export default function ContactModal({
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-50" onClose={handleClose}>
+      <Dialog
+        as="div"
+        className="fixed z-50 inset-0 overflow-y-auto"
+        onClose={handleClose}
+      >
         <div
-          className="absolute left-0 w-full z-50 bg-black bg-opacity-50 flex justify-center p-4"
-          style={{ top: scrollPosition ? `${scrollPosition}px` : "100px" }}
+          className="flex items-start justify-center min-h-screen px-4"
+          style={{ position: "absolute", top: `${scrollPosition}px` }}
         >
           <Transition.Child
             as={Fragment}
@@ -106,7 +106,7 @@ export default function ContactModal({
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-90"
           >
-            <Dialog.Panel className="bg-gray-900 rounded-lg text-white w-full max-w-md p-6 shadow-xl relative">
+            <Dialog.Panel className="bg-gray-900 rounded-lg text-white max-w-md w-full p-6 shadow-xl relative">
               <button
                 type="button"
                 onClick={handleClose}
@@ -236,7 +236,31 @@ export default function ContactModal({
                     disabled={sending}
                     className="w-full bg-blue-600 hover:bg-blue-700 active:scale-95 transition transform px-4 py-2 rounded-lg font-semibold"
                   >
-                    {sending ? "Skickar..." : "📩 SKICKA FÖRFRÅGAN"}
+                    {sending ? (
+                      <div className="flex justify-center items-center gap-2">
+                        <svg
+                          className="animate-spin h-5 w-5 text-white"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                          ></path>
+                        </svg>
+                        Skickar...
+                      </div>
+                    ) : (
+                      "📩 SKICKA FÖRFRÅGAN"
+                    )}
                   </button>
 
                   {error && <p className="text-red-400 text-center">{error}</p>}
