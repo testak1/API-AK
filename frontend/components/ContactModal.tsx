@@ -37,8 +37,6 @@ export default function ContactModal({
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
 
-  const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
-
   useEffect(() => {
     if (isOpen) setContactMode(null);
   }, [isOpen]);
@@ -103,20 +101,24 @@ export default function ContactModal({
     onClose();
   };
 
+  // ✅ Mobile-aware modal positioning
+  const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
+  const modalTop = isMobile ? "50%" : `${scrollPosition}px`;
+  const modalTransform = isMobile
+    ? "translate(-50%, -50%)"
+    : "translateX(-50%)";
+
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" className="fixed z-50 inset-0" onClose={handleClose}>
+        <div className="fixed inset-0 bg-black bg-opacity-50" />
+
+        {/* ✅ MODAL POSITIONING FIXED HERE */}
         <div
-          className="fixed left-1/2 transform -translate-x-1/2 z-50 px-4"
+          className="fixed left-1/2 z-50 px-4"
           style={{
-            top:
-              typeof window !== "undefined" && window.innerWidth <= 768
-                ? "50%"
-                : `${scrollPosition}px`,
-            transform:
-              typeof window !== "undefined" && window.innerWidth <= 768
-                ? "translate(-50%, -50%)"
-                : "translateX(-50%)",
+            top: modalTop,
+            transform: modalTransform,
           }}
         >
           <Transition.Child
