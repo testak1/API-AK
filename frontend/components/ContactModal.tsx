@@ -125,7 +125,10 @@ export default function ContactModal({
         <div
           className="fixed left-1/2 transform -translate-x-1/2 z-50 px-4 w-full max-w-md sm:px-6"
           style={{
-            top: "850px", // 🔧 Adjust this value until it's visually correct
+            top:
+              typeof window !== "undefined" && window.innerWidth <= 768
+                ? "800px" // mobile
+                : "600px", // desktop
           }}
         >
           <Transition.Child
