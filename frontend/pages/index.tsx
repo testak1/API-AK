@@ -63,12 +63,10 @@ export default function TuningViewer() {
     isOpen: boolean;
     stageOrOption: string;
     link: string;
-    scrollPosition?: number;
   }>({
     isOpen: false,
     stageOrOption: "",
     link: "",
-    scrollPosition: 0,
   });
 
   const slugify = (str: string) =>
@@ -133,7 +131,6 @@ export default function TuningViewer() {
       isOpen: true,
       stageOrOption: stageOrOptionName,
       link: finalLink,
-      scrollPosition: scrollY,
     });
   };
 
@@ -1126,7 +1123,6 @@ export default function TuningViewer() {
         }}
         stageOrOption={contactModalData.stageOrOption}
         link={contactModalData.link}
-        scrollPosition={contactModalData.scrollPosition}
       />
     </div>
   );
