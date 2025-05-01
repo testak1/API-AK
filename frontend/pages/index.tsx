@@ -938,21 +938,21 @@ export default function TuningViewer() {
                         <div className="text-center text-white text-xs mt-4 italic">
                           (Simulerad effektkurva)
                         </div>
+                      </div>
 
-                        {/* Mobile-only small tuned specs */}
-                        <div className="block md:hidden text-center mt-2 mb-6">
-                          <p className="text-sm text-white font-semibold">
-                            {stage.tunedHk} HK & {stage.tunedNm} NM
-                            <span className="text-gray-400 text-sm ml-1">
-                              [
-                              {stage.name
-                                .replace("Steg", "STEG ")
-                                .replace(/\s+/g, "")
-                                .toUpperCase()}
-                              ]
-                            </span>
-                          </p>
-                        </div>
+                      {/* Mobile-only small tuned specs */}
+                      <div className="block md:hidden text-center mt-2 mb-6">
+                        <p className="text-sm text-white font-semibold">
+                          {stage.tunedHk} HK & {stage.tunedNm} NM
+                          <span className="text-gray-400 text-sm ml-1">
+                            [
+                            {stage.name
+                              .replace("Steg", "STEG ")
+                              .replace(/\s+/g, "")
+                              .toUpperCase()}
+                            ]
+                          </span>
+                        </p>
                       </div>
 
                       {/* NOW start new block for the contact button */}
