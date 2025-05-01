@@ -90,12 +90,12 @@ export default function ContactModal({
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog
         as="div"
-        className="fixed z-50 inset-0 overflow-y-auto"
+        className="absolute z-50 inset-0 overflow-y-visible"
         onClose={handleClose}
       >
         <div
-          className="flex items-start justify-center min-h-screen px-4"
-          style={{ position: "absolute", top: `${scrollPosition}px` }}
+          className="absolute w-full flex justify-center px-4"
+          style={{ top: `${scrollPosition}px` }}
         >
           <Transition.Child
             as={Fragment}
