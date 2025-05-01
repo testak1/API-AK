@@ -103,10 +103,18 @@ export default function ContactModal({
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" className="fixed z-50 inset-0" onClose={handleClose}>
-        <div className="fixed inset-0 bg-black bg-opacity-50" />
         <div
           className="fixed left-1/2 transform -translate-x-1/2 z-50 px-4"
-          style={{ top: "500px" }}
+          style={{
+            top:
+              typeof window !== "undefined" && window.innerWidth <= 768
+                ? "50%"
+                : `${scrollPosition}px`,
+            transform:
+              typeof window !== "undefined" && window.innerWidth <= 768
+                ? "translate(-50%, -50%)"
+                : "translateX(-50%)",
+          }}
         >
           <Transition.Child
             as={Fragment}
