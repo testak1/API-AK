@@ -4,15 +4,11 @@ import TuningViewer from "./index";
 export default function Embed() {
   useEffect(() => {
     const sendHeight = () => {
-      // Undvik att skicka höjd om kontaktmodalen är öppen
-      const modalOpen = document.querySelector(".contact-modal-open");
-      if (!modalOpen) {
-        const height = document.body.scrollHeight;
-        window.parent.postMessage({ height }, "*");
-      }
+      const height = document.body.scrollHeight;
+      window.parent.postMessage({ height }, "*");
     };
 
-    sendHeight(); // Init
+    sendHeight(); // initial
 
     const observer = new MutationObserver(sendHeight);
     observer.observe(document.body, {
