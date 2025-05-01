@@ -291,6 +291,17 @@ export default function ContactModal({
                       </div>
                     </a>
                   ))}
+
+                  {/* STÄNG Button */}
+                  <div className="pt-4">
+                    <button
+                      type="button"
+                      onClick={handleClose}
+                      className="w-full bg-gray-700 hover:bg-gray-600 text-white py-2 px-4 rounded-lg font-semibold transition-colors"
+                    >
+                      STÄNG
+                    </button>
+                  </div>
                 </div>
               )}
             </Dialog.Panel>
