@@ -209,7 +209,7 @@ export default function ContactModal({
 
                   <input
                     type="text"
-                    placeholder="NAMN"
+                    placeholder="🏷️ NAMN"
                     required
                     className="w-full p-2 rounded bg-gray-800 border border-gray-600"
                     value={formData.name}
@@ -219,7 +219,7 @@ export default function ContactModal({
                   />
                   <input
                     type="email"
-                    placeholder="EMAIL"
+                    placeholder="📧 EMAIL"
                     required
                     className="w-full p-2 rounded bg-gray-800 border border-gray-600"
                     value={formData.email}
@@ -229,7 +229,7 @@ export default function ContactModal({
                   />
                   <input
                     type="tel"
-                    placeholder="TELNR"
+                    placeholder="☎️ TELNR"
                     required
                     className="w-full p-2 rounded bg-gray-800 border border-gray-600"
                     value={formData.tel}
@@ -238,7 +238,7 @@ export default function ContactModal({
                     }
                   />
                   <textarea
-                    placeholder="MEDDELANDE"
+                    placeholder="💬 MEDDELANDE"
                     required
                     className="w-full p-2 rounded bg-gray-800 border border-gray-600"
                     rows={3}
@@ -255,7 +255,7 @@ export default function ContactModal({
                       setFormData({ ...formData, branch: e.target.value })
                     }
                   >
-                    <option value="">VÄLJ ANLÄGGNING</option>
+                    <option value="">📍 VÄLJ ANLÄGGNING</option>
                     <option value="goteborg">GÖTEBORG (HQ)</option>
                     <option value="jonkoping">JÖNKÖPING</option>
                     <option value="malmo">MALMÖ</option>
