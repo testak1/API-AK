@@ -4,8 +4,10 @@ import TuningViewer from "./index";
 export default function Embed() {
   useEffect(() => {
     const sendHeight = () => {
-      const height = document.body.scrollHeight;
-      window.parent.postMessage({ height }, "*");
+      setTimeout(() => {
+        const height = document.body.scrollHeight;
+        window.parent.postMessage({ height }, "*");
+      }, 50); // slight delay ensures layout settles
     };
 
     sendHeight(); // initial
