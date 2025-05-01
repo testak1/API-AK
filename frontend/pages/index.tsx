@@ -64,7 +64,12 @@ export default function TuningViewer() {
     stageOrOption: string;
     link: string;
     scrollPosition?: number;
-  }>({ isOpen: false, stageOrOption: "", link: "" });
+  }>({
+    isOpen: false,
+    stageOrOption: "",
+    link: "",
+    scrollPosition: 0,
+  });
 
   const slugify = (str: string) =>
     str
@@ -79,11 +84,13 @@ export default function TuningViewer() {
       .replace(/\s+/g, "-")
       .replace(/[^\w-]/g, "");
 
-  const handleBookNow = (stageOrOptionName: string) => {
+  const handleBookNow = (
+    stageOrOptionName: string,
+    event?: React.MouseEvent
+  ) => {
     const selectedBrand = data.find((b) => b.name === selected.brand);
     if (!selectedBrand) return;
 
-    // Get brand slug (fallback to slugified name)
     const brandSlug =
       selectedBrand.slug?.current || slugify(selectedBrand.name);
 
@@ -92,7 +99,6 @@ export default function TuningViewer() {
     );
     if (!selectedModel) return;
 
-    // Get model slug (handle both string and object slugs)
     const modelSlug =
       typeof selectedModel.slug === "object"
         ? selectedModel.slug.current
@@ -103,7 +109,6 @@ export default function TuningViewer() {
     );
     if (!selectedYear) return;
 
-    // Use the exact year range (slugify only if needed)
     const yearSlug = selectedYear.range.includes(" ")
       ? slugify(selectedYear.range)
       : selectedYear.range;
@@ -113,7 +118,6 @@ export default function TuningViewer() {
     );
     if (!selectedEngine) return;
 
-    // Use the exact engine label (slugify only if needed)
     const engineSlug = selectedEngine.label.includes(" ")
       ? slugify(selectedEngine.label)
       : selectedEngine.label;
@@ -122,11 +126,14 @@ export default function TuningViewer() {
 
     const finalLink = `https://api.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}#${stageSlug}`;
 
+    const clickY = event?.clientY || 0;
+    const scrollY = window.scrollY + clickY;
+
     setContactModalData({
       isOpen: true,
       stageOrOption: stageOrOptionName,
       link: finalLink,
-      scrollPosition: window.scrollY,
+      scrollPosition: scrollY,
     });
   };
 
@@ -954,7 +961,7 @@ export default function TuningViewer() {
                       {/* NOW start new block for the contact button */}
                       <div className="mt-6 mb-10 flex flex-col items-center space-y-3">
                         <button
-                          onClick={() => handleBookNow(stage.name)}
+                          onClick={(e) => handleBookNow(stage.name, e)}
                           className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg flex items-center gap-2"
                         >
                           <span>📩</span> KONTAKT
