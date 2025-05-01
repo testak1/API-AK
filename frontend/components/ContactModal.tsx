@@ -280,7 +280,9 @@ export default function ContactModal({
                     <a
                       key={city}
                       href={`tel:${number}`}
-                      className="flex items-center gap-3 bg-gray-800 hover:bg-gray-700 p-3 rounded-lg transition-colors rounded-xl"
+                      target="_top"
+                      rel="noopener"
+                      className="flex items-center gap-3 bg-gray-800 hover:bg-gray-700 p-3 rounded-lg transition-colors"
                     >
                       <span className="text-green-400 text-2xl">📞</span>
                       <div className="flex flex-col">
