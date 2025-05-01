@@ -12,7 +12,6 @@ interface ContactModalProps {
   };
   stageOrOption?: string;
   link?: string;
-  scrollPosition?: number;
 }
 
 export default function ContactModal({
@@ -21,7 +20,6 @@ export default function ContactModal({
   selectedVehicle,
   stageOrOption,
   link,
-  scrollPosition = 0,
 }: ContactModalProps) {
   const [contactMode, setContactMode] = useState<
     "form" | "phone" | "thankyou" | null
@@ -47,6 +45,18 @@ export default function ContactModal({
       stage: stageOrOption || "-",
     }));
   }, [stageOrOption]);
+
+  // Prevent scrolling in background when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,10 +104,7 @@ export default function ContactModal({
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" className="fixed z-50 inset-0" onClose={handleClose}>
         <div className="fixed inset-0 bg-black bg-opacity-50" />
-        <div
-          className="absolute left-1/2 transform -translate-x-1/2 z-50 px-4"
-          style={{ top: `${scrollPosition}px` }}
-        >
+        <div className="fixed inset-0 flex items-start justify-center pt-20 z-50 px-4">
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
