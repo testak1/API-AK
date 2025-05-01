@@ -849,7 +849,7 @@ export default function TuningViewer() {
                             ],
                             datasets: [
                               {
-                                label: "Original HK",
+                                label: "ORG HK",
                                 data: generateDynoCurve(stage.origHk, true),
                                 borderColor: "#f87171",
                                 backgroundColor: "transparent",
@@ -860,7 +860,7 @@ export default function TuningViewer() {
                                 yAxisID: "hp",
                               },
                               {
-                                label: "Tuned HK",
+                                label: "OPTIMERAD HK",
                                 data: generateDynoCurve(stage.tunedHk, true),
                                 borderColor: "#f87171",
                                 backgroundColor: "transparent",
@@ -870,7 +870,7 @@ export default function TuningViewer() {
                                 yAxisID: "hp",
                               },
                               {
-                                label: "Original NM",
+                                label: "ORG NM",
                                 data: generateDynoCurve(stage.origNm, false),
                                 borderColor: "#d1d5db",
                                 backgroundColor: "transparent",
@@ -881,7 +881,7 @@ export default function TuningViewer() {
                                 yAxisID: "nm",
                               },
                               {
-                                label: "Tuned NM",
+                                label: "OPTIMERAD NM",
                                 data: generateDynoCurve(stage.tunedNm, false),
                                 borderColor: "#d1d5db",
                                 backgroundColor: "transparent",
@@ -911,6 +911,10 @@ export default function TuningViewer() {
                                 padding: 10,
                                 displayColors: true,
                                 callbacks: {
+                                  title: function (tooltipItems) {
+                                    // tooltipItems[0].label will be the RPM (e.g., "4000")
+                                    return `${tooltipItems[0].label} RPM`;
+                                  },
                                   label: function (context) {
                                     const label = context.dataset.label || "";
                                     const value = context.parsed.y;
