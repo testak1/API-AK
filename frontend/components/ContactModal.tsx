@@ -170,12 +170,30 @@ export default function ContactModal({
                   >
                     📩 SKICKA FÖRFRÅGAN
                   </button>
+                  {/* STÄNG button */}
+                  <button
+                    type="button"
+                    onClick={handleClose}
+                    className="w-full bg-gray-700 hover:bg-gray-600 text-white hover:text-red-400 py-2 px-4 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
+                  >
+                    <span>❌</span>
+                    STÄNG
+                  </button>
                   <button
                     type="button"
                     className="bg-green-600 hover:bg-green-700 active:scale-95 transition transform px-4 py-2 rounded-lg shadow-md font-semibold"
                     onClick={() => setContactMode("phone")}
                   >
                     📞 RING OSS
+                  </button>
+                  {/* STÄNG button */}
+                  <button
+                    type="button"
+                    onClick={handleClose}
+                    className="w-full bg-gray-700 hover:bg-gray-600 text-white hover:text-red-400 py-2 px-4 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
+                  >
+                    <span>❌</span>
+                    STÄNG
                   </button>
                 </div>
               )}
@@ -297,8 +315,9 @@ export default function ContactModal({
                     <button
                       type="button"
                       onClick={handleClose}
-                      className="w-full bg-gray-700 hover:bg-gray-600 text-white py-2 px-4 rounded-lg font-semibold transition-colors"
+                      className="w-full bg-gray-700 hover:bg-gray-600 text-white hover:text-red-400 py-2 px-4 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
                     >
+                      <span>❌</span>
                       STÄNG
                     </button>
                   </div>
