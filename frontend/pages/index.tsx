@@ -975,7 +975,7 @@ export default function TuningViewer() {
                           onClick={() => toggleAktPlus(stage.name)}
                           className="flex justify-between items-center w-full px-6 py-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
                         >
-                          <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-3">
                             <img
                               src="/logos/aktplus.png"
                               alt="AKT+ Logo"
