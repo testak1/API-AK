@@ -12,6 +12,7 @@ interface ContactModalProps {
   };
   stageOrOption?: string;
   link?: string;
+  scrollPosition?: number;
 }
 
 export default function ContactModal({
@@ -20,6 +21,7 @@ export default function ContactModal({
   selectedVehicle,
   stageOrOption,
   link,
+  scrollPosition = 200,
 }: ContactModalProps) {
   const [contactMode, setContactMode] = useState<
     "form" | "phone" | "thankyou" | null
@@ -35,6 +37,8 @@ export default function ContactModal({
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
 
+  const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
+
   useEffect(() => {
     if (isOpen) setContactMode(null);
   }, [isOpen]);
@@ -46,7 +50,6 @@ export default function ContactModal({
     }));
   }, [stageOrOption]);
 
-  // Lock background scroll
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
