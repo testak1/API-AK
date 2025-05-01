@@ -196,16 +196,6 @@ export default function ContactModal({
                         <strong>VAL ➔ {formData.stage.toUpperCase()}</strong>
                       </div>
                     )}
-                    {link && (
-                      <a
-                        href={link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-block mt-1 text-green-400 text-xs hover:text-red-400"
-                      >
-                        DIREKT LÄNK
-                      </a>
-                    )}
                   </div>
 
                   <input
