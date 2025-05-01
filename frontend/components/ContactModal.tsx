@@ -48,6 +48,17 @@ export default function ContactModal({
     }));
   }, [stageOrOption]);
 
+  useEffect(() => {
+    if (isOpen) {
+      setTimeout(() => {
+        window.parent.postMessage(
+          { height: document.body.scrollHeight },
+          "*"
+        );
+      }, 100);
+    }
+  }, [isOpen, contactMode]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSending(true);
@@ -88,15 +99,8 @@ export default function ContactModal({
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
-      <Dialog
-        as="div"
-        className="absolute z-50 inset-0 overflow-y-visible"
-        onClose={handleClose}
-      >
-        <div
-          className="absolute w-full flex justify-center px-4"
-          style={{ top: `${scrollPosition}px` }}
-        >
+      <Dialog as="div" className="fixed z-50 inset-0" onClose={handleClose}>
+        <div className="flex items-start justify-center min-h-screen px-4 pb-10">
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
@@ -106,7 +110,10 @@ export default function ContactModal({
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-90"
           >
-            <Dialog.Panel className="bg-gray-900 rounded-lg text-white max-w-md w-full p-6 shadow-xl relative">
+            <Dialog.Panel
+              className="bg-gray-900 rounded-lg text-white max-w-md w-full p-6 shadow-xl relative"
+              style={{ marginTop: scrollPosition }}
+            >
               <button
                 type="button"
                 onClick={handleClose}
@@ -151,29 +158,6 @@ export default function ContactModal({
                   className="space-y-4 text-white mt-4"
                   onSubmit={handleSubmit}
                 >
-                  <div className="text-sm text-gray-400 mb-2">
-                    FÖRFRÅGAN FÖR:{" "}
-                    <strong>
-                      {selectedVehicle.brand} {selectedVehicle.model}{" "}
-                      {selectedVehicle.year} – {selectedVehicle.engine}
-                    </strong>
-                    {formData.stage && formData.stage !== "-" && (
-                      <div className="mt-1 text-green-400 text-xs">
-                        <strong>VAL ➔ {formData.stage.toUpperCase()}</strong>
-                      </div>
-                    )}
-                    {link && (
-                      <a
-                        href={link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-block mt-1 text-green-400 text-xs hover:text-red-400"
-                      >
-                        DIREKT LÄNK
-                      </a>
-                    )}
-                  </div>
-
                   <input
                     type="text"
                     placeholder="NAMN"
@@ -214,6 +198,7 @@ export default function ContactModal({
                       setFormData({ ...formData, message: e.target.value })
                     }
                   ></textarea>
+
                   <select
                     required
                     className="w-full p-2 rounded bg-gray-800 border border-gray-600"
@@ -236,31 +221,7 @@ export default function ContactModal({
                     disabled={sending}
                     className="w-full bg-blue-600 hover:bg-blue-700 active:scale-95 transition transform px-4 py-2 rounded-lg font-semibold"
                   >
-                    {sending ? (
-                      <div className="flex justify-center items-center gap-2">
-                        <svg
-                          className="animate-spin h-5 w-5 text-white"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          ></circle>
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                          ></path>
-                        </svg>
-                        Skickar...
-                      </div>
-                    ) : (
-                      "📩 SKICKA FÖRFRÅGAN"
-                    )}
+                    {sending ? "Skickar..." : "📩 SKICKA FÖRFRÅGAN"}
                   </button>
 
                   {error && <p className="text-red-400 text-center">{error}</p>}
