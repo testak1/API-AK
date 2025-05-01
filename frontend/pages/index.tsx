@@ -941,7 +941,7 @@ export default function TuningViewer() {
                       </div>
 
                       {/* Mobile-only small tuned specs */}
-                      <div className="block md:hidden text-center mt-2 mb-6">
+                      <div className="block md:hidden text-center mt-6 mb-6">
                         <p className="text-sm text-white font-semibold">
                           {stage.tunedHk} HK & {stage.tunedNm} NM
                           <span className="text-gray-400 text-sm ml-1">
@@ -958,7 +958,7 @@ export default function TuningViewer() {
                       {/* NOW start new block for the contact button */}
 
                       {/* KONTAKT button */}
-                      <div className="mt-2 mb-10 flex flex-col items-center">
+                      <div className="mt-8 mb-10 flex flex-col items-center">
                         <button
                           onClick={(e) => handleBookNow(stage.name, e)}
                           className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg flex items-center gap-2"
