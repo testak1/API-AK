@@ -304,7 +304,10 @@ export default function TuningViewer() {
 
         const img = watermarkImageRef.current;
         const ratio = img.width / img.height;
-        const imgWidth = width * 0.4;
+
+        // Adjust size based on screen width
+        const isMobile = window.innerWidth <= 768;
+        const imgWidth = isMobile ? width * 0.6 : width * 0.4;
         const imgHeight = imgWidth / ratio;
 
         const x = left + width / 2 - imgWidth / 2;
