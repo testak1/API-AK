@@ -1,15 +1,18 @@
-// pages/embed.tsx
 import { useEffect } from "react";
 import TuningViewer from "./index";
 
 export default function Embed() {
   useEffect(() => {
     const sendHeight = () => {
-      const height = document.body.scrollHeight;
-      window.parent.postMessage({ height }, "*");
+      // Undvik att skicka höjd om kontaktmodalen är öppen
+      const modalOpen = document.querySelector(".contact-modal-open");
+      if (!modalOpen) {
+        const height = document.body.scrollHeight;
+        window.parent.postMessage({ height }, "*");
+      }
     };
 
-    sendHeight(); // Initial send
+    sendHeight(); // Init
 
     const observer = new MutationObserver(sendHeight);
     observer.observe(document.body, {
