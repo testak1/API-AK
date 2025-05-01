@@ -35,14 +35,12 @@ export default function ContactModal({
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
 
-  // Reset modal state
+  // Reset mode on open
   useEffect(() => {
-    if (isOpen) {
-      setContactMode(null);
-    }
+    if (isOpen) setContactMode(null);
   }, [isOpen]);
 
-  // Update selected stage
+  // Set selected stage
   useEffect(() => {
     setFormData((prev) => ({
       ...prev,
@@ -50,21 +48,28 @@ export default function ContactModal({
     }));
   }, [stageOrOption]);
 
-  // Lock scroll and preserve position
+  // Lock scroll + restore
   useEffect(() => {
     if (isOpen) {
       const scrollY = window.scrollY;
       document.body.style.position = "fixed";
       document.body.style.top = `-${scrollY}px`;
       document.body.style.overflow = "hidden";
-
-      return () => {
-        document.body.style.position = "";
-        document.body.style.top = "";
-        document.body.style.overflow = "";
-        window.scrollTo(0, scrollY);
-      };
+      document.body.dataset.scrollY = scrollY.toString();
+    } else {
+      const y = document.body.dataset.scrollY || "0";
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.overflow = "";
+      window.scrollTo(0, parseInt(y));
     }
+    return () => {
+      const y = document.body.dataset.scrollY || "0";
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.overflow = "";
+      window.scrollTo(0, parseInt(y));
+    };
   }, [isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -167,10 +172,7 @@ export default function ContactModal({
               )}
 
               {contactMode === "form" && (
-                <form
-                  className="space-y-4 text-white mt-4"
-                  onSubmit={handleSubmit}
-                >
+                <form className="space-y-4 text-white mt-4" onSubmit={handleSubmit}>
                   <div className="text-sm text-gray-400 mb-2">
                     FÖRFRÅGAN FÖR:{" "}
                     <strong>
@@ -256,31 +258,7 @@ export default function ContactModal({
                     disabled={sending}
                     className="w-full bg-blue-600 hover:bg-blue-700 active:scale-95 transition transform px-4 py-2 rounded-lg font-semibold"
                   >
-                    {sending ? (
-                      <div className="flex justify-center items-center gap-2">
-                        <svg
-                          className="animate-spin h-5 w-5 text-white"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          ></circle>
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                          ></path>
-                        </svg>
-                        Skickar...
-                      </div>
-                    ) : (
-                      "📩 SKICKA FÖRFRÅGAN"
-                    )}
+                    {sending ? "Skickar..." : "📩 SKICKA FÖRFRÅGAN"}
                   </button>
 
                   {error && <p className="text-red-400 text-center">{error}</p>}
