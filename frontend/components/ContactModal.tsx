@@ -35,24 +35,37 @@ export default function ContactModal({
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
 
+  // Reset modal state
   useEffect(() => {
     if (isOpen) {
       setContactMode(null);
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
     }
-    return () => {
-      document.body.style.overflow = "";
-    };
   }, [isOpen]);
 
+  // Update selected stage
   useEffect(() => {
     setFormData((prev) => ({
       ...prev,
       stage: stageOrOption || "-",
     }));
   }, [stageOrOption]);
+
+  // Lock scroll and preserve position
+  useEffect(() => {
+    if (isOpen) {
+      const scrollY = window.scrollY;
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.overflow = "hidden";
+
+      return () => {
+        document.body.style.position = "";
+        document.body.style.top = "";
+        document.body.style.overflow = "";
+        window.scrollTo(0, scrollY);
+      };
+    }
+  }, [isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,7 +116,7 @@ export default function ContactModal({
         className={`relative z-50 ${isOpen ? "contact-modal-open" : ""}`}
         onClose={handleClose}
       >
-        <div className="absolute top-0 left-0 w-full min-h-screen min-h-full flex items-start justify-center p-4 pt-20 bg-black bg-opacity-50 z-50">
+        <div className="fixed inset-0 flex items-center justify-center p-4 bg-black bg-opacity-50 z-50">
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
