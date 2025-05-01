@@ -903,6 +903,7 @@ export default function TuningViewer() {
                                 },
                               },
                               tooltip: {
+                                enabled: true,
                                 mode: "index",
                                 intersect: false,
                                 backgroundColor: "#1f2937",
@@ -916,7 +917,15 @@ export default function TuningViewer() {
                                   label: function (context) {
                                     const label = context.dataset.label || "";
                                     const value = context.parsed.y;
-                                    return `${label}: ${Math.round(value).toLocaleString("sv-SE")}`;
+
+                                    // Guard for undefined value
+                                    if (value === undefined) return label;
+
+                                    const unit =
+                                      context.dataset.yAxisID === "hp"
+                                        ? "hk"
+                                        : "Nm";
+                                    return `${label}: ${Math.round(value)} ${unit}`;
                                   },
                                 },
                               },
