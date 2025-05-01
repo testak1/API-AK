@@ -916,7 +916,7 @@ export default function TuningViewer() {
                                   label: function (context) {
                                     const label = context.dataset.label || "";
                                     const value = context.parsed.y;
-                                    return `${label}: ${value.toLocaleString("sv-SE")}`;
+                                    return `${label}: ${Math.round(value).toLocaleString("sv-SE")}`;
                                   },
                                 },
                               },
