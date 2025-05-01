@@ -121,7 +121,7 @@ export default function ContactModal({
         className={`relative z-50 ${isOpen ? "contact-modal-open" : ""}`}
         onClose={handleClose}
       >
-        <div className="fixed inset-0 flex items-center justify-center p-4 bg-black bg-opacity-50 z-50">
+        <div className="absolute top-0 left-0 w-full min-h-screen flex items-center justify-center p-4 bg-black bg-opacity-50 z-50">
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
@@ -172,7 +172,10 @@ export default function ContactModal({
               )}
 
               {contactMode === "form" && (
-                <form className="space-y-4 text-white mt-4" onSubmit={handleSubmit}>
+                <form
+                  className="space-y-4 text-white mt-4"
+                  onSubmit={handleSubmit}
+                >
                   <div className="text-sm text-gray-400 mb-2">
                     FÖRFRÅGAN FÖR:{" "}
                     <strong>
