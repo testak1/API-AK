@@ -118,7 +118,7 @@ export default function ContactModal({
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="fixed z-50 inset-0" onClose={handleClose}>
+      <Dialog as="div" className="fixed z-50 inset-0" onClose={() => {}} static>
         <div className="fixed inset-0 bg-black bg-opacity-50" />
 
         {/* ✅ MODAL POSITIONING FIXED HERE */}
