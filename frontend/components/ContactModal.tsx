@@ -12,6 +12,7 @@ interface ContactModalProps {
   };
   stageOrOption?: string;
   link?: string;
+  scrollPosition?: number;
 }
 
 export default function ContactModal({
@@ -20,6 +21,7 @@ export default function ContactModal({
   selectedVehicle,
   stageOrOption,
   link,
+  scrollPosition,
 }: ContactModalProps) {
   const [contactMode, setContactMode] = useState<
     "form" | "phone" | "thankyou" | null
@@ -40,7 +42,7 @@ export default function ContactModal({
     if (isOpen) setContactMode(null);
   }, [isOpen]);
 
-  // Set selected stage
+  // Update stage name
   useEffect(() => {
     setFormData((prev) => ({
       ...prev,
@@ -48,10 +50,10 @@ export default function ContactModal({
     }));
   }, [stageOrOption]);
 
-  // Lock scroll + restore
+  // Scroll lock with remembered position
   useEffect(() => {
     if (isOpen) {
-      const scrollY = window.scrollY;
+      const scrollY = scrollPosition || window.scrollY;
       document.body.style.position = "fixed";
       document.body.style.top = `-${scrollY}px`;
       document.body.style.overflow = "hidden";
@@ -63,6 +65,7 @@ export default function ContactModal({
       document.body.style.overflow = "";
       window.scrollTo(0, parseInt(y));
     }
+
     return () => {
       const y = document.body.dataset.scrollY || "0";
       document.body.style.position = "";
@@ -70,7 +73,7 @@ export default function ContactModal({
       document.body.style.overflow = "";
       window.scrollTo(0, parseInt(y));
     };
-  }, [isOpen]);
+  }, [isOpen, scrollPosition]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -116,12 +119,8 @@ export default function ContactModal({
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
-      <Dialog
-        as="div"
-        className={`relative z-50 ${isOpen ? "contact-modal-open" : ""}`}
-        onClose={handleClose}
-      >
-        <div className="absolute top-0 left-0 w-full min-h-screen flex items-center justify-center p-4 bg-black bg-opacity-50 z-50">
+      <Dialog as="div" className="relative z-50" onClose={handleClose}>
+        <div className="fixed inset-0 flex items-center justify-center p-4 bg-black bg-opacity-50 z-50">
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
