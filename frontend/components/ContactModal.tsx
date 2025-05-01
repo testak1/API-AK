@@ -42,28 +42,11 @@ export default function ContactModal({
   }, [isOpen]);
 
   useEffect(() => {
-    setFormData((prev) => ({ ...prev, stage: stageOrOption || "-" }));
+    setFormData((prev) => ({
+      ...prev,
+      stage: stageOrOption || "-",
+    }));
   }, [stageOrOption]);
-
-  // Resize iframe on contactMode change
-  useEffect(() => {
-    const sendResize = () => {
-      if (typeof window !== "undefined" && window.parent) {
-        window.parent.postMessage({ height: document.body.scrollHeight }, "*");
-      }
-    };
-
-    sendResize();
-
-    const observer = new MutationObserver(sendResize);
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-    });
-
-    return () => observer.disconnect();
-  }, [contactMode]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,7 +57,11 @@ export default function ContactModal({
       const response = await fetch("/api/send-contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, vehicle: selectedVehicle, link }),
+        body: JSON.stringify({
+          ...formData,
+          vehicle: selectedVehicle,
+          link,
+        }),
       });
 
       if (!response.ok) {
@@ -105,14 +92,11 @@ export default function ContactModal({
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
-      <Dialog
-        as="div"
-        className="fixed z-50 inset-0 overflow-y-auto"
-        onClose={handleClose}
-      >
+      <Dialog as="div" className="fixed z-50 inset-0" onClose={handleClose}>
+        <div className="fixed inset-0 bg-black bg-opacity-50" />
         <div
-          className="flex items-start justify-center min-h-screen px-4"
-          style={{ position: "absolute", top: `${scrollPosition}px` }}
+          className="absolute left-1/2 transform -translate-x-1/2 z-50 px-4"
+          style={{ top: `${scrollPosition}px` }}
         >
           <Transition.Child
             as={Fragment}
@@ -253,31 +237,7 @@ export default function ContactModal({
                     disabled={sending}
                     className="w-full bg-blue-600 hover:bg-blue-700 active:scale-95 transition transform px-4 py-2 rounded-lg font-semibold"
                   >
-                    {sending ? (
-                      <div className="flex justify-center items-center gap-2">
-                        <svg
-                          className="animate-spin h-5 w-5 text-white"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          ></circle>
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                          ></path>
-                        </svg>
-                        Skickar...
-                      </div>
-                    ) : (
-                      "📩 SKICKA FÖRFRÅGAN"
-                    )}
+                    {sending ? "Skickar..." : "📩 SKICKA FÖRFRÅGAN"}
                   </button>
 
                   {error && <p className="text-red-400 text-center">{error}</p>}
@@ -297,7 +257,7 @@ export default function ContactModal({
                     <a
                       key={city}
                       href={`tel:${number}`}
-                      className="flex items-center gap-3 bg-gray-800 hover:bg-gray-700 p-3 rounded-lg transition-colors"
+                      className="flex items-center gap-3 bg-gray-800 hover:bg-gray-700 p-3 rounded-lg transition-colors rounded-xl"
                     >
                       <span className="text-green-400 text-2xl">📞</span>
                       <div className="flex flex-col">
