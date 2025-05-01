@@ -910,7 +910,12 @@ export default function TuningViewer() {
                                 borderWidth: 1,
                                 padding: 10,
                                 displayColors: true,
+                                usePointStyle: true, // ✅ this enables circle style
                                 callbacks: {
+                                  labelPointStyle: () => ({
+                                    pointStyle: "circle", // ✅ make symbol a circle
+                                    rotation: 0,
+                                  }),
                                   title: function (tooltipItems) {
                                     // tooltipItems[0].label will be the RPM (e.g., "4000")
                                     return `${tooltipItems[0].label} RPM`;
