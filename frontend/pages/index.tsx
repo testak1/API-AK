@@ -1,4 +1,22 @@
 // pages/index.tsx
+import Head from "next/head";
+
+<Head>
+  <script
+    type="application/ld+json"
+    dangerouslySetInnerHTML={{
+      __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Motoroptimering",
+        name: "AK-TUNING - Motoroptimering",
+        url: "https://www.aktuning.se",
+        logo: "https://aktuning.se/img/ak-tuning-custom-engine-tuning-logo-1573781489.jpg",
+        description:
+          "Marknadsledande inom motoroptimering, chiptuning, trim m.m. Skräddarsydda mjukvaror! Göteborg - Stockholm - Skåne - Jönköping - Örebro",
+      }),
+    }}
+  />
+</Head>;
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import {
   Chart as ChartJS,

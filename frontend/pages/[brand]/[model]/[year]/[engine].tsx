@@ -19,6 +19,22 @@ import {
   Legend,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
+<Head>
+  <script
+    type="application/ld+json"
+    dangerouslySetInnerHTML={{
+      __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Motoroptimering",
+        name: "AK-TUNING - Motoroptimering",
+        url: "https://www.aktuning.se",
+        logo: "https://aktuning.se/img/ak-tuning-custom-engine-tuning-logo-1573781489.jpg",
+        description:
+          "Marknadsledande inom motoroptimering, chiptuning, trim m.m. Skräddarsydda mjukvaror! Göteborg - Stockholm - Skåne - Jönköping - Örebro",
+      }),
+    }}
+  />
+</Head>;
 
 ChartJS.register(
   CategoryScale,
@@ -26,7 +42,7 @@ ChartJS.register(
   PointElement,
   LineElement,
   Tooltip,
-  Legend
+  Legend,
 );
 
 interface EnginePageProps {
@@ -40,7 +56,7 @@ const normalizeString = (str: string) =>
   str.toLowerCase().replace(/[^a-z0-9]/g, "");
 
 export const getServerSideProps: GetServerSideProps<EnginePageProps> = async (
-  context
+  context,
 ) => {
   const brand = decodeURIComponent((context.params?.brand as string) || "");
   const model = decodeURIComponent((context.params?.model as string) || "");
@@ -60,8 +76,8 @@ export const getServerSideProps: GetServerSideProps<EnginePageProps> = async (
           normalizeString(m.name) === normalizeString(model) ||
           (m.slug &&
             normalizeString(
-              typeof m.slug === "string" ? m.slug : m.slug.current
-            ) === normalizeString(model))
+              typeof m.slug === "string" ? m.slug : m.slug.current,
+            ) === normalizeString(model)),
       ) || null;
 
     if (!modelData) return { notFound: true };
@@ -70,7 +86,7 @@ export const getServerSideProps: GetServerSideProps<EnginePageProps> = async (
       modelData.years?.find(
         (y: Year) =>
           normalizeString(y.range) === normalizeString(year) ||
-          (y.slug && normalizeString(y.slug) === normalizeString(year))
+          (y.slug && normalizeString(y.slug) === normalizeString(year)),
       ) || null;
 
     if (!yearData) return { notFound: true };
@@ -79,7 +95,7 @@ export const getServerSideProps: GetServerSideProps<EnginePageProps> = async (
       yearData.engines?.find(
         (e: Engine) =>
           normalizeString(e.label) === normalizeString(engine) ||
-          (e.slug && normalizeString(e.slug) === normalizeString(engine))
+          (e.slug && normalizeString(e.slug) === normalizeString(engine)),
       ) || null;
 
     if (!engineData) return { notFound: true };
@@ -150,7 +166,7 @@ export default function EnginePage({
 }: EnginePageProps) {
   const router = useRouter();
   const [expandedStages, setExpandedStages] = useState<Record<string, boolean>>(
-    {}
+    {},
   );
   const [expandedDescriptions, setExpandedDescriptions] = useState<
     Record<string, boolean>
@@ -182,7 +198,7 @@ export default function EnginePage({
       ? slugify(engineData.label)
       : engineData?.label || "";
     const stageSlug = slugify(
-      stageOrOptionName.replace(/\s+/g, "-").replace(/[^\w-]/g, "")
+      stageOrOptionName.replace(/\s+/g, "-").replace(/[^\w-]/g, ""),
     );
 
     const finalLink = `https://api.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}#${stageSlug}`;
@@ -201,7 +217,7 @@ export default function EnginePage({
           acc[stage.name] = stage.name === "Steg 1";
           return acc;
         },
-        {} as Record<string, boolean>
+        {} as Record<string, boolean>,
       );
       setExpandedStages(initialExpandedStates);
     }
