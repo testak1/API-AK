@@ -1153,8 +1153,6 @@ export default function TuningViewer() {
                                         </p>
                                       )}
 
-                                      <DtcSearch />
-
                                       <button
                                         onClick={() =>
                                           handleBookNow(option.title)
