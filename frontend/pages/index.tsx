@@ -1114,7 +1114,9 @@ export default function TuningViewer() {
                                       />
                                     )}
                                     <span className="text-lg font-bold text-orange-600">
-                                      {option.title}
+                                      {option.title === "DTC OFF" && (
+                                        <DtcSearch />
+                                      )}
                                     </span>
                                   </div>
 
