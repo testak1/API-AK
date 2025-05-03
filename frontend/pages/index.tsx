@@ -1145,6 +1145,15 @@ export default function TuningViewer() {
                                         />
                                       </div>
                                     )}
+
+                                    {option.title
+                                      .toLowerCase()
+                                      .includes("dtc off") && (
+                                      <div className="mt-4">
+                                        <DtcSearch />
+                                      </div>
+                                    )}
+
                                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                                       {option.price && (
                                         <p className="font-bold text-green-400">
