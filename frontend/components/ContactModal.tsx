@@ -12,6 +12,7 @@ interface ContactModalProps {
   };
   stageOrOption?: string;
   link?: string;
+  scrollPosition?: number;
 }
 
 export default function ContactModal({
@@ -20,6 +21,7 @@ export default function ContactModal({
   selectedVehicle,
   stageOrOption,
   link,
+  scrollPosition = 200,
 }: ContactModalProps) {
   const [contactMode, setContactMode] = useState<
     "form" | "phone" | "thankyou" | null
@@ -46,7 +48,6 @@ export default function ContactModal({
     }));
   }, [stageOrOption]);
 
-  // Prevent scrolling in background when modal is open
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -56,6 +57,14 @@ export default function ContactModal({
     return () => {
       document.body.style.overflow = "";
     };
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (isOpen) {
+      setTimeout(() => {
+        window.parent.postMessage({ height: document.body.scrollHeight }, "*");
+      }, 300);
+    }
   }, [isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -100,11 +109,28 @@ export default function ContactModal({
     onClose();
   };
 
+  // ✅ Mobile-aware modal positioning
+  const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
+  const modalTop = isMobile ? "50%" : `${scrollPosition}px`;
+  const modalTransform = isMobile
+    ? "translate(-50%, -50%)"
+    : "translateX(-50%)";
+
   return (
     <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="fixed z-50 inset-0" onClose={handleClose}>
+      <Dialog as="div" className="fixed z-50 inset-0" onClose={() => {}} static>
         <div className="fixed inset-0 bg-black bg-opacity-50" />
-        <div className="fixed inset-0 flex items-start justify-center pt-20 z-50 px-4">
+
+        {/* ✅ MODAL POSITIONING FIXED HERE */}
+        <div
+          className="fixed left-1/2 transform -translate-x-1/2 z-50 px-4 w-full max-w-md sm:px-6"
+          style={{
+            top:
+              typeof window !== "undefined" && window.innerWidth <= 768
+                ? "1100px" // mobile
+                : "600px", // desktop
+          }}
+        >
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
@@ -151,6 +177,15 @@ export default function ContactModal({
                   >
                     📞 RING OSS
                   </button>
+                  {/* STÄNG button */}
+                  <button
+                    type="button"
+                    onClick={handleClose}
+                    className="w-full bg-gray-700 hover:bg-gray-600 text-white hover:text-red-400 py-2 px-4 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
+                  >
+                    <span>❌</span>
+                    STÄNG
+                  </button>
                 </div>
               )}
 
@@ -170,21 +205,11 @@ export default function ContactModal({
                         <strong>VAL ➔ {formData.stage.toUpperCase()}</strong>
                       </div>
                     )}
-                    {link && (
-                      <a
-                        href={link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-block mt-1 text-green-400 text-xs hover:text-red-400"
-                      >
-                        DIREKT LÄNK
-                      </a>
-                    )}
                   </div>
 
                   <input
                     type="text"
-                    placeholder="NAMN"
+                    placeholder="🏷️ NAMN"
                     required
                     className="w-full p-2 rounded bg-gray-800 border border-gray-600"
                     value={formData.name}
@@ -194,7 +219,7 @@ export default function ContactModal({
                   />
                   <input
                     type="email"
-                    placeholder="EMAIL"
+                    placeholder="📧 EMAIL"
                     required
                     className="w-full p-2 rounded bg-gray-800 border border-gray-600"
                     value={formData.email}
@@ -204,7 +229,7 @@ export default function ContactModal({
                   />
                   <input
                     type="tel"
-                    placeholder="TELNR"
+                    placeholder="☎️ TELNR"
                     required
                     className="w-full p-2 rounded bg-gray-800 border border-gray-600"
                     value={formData.tel}
@@ -213,7 +238,7 @@ export default function ContactModal({
                     }
                   />
                   <textarea
-                    placeholder="MEDDELANDE"
+                    placeholder="💬 MEDDELANDE"
                     required
                     className="w-full p-2 rounded bg-gray-800 border border-gray-600"
                     rows={3}
@@ -230,7 +255,7 @@ export default function ContactModal({
                       setFormData({ ...formData, branch: e.target.value })
                     }
                   >
-                    <option value="">VÄLJ ANLÄGGNING</option>
+                    <option value="">📍 VÄLJ ANLÄGGNING</option>
                     <option value="goteborg">GÖTEBORG (HQ)</option>
                     <option value="jonkoping">JÖNKÖPING</option>
                     <option value="malmo">MALMÖ</option>
@@ -245,6 +270,15 @@ export default function ContactModal({
                     className="w-full bg-blue-600 hover:bg-blue-700 active:scale-95 transition transform px-4 py-2 rounded-lg font-semibold"
                   >
                     {sending ? "Skickar..." : "📩 SKICKA FÖRFRÅGAN"}
+                  </button>
+                  {/* STÄNG button */}
+                  <button
+                    type="button"
+                    onClick={handleClose}
+                    className="w-full bg-gray-700 hover:bg-gray-600 text-white hover:text-red-400 py-2 px-4 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
+                  >
+                    <span>❌</span>
+                    STÄNG
                   </button>
 
                   {error && <p className="text-red-400 text-center">{error}</p>}
@@ -264,7 +298,9 @@ export default function ContactModal({
                     <a
                       key={city}
                       href={`tel:${number}`}
-                      className="flex items-center gap-3 bg-gray-800 hover:bg-gray-700 p-3 rounded-lg transition-colors rounded-xl"
+                      target="_top"
+                      rel="noopener"
+                      className="flex items-center gap-3 bg-gray-800 hover:bg-gray-700 p-3 rounded-lg transition-colors"
                     >
                       <span className="text-green-400 text-2xl">📞</span>
                       <div className="flex flex-col">
@@ -273,6 +309,18 @@ export default function ContactModal({
                       </div>
                     </a>
                   ))}
+
+                  {/* STÄNG Button */}
+                  <div className="pt-4">
+                    <button
+                      type="button"
+                      onClick={handleClose}
+                      className="w-full bg-gray-700 hover:bg-gray-600 text-white hover:text-red-400 py-2 px-4 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
+                    >
+                      <span>❌</span>
+                      STÄNG
+                    </button>
+                  </div>
                 </div>
               )}
             </Dialog.Panel>

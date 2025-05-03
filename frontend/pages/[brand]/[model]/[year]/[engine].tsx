@@ -3,7 +3,15 @@ import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import client from "@/lib/sanity";
 import { engineByParamsQuery } from "@/src/lib/queries";
-import type { Brand, Model, Year, Engine, Stage } from "@/types/sanity";
+import type {
+  Brand,
+  Model,
+  Year,
+  Engine,
+  Stage,
+  AktPlusOption,
+  AktPlusOptionReference,
+} from "@/types/sanity";
 import { urlFor } from "@/lib/sanity";
 import { PortableText } from "@portabletext/react";
 import Head from "next/head";
@@ -15,18 +23,37 @@ import {
   LinearScale,
   PointElement,
   LineElement,
+  LineController,
   Tooltip,
   Legend,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
+
+<Head>
+  <script
+    type="application/ld+json"
+    dangerouslySetInnerHTML={{
+      __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Motoroptimering",
+        name: "AK-TUNING - Motoroptimering",
+        url: "https://www.aktuning.se",
+        logo: "https://aktuning.se/img/ak-tuning-custom-engine-tuning-logo-1573781489.jpg",
+        description:
+          "Marknadsledande inom motoroptimering, chiptuning, trim m.m. Skräddarsydda mjukvaror! Göteborg - Stockholm - Skåne - Jönköping - Örebro",
+      }),
+    }}
+  />
+</Head>;
 
 ChartJS.register(
   CategoryScale,
   LinearScale,
   PointElement,
   LineElement,
+  LineController,
   Tooltip,
-  Legend
+  Legend,
 );
 
 interface EnginePageProps {
@@ -40,7 +67,7 @@ const normalizeString = (str: string) =>
   str.toLowerCase().replace(/[^a-z0-9]/g, "");
 
 export const getServerSideProps: GetServerSideProps<EnginePageProps> = async (
-  context
+  context,
 ) => {
   const brand = decodeURIComponent((context.params?.brand as string) || "");
   const model = decodeURIComponent((context.params?.model as string) || "");
@@ -60,8 +87,8 @@ export const getServerSideProps: GetServerSideProps<EnginePageProps> = async (
           normalizeString(m.name) === normalizeString(model) ||
           (m.slug &&
             normalizeString(
-              typeof m.slug === "string" ? m.slug : m.slug.current
-            ) === normalizeString(model))
+              typeof m.slug === "string" ? m.slug : m.slug.current,
+            ) === normalizeString(model)),
       ) || null;
 
     if (!modelData) return { notFound: true };
@@ -70,7 +97,7 @@ export const getServerSideProps: GetServerSideProps<EnginePageProps> = async (
       modelData.years?.find(
         (y: Year) =>
           normalizeString(y.range) === normalizeString(year) ||
-          (y.slug && normalizeString(y.slug) === normalizeString(year))
+          (y.slug && normalizeString(y.slug) === normalizeString(year)),
       ) || null;
 
     if (!yearData) return { notFound: true };
@@ -79,7 +106,7 @@ export const getServerSideProps: GetServerSideProps<EnginePageProps> = async (
       yearData.engines?.find(
         (e: Engine) =>
           normalizeString(e.label) === normalizeString(engine) ||
-          (e.slug && normalizeString(e.slug) === normalizeString(engine))
+          (e.slug && normalizeString(e.slug) === normalizeString(engine)),
       ) || null;
 
     if (!engineData) return { notFound: true };
@@ -141,7 +168,6 @@ const generateDynoCurve = (peakValue: number, isHp: boolean) => {
     }
   });
 };
-
 export default function EnginePage({
   brandData,
   modelData,
@@ -150,16 +176,25 @@ export default function EnginePage({
 }: EnginePageProps) {
   const router = useRouter();
   const [expandedStages, setExpandedStages] = useState<Record<string, boolean>>(
-    {}
+    {},
   );
   const [expandedDescriptions, setExpandedDescriptions] = useState<
     Record<string, boolean>
   >({});
+  const [expandedOptions, setExpandedOptions] = useState<
+    Record<string, boolean>
+  >({});
+  const watermarkImageRef = useRef<HTMLImageElement | null>(null);
   const [contactModalData, setContactModalData] = useState<{
     isOpen: boolean;
     stageOrOption: string;
     link: string;
-  }>({ isOpen: false, stageOrOption: "", link: "" });
+    scrollPosition?: number;
+  }>({
+    isOpen: false,
+    stageOrOption: "",
+    link: "",
+  });
 
   const slugify = (str: string) =>
     str
@@ -168,31 +203,52 @@ export default function EnginePage({
       .replace(/\s+/g, "-")
       .replace(/-+/g, "-");
 
-  const handleBookNow = (stageOrOptionName: string) => {
-    const brandSlug =
-      brandData?.slug?.current || slugify(brandData?.name || "");
-    const modelSlug =
-      typeof modelData?.slug === "object"
-        ? modelData.slug.current
-        : modelData?.slug || slugify(modelData?.name || "");
-    const yearSlug = yearData?.range.includes(" ")
-      ? slugify(yearData.range)
-      : yearData?.range || "";
-    const engineSlug = engineData?.label.includes(" ")
-      ? slugify(engineData.label)
-      : engineData?.label || "";
-    const stageSlug = slugify(
-      stageOrOptionName.replace(/\s+/g, "-").replace(/[^\w-]/g, "")
-    );
+  const slugifyStage = (str: string) =>
+    str
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^\w-]/g, "");
 
+  const handleBookNow = (
+    stageOrOptionName: string,
+    event?: React.MouseEvent,
+  ) => {
+    if (!brandData || !modelData || !yearData || !engineData) return;
+
+    const brandSlug = brandData.slug?.current || slugify(brandData.name);
+    const modelSlug =
+      typeof modelData.slug === "object"
+        ? modelData.slug.current
+        : modelData.slug || slugify(modelData.name);
+    const yearSlug = yearData.range.includes(" ")
+      ? slugify(yearData.range)
+      : yearData.range;
+    const engineSlug = engineData.label.includes(" ")
+      ? slugify(engineData.label)
+      : engineData.label;
+
+    const stageSlug = slugifyStage(stageOrOptionName);
     const finalLink = `https://api.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}#${stageSlug}`;
+
+    const clickY = event?.clientY || 0;
+    const scrollY = window.scrollY + clickY;
 
     setContactModalData({
       isOpen: true,
       stageOrOption: stageOrOptionName,
       link: finalLink,
+      scrollPosition: scrollY,
     });
   };
+
+  // Load watermark image
+  useEffect(() => {
+    const img = new Image();
+    img.src = "/ak-logo.png";
+    img.onload = () => {
+      watermarkImageRef.current = img;
+    };
+  }, []);
 
   useEffect(() => {
     if (engineData?.stages) {
@@ -201,11 +257,91 @@ export default function EnginePage({
           acc[stage.name] = stage.name === "Steg 1";
           return acc;
         },
-        {} as Record<string, boolean>
+        {} as Record<string, boolean>,
       );
       setExpandedStages(initialExpandedStates);
     }
   }, [engineData]);
+
+  const watermarkPlugin = {
+    id: "watermark",
+    beforeDraw: (chart: ChartJS) => {
+      const ctx = chart.ctx;
+      const {
+        chartArea: { top, left, width, height },
+      } = chart;
+
+      if (watermarkImageRef.current?.complete) {
+        ctx.save();
+        ctx.globalAlpha = 0.2;
+
+        const img = watermarkImageRef.current;
+        const ratio = img.width / img.height;
+
+        // Adjust size based on screen width
+        const isMobile = window.innerWidth <= 768;
+        const imgWidth = isMobile ? width * 0.8 : width * 0.4;
+        const imgHeight = imgWidth / ratio;
+
+        const x = left + width / 2 - imgWidth / 2;
+        const y = top + height / 2 - imgHeight / 2;
+
+        ctx.drawImage(img, x, y, imgWidth, imgHeight);
+        ctx.restore();
+      }
+    },
+  };
+
+  const shadowPlugin = {
+    id: "shadowPlugin",
+    beforeDatasetDraw(chart: ChartJS, args: any, options: any) {
+      const { ctx } = chart;
+      const dataset = chart.data.datasets[args.index];
+
+      ctx.save();
+      ctx.shadowColor = dataset.borderColor as string;
+      ctx.shadowBlur = 6;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 2;
+    },
+    afterDatasetDraw(chart: ChartJS, args: any, options: any) {
+      chart.ctx.restore();
+    },
+  };
+  const isExpandedAktPlusOption = (item: any): item is AktPlusOption => {
+    return item && "_id" in item && "title" in item;
+  };
+
+  const getAllAktPlusOptions = useMemo(
+    () => (stage: Stage) => {
+      if (!engineData) return [];
+
+      const combinedOptions: AktPlusOptionReference[] = [
+        ...(engineData.globalAktPlusOptions || []),
+        ...(stage.aktPlusOptions || []),
+      ];
+
+      const uniqueOptionsMap = new Map<string, AktPlusOption>();
+
+      (combinedOptions as AktPlusOptionReference[])
+        .filter(isExpandedAktPlusOption)
+        .forEach((opt) => {
+          if (
+            (opt.isUniversal ||
+              opt.applicableFuelTypes?.includes(engineData.fuel) ||
+              opt.manualAssignments?.some(
+                (ref) => ref._ref === engineData._id,
+              )) &&
+            (!opt.stageCompatibility || opt.stageCompatibility === stage.name)
+          ) {
+            uniqueOptionsMap.set(opt._id, opt);
+          }
+        });
+
+      return Array.from(uniqueOptionsMap.values());
+    },
+    [engineData],
+  );
 
   const toggleStage = (stageName: string) => {
     setExpandedStages((prev) => {
@@ -217,6 +353,24 @@ export default function EnginePage({
     });
   };
 
+  const toggleOption = (optionId: string) => {
+    setExpandedOptions((prev) => {
+      const newState: Record<string, boolean> = {};
+      newState[optionId] = !prev[optionId];
+      return newState;
+    });
+  };
+
+  const [expandedAktPlus, setExpandedAktPlus] = useState<
+    Record<string, boolean>
+  >({});
+
+  const toggleAktPlus = (stageName: string) => {
+    setExpandedAktPlus((prev) => ({
+      ...prev,
+      [stageName]: !prev[stageName],
+    }));
+  };
   const renderStageDescription = (stage: Stage) => {
     const description = stage.descriptionRef?.description || stage.description;
     const isExpanded = expandedDescriptions[stage.name] ?? false;
@@ -270,7 +424,7 @@ export default function EnginePage({
     );
   };
 
-  if (!engineData) {
+  if (!engineData || !brandData || !modelData || !yearData) {
     return (
       <div className="max-w-5xl mx-auto p-4 md:p-8">
         <h1 className="text-2xl font-bold mb-4">
@@ -293,19 +447,18 @@ export default function EnginePage({
           onClick={() => window.location.reload()}
         />
       </div>
-
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-center">
-          {brandData?.name} {modelData?.name} {yearData?.range}
+          {brandData.name} {modelData.name} {yearData.range}
         </h1>
         <p className="text-lg text-center text-gray-300">
           {engineData.label} ({engineData.fuel})
         </p>
-      </div>
-
+      </div>{" "}
       {engineData.stages?.length > 0 ? (
         <div className="space-y-6">
           {engineData.stages.map((stage) => {
+            const allOptions = getAllAktPlusOptions(stage);
             const isExpanded = expandedStages[stage.name] ?? false;
 
             return (
@@ -319,7 +472,7 @@ export default function EnginePage({
                 >
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                     <div className="flex items-center gap-4">
-                      {brandData?.logo?.asset && (
+                      {brandData.logo?.asset && (
                         <img
                           src={urlFor(brandData.logo).width(60).url()}
                           alt={brandData.name}
@@ -408,21 +561,54 @@ export default function EnginePage({
                         </p>
                       </div>
                     </div>
-                    {renderStageDescription(stage)}
-
+                    {renderStageDescription(stage)}{" "}
                     <div className="mt-6">
                       <h3 className="text-lg font-medium text-gray-300 mb-2 uppercase">
                         {stage.name}
                       </h3>
-
+                      {/* Mobile-only legend above chart */}
+                      <div className="flex justify-center items-center gap-2 md:hidden text-xs text-white">
+                        <div className="flex items-center gap-1">
+                          <span className="w-3 h-3 rounded-full border-2 border-red-400"></span>
+                          <span>ORG HK</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <span className="w-3 h-3 rounded-full bg-red-400"></span>
+                          <span>
+                            {" "}
+                            {stage.name
+                              .replace("Steg", "ST")
+                              .replace(/\s+/g, "")
+                              .toUpperCase()}{" "}
+                            HK
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <span className="w-3 h-3 rounded-full border-2 border-gray-300"></span>
+                          <span>ORG NM</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <span className="w-3 h-3 rounded-full bg-gray-300"></span>
+                          <span>
+                            {" "}
+                            {stage.name
+                              .replace("Steg", "ST")
+                              .replace(/\s+/g, "")
+                              .toUpperCase()}{" "}
+                            NM
+                          </span>
+                        </div>
+                      </div>
                       <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
+                        {/* Split the spec boxes */}
                         <div className="absolute hidden md:flex flex-row justify-between top-4 left-0 right-0 px-16">
+                          {/* ORG HK / Max HK */}
                           <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
-                            <p className="text-red-400">- - -</p>
+                            <p className="text-red-600">- - -</p>
                             <p className="text-white">
-                              HK ORG: {stage.origHk} hk
+                              HK ORG: {stage.origHk} HK
                             </p>
-                            <p className="text-red-800">⸻</p>
+                            <p className="text-red-600">_____</p>
                             <p className="text-white">
                               HK{" "}
                               {stage.name
@@ -433,25 +619,24 @@ export default function EnginePage({
                             </p>
                           </div>
 
+                          {/* ORG NM / Max NM */}
                           <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
                             <p className="text-white">- - -</p>
                             <p className="text-white">
-                              NM ORG: {stage.origNm} Nm
+                              NM ORG: {stage.origNm} NM
                             </p>
-                            <p className="text-white">⸻</p>
+                            <p className="text-white">_____</p>
                             <p className="text-white">
-                              <span className="text-gray-400 text-xs mr-1">
-                                NM
-                              </span>
+                              NM{" "}
                               {stage.name
                                 .replace("Steg", "ST")
                                 .replace(/\s+/g, "")
                                 .toUpperCase()}
-                              : {stage.tunedNm} Nm
+                              : {stage.tunedHk} NM
                             </p>
                           </div>
-                        </div>
-
+                        </div>{" "}
+                        {/* Dyno graph */}
                         <Line
                           data={{
                             labels: [
@@ -469,7 +654,7 @@ export default function EnginePage({
                             ],
                             datasets: [
                               {
-                                label: "Original HK",
+                                label: "ORG HK",
                                 data: generateDynoCurve(stage.origHk, true),
                                 borderColor: "#f87171",
                                 backgroundColor: "transparent",
@@ -477,18 +662,20 @@ export default function EnginePage({
                                 borderDash: [5, 3],
                                 tension: 0.5,
                                 pointRadius: 0,
+                                yAxisID: "hp",
                               },
                               {
-                                label: "Tuned HK",
+                                label: `ST ${stage.name.replace(/\D/g, "")} hk`,
                                 data: generateDynoCurve(stage.tunedHk, true),
                                 borderColor: "#f87171",
                                 backgroundColor: "transparent",
                                 borderWidth: 3,
                                 tension: 0.5,
                                 pointRadius: 0,
+                                yAxisID: "hp",
                               },
                               {
-                                label: "Original NM",
+                                label: "ORG NM",
                                 data: generateDynoCurve(stage.origNm, false),
                                 borderColor: "#d1d5db",
                                 backgroundColor: "transparent",
@@ -496,15 +683,17 @@ export default function EnginePage({
                                 borderDash: [5, 3],
                                 tension: 0.5,
                                 pointRadius: 0,
+                                yAxisID: "nm",
                               },
                               {
-                                label: "Tuned NM",
+                                label: `ST ${stage.name.replace(/\D/g, "")} Nm`,
                                 data: generateDynoCurve(stage.tunedNm, false),
                                 borderColor: "#d1d5db",
                                 backgroundColor: "transparent",
                                 borderWidth: 3,
                                 tension: 0.5,
                                 pointRadius: 0,
+                                yAxisID: "nm",
                               },
                             ],
                           }}
@@ -513,22 +702,45 @@ export default function EnginePage({
                             maintainAspectRatio: false,
                             plugins: {
                               legend: {
-                                position: "top",
-                                labels: {
-                                  color: "#E5E7EB",
-                                  font: { size: 12 },
-                                  boxWidth: 12,
-                                  padding: 20,
-                                  usePointStyle: true,
-                                },
+                                display: false,
                               },
                               tooltip: {
+                                enabled: true,
                                 mode: "index",
                                 intersect: false,
+                                backgroundColor: "#1f2937",
+                                titleColor: "#ffffff",
+                                bodyColor: "#ffffff",
+                                borderColor: "#6b7280",
+                                borderWidth: 1,
+                                padding: 10,
+                                displayColors: true,
+                                usePointStyle: true,
+                                callbacks: {
+                                  labelPointStyle: () => ({
+                                    pointStyle: "circle",
+                                    rotation: 0,
+                                  }),
+                                  title: function (tooltipItems) {
+                                    return `${tooltipItems[0].label} RPM`;
+                                  },
+                                  label: function (context) {
+                                    const label = context.dataset.label || "";
+                                    const value = context.parsed.y;
+
+                                    if (value === undefined) return label;
+
+                                    const unit =
+                                      context.dataset.yAxisID === "hp"
+                                        ? "hk"
+                                        : "Nm";
+                                    return `${label}: ${Math.round(value)} ${unit}`;
+                                  },
+                                },
                               },
                             },
                             scales: {
-                              y: {
+                              hp: {
                                 type: "linear",
                                 display: true,
                                 position: "left",
@@ -542,6 +754,27 @@ export default function EnginePage({
                                 max: Math.ceil(stage.tunedHk / 100) * 100 + 100,
                                 grid: {
                                   color: "rgba(255, 255, 255, 0.1)",
+                                },
+                                ticks: {
+                                  color: "#9CA3AF",
+                                  stepSize: 100,
+                                  callback: (value) => `${value}`,
+                                },
+                              },
+                              nm: {
+                                type: "linear",
+                                display: true,
+                                position: "right",
+                                title: {
+                                  display: true,
+                                  text: "Vridmoment (Nm)",
+                                  color: "white",
+                                  font: { size: 14 },
+                                },
+                                min: 0,
+                                max: Math.ceil(stage.tunedNm / 100) * 100 + 100,
+                                grid: {
+                                  drawOnChartArea: false,
                                 },
                                 ticks: {
                                   color: "#9CA3AF",
@@ -569,35 +802,150 @@ export default function EnginePage({
                               mode: "index",
                             },
                           }}
+                          plugins={[watermarkPlugin, shadowPlugin]}
                         />
                         <div className="text-center text-white text-xs mt-4 italic">
                           (Simulerad effektkurva)
                         </div>
-
-                        <div className="block md:hidden text-center mt-4 space-y-1">
-                          <p className="text-sm text-white font-semibold">
-                            {stage.tunedHk} HK & {stage.tunedNm} NM
-                            <span className="text-gray-400 text-sm">
-                              [
-                              {stage.name
-                                .replace("Steg", "STEG ")
-                                .replace(/\s+/g, "")
-                                .toUpperCase()}
-                              ]
-                            </span>
-                          </p>
-                        </div>
+                      </div>{" "}
+                      {/* Mobile-only small tuned specs */}
+                      <div className="block md:hidden text-center mt-6 mb-6">
+                        <p className="text-sm text-white font-semibold">
+                          {stage.tunedHk} HK & {stage.tunedNm} NM
+                          <span className="text-gray-400 text-sm ml-1">
+                            [
+                            {stage.name
+                              .replace("Steg", "STEG ")
+                              .replace(/\s+/g, "")
+                              .toUpperCase()}
+                            ]
+                          </span>
+                        </p>
                       </div>
-
-                      <div className="mt-6 mb-10 flex justify-center">
+                      {/* KONTAKT button */}
+                      <div className="mt-8 mb-10 flex flex-col items-center">
                         <button
-                          onClick={() => handleBookNow(stage.name)}
-                          className="mt-8 bg-green-600 hover:bg-green-700 hover:scale-105 transform transition-all text-white px-6 py-3 rounded-lg font-medium shadow-lg"
+                          onClick={(e) => handleBookNow(stage.name, e)}
+                          className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg flex items-center gap-2"
                         >
-                          📩 KONTAKT
+                          <span>📩</span> KONTAKT
                         </button>
                       </div>
                     </div>
+                    {allOptions.length > 0 && (
+                      <div className="mt-8">
+                        {/* AKT+ Toggle Button */}
+                        <button
+                          onClick={() => toggleAktPlus(stage.name)}
+                          className="flex justify-between items-center w-full px-6 py-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+                        >
+                          <div className="flex items-center gap-2">
+                            <img
+                              src="/logos/aktplus.png"
+                              alt="AKT+ Logo"
+                              className="h-8 w-auto object-contain"
+                            />
+                            <h3 className="text-md font-semibold text-white">
+                              TILLÄGG
+                            </h3>
+                          </div>
+
+                          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-800">
+                            <svg
+                              className={`h-5 w-5 text-orange-500 transform transition-transform duration-300 ${
+                                expandedAktPlus[stage.name] ? "rotate-180" : ""
+                              }`}
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          </div>
+                        </button>{" "}
+                        {/* Expandable AKT+ Grid */}
+                        {expandedAktPlus[stage.name] && (
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                            {allOptions.map((option) => (
+                              <div
+                                key={option._id}
+                                className="border border-gray-600 rounded-lg overflow-hidden bg-gray-700 transition-all duration-300"
+                              >
+                                <button
+                                  onClick={() => toggleOption(option._id)}
+                                  className="w-full flex justify-between items-center p-4 hover:bg-gray-600 transition-colors"
+                                >
+                                  <div className="flex items-center gap-3">
+                                    {option.gallery?.[0]?.asset && (
+                                      <img
+                                        src={urlFor(option.gallery[0].asset)
+                                          .width(80)
+                                          .url()}
+                                        alt={
+                                          option.gallery[0].alt || option.title
+                                        }
+                                        className="h-10 w-10 object-contain"
+                                      />
+                                    )}
+                                    <span className="text-lg font-bold text-orange-600">
+                                      {option.title}
+                                    </span>
+                                  </div>
+
+                                  <svg
+                                    className={`h-5 w-5 text-orange-600 transition-transform ${
+                                      expandedOptions[option._id]
+                                        ? "rotate-180"
+                                        : ""
+                                    }`}
+                                    viewBox="0 0 20 20"
+                                    fill="currentColor"
+                                  >
+                                    <path
+                                      fillRule="evenodd"
+                                      d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                                      clipRule="evenodd"
+                                    />
+                                  </svg>
+                                </button>
+
+                                {expandedOptions[option._id] && (
+                                  <div className="bg-gray-800 border-t border-gray-600 p-4 space-y-4">
+                                    {option.description && (
+                                      <div className="prose prose-invert max-w-none text-sm">
+                                        <PortableText
+                                          value={option.description}
+                                          components={portableTextComponents}
+                                        />
+                                      </div>
+                                    )}
+                                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                                      {option.price && (
+                                        <p className="font-bold text-green-400">
+                                          Pris: {option.price.toLocaleString()}{" "}
+                                          kr
+                                        </p>
+                                      )}
+                                      <button
+                                        onClick={() =>
+                                          handleBookNow(option.title)
+                                        }
+                                        className="bg-green-600 hover:bg-green-700 hover:scale-105 transform transition-all text-white px-6 py-3 rounded-lg font-medium shadow-lg"
+                                      >
+                                        📩 KONTAKT
+                                      </button>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -611,20 +959,20 @@ export default function EnginePage({
           </p>
         </div>
       )}
-
       <ContactModal
         isOpen={contactModalData.isOpen}
         onClose={() =>
           setContactModalData({ isOpen: false, stageOrOption: "", link: "" })
         }
         selectedVehicle={{
-          brand: brandData?.name || "",
-          model: modelData?.name || "",
-          year: yearData?.range || "",
-          engine: engineData.label || "",
+          brand: brandData.name,
+          model: modelData.name,
+          year: yearData.range,
+          engine: engineData.label,
         }}
         stageOrOption={contactModalData.stageOrOption}
         link={contactModalData.link}
+        scrollPosition={contactModalData.scrollPosition}
       />
     </div>
   );

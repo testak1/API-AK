@@ -1,12 +1,32 @@
 // pages/index.tsx
+import Head from "next/head";
+
+<Head>
+  <script
+    type="application/ld+json"
+    dangerouslySetInnerHTML={{
+      __html: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Motoroptimering",
+        name: "AK-TUNING - Motoroptimering",
+        url: "https://www.aktuning.se",
+        logo: "https://aktuning.se/img/ak-tuning-custom-engine-tuning-logo-1573781489.jpg",
+        description:
+          "Marknadsledande inom motoroptimering, chiptuning, trim m.m. Skräddarsydda mjukvaror! Göteborg - Stockholm - Skåne - Jönköping - Örebro",
+      }),
+    }}
+  />
+</Head>;
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import {
-  Chart,
+  Chart as ChartJS,
   CategoryScale,
   LinearScale,
   PointElement,
   LineElement,
   LineController,
+  Tooltip,
+  Legend,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 import { PortableText } from "@portabletext/react";
@@ -20,12 +40,14 @@ import type {
 import ContactModal from "@/components/ContactModal";
 import { link } from "fs";
 
-Chart.register(
+ChartJS.register(
   CategoryScale,
   LinearScale,
   PointElement,
   LineElement,
-  LineController
+  LineController,
+  Tooltip,
+  Legend,
 );
 
 interface SelectionState {
@@ -50,7 +72,7 @@ export default function TuningViewer() {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [expandedStages, setExpandedStages] = useState<Record<string, boolean>>(
-    {}
+    {},
   );
   const [expandedDescriptions, setExpandedDescriptions] = useState<
     Record<string, boolean>
@@ -63,6 +85,7 @@ export default function TuningViewer() {
     isOpen: boolean;
     stageOrOption: string;
     link: string;
+    scrollPosition?: number;
   }>({
     isOpen: false,
     stageOrOption: "",
@@ -84,7 +107,7 @@ export default function TuningViewer() {
 
   const handleBookNow = (
     stageOrOptionName: string,
-    event?: React.MouseEvent
+    event?: React.MouseEvent,
   ) => {
     const selectedBrand = data.find((b) => b.name === selected.brand);
     if (!selectedBrand) return;
@@ -93,7 +116,7 @@ export default function TuningViewer() {
       selectedBrand.slug?.current || slugify(selectedBrand.name);
 
     const selectedModel = selectedBrand.models?.find(
-      (m) => m.name === selected.model
+      (m) => m.name === selected.model,
     );
     if (!selectedModel) return;
 
@@ -103,7 +126,7 @@ export default function TuningViewer() {
         : selectedModel.slug || slugify(selectedModel.name);
 
     const selectedYear = selectedModel.years?.find(
-      (y) => y.range === selected.year
+      (y) => y.range === selected.year,
     );
     if (!selectedYear) return;
 
@@ -112,7 +135,7 @@ export default function TuningViewer() {
       : selectedYear.range;
 
     const selectedEngine = selectedYear.engines?.find(
-      (e) => e.label === selected.engine
+      (e) => e.label === selected.engine,
     );
     if (!selectedEngine) return;
 
@@ -131,6 +154,7 @@ export default function TuningViewer() {
       isOpen: true,
       stageOrOption: stageOrOptionName,
       link: finalLink,
+      scrollPosition: scrollY,
     });
   };
 
@@ -167,7 +191,7 @@ export default function TuningViewer() {
         setIsLoading(true);
         try {
           const res = await fetch(
-            `/api/years?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}`
+            `/api/years?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}`,
           );
           if (!res.ok) throw new Error("Failed to fetch years");
           const years = await res.json();
@@ -181,10 +205,10 @@ export default function TuningViewer() {
                     models: brand.models.map((model) =>
                       model.name !== selected.model
                         ? model
-                        : { ...model, years: years.result }
+                        : { ...model, years: years.result },
                     ),
-                  }
-            )
+                  },
+            ),
           );
         } catch (error) {
           console.error("Error fetching years:", error);
@@ -203,7 +227,7 @@ export default function TuningViewer() {
         setIsLoading(true);
         try {
           const res = await fetch(
-            `/api/engines?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}&year=${encodeURIComponent(selected.year)}`
+            `/api/engines?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}&year=${encodeURIComponent(selected.year)}`,
           );
           if (!res.ok) throw new Error("Failed to fetch engines");
           const engines = await res.json();
@@ -222,12 +246,12 @@ export default function TuningViewer() {
                             years: model.years.map((year) =>
                               year.range !== selected.year
                                 ? year
-                                : { ...year, engines: engines.result }
+                                : { ...year, engines: engines.result },
                             ),
-                          }
+                          },
                     ),
-                  }
-            )
+                  },
+            ),
           );
         } catch (error) {
           console.error("Error fetching engines:", error);
@@ -261,7 +285,7 @@ export default function TuningViewer() {
         acc[fuelType].push(engine);
         return acc;
       },
-      {} as Record<string, typeof engines>
+      {} as Record<string, typeof engines>,
     );
 
     return {
@@ -282,7 +306,7 @@ export default function TuningViewer() {
           acc[stage.name] = stage.name === "Steg 1";
           return acc;
         },
-        {} as Record<string, boolean>
+        {} as Record<string, boolean>,
       );
       setExpandedStages(initialExpandedStates);
     }
@@ -290,7 +314,7 @@ export default function TuningViewer() {
 
   const watermarkPlugin = {
     id: "watermark",
-    beforeDraw: (chart: Chart) => {
+    beforeDraw: (chart: ChartJS) => {
       const ctx = chart.ctx;
       const {
         chartArea: { top, left, width, height },
@@ -302,7 +326,10 @@ export default function TuningViewer() {
 
         const img = watermarkImageRef.current;
         const ratio = img.width / img.height;
-        const imgWidth = width * 0.4;
+
+        // Adjust size based on screen width
+        const isMobile = window.innerWidth <= 768;
+        const imgWidth = isMobile ? width * 0.8 : width * 0.4;
         const imgHeight = imgWidth / ratio;
 
         const x = left + width / 2 - imgWidth / 2;
@@ -315,7 +342,7 @@ export default function TuningViewer() {
   };
   const shadowPlugin = {
     id: "shadowPlugin",
-    beforeDatasetDraw(chart: Chart, args: any, options: any) {
+    beforeDatasetDraw(chart: ChartJS, args: any, options: any) {
       const { ctx } = chart;
       const dataset = chart.data.datasets[args.index];
 
@@ -325,7 +352,7 @@ export default function TuningViewer() {
       ctx.shadowOffsetX = 0;
       ctx.shadowOffsetY = 2;
     },
-    afterDatasetDraw(chart: Chart, args: any, options: any) {
+    afterDatasetDraw(chart: ChartJS, args: any, options: any) {
       chart.ctx.restore();
     },
   };
@@ -352,7 +379,7 @@ export default function TuningViewer() {
             (opt.isUniversal ||
               opt.applicableFuelTypes?.includes(selectedEngine.fuel) ||
               opt.manualAssignments?.some(
-                (ref) => ref._ref === selectedEngine._id
+                (ref) => ref._ref === selectedEngine._id,
               )) &&
             (!opt.stageCompatibility || opt.stageCompatibility === stage.name)
           ) {
@@ -362,7 +389,7 @@ export default function TuningViewer() {
 
       return Array.from(uniqueOptionsMap.values());
     },
-    [selectedEngine]
+    [selectedEngine],
   );
 
   const generateDynoCurve = (peakValue: number, isHp: boolean) => {
@@ -652,7 +679,7 @@ export default function TuningViewer() {
                         ?.asset && (
                         <img
                           src={urlFor(
-                            data.find((b) => b.name === selected.brand)?.logo
+                            data.find((b) => b.name === selected.brand)?.logo,
                           )
                             .width(60)
                             .url()}
@@ -750,16 +777,50 @@ export default function TuningViewer() {
                         {stage.name}
                       </h3>
 
+                      {/* Mobile-only legend above chart */}
+                      <div className="flex justify-center items-center gap-2 md:hidden text-xs text-white">
+                        <div className="flex items-center gap-1">
+                          <span className="w-3 h-3 rounded-full border-2 border-red-400"></span>
+                          <span>ORG HK</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <span className="w-3 h-3 rounded-full bg-red-400"></span>
+                          <span>
+                            {" "}
+                            {stage.name
+                              .replace("Steg", "ST")
+                              .replace(/\s+/g, "")
+                              .toUpperCase()}{" "}
+                            HK
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <span className="w-3 h-3 rounded-full border-2 border-gray-300"></span>
+                          <span>ORG NM</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <span className="w-3 h-3 rounded-full bg-gray-300"></span>
+                          <span>
+                            {" "}
+                            {stage.name
+                              .replace("Steg", "ST")
+                              .replace(/\s+/g, "")
+                              .toUpperCase()}{" "}
+                            NM
+                          </span>
+                        </div>
+                      </div>
+
                       <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
                         {/* Split the spec boxes */}
                         <div className="absolute hidden md:flex flex-row justify-between top-4 left-0 right-0 px-16">
                           {/* ORG HK / Max HK */}
                           <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
-                            <p className="text-red-400">- - -</p>
+                            <p className="text-red-600">- - -</p>
                             <p className="text-white">
-                              HK ORG: {stage.origHk} hk
+                              HK ORG: {stage.origHk} HK
                             </p>
-                            <p className="text-red-800">⸻</p>
+                            <p className="text-red-600">_____</p>
                             <p className="text-white">
                               HK{" "}
                               {stage.name
@@ -774,18 +835,16 @@ export default function TuningViewer() {
                           <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
                             <p className="text-white">- - -</p>
                             <p className="text-white">
-                              NM ORG: {stage.origNm} Nm
+                              NM ORG: {stage.origNm} NM
                             </p>
-                            <p className="text-white">⸻</p>
+                            <p className="text-white">_____</p>
                             <p className="text-white">
-                              <span className="text-gray-400 text-xs mr-1">
-                                NM
-                              </span>
+                              NM{" "}
                               {stage.name
                                 .replace("Steg", "ST")
                                 .replace(/\s+/g, "")
                                 .toUpperCase()}
-                              : {stage.tunedNm} Nm
+                              : {stage.tunedHk} NM
                             </p>
                           </div>
                         </div>
@@ -808,7 +867,7 @@ export default function TuningViewer() {
                             ],
                             datasets: [
                               {
-                                label: "Original HK",
+                                label: "ORG HK",
                                 data: generateDynoCurve(stage.origHk, true),
                                 borderColor: "#f87171",
                                 backgroundColor: "transparent",
@@ -819,7 +878,7 @@ export default function TuningViewer() {
                                 yAxisID: "hp",
                               },
                               {
-                                label: "Tuned HK",
+                                label: `ST ${stage.name.replace(/\D/g, "")} hk`,
                                 data: generateDynoCurve(stage.tunedHk, true),
                                 borderColor: "#f87171",
                                 backgroundColor: "transparent",
@@ -829,7 +888,7 @@ export default function TuningViewer() {
                                 yAxisID: "hp",
                               },
                               {
-                                label: "Original NM",
+                                label: "ORG NM",
                                 data: generateDynoCurve(stage.origNm, false),
                                 borderColor: "#d1d5db",
                                 backgroundColor: "transparent",
@@ -840,7 +899,7 @@ export default function TuningViewer() {
                                 yAxisID: "nm",
                               },
                               {
-                                label: "Tuned NM",
+                                label: `ST ${stage.name.replace(/\D/g, "")} Nm`,
                                 data: generateDynoCurve(stage.tunedNm, false),
                                 borderColor: "#d1d5db",
                                 backgroundColor: "transparent",
@@ -856,18 +915,43 @@ export default function TuningViewer() {
                             maintainAspectRatio: false,
                             plugins: {
                               legend: {
-                                position: "top",
-                                labels: {
-                                  color: "#E5E7EB",
-                                  font: { size: 12 },
-                                  boxWidth: 12,
-                                  padding: 20,
-                                  usePointStyle: true,
-                                },
+                                display: false,
                               },
                               tooltip: {
+                                enabled: true,
                                 mode: "index",
                                 intersect: false,
+                                backgroundColor: "#1f2937",
+                                titleColor: "#ffffff",
+                                bodyColor: "#ffffff",
+                                borderColor: "#6b7280",
+                                borderWidth: 1,
+                                padding: 10,
+                                displayColors: true,
+                                usePointStyle: true, // ✅ this enables circle style
+                                callbacks: {
+                                  labelPointStyle: () => ({
+                                    pointStyle: "circle", // ✅ make symbol a circle
+                                    rotation: 0,
+                                  }),
+                                  title: function (tooltipItems) {
+                                    // tooltipItems[0].label will be the RPM (e.g., "4000")
+                                    return `${tooltipItems[0].label} RPM`;
+                                  },
+                                  label: function (context) {
+                                    const label = context.dataset.label || "";
+                                    const value = context.parsed.y;
+
+                                    // Guard for undefined value
+                                    if (value === undefined) return label;
+
+                                    const unit =
+                                      context.dataset.yAxisID === "hp"
+                                        ? "hk"
+                                        : "Nm";
+                                    return `${label}: ${Math.round(value)} ${unit}`;
+                                  },
+                                },
                               },
                             },
                             scales: {
@@ -935,54 +1019,37 @@ export default function TuningViewer() {
                           }}
                           plugins={[watermarkPlugin, shadowPlugin]}
                         />
+
                         <div className="text-center text-white text-xs mt-4 italic">
                           (Simulerad effektkurva)
                         </div>
+                      </div>
 
-                        {/* Mobile-only small tuned specs */}
-                        <div className="block md:hidden text-center mt-4 space-y-1">
-                          <p className="text-sm text-white font-semibold">
-                            {stage.tunedHk} HK & {stage.tunedNm} NM
-                            <span className="text-gray-400 text-sm">
-                              [
-                              {stage.name
-                                .replace("Steg", "STEG ")
-                                .replace(/\s+/g, "")
-                                .toUpperCase()}
-                              ]
-                            </span>
-                          </p>
-                        </div>
+                      {/* Mobile-only small tuned specs */}
+                      <div className="block md:hidden text-center mt-6 mb-6">
+                        <p className="text-sm text-white font-semibold">
+                          {stage.tunedHk} HK & {stage.tunedNm} NM
+                          <span className="text-gray-400 text-sm ml-1">
+                            [
+                            {stage.name
+                              .replace("Steg", "STEG ")
+                              .replace(/\s+/g, "")
+                              .toUpperCase()}
+                            ]
+                          </span>
+                        </p>
                       </div>
 
                       {/* NOW start new block for the contact button */}
-                      <div className="mt-6 mb-10 flex flex-col items-center space-y-3">
+
+                      {/* KONTAKT button */}
+                      <div className="mt-8 mb-10 flex flex-col items-center">
                         <button
                           onClick={(e) => handleBookNow(stage.name, e)}
                           className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg flex items-center gap-2"
                         >
                           <span>📩</span> KONTAKT
                         </button>
-
-                        {typeof window !== "undefined" && navigator.share && (
-                          <button
-                            onClick={() => {
-                              const shareData = {
-                                title: `AK-TUNING – ${selected.brand} ${selected.model} ${selected.year} ${selected.engine}`,
-                                text: `Kolla in ${stage.name} tuning för ${selected.brand} ${selected.model}`,
-                                url: `${window.location.origin}/${slugify(selected.brand)}/${slugify(selected.model)}/${slugify(selected.year)}/${slugify(selected.engine)}#${slugifyStage(stage.name)}`,
-                              };
-                              navigator
-                                .share(shareData)
-                                .catch((err) =>
-                                  console.error("Share failed:", err)
-                                );
-                            }}
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium shadow-md text-sm flex items-center gap-1"
-                          >
-                            <span>🔗</span> DELA
-                          </button>
-                        )}
                       </div>
                     </div>
 
@@ -993,13 +1060,13 @@ export default function TuningViewer() {
                           onClick={() => toggleAktPlus(stage.name)}
                           className="flex justify-between items-center w-full px-6 py-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
                         >
-                          <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-2">
                             <img
                               src="/logos/aktplus.png"
                               alt="AKT+ Logo"
                               className="h-8 w-auto object-contain"
                             />
-                            <h3 className="text-xl font-semibold text-white">
+                            <h3 className="text-md font-semibold text-white">
                               TILLÄGG
                             </h3>
                           </div>
@@ -1123,6 +1190,7 @@ export default function TuningViewer() {
         }}
         stageOrOption={contactModalData.stageOrOption}
         link={contactModalData.link}
+        scrollPosition={contactModalData.scrollPosition}
       />
     </div>
   );
