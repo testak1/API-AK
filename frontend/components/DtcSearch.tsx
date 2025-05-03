@@ -1,69 +1,75 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
-interface DTC {
+interface DtcEntry {
   code: string;
   description: string;
 }
 
-export default function DtcSearch() {
-  const [query, setQuery] = useState("");
-  const [result, setResult] = useState<DTC | null>(null);
+const DtcSearch: React.FC = () => {
+  const [dtcData, setDtcData] = useState<DtcEntry[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredResults, setFilteredResults] = useState<DtcEntry[]>([]);
   const [error, setError] = useState("");
 
-  const searchDTC = async () => {
-    try {
-      const res = await fetch(
-        "https://portal.c4l1brate.com/assets/data/dtc.json"
-      );
-      const data: DTC[] = await res.json();
-      const match = data.find(
-        (item) => item.code.toLowerCase() === query.trim().toLowerCase()
-      );
-
-      if (match) {
-        setResult(match);
-        setError("");
-      } else {
-        setResult(null);
-        setError("Ingen beskrivning hittades för denna kod.");
+  useEffect(() => {
+    const fetchDtcData = async () => {
+      try {
+        const response = await fetch("/dtc.json");
+        if (!response.ok) throw new Error("Failed to load");
+        const data = await response.json();
+        setDtcData(data);
+      } catch (err) {
+        setError("Fel: Kunde inte hämta DTC-data.");
       }
-    } catch (err) {
-      console.error(err);
-      setError("Kunde inte hämta DTC-data.");
+    };
+
+    fetchDtcData();
+  }, []);
+
+  useEffect(() => {
+    if (searchTerm.trim().length === 0) {
+      setFilteredResults([]);
+      return;
     }
-  };
+
+    const lower = searchTerm.toLowerCase();
+    const results = dtcData.filter(
+      (entry) =>
+        entry.code.toLowerCase().includes(lower) ||
+        entry.description.toLowerCase().includes(lower)
+    );
+    setFilteredResults(results);
+  }, [searchTerm, dtcData]);
 
   return (
-    <div className="mt-4 text-white">
-      <label htmlFor="dtc-code" className="block text-sm font-medium">
-        Sök DTC kod:
-      </label>
-      <div className="flex gap-2 mt-1">
-        <input
-          type="text"
-          id="dtc-code"
-          className="w-full p-2 rounded bg-gray-800 border border-gray-600"
-          placeholder="Ex: P0420"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
-        <button
-          onClick={searchDTC}
-          className="bg-orange-500 px-4 rounded hover:bg-orange-600"
-        >
-          Sök
-        </button>
-      </div>
-      {result && (
-        <p className="mt-2 text-sm text-green-400">
-          <strong>{result.code}</strong>: {result.description}
-        </p>
+    <div className="bg-gray-800 text-white p-6 rounded-lg shadow-md mt-8">
+      <h2 className="text-lg font-semibold mb-4">🔍 SÖK DTC</h2>
+      <input
+        type="text"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        placeholder="Skriv t.ex. P0401 eller EGR"
+        className="w-full p-3 mb-4 rounded bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+      />
+
+      {error && <p className="text-red-400 text-sm mb-2">{error}</p>}
+
+      {filteredResults.length > 0 && (
+        <ul className="space-y-2 max-h-60 overflow-y-auto">
+          {filteredResults.map((entry, index) => (
+            <li key={index} className="p-2 border border-gray-600 rounded">
+              <strong className="text-orange-400">{entry.code}</strong>:{" "}
+              <span>{entry.description}</span>
+            </li>
+          ))}
+        </ul>
       )}
-      {error && (
-        <p className="mt-2 text-sm text-red-400">
-          <strong>Fel:</strong> {error}
-        </p>
+
+      {searchTerm && filteredResults.length === 0 && !error && (
+        <p className="text-sm text-gray-400">Inga träffar.</p>
       )}
     </div>
   );
-}
+};
+
+export default DtcSearch;
