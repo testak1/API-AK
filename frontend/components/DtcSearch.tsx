@@ -42,13 +42,13 @@ const DtcSearch: React.FC = () => {
   }, [searchTerm, dtcData]);
 
   return (
-    <div className="bg-gray-800 text-white p-6 rounded-lg shadow-md mt-8">
-      <h2 className="text-lg font-semibold mb-4">🔍 SÖK DTC</h2>
+    <div className="bg-gray-800 text-white p-6 rounded-lg shadow-md mt-4">
+      <h2 className="text-lg font-semibold mb-2">🔍 SÖK DTC</h2>
       <input
         type="text"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        placeholder="Skriv t.ex. P0401 eller EGR"
+        placeholder="T.ex. P0401 eller EGR"
         className="w-full p-3 mb-4 rounded bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
       />
 
