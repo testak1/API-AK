@@ -934,7 +934,7 @@ export default function TuningViewer() {
                                   labelPointStyle: () => ({
                                     pointStyle: "circle", // ✅ make symbol a circle
                                     rotation: 0,
-                                    backgroundColor: "transparent",
+                                    backdropcolor: "transparent",
                                   }),
                                   title: function (tooltipItems) {
                                     // tooltipItems[0].label will be the RPM (e.g., "4000")
