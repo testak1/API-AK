@@ -1165,8 +1165,8 @@ export default function TuningViewer() {
                                       )}
 
                                       <button
-                                        onClick={() =>
-                                          handleBookNow(option.title)
+                                        onClick={(e) =>
+                                          handleBookNow(option.title, e)
                                         }
                                         className="bg-green-600 hover:bg-green-700 hover:scale-105 transform transition-all text-white px-6 py-3 rounded-lg font-medium shadow-lg"
                                       >
