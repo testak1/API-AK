@@ -962,7 +962,7 @@ export default function TuningViewer() {
                                 position: "left",
                                 title: {
                                   display: true,
-                                  text: "Effekt (HK)",
+                                  text: "EFFEKT",
                                   color: "white",
                                   font: { size: 14 },
                                 },
@@ -983,7 +983,7 @@ export default function TuningViewer() {
                                 position: "right",
                                 title: {
                                   display: true,
-                                  text: "Vridmoment (Nm)",
+                                  text: "VRIDMOMENT",
                                   color: "white",
                                   font: { size: 14 },
                                 },
