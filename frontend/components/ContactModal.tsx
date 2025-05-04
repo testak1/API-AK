@@ -125,10 +125,10 @@ export default function ContactModal({
         <div
           className="fixed left-1/2 transform -translate-x-1/2 z-50 px-4 w-full max-w-md sm:px-6"
           style={{
-            top:
-              typeof window !== "undefined" && window.innerWidth <= 768
-                ? "1100px" // mobile
-                : "600px", // desktop
+            top: isMobile ? 0 : `${scrollPosition}px`,
+            bottom: isMobile ? 0 : "auto",
+            height: isMobile ? "100vh" : "auto",
+            overflowY: isMobile ? "auto" : "visible",
           }}
         >
           <Transition.Child
