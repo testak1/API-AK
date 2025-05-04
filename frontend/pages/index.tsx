@@ -924,7 +924,7 @@ export default function TuningViewer() {
                                 intersect: false,
                                 backgroundColor: "#1f2937",
                                 titleColor: "#ffffff",
-                                bodyColor: "#000000",
+                                bodyColor: "#ffffff",
                                 borderColor: "#6b7280",
                                 borderWidth: 1,
                                 padding: 10,
@@ -934,6 +934,7 @@ export default function TuningViewer() {
                                   labelPointStyle: () => ({
                                     pointStyle: "circle", // ✅ make symbol a circle
                                     rotation: 0,
+                                    backgroundColor: "transparent",
                                   }),
                                   title: function (tooltipItems) {
                                     // tooltipItems[0].label will be the RPM (e.g., "4000")
