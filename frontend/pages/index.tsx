@@ -796,11 +796,11 @@ export default function TuningViewer() {
                           </span>
                         </div>
                         <div className="flex items-center gap-1">
-                          <span className="w-3 h-3 rounded-full border-2 border-gray-300"></span>
+                          <span className="w-3 h-3 rounded-full border-2 border-white"></span>
                           <span>ORG NM</span>
                         </div>
                         <div className="flex items-center gap-1">
-                          <span className="w-3 h-3 rounded-full bg-gray-300"></span>
+                          <span className="w-3 h-3 rounded-full bg-white"></span>
                           <span>
                             {" "}
                             {stage.name
@@ -879,7 +879,7 @@ export default function TuningViewer() {
                                 yAxisID: "hp",
                               },
                               {
-                                label: `ST ${stage.name.replace(/\D/g, "")} hk`,
+                                label: `ST ${stage.name.replace(/\D/g, "")} HK`,
                                 data: generateDynoCurve(stage.tunedHk, true),
                                 borderColor: "#f87171",
                                 backgroundColor: "transparent",
@@ -900,7 +900,7 @@ export default function TuningViewer() {
                                 yAxisID: "nm",
                               },
                               {
-                                label: `ST ${stage.name.replace(/\D/g, "")} Nm`,
+                                label: `ST ${stage.name.replace(/\D/g, "")} NM`,
                                 data: generateDynoCurve(stage.tunedNm, false),
                                 borderColor: "#d1d5db",
                                 backgroundColor: "transparent",
