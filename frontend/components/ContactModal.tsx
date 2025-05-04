@@ -37,6 +37,8 @@ export default function ContactModal({
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
 
+  const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
+
   useEffect(() => {
     if (isOpen) setContactMode(null);
   }, [isOpen]);
@@ -54,19 +56,20 @@ export default function ContactModal({
     } else {
       document.body.style.overflow = "";
     }
+
+    setTimeout(() => {
+      window.parent.postMessage(
+        {
+          height: document.body.scrollHeight,
+          scrollToIframe: isOpen && !isMobile,
+        },
+        "*",
+      );
+    }, 300);
+
     return () => {
       document.body.style.overflow = "";
     };
-  }, [isOpen]);
-
-  useEffect(() => {
-    setTimeout(() => {
-      const message = {
-        height: document.body.scrollHeight,
-        scrollToIframe: isOpen, // ✅ scroll only when opening
-      };
-      window.parent.postMessage(message, "*");
-    }, 300);
   }, [isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -111,19 +114,11 @@ export default function ContactModal({
     onClose();
   };
 
-  // ✅ Mobile-aware modal positioning
-  const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
-  const modalTop = isMobile ? "50%" : `${scrollPosition}px`;
-  const modalTransform = isMobile
-    ? "translate(-50%, -50%)"
-    : "translateX(-50%)";
-
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" className="fixed z-50 inset-0" onClose={() => {}} static>
         <div className="fixed inset-0 bg-black bg-opacity-50" />
 
-        {/* ✅ MODAL POSITIONING FIXED HERE */}
         <div
           className="fixed left-1/2 transform -translate-x-1/2 z-50 px-4 w-full max-w-md sm:px-6"
           style={{
@@ -179,7 +174,6 @@ export default function ContactModal({
                   >
                     📞 RING OSS
                   </button>
-                  {/* STÄNG button */}
                   <button
                     type="button"
                     onClick={handleClose}
@@ -273,7 +267,6 @@ export default function ContactModal({
                   >
                     {sending ? "Skickar..." : "📩 SKICKA FÖRFRÅGAN"}
                   </button>
-                  {/* STÄNG button */}
                   <button
                     type="button"
                     onClick={handleClose}
@@ -312,7 +305,6 @@ export default function ContactModal({
                     </a>
                   ))}
 
-                  {/* STÄNG Button */}
                   <div className="pt-4">
                     <button
                       type="button"
