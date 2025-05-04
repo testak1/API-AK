@@ -63,7 +63,7 @@ export default function ContactModal({
     setTimeout(() => {
       const message = {
         height: document.body.scrollHeight,
-        scrollToIframe: isOpen, // ✅ scroll only when opening
+        scrollToIframe: isOpen, // ✅ Always scroll on modal open, all devices
       };
       window.parent.postMessage(message, "*");
     }, 300);
