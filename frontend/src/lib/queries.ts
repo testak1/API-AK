@@ -4,41 +4,104 @@ export const brandsLightQuery = `
   _id,
   name,
   "slug": slug.current,
+  logo {
+    "asset": asset->{
+      _id,
+      url
+    },
+    alt
+  },
   "models": models[]{
     name
   }
 }
 `;
 
-
 export const engineByParamsQuery = `
-  *[_type == "brand" && slug.current == $brand][0]{
-    name,
-    "models": models[]{
-      name,
-      "years": years[]{
-        range,
-        "engines": engines[]{
-          label,
-          fuel,
-          "stages": stages[]{
-            name,
-            origHk,
-            tunedHk,
-            origNm,
-            tunedNm,
+*[_type == "brand" && name == $brand][0]{
+  models[name == $model][0]{
+    years[range == $year][0]{
+      engines[]{
+        _id,
+        _key,
+        label,
+        fuel,
+        "slug": label,
+        stages[]{
+          name,
+          "slug": name,
+          origHk,
+          tunedHk,
+          origNm,
+          tunedNm,
+          price,
+          description,
+          descriptionRef->{
+            _id,
+            stageName,
+            description
+          },
+          // Dynamic scoped aktPlusOptions
+          "aktPlusOptions": *[_type == "aktPlus" &&
+            (
+              isUniversal == true ||
+              ^.^.fuel in applicableFuelTypes
+            ) &&
+            (
+              !defined(stageCompatibility) ||
+              stageCompatibility == ^.name
+            )
+          ]{
+            _id,
+            title,
             price,
+            isUniversal,
+            applicableFuelTypes,
+            stageCompatibility,
+            compatibilityNotes,
             description,
-            descriptionRef->{
-              description
+            gallery[]{
+              _key,
+              alt,
+              caption,
+              "asset": asset->{
+                _id,
+                url
+              }
+            }
+          }
+        },
+        // Dynamic global aktPlusOptions
+        "globalAktPlusOptions": *[_type == "aktPlus" &&
+          (
+            isUniversal == true ||
+            ^.fuel in applicableFuelTypes
+          ) &&
+          !defined(stageCompatibility)
+        ]{
+          _id,
+          title,
+          price,
+          isUniversal,
+          applicableFuelTypes,
+          stageCompatibility,
+          compatibilityNotes,
+          description,
+          gallery[]{
+            _key,
+            alt,
+            caption,
+            "asset": asset->{
+              _id,
+              url
             }
           }
         }
       }
     }
   }
+}.models.years.engines
 `;
-
 
 // Heavy query (when you need full info like stages, aktplus, engines)
 export const allBrandsQuery = `
