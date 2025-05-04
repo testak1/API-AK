@@ -106,6 +106,8 @@ export default function TuningViewer() {
       .replace(/\s+/g, "-")
       .replace(/[^\w-]/g, "");
 
+  const selectedBrand = data.find((b) => b.name === selected.brand);
+
   const handleBookNow = (
     stageOrOptionName: string,
     event?: React.MouseEvent,
@@ -678,15 +680,10 @@ export default function TuningViewer() {
                 >
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                     <div className="flex items-center gap-4">
-                      {data.find((b) => b.name === selected.brand)?.logo
-                        ?.asset && (
+                      {selectedBrand?.logo?.asset && (
                         <img
-                          src={urlFor(
-                            data.find((b) => b.name === selected.brand)?.logo,
-                          )
-                            .width(60)
-                            .url()}
-                          alt={selected.brand}
+                          src={urlFor(selectedBrand.logo).width(60).url()}
+                          alt={selectedBrand.name}
                           className="h-8 w-auto object-contain"
                         />
                       )}
