@@ -924,7 +924,7 @@ export default function TuningViewer() {
                                 intersect: false,
                                 backgroundColor: "#1f2937",
                                 titleColor: "#ffffff",
-                                bodyColor: "#ffffff",
+                                bodyColor: "#000000",
                                 borderColor: "#6b7280",
                                 borderWidth: 1,
                                 padding: 10,
