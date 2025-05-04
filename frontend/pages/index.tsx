@@ -845,7 +845,7 @@ export default function TuningViewer() {
                                 .replace("Steg", "ST")
                                 .replace(/\s+/g, "")
                                 .toUpperCase()}
-                              : {stage.tunedHk} NM
+                              : {stage.tunedNm} NM
                             </p>
                           </div>
                         </div>
@@ -882,7 +882,7 @@ export default function TuningViewer() {
                                 label: `ST ${stage.name.replace(/\D/g, "")} HK`,
                                 data: generateDynoCurve(stage.tunedHk, true),
                                 borderColor: "#f87171",
-                                backgroundColor: "transparent",
+                                backgroundColor: "#f87171",
                                 borderWidth: 3,
                                 tension: 0.5,
                                 pointRadius: 0,
