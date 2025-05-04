@@ -1048,7 +1048,7 @@ export default function TuningViewer() {
                       {/* KONTAKT button */}
                       <div className="mt-8 mb-10 flex flex-col items-center">
                         <button
-                          onClick={(e) => handleBookNow(stage.name, e)}
+                          onClick={() => handleBookNow(stage.name)}
                           className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg flex items-center gap-2"
                         >
                           <span>📩</span> KONTAKT
@@ -1165,8 +1165,8 @@ export default function TuningViewer() {
                                       )}
 
                                       <button
-                                        onClick={(e) =>
-                                          handleBookNow(option.title, e)
+                                        onClick={() =>
+                                          handleBookNow(option.title)
                                         }
                                         className="bg-green-600 hover:bg-green-700 hover:scale-105 transform transition-all text-white px-6 py-3 rounded-lg font-medium shadow-lg"
                                       >
