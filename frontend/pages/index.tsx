@@ -903,7 +903,7 @@ export default function TuningViewer() {
                                 label: `ST ${stage.name.replace(/\D/g, "")} NM`,
                                 data: generateDynoCurve(stage.tunedNm, false),
                                 borderColor: "#d1d5db",
-                                backgroundColor: "transparent",
+                                backgroundColor: "rgba(0, 0, 0, 0)",
                                 borderWidth: 3,
                                 tension: 0.5,
                                 pointRadius: 0,
