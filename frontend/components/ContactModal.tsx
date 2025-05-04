@@ -60,11 +60,13 @@ export default function ContactModal({
   }, [isOpen]);
 
   useEffect(() => {
-    if (isOpen) {
-      setTimeout(() => {
-        window.parent.postMessage({ height: document.body.scrollHeight }, "*");
-      }, 300);
-    }
+    setTimeout(() => {
+      const message = {
+        height: document.body.scrollHeight,
+        scrollToIframe: isOpen, // ✅ scroll only when opening
+      };
+      window.parent.postMessage(message, "*");
+    }, 300);
   }, [isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
