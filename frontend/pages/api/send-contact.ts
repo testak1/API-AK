@@ -37,7 +37,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const response = await resend.emails.send({
-      from: 'prestanda@aktuning.se',
+      from: 'MOTOROPTIMERING',
       to: recipientEmail,
       subject: `FÖRFRÅGAN - ${vehicle?.brand || ''} ${vehicle?.model || ''} ${vehicle?.year || ''} ${vehicle?.engine || ''} | ${(stage || '-').toUpperCase()}`,      
       replyTo: email,
