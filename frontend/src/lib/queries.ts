@@ -17,14 +17,14 @@ export const brandsLightQuery = `
 }
 `;
 
-export const engineByParamsQuery = (brand: string, model: string, year: string, engine: string) => `
-  *[_type == "brand" && slug.current == "${brand}"][0]{
+export const engineByParamsQuery = `
+  *[_type == "brand" && slug.current == $brand][0]{
     name,
-    "models": models[name == "${model}"][0]{
+    "models": models[]{
       name,
-      "years": years[range == "${year}"][0]{
+      "years": years[]{
         range,
-        "engines": engines[label == "${engine}"][0]{
+        "engines": engines[]{
           label,
           fuel,
           "stages": stages[]{
@@ -36,8 +36,6 @@ export const engineByParamsQuery = (brand: string, model: string, year: string, 
             price,
             description,
             descriptionRef->{
-              _id,
-              stageName,
               description
             }
           }
