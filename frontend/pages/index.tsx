@@ -541,7 +541,7 @@ export default function TuningViewer() {
     );
   };
   return (
-    <div className="max-w-5xl mx-auto p-4 md:p-8">
+    <div className="w-full max-w-screen-md mx-auto px-4 sm:px-6">
       <div className="flex items-center mb-4">
         <img
           src="/ak-logo-svart.png"
