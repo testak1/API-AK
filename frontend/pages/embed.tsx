@@ -44,6 +44,6 @@ export default function Embed() {
   }, []);
 
   return (
-      <TuningViewer /
+      <TuningViewer />
   );
 }
