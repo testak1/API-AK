@@ -44,8 +44,6 @@ export default function Embed() {
   }, []);
 
   return (
-    <div style={{ padding: 0, margin: 0 }}>
-      <TuningViewer />
-    </div>
+      <TuningViewer /
   );
 }
