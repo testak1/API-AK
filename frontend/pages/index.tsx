@@ -573,11 +573,19 @@ export default function TuningViewer() {
             disabled={isLoading}
           >
             <option value="">VÄLJ MÄRKE</option>
-            {brands.map((brand) => (
-              <option key={brand} value={brand}>
-                {brand}
-              </option>
-            ))}
+            {[...brands]
+              .filter((b) => !b.startsWith("[LASTBIL]"))
+              .sort((a, b) => a.localeCompare(b))
+              .concat(
+                brands
+                  .filter((b) => b.startsWith("[LASTBIL]"))
+                  .sort((a, b) => a.localeCompare(b))
+              )
+              .map((brand) => (
+                <option key={brand} value={brand}>
+                  {brand}
+                </option>
+              ))}
           </select>
         </div>
 
