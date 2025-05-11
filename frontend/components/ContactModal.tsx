@@ -125,7 +125,7 @@ export default function ContactModal({
 
         {/* ✅ MODAL POSITIONING FIXED HERE */}
         <div
-          className="fixed left-1/2 transform -translate-x-1/2 z-50 px-4 w-full max-w-md sm:px-6"
+          className="fixed left-1/2 transform -translate-x-1/2 z-50 px-4 w-full max-w-xl md:max-w-2xl lg:max-w-3xl sm:px-6"
           style={{
             top: isMobile ? 0 : `${scrollPosition}px`,
             bottom: isMobile ? 0 : "auto",
@@ -142,7 +142,7 @@ export default function ContactModal({
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-90"
           >
-            <Dialog.Panel className="bg-gray-900 rounded-lg text-white max-w-md w-full p-6 shadow-xl relative">
+            <Dialog.Panel className="bg-gray-900 rounded-lg text-white w-full max-w-xl md:max-w-2xl lg:max-w-3xl p-6 shadow-xl relative">
               <button
                 type="button"
                 onClick={handleClose}
