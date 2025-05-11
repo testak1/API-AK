@@ -48,7 +48,7 @@ ChartJS.register(
   LineElement,
   LineController,
   Tooltip,
-  Legend,
+  Legend
 );
 
 interface SelectionState {
@@ -73,7 +73,7 @@ export default function TuningViewer() {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [expandedStages, setExpandedStages] = useState<Record<string, boolean>>(
-    {},
+    {}
   );
   const [expandedDescriptions, setExpandedDescriptions] = useState<
     Record<string, boolean>
@@ -108,7 +108,7 @@ export default function TuningViewer() {
 
   const handleBookNow = (
     stageOrOptionName: string,
-    event?: React.MouseEvent,
+    event?: React.MouseEvent
   ) => {
     const selectedBrand = data.find((b) => b.name === selected.brand);
     if (!selectedBrand) return;
@@ -117,7 +117,7 @@ export default function TuningViewer() {
       selectedBrand.slug?.current || slugify(selectedBrand.name);
 
     const selectedModel = selectedBrand.models?.find(
-      (m) => m.name === selected.model,
+      (m) => m.name === selected.model
     );
     if (!selectedModel) return;
 
@@ -127,7 +127,7 @@ export default function TuningViewer() {
         : selectedModel.slug || slugify(selectedModel.name);
 
     const selectedYear = selectedModel.years?.find(
-      (y) => y.range === selected.year,
+      (y) => y.range === selected.year
     );
     if (!selectedYear) return;
 
@@ -136,7 +136,7 @@ export default function TuningViewer() {
       : selectedYear.range;
 
     const selectedEngine = selectedYear.engines?.find(
-      (e) => e.label === selected.engine,
+      (e) => e.label === selected.engine
     );
     if (!selectedEngine) return;
 
@@ -194,7 +194,7 @@ export default function TuningViewer() {
         setIsLoading(true);
         try {
           const res = await fetch(
-            `/api/years?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}`,
+            `/api/years?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}`
           );
           if (!res.ok) throw new Error("Failed to fetch years");
           const years = await res.json();
@@ -208,10 +208,10 @@ export default function TuningViewer() {
                     models: brand.models.map((model) =>
                       model.name !== selected.model
                         ? model
-                        : { ...model, years: years.result },
+                        : { ...model, years: years.result }
                     ),
-                  },
-            ),
+                  }
+            )
           );
         } catch (error) {
           console.error("Error fetching years:", error);
@@ -230,7 +230,7 @@ export default function TuningViewer() {
         setIsLoading(true);
         try {
           const res = await fetch(
-            `/api/engines?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}&year=${encodeURIComponent(selected.year)}`,
+            `/api/engines?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}&year=${encodeURIComponent(selected.year)}`
           );
           if (!res.ok) throw new Error("Failed to fetch engines");
           const engines = await res.json();
@@ -249,12 +249,12 @@ export default function TuningViewer() {
                             years: model.years.map((year) =>
                               year.range !== selected.year
                                 ? year
-                                : { ...year, engines: engines.result },
+                                : { ...year, engines: engines.result }
                             ),
-                          },
+                          }
                     ),
-                  },
-            ),
+                  }
+            )
           );
         } catch (error) {
           console.error("Error fetching engines:", error);
@@ -288,7 +288,7 @@ export default function TuningViewer() {
         acc[fuelType].push(engine);
         return acc;
       },
-      {} as Record<string, typeof engines>,
+      {} as Record<string, typeof engines>
     );
 
     return {
@@ -309,7 +309,7 @@ export default function TuningViewer() {
           acc[stage.name] = stage.name === "Steg 1";
           return acc;
         },
-        {} as Record<string, boolean>,
+        {} as Record<string, boolean>
       );
       setExpandedStages(initialExpandedStates);
     }
@@ -382,7 +382,7 @@ export default function TuningViewer() {
             (opt.isUniversal ||
               opt.applicableFuelTypes?.includes(selectedEngine.fuel) ||
               opt.manualAssignments?.some(
-                (ref) => ref._ref === selectedEngine._id,
+                (ref) => ref._ref === selectedEngine._id
               )) &&
             (!opt.stageCompatibility || opt.stageCompatibility === stage.name)
           ) {
@@ -392,7 +392,7 @@ export default function TuningViewer() {
 
       return Array.from(uniqueOptionsMap.values());
     },
-    [selectedEngine],
+    [selectedEngine]
   );
 
   const generateDynoCurve = (peakValue: number, isHp: boolean) => {
@@ -541,7 +541,7 @@ export default function TuningViewer() {
     );
   };
   return (
-    <div className="w-full px-2 sm:px-4">
+    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex items-center mb-4">
         <img
           src="/ak-logo-svart.png"
@@ -682,7 +682,7 @@ export default function TuningViewer() {
                         ?.asset && (
                         <img
                           src={urlFor(
-                            data.find((b) => b.name === selected.brand)?.logo,
+                            data.find((b) => b.name === selected.brand)?.logo
                           )
                             .width(60)
                             .url()}
