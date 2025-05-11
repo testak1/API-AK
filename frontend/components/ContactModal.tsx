@@ -151,17 +151,31 @@ export default function ContactModal({
                 &times;
               </button>
 
-              <Dialog.Title className="text-green-400 text-xl font-bold mb-4 text-center">
-                {contactMode === "thankyou" ? (
-                  <>
+              {contactMode === "thankyou" ? (
+                <>
+                  <div className="flex justify-center mb-4">
+                    <div className="text-6xl animate-pulse">✅</div>
+                  </div>
+                  <Dialog.Title className="text-green-400 text-2xl font-extrabold mb-2 text-center">
                     TACK FÖR DIN FÖRFRÅGAN!
-                    <br />
-                    VI BESVARAR SÅ FORT VI KAN
-                  </>
-                ) : (
-                  "VÄLJ METOD"
-                )}
-              </Dialog.Title>
+                  </Dialog.Title>
+                  <p className="text-white text-base text-center">
+                    VI BESVARAR SÅ FORT VI KAN 🚀
+                  </p>
+                  <div className="mt-6 text-center">
+                    <button
+                      onClick={handleClose}
+                      className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-semibold transition-all"
+                    >
+                      🔙 Tillbaka
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <Dialog.Title className="text-green-400 text-xl font-bold mb-4 text-center">
+                  VÄLJ METOD
+                </Dialog.Title>
+              )}
 
               {!contactMode && (
                 <div className="flex flex-col gap-4">
