@@ -158,6 +158,7 @@ export default function EnginePage({
   engineData,
 }: EnginePageProps) {
   const router = useRouter();
+  const { stage } = router.query;
   const [expandedStages, setExpandedStages] = useState<Record<string, boolean>>(
     {},
   );
@@ -236,17 +237,20 @@ export default function EnginePage({
   }, []);
 
   useEffect(() => {
-    if (engineData?.stages) {
-      const initialExpandedStates = engineData.stages.reduce(
-        (acc, stage) => {
-          acc[stage.name] = stage.name === "Steg 1";
+    if (engineData?.stages?.length) {
+      const initialExpanded = engineData.stages.reduce(
+        (acc, stageObj) => {
+          const match =
+            slugify(stageObj.name) === slugify((stage as string) || "");
+          acc[stageObj.name] = match || stageObj.name === "Steg 1";
           return acc;
         },
         {} as Record<string, boolean>,
       );
-      setExpandedStages(initialExpandedStates);
+
+      setExpandedStages(initialExpanded);
     }
-  }, [engineData]);
+  }, [engineData, stage]);
 
   const watermarkPlugin = {
     id: "watermark",
