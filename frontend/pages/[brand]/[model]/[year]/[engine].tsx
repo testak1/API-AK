@@ -368,14 +368,17 @@ export default function EnginePage({
   };
 
   const selectedStage = engineData?.stages?.find((s) => expandedStages[s.name]);
+  const selectedStep = selectedStage?.name?.toUpperCase() || "TUNING";
+  const hp = selectedStage?.tunedHk ?? "?";
+  const nm = selectedStage?.tunedNm ?? "?";
+  const price =
+    selectedStage?.price != null
+      ? `${selectedStage.price.toLocaleString()} kr`
+      : "";
 
-  const priceString = selectedStage?.price
-    ? `${selectedStage.price.toLocaleString()} kr`
-    : "Se våra priser";
+  const pageTitle = `${selectedStep} Motoroptimering – ${brandData.name} – ${modelData.name} – ${yearData.range} – ${engineData.label} | AK-TUNING`;
 
-  const pageTitle = `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${selectedStage?.name || "Tuning"} | AK-TUNING`;
-
-  const pageDescription = `Optimera din ${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} med ${selectedStage?.name || "våra steg"}. Effekt från ${selectedStage?.tunedHk || "?"} hk / ${selectedStage?.tunedNm || "?"} Nm. Pris från ${priceString}.`;
+  const pageDescription = `Skräddarsydd ${selectedStep} mjukvara till ${modelData.name} ${engineData.label} – ${hp}hk & ${nm}Nm med mjukvarugaranti! Pris: ${price}`;
 
   const pageUrl = `https://tuning.aktuning.se${router.asPath.split("?")[0]}`;
 
