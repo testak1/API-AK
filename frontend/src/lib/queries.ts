@@ -22,11 +22,6 @@ export const engineByParamsQuery = `
     name,
     "models": models[]{
       name,
-      logo {
-        "asset": asset->{
-          _id,
-          url
-        },
       "years": years[]{
         range,
         "engines": engines[]{
