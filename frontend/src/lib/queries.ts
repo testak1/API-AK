@@ -18,38 +18,92 @@ export const brandsLightQuery = `
 `;
 
 export const engineByParamsQuery = `
-  *[_type == "brand" && slug.current == $brand][0]{
-    name,
-    "logo": logo{
-      alt,
-      "asset": asset->{
-        _id,
-        url
-      }
+*[_type == "brand" && slug.current == $brand][0]{
+  name,
+  "slug": slug.current,
+  logo {
+    "asset": asset->{
+      _id,
+      url
     },
-    "models": models[]{
-      name,
-      "years": years[]{
-        range,
-        "engines": engines[]{
-          label,
-          fuel,
-          "stages": stages[]{
-            name,
-            origHk,
-            tunedHk,
-            origNm,
-            tunedNm,
+    alt
+  },
+  "models": models[]{
+    name,
+    "slug": slug.current,
+    "years": years[]{
+      range,
+      "slug": slug.current,
+      "engines": engines[]{
+        _id,
+        label,
+        fuel,
+        "slug": slug.current,
+        "stages": stages[]{
+          name,
+          origHk,
+          tunedHk,
+          origNm,
+          tunedNm,
+          price,
+          description,
+          descriptionRef->{
+            description
+          },
+          "aktPlusOptions": *[_type == "aktPlus" && (
+            isUniversal == true || 
+            ^.^.fuel in applicableFuelTypes
+          ) && (
+            !defined(stageCompatibility) || 
+            stageCompatibility == ^.name
+          )]{
+            _id,
+            title,
             price,
+            isUniversal,
+            applicableFuelTypes,
+            stageCompatibility,
             description,
-            descriptionRef->{
-              description
-            }
+            "gallery": gallery[]{
+              _key,
+              alt,
+              caption,
+              "asset": asset->{
+                _id,
+                url
+              }
+            },
+            installationTime,
+            compatibilityNotes
           }
+        },
+        "globalAktPlusOptions": *[_type == "aktPlus" && (
+          isUniversal == true || 
+          ^.fuel in applicableFuelTypes
+        ) && !defined(stageCompatibility)]{
+          _id,
+          title,
+          price,
+          isUniversal,
+          applicableFuelTypes,
+          stageCompatibility,
+          description,
+          "gallery": gallery[]{
+            _key,
+            alt,
+            caption,
+            "asset": asset->{
+              _id,
+              url
+            }
+          },
+          installationTime,
+          compatibilityNotes
         }
       }
     }
   }
+}
 `;
 
 // Heavy query (when you need full info like stages, aktplus, engines)
