@@ -29,23 +29,6 @@ import {
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 
-<Head>
-  <script
-    type="application/ld+json"
-    dangerouslySetInnerHTML={{
-      __html: JSON.stringify({
-        "@context": "https://schema.org",
-        "@type": "Motoroptimering",
-        name: "AK-TUNING - Motoroptimering",
-        url: "https://www.aktuning.se",
-        logo: "https://aktuning.se/img/ak-tuning-custom-engine-tuning-logo-1573781489.jpg",
-        description:
-          "Marknadsledande inom motoroptimering, chiptuning, trim m.m. Skräddarsydda mjukvaror! Göteborg - Stockholm - Skåne - Jönköping - Örebro",
-      }),
-    }}
-  />
-</Head>;
-
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -233,11 +216,13 @@ export default function EnginePage({
     const clickY = event?.clientY || 0;
     const scrollY = window.scrollY + clickY;
 
+    const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
+
     setContactModalData({
       isOpen: true,
       stageOrOption: stageOrOptionName,
       link: finalLink,
-      scrollPosition: scrollY,
+      scrollPosition: isMobile ? undefined : scrollY,
     });
   };
 
@@ -825,7 +810,7 @@ export default function EnginePage({
                       {/* KONTAKT button */}
                       <div className="mt-8 mb-10 flex flex-col items-center">
                         <button
-                          onClick={(e) => handleBookNow(stage.name, e)}
+                          onClick={() => handleBookNow(stage.name)}
                           className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg flex items-center gap-2"
                         >
                           <span>📩</span> KONTAKT
