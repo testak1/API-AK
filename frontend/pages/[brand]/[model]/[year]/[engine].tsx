@@ -368,7 +368,7 @@ export default function EnginePage({
   };
 
   const selectedStage = engineData?.stages?.find((s) => expandedStages[s.name]);
-  const selectedStep = selectedStage?.name?.toUpperCase() || "TUNING";
+  const selectedStep = selectedStage?.name?.toUpperCase() || "MJUKVARA";
   const hp = selectedStage?.tunedHk ?? "?";
   const nm = selectedStage?.tunedNm ?? "?";
   const price =
