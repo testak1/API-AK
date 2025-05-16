@@ -366,6 +366,23 @@ export default function EnginePage({
       [stageName]: !prev[stageName],
     }));
   };
+
+  const selectedStage = engineData?.stages?.find((s) => expandedStages[s.name]);
+
+  const priceString = selectedStage?.price
+    ? `${selectedStage.price.toLocaleString()} kr`
+    : "Se våra priser";
+
+  const pageTitle = `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${selectedStage?.name || "Tuning"} | AK-TUNING`;
+
+  const pageDescription = `Optimera din ${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} med ${selectedStage?.name || "våra steg"}. Effekt från ${selectedStage?.tunedHk || "?"} hk / ${selectedStage?.tunedNm || "?"} Nm. Pris från ${priceString}.`;
+
+  const pageUrl = `https://tuning.aktuning.se${router.asPath.split("?")[0]}`;
+
+  const imageUrl = brandData.logo?.asset
+    ? urlFor(brandData.logo).width(600).url()
+    : "https://aktuning.se/img/ak-tuning-custom-engine-tuning-logo-1573781489.jpg";
+
   const renderStageDescription = (stage: Stage) => {
     const description = stage.descriptionRef?.description || stage.description;
     const isExpanded = expandedDescriptions[stage.name] ?? false;
@@ -432,544 +449,601 @@ export default function EnginePage({
   }
 
   return (
-    <div className="max-w-5xl mx-auto p-4 md:p-8">
-      <div className="flex items-center mb-4">
-        <img
-          src="/ak-logo-svart.png"
-          alt="AK-TUNING"
-          style={{ height: "80px", cursor: "pointer" }}
-          className="h-12 object-contain"
-          onClick={() => window.location.reload()}
+    <>
+      <Head>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} />
+
+        {/* Open Graph */}
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={pageUrl} />
+        <meta property="og:image" content={imageUrl} />
+
+        {/* Structured data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Product",
+              name: `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${selectedStage?.name || "Tuning"}`,
+              image: [imageUrl],
+              description: pageDescription,
+              brand: {
+                "@type": "Brand",
+                name: brandData.name,
+                logo:
+                  typeof brandData.logo === "object" &&
+                  "asset" in brandData.logo &&
+                  brandData.logo.asset &&
+                  "url" in brandData.logo.asset
+                    ? brandData.logo.asset.url
+                    : undefined,
+              },
+              offers: selectedStage?.price
+                ? {
+                    "@type": "Offer",
+                    priceCurrency: "SEK",
+                    price: selectedStage.price,
+                    availability: "https://schema.org/InStock",
+                    url: pageUrl,
+                  }
+                : undefined,
+            }),
+          }}
         />
-      </div>
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-center">
-          {brandData.name} {modelData.name} {yearData.range}
-        </h1>
-        <p className="text-lg text-center text-gray-300">
-          {engineData.label} ({engineData.fuel})
-        </p>
-      </div>{" "}
-      {engineData.stages?.length > 0 ? (
-        <div className="space-y-6">
-          {engineData.stages.map((stage) => {
-            const allOptions = getAllAktPlusOptions(stage);
-            const isExpanded = expandedStages[stage.name] ?? false;
+      </Head>
 
-            return (
-              <div
-                id={slugify(stage.name)}
-                key={stage.name}
-                className="bg-gray-800 rounded-xl shadow-lg border border-gray-700 overflow-hidden"
-              >
-                <button
-                  onClick={() => toggleStage(stage.name)}
-                  className="w-full p-6 text-left hover:bg-gray-700 transition-colors duration-200"
+      <div className="max-w-5xl mx-auto p-4 md:p-8">
+        <div className="flex items-center mb-4">
+          <img
+            src="/ak-logo-svart.png"
+            alt="AK-TUNING"
+            style={{ height: "80px", cursor: "pointer" }}
+            className="h-12 object-contain"
+            onClick={() => window.location.reload()}
+          />
+        </div>
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold text-center">
+            {brandData.name} {modelData.name} {yearData.range}
+          </h1>
+          <p className="text-lg text-center text-gray-300">
+            {engineData.label} ({engineData.fuel})
+          </p>
+        </div>{" "}
+        {engineData.stages?.length > 0 ? (
+          <div className="space-y-6">
+            {engineData.stages.map((stage) => {
+              const allOptions = getAllAktPlusOptions(stage);
+              const isExpanded = expandedStages[stage.name] ?? false;
+
+              return (
+                <div
+                  id={slugify(stage.name)}
+                  key={stage.name}
+                  className="bg-gray-800 rounded-xl shadow-lg border border-gray-700 overflow-hidden"
                 >
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-                    <div className="flex items-center gap-4">
-                      {brandData.logo?.asset && (
-                        <img
-                          src={urlFor(brandData.logo).width(60).url()}
-                          alt={brandData.name}
-                          className="h-8 w-auto object-contain"
-                        />
-                      )}
-                      <h2 className="text-lg font-semibold text-white">
-                        {engineData.label} –{" "}
-                        <span className="text-indigo-400 uppercase tracking-wide">
-                          {stage.name}
-                        </span>
-                      </h2>
-                    </div>
-
-                    <div className="mt-3 md:mt-0 flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-4 text-center">
-                      <img
-                        src={`/badges/${stage.name.toLowerCase().replace(/\s+/g, "")}.png`}
-                        alt={stage.name}
-                        className="h-8 object-contain"
-                      />
-                      <span className="inline-block bg-red-600 text-black px-4 py-1 rounded-full text-xl font-semibold shadow-md">
-                        {stage.price?.toLocaleString()} kr
-                      </span>
-                      {(stage.name.includes("Steg 2") ||
-                        stage.name.includes("Steg 3") ||
-                        stage.name.includes("Steg 4")) && (
-                        <p className="text-xs text-gray-400 mt-2 italic">
-                          Priset omfattar enbart mjukvaran.
-                          <br />
-                          Kontakta oss för offert inkl hårdvara!
-                        </p>
-                      )}
-                      <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-700 hover:bg-gray-600 hover:scale-110 transform transition-all duration-300">
-                        <svg
-                          className={`h-6 w-6 text-orange-500 transform transition-transform duration-300 ${
-                            isExpanded ? "rotate-180" : ""
-                          }`}
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-                            clipRule="evenodd"
+                  <button
+                    onClick={() => toggleStage(stage.name)}
+                    className="w-full p-6 text-left hover:bg-gray-700 transition-colors duration-200"
+                  >
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+                      <div className="flex items-center gap-4">
+                        {brandData.logo?.asset && (
+                          <img
+                            src={urlFor(brandData.logo).width(60).url()}
+                            alt={brandData.name}
+                            className="h-8 w-auto object-contain"
                           />
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-                </button>
-                {isExpanded && (
-                  <div className="px-6 pb-6">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 mt-6">
-                      <div className="border border-white rounded-lg p-3 text-center">
-                        <p className="text-sm text-white font-bold mb-1">
-                          ORIGINAL HK
-                        </p>
-                        <p className="text-xl text-white font-bold">
-                          {stage.origHk} hk
-                        </p>
-                      </div>
-                      <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
-                        <p className="text-xl text-white font-bold mb-1 uppercase">
-                          {stage.name} HK
-                        </p>
-                        <p className="text-xl font-bold">{stage.tunedHk} hk</p>
-                        <p className="text-xs mt-1 text-red-400">
-                          +{stage.tunedHk - stage.origHk} hk
-                        </p>
-                      </div>
-                      <div className="border border-white rounded-lg p-3 text-center">
-                        <p className="text-sm text-white font-bold mb-1">
-                          ORIGINAL NM
-                        </p>
-                        <p className="text-xl text-white font-bold">
-                          {stage.origNm} Nm
-                        </p>
-                      </div>
-                      <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
-                        <p className="text-xl text-white font-bold mb-1 uppercase">
-                          {stage.name} NM
-                        </p>
-                        <p className="text-xl font-bold">{stage.tunedNm} Nm</p>
-                        <p className="text-xs mt-1 text-red-400">
-                          +{stage.tunedNm - stage.origNm} Nm
-                        </p>
-                      </div>
-                    </div>
-                    {renderStageDescription(stage)}{" "}
-                    <div className="mt-6">
-                      <h3 className="text-lg font-medium text-gray-300 mb-2 uppercase">
-                        {stage.name}
-                      </h3>
-                      {/* Mobile-only legend above chart */}
-                      <div className="flex justify-center items-center gap-2 md:hidden text-xs text-white">
-                        <div className="flex items-center gap-1">
-                          <span className="w-3 h-3 rounded-full border-2 border-red-400"></span>
-                          <span>ORG HK</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <span className="w-3 h-3 rounded-full bg-red-400"></span>
-                          <span>
-                            {" "}
-                            {stage.name
-                              .replace("Steg", "ST")
-                              .replace(/\s+/g, "")
-                              .toUpperCase()}{" "}
-                            HK
+                        )}
+                        <h2 className="text-lg font-semibold text-white">
+                          {engineData.label} –{" "}
+                          <span className="text-indigo-400 uppercase tracking-wide">
+                            {stage.name}
                           </span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <span className="w-3 h-3 rounded-full border-2 border-gray-300"></span>
-                          <span>ORG NM</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <span className="w-3 h-3 rounded-full bg-gray-300"></span>
-                          <span>
-                            {" "}
-                            {stage.name
-                              .replace("Steg", "ST")
-                              .replace(/\s+/g, "")
-                              .toUpperCase()}{" "}
-                            NM
-                          </span>
-                        </div>
+                        </h2>
                       </div>
-                      <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
-                        {/* Split the spec boxes */}
-                        <div className="absolute hidden md:flex flex-row justify-between top-4 left-0 right-0 px-16">
-                          {/* ORG HK / Max HK */}
-                          <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
-                            <p className="text-red-600">- - -</p>
-                            <p className="text-white">
-                              HK ORG: {stage.origHk} HK
-                            </p>
-                            <p className="text-red-600">_____</p>
-                            <p className="text-white">
-                              HK{" "}
-                              {stage.name
-                                .replace("Steg", "ST")
-                                .replace(/\s+/g, "")
-                                .toUpperCase()}
-                              : {stage.tunedHk} HK
-                            </p>
-                          </div>
 
-                          {/* ORG NM / Max NM */}
-                          <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
-                            <p className="text-white">- - -</p>
-                            <p className="text-white">
-                              NM ORG: {stage.origNm} NM
-                            </p>
-                            <p className="text-white">_____</p>
-                            <p className="text-white">
-                              NM{" "}
+                      <div className="mt-3 md:mt-0 flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-4 text-center">
+                        <img
+                          src={`/badges/${stage.name.toLowerCase().replace(/\s+/g, "")}.png`}
+                          alt={stage.name}
+                          className="h-8 object-contain"
+                        />
+                        <span className="inline-block bg-red-600 text-black px-4 py-1 rounded-full text-xl font-semibold shadow-md">
+                          {stage.price?.toLocaleString()} kr
+                        </span>
+                        {(stage.name.includes("Steg 2") ||
+                          stage.name.includes("Steg 3") ||
+                          stage.name.includes("Steg 4")) && (
+                          <p className="text-xs text-gray-400 mt-2 italic">
+                            Priset omfattar enbart mjukvaran.
+                            <br />
+                            Kontakta oss för offert inkl hårdvara!
+                          </p>
+                        )}
+                        <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-700 hover:bg-gray-600 hover:scale-110 transform transition-all duration-300">
+                          <svg
+                            className={`h-6 w-6 text-orange-500 transform transition-transform duration-300 ${
+                              isExpanded ? "rotate-180" : ""
+                            }`}
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                  </button>
+                  {isExpanded && (
+                    <div className="px-6 pb-6">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 mt-6">
+                        <div className="border border-white rounded-lg p-3 text-center">
+                          <p className="text-sm text-white font-bold mb-1">
+                            ORIGINAL HK
+                          </p>
+                          <p className="text-xl text-white font-bold">
+                            {stage.origHk} hk
+                          </p>
+                        </div>
+                        <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
+                          <p className="text-xl text-white font-bold mb-1 uppercase">
+                            {stage.name} HK
+                          </p>
+                          <p className="text-xl font-bold">
+                            {stage.tunedHk} hk
+                          </p>
+                          <p className="text-xs mt-1 text-red-400">
+                            +{stage.tunedHk - stage.origHk} hk
+                          </p>
+                        </div>
+                        <div className="border border-white rounded-lg p-3 text-center">
+                          <p className="text-sm text-white font-bold mb-1">
+                            ORIGINAL NM
+                          </p>
+                          <p className="text-xl text-white font-bold">
+                            {stage.origNm} Nm
+                          </p>
+                        </div>
+                        <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
+                          <p className="text-xl text-white font-bold mb-1 uppercase">
+                            {stage.name} NM
+                          </p>
+                          <p className="text-xl font-bold">
+                            {stage.tunedNm} Nm
+                          </p>
+                          <p className="text-xs mt-1 text-red-400">
+                            +{stage.tunedNm - stage.origNm} Nm
+                          </p>
+                        </div>
+                      </div>
+                      {renderStageDescription(stage)}{" "}
+                      <div className="mt-6">
+                        <h3 className="text-lg font-medium text-gray-300 mb-2 uppercase">
+                          {stage.name}
+                        </h3>
+                        {/* Mobile-only legend above chart */}
+                        <div className="flex justify-center items-center gap-2 md:hidden text-xs text-white">
+                          <div className="flex items-center gap-1">
+                            <span className="w-3 h-3 rounded-full border-2 border-red-400"></span>
+                            <span>ORG HK</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <span className="w-3 h-3 rounded-full bg-red-400"></span>
+                            <span>
+                              {" "}
                               {stage.name
                                 .replace("Steg", "ST")
                                 .replace(/\s+/g, "")
-                                .toUpperCase()}
-                              : {stage.tunedHk} NM
-                            </p>
+                                .toUpperCase()}{" "}
+                              HK
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <span className="w-3 h-3 rounded-full border-2 border-gray-300"></span>
+                            <span>ORG NM</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <span className="w-3 h-3 rounded-full bg-gray-300"></span>
+                            <span>
+                              {" "}
+                              {stage.name
+                                .replace("Steg", "ST")
+                                .replace(/\s+/g, "")
+                                .toUpperCase()}{" "}
+                              NM
+                            </span>
+                          </div>
+                        </div>
+                        <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
+                          {/* Split the spec boxes */}
+                          <div className="absolute hidden md:flex flex-row justify-between top-4 left-0 right-0 px-16">
+                            {/* ORG HK / Max HK */}
+                            <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
+                              <p className="text-red-600">- - -</p>
+                              <p className="text-white">
+                                HK ORG: {stage.origHk} HK
+                              </p>
+                              <p className="text-red-600">_____</p>
+                              <p className="text-white">
+                                HK{" "}
+                                {stage.name
+                                  .replace("Steg", "ST")
+                                  .replace(/\s+/g, "")
+                                  .toUpperCase()}
+                                : {stage.tunedHk} HK
+                              </p>
+                            </div>
+
+                            {/* ORG NM / Max NM */}
+                            <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
+                              <p className="text-white">- - -</p>
+                              <p className="text-white">
+                                NM ORG: {stage.origNm} NM
+                              </p>
+                              <p className="text-white">_____</p>
+                              <p className="text-white">
+                                NM{" "}
+                                {stage.name
+                                  .replace("Steg", "ST")
+                                  .replace(/\s+/g, "")
+                                  .toUpperCase()}
+                                : {stage.tunedHk} NM
+                              </p>
+                            </div>
+                          </div>{" "}
+                          {/* Dyno graph */}
+                          <Line
+                            data={{
+                              labels: [
+                                "2000",
+                                "2500",
+                                "3000",
+                                "3500",
+                                "4000",
+                                "4500",
+                                "5000",
+                                "5500",
+                                "6000",
+                                "6500",
+                                "7000",
+                              ],
+                              datasets: [
+                                {
+                                  label: "ORG HK",
+                                  data: generateDynoCurve(stage.origHk, true),
+                                  borderColor: "#f87171",
+                                  backgroundColor: "transparent",
+                                  borderWidth: 2,
+                                  borderDash: [5, 3],
+                                  tension: 0.5,
+                                  pointRadius: 0,
+                                  yAxisID: "hp",
+                                },
+                                {
+                                  label: `ST ${stage.name.replace(/\D/g, "")} hk`,
+                                  data: generateDynoCurve(stage.tunedHk, true),
+                                  borderColor: "#f87171",
+                                  backgroundColor: "transparent",
+                                  borderWidth: 3,
+                                  tension: 0.5,
+                                  pointRadius: 0,
+                                  yAxisID: "hp",
+                                },
+                                {
+                                  label: "ORG NM",
+                                  data: generateDynoCurve(stage.origNm, false),
+                                  borderColor: "#d1d5db",
+                                  backgroundColor: "transparent",
+                                  borderWidth: 2,
+                                  borderDash: [5, 3],
+                                  tension: 0.5,
+                                  pointRadius: 0,
+                                  yAxisID: "nm",
+                                },
+                                {
+                                  label: `ST ${stage.name.replace(/\D/g, "")} Nm`,
+                                  data: generateDynoCurve(stage.tunedNm, false),
+                                  borderColor: "#d1d5db",
+                                  backgroundColor: "transparent",
+                                  borderWidth: 3,
+                                  tension: 0.5,
+                                  pointRadius: 0,
+                                  yAxisID: "nm",
+                                },
+                              ],
+                            }}
+                            options={{
+                              responsive: true,
+                              maintainAspectRatio: false,
+                              plugins: {
+                                legend: {
+                                  display: false,
+                                },
+                                tooltip: {
+                                  enabled: true,
+                                  mode: "index",
+                                  intersect: false,
+                                  backgroundColor: "#1f2937",
+                                  titleColor: "#ffffff",
+                                  bodyColor: "#ffffff",
+                                  borderColor: "#6b7280",
+                                  borderWidth: 1,
+                                  padding: 10,
+                                  displayColors: true,
+                                  usePointStyle: true,
+                                  callbacks: {
+                                    labelPointStyle: () => ({
+                                      pointStyle: "circle",
+                                      rotation: 0,
+                                    }),
+                                    title: function (tooltipItems) {
+                                      return `${tooltipItems[0].label} RPM`;
+                                    },
+                                    label: function (context) {
+                                      const label = context.dataset.label || "";
+                                      const value = context.parsed.y;
+
+                                      if (value === undefined) return label;
+
+                                      const unit =
+                                        context.dataset.yAxisID === "hp"
+                                          ? "hk"
+                                          : "Nm";
+                                      return `${label}: ${Math.round(value)} ${unit}`;
+                                    },
+                                  },
+                                },
+                              },
+                              scales: {
+                                hp: {
+                                  type: "linear",
+                                  display: true,
+                                  position: "left",
+                                  title: {
+                                    display: true,
+                                    text: "Effekt (HK)",
+                                    color: "white",
+                                    font: { size: 14 },
+                                  },
+                                  min: 0,
+                                  max:
+                                    Math.ceil(stage.tunedHk / 100) * 100 + 100,
+                                  grid: {
+                                    color: "rgba(255, 255, 255, 0.1)",
+                                  },
+                                  ticks: {
+                                    color: "#9CA3AF",
+                                    stepSize: 100,
+                                    callback: (value) => `${value}`,
+                                  },
+                                },
+                                nm: {
+                                  type: "linear",
+                                  display: true,
+                                  position: "right",
+                                  title: {
+                                    display: true,
+                                    text: "Vridmoment (Nm)",
+                                    color: "white",
+                                    font: { size: 14 },
+                                  },
+                                  min: 0,
+                                  max:
+                                    Math.ceil(stage.tunedNm / 100) * 100 + 100,
+                                  grid: {
+                                    drawOnChartArea: false,
+                                  },
+                                  ticks: {
+                                    color: "#9CA3AF",
+                                    stepSize: 100,
+                                    callback: (value) => `${value}`,
+                                  },
+                                },
+                                x: {
+                                  title: {
+                                    display: true,
+                                    text: "RPM",
+                                    color: "#E5E7EB",
+                                    font: { size: 14 },
+                                  },
+                                  grid: {
+                                    color: "rgba(255, 255, 255, 0.1)",
+                                  },
+                                  ticks: {
+                                    color: "#9CA3AF",
+                                  },
+                                },
+                              },
+                              interaction: {
+                                intersect: false,
+                                mode: "index",
+                              },
+                            }}
+                            plugins={[watermarkPlugin, shadowPlugin]}
+                          />
+                          <div className="text-center text-white text-xs mt-4 italic">
+                            (Simulerad effektkurva)
                           </div>
                         </div>{" "}
-                        {/* Dyno graph */}
-                        <Line
-                          data={{
-                            labels: [
-                              "2000",
-                              "2500",
-                              "3000",
-                              "3500",
-                              "4000",
-                              "4500",
-                              "5000",
-                              "5500",
-                              "6000",
-                              "6500",
-                              "7000",
-                            ],
-                            datasets: [
-                              {
-                                label: "ORG HK",
-                                data: generateDynoCurve(stage.origHk, true),
-                                borderColor: "#f87171",
-                                backgroundColor: "transparent",
-                                borderWidth: 2,
-                                borderDash: [5, 3],
-                                tension: 0.5,
-                                pointRadius: 0,
-                                yAxisID: "hp",
-                              },
-                              {
-                                label: `ST ${stage.name.replace(/\D/g, "")} hk`,
-                                data: generateDynoCurve(stage.tunedHk, true),
-                                borderColor: "#f87171",
-                                backgroundColor: "transparent",
-                                borderWidth: 3,
-                                tension: 0.5,
-                                pointRadius: 0,
-                                yAxisID: "hp",
-                              },
-                              {
-                                label: "ORG NM",
-                                data: generateDynoCurve(stage.origNm, false),
-                                borderColor: "#d1d5db",
-                                backgroundColor: "transparent",
-                                borderWidth: 2,
-                                borderDash: [5, 3],
-                                tension: 0.5,
-                                pointRadius: 0,
-                                yAxisID: "nm",
-                              },
-                              {
-                                label: `ST ${stage.name.replace(/\D/g, "")} Nm`,
-                                data: generateDynoCurve(stage.tunedNm, false),
-                                borderColor: "#d1d5db",
-                                backgroundColor: "transparent",
-                                borderWidth: 3,
-                                tension: 0.5,
-                                pointRadius: 0,
-                                yAxisID: "nm",
-                              },
-                            ],
-                          }}
-                          options={{
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                              legend: {
-                                display: false,
-                              },
-                              tooltip: {
-                                enabled: true,
-                                mode: "index",
-                                intersect: false,
-                                backgroundColor: "#1f2937",
-                                titleColor: "#ffffff",
-                                bodyColor: "#ffffff",
-                                borderColor: "#6b7280",
-                                borderWidth: 1,
-                                padding: 10,
-                                displayColors: true,
-                                usePointStyle: true,
-                                callbacks: {
-                                  labelPointStyle: () => ({
-                                    pointStyle: "circle",
-                                    rotation: 0,
-                                  }),
-                                  title: function (tooltipItems) {
-                                    return `${tooltipItems[0].label} RPM`;
-                                  },
-                                  label: function (context) {
-                                    const label = context.dataset.label || "";
-                                    const value = context.parsed.y;
-
-                                    if (value === undefined) return label;
-
-                                    const unit =
-                                      context.dataset.yAxisID === "hp"
-                                        ? "hk"
-                                        : "Nm";
-                                    return `${label}: ${Math.round(value)} ${unit}`;
-                                  },
-                                },
-                              },
-                            },
-                            scales: {
-                              hp: {
-                                type: "linear",
-                                display: true,
-                                position: "left",
-                                title: {
-                                  display: true,
-                                  text: "Effekt (HK)",
-                                  color: "white",
-                                  font: { size: 14 },
-                                },
-                                min: 0,
-                                max: Math.ceil(stage.tunedHk / 100) * 100 + 100,
-                                grid: {
-                                  color: "rgba(255, 255, 255, 0.1)",
-                                },
-                                ticks: {
-                                  color: "#9CA3AF",
-                                  stepSize: 100,
-                                  callback: (value) => `${value}`,
-                                },
-                              },
-                              nm: {
-                                type: "linear",
-                                display: true,
-                                position: "right",
-                                title: {
-                                  display: true,
-                                  text: "Vridmoment (Nm)",
-                                  color: "white",
-                                  font: { size: 14 },
-                                },
-                                min: 0,
-                                max: Math.ceil(stage.tunedNm / 100) * 100 + 100,
-                                grid: {
-                                  drawOnChartArea: false,
-                                },
-                                ticks: {
-                                  color: "#9CA3AF",
-                                  stepSize: 100,
-                                  callback: (value) => `${value}`,
-                                },
-                              },
-                              x: {
-                                title: {
-                                  display: true,
-                                  text: "RPM",
-                                  color: "#E5E7EB",
-                                  font: { size: 14 },
-                                },
-                                grid: {
-                                  color: "rgba(255, 255, 255, 0.1)",
-                                },
-                                ticks: {
-                                  color: "#9CA3AF",
-                                },
-                              },
-                            },
-                            interaction: {
-                              intersect: false,
-                              mode: "index",
-                            },
-                          }}
-                          plugins={[watermarkPlugin, shadowPlugin]}
-                        />
-                        <div className="text-center text-white text-xs mt-4 italic">
-                          (Simulerad effektkurva)
+                        {/* Mobile-only small tuned specs */}
+                        <div className="block md:hidden text-center mt-6 mb-6">
+                          <p className="text-sm text-white font-semibold">
+                            {stage.tunedHk} HK & {stage.tunedNm} NM
+                            <span className="text-gray-400 text-sm ml-1">
+                              [
+                              {stage.name
+                                .replace("Steg", "STEG ")
+                                .replace(/\s+/g, "")
+                                .toUpperCase()}
+                              ]
+                            </span>
+                          </p>
                         </div>
-                      </div>{" "}
-                      {/* Mobile-only small tuned specs */}
-                      <div className="block md:hidden text-center mt-6 mb-6">
-                        <p className="text-sm text-white font-semibold">
-                          {stage.tunedHk} HK & {stage.tunedNm} NM
-                          <span className="text-gray-400 text-sm ml-1">
-                            [
-                            {stage.name
-                              .replace("Steg", "STEG ")
-                              .replace(/\s+/g, "")
-                              .toUpperCase()}
-                            ]
-                          </span>
-                        </p>
+                        {/* KONTAKT button */}
+                        <div className="mt-8 mb-10 flex flex-col items-center">
+                          <button
+                            onClick={() => handleBookNow(stage.name)}
+                            className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg flex items-center gap-2"
+                          >
+                            <span>📩</span> KONTAKT
+                          </button>
+                        </div>
                       </div>
-                      {/* KONTAKT button */}
-                      <div className="mt-8 mb-10 flex flex-col items-center">
-                        <button
-                          onClick={() => handleBookNow(stage.name)}
-                          className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg flex items-center gap-2"
-                        >
-                          <span>📩</span> KONTAKT
-                        </button>
-                      </div>
-                    </div>
-                    {allOptions.length > 0 && (
-                      <div className="mt-8">
-                        {/* AKT+ Toggle Button */}
-                        <button
-                          onClick={() => toggleAktPlus(stage.name)}
-                          className="flex justify-between items-center w-full px-6 py-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
-                        >
-                          <div className="flex items-center gap-2">
-                            <img
-                              src="/logos/aktplus.png"
-                              alt="AKT+ Logo"
-                              className="h-8 w-auto object-contain"
-                            />
-                            <h3 className="text-md font-semibold text-white">
-                              TILLÄGG
-                            </h3>
-                          </div>
-
-                          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-800">
-                            <svg
-                              className={`h-5 w-5 text-orange-500 transform transition-transform duration-300 ${
-                                expandedAktPlus[stage.name] ? "rotate-180" : ""
-                              }`}
-                              viewBox="0 0 20 20"
-                              fill="currentColor"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-                                clipRule="evenodd"
+                      {allOptions.length > 0 && (
+                        <div className="mt-8">
+                          {/* AKT+ Toggle Button */}
+                          <button
+                            onClick={() => toggleAktPlus(stage.name)}
+                            className="flex justify-between items-center w-full px-6 py-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+                          >
+                            <div className="flex items-center gap-2">
+                              <img
+                                src="/logos/aktplus.png"
+                                alt="AKT+ Logo"
+                                className="h-8 w-auto object-contain"
                               />
-                            </svg>
-                          </div>
-                        </button>{" "}
-                        {/* Expandable AKT+ Grid */}
-                        {expandedAktPlus[stage.name] && (
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                            {allOptions.map((option) => (
-                              <div
-                                key={option._id}
-                                className="border border-gray-600 rounded-lg overflow-hidden bg-gray-700 transition-all duration-300"
+                              <h3 className="text-md font-semibold text-white">
+                                TILLÄGG
+                              </h3>
+                            </div>
+
+                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-800">
+                              <svg
+                                className={`h-5 w-5 text-orange-500 transform transition-transform duration-300 ${
+                                  expandedAktPlus[stage.name]
+                                    ? "rotate-180"
+                                    : ""
+                                }`}
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
                               >
-                                <button
-                                  onClick={() => toggleOption(option._id)}
-                                  className="w-full flex justify-between items-center p-4 hover:bg-gray-600 transition-colors"
+                                <path
+                                  fillRule="evenodd"
+                                  d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                            </div>
+                          </button>{" "}
+                          {/* Expandable AKT+ Grid */}
+                          {expandedAktPlus[stage.name] && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                              {allOptions.map((option) => (
+                                <div
+                                  key={option._id}
+                                  className="border border-gray-600 rounded-lg overflow-hidden bg-gray-700 transition-all duration-300"
                                 >
-                                  <div className="flex items-center gap-3">
-                                    {option.gallery?.[0]?.asset && (
-                                      <img
-                                        src={urlFor(option.gallery[0].asset)
-                                          .width(80)
-                                          .url()}
-                                        alt={
-                                          option.gallery[0].alt || option.title
-                                        }
-                                        className="h-10 w-10 object-contain"
-                                      />
-                                    )}
-                                    <span className="text-lg font-bold text-orange-600">
-                                      {option.title}
-                                    </span>
-                                  </div>
-
-                                  <svg
-                                    className={`h-5 w-5 text-orange-600 transition-transform ${
-                                      expandedOptions[option._id]
-                                        ? "rotate-180"
-                                        : ""
-                                    }`}
-                                    viewBox="0 0 20 20"
-                                    fill="currentColor"
+                                  <button
+                                    onClick={() => toggleOption(option._id)}
+                                    className="w-full flex justify-between items-center p-4 hover:bg-gray-600 transition-colors"
                                   >
-                                    <path
-                                      fillRule="evenodd"
-                                      d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-                                      clipRule="evenodd"
-                                    />
-                                  </svg>
-                                </button>
-
-                                {expandedOptions[option._id] && (
-                                  <div className="bg-gray-800 border-t border-gray-600 p-4 space-y-4">
-                                    {option.description && (
-                                      <div className="prose prose-invert max-w-none text-sm">
-                                        <PortableText
-                                          value={option.description}
-                                          components={portableTextComponents}
+                                    <div className="flex items-center gap-3">
+                                      {option.gallery?.[0]?.asset && (
+                                        <img
+                                          src={urlFor(option.gallery[0].asset)
+                                            .width(80)
+                                            .url()}
+                                          alt={
+                                            option.gallery[0].alt ||
+                                            option.title
+                                          }
+                                          className="h-10 w-10 object-contain"
                                         />
-                                      </div>
-                                    )}
-                                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                                      {option.price && (
-                                        <p className="font-bold text-green-400">
-                                          Pris: {option.price.toLocaleString()}{" "}
-                                          kr
-                                        </p>
                                       )}
-                                      <button
-                                        onClick={() =>
-                                          handleBookNow(option.title)
-                                        }
-                                        className="bg-green-600 hover:bg-green-700 hover:scale-105 transform transition-all text-white px-6 py-3 rounded-lg font-medium shadow-lg"
-                                      >
-                                        📩 KONTAKT
-                                      </button>
+                                      <span className="text-lg font-bold text-orange-600">
+                                        {option.title}
+                                      </span>
                                     </div>
-                                  </div>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      ) : (
-        <div className="text-center py-12">
-          <p className="text-lg text-gray-300">
-            Ingen steginformation tillgänglig för denna motor.
-          </p>
-        </div>
-      )}
-      <ContactModal
-        isOpen={contactModalData.isOpen}
-        onClose={() =>
-          setContactModalData({ isOpen: false, stageOrOption: "", link: "" })
-        }
-        selectedVehicle={{
-          brand: brandData.name,
-          model: modelData.name,
-          year: yearData.range,
-          engine: engineData.label,
-        }}
-        stageOrOption={contactModalData.stageOrOption}
-        link={contactModalData.link}
-        scrollPosition={contactModalData.scrollPosition}
-      />
-    </div>
+
+                                    <svg
+                                      className={`h-5 w-5 text-orange-600 transition-transform ${
+                                        expandedOptions[option._id]
+                                          ? "rotate-180"
+                                          : ""
+                                      }`}
+                                      viewBox="0 0 20 20"
+                                      fill="currentColor"
+                                    >
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                                        clipRule="evenodd"
+                                      />
+                                    </svg>
+                                  </button>
+
+                                  {expandedOptions[option._id] && (
+                                    <div className="bg-gray-800 border-t border-gray-600 p-4 space-y-4">
+                                      {option.description && (
+                                        <div className="prose prose-invert max-w-none text-sm">
+                                          <PortableText
+                                            value={option.description}
+                                            components={portableTextComponents}
+                                          />
+                                        </div>
+                                      )}
+                                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                                        {option.price && (
+                                          <p className="font-bold text-green-400">
+                                            Pris:{" "}
+                                            {option.price.toLocaleString()} kr
+                                          </p>
+                                        )}
+                                        <button
+                                          onClick={() =>
+                                            handleBookNow(option.title)
+                                          }
+                                          className="bg-green-600 hover:bg-green-700 hover:scale-105 transform transition-all text-white px-6 py-3 rounded-lg font-medium shadow-lg"
+                                        >
+                                          📩 KONTAKT
+                                        </button>
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-lg text-gray-300">
+              Ingen steginformation tillgänglig för denna motor.
+            </p>
+          </div>
+        )}
+        <ContactModal
+          isOpen={contactModalData.isOpen}
+          onClose={() =>
+            setContactModalData({ isOpen: false, stageOrOption: "", link: "" })
+          }
+          selectedVehicle={{
+            brand: brandData.name,
+            model: modelData.name,
+            year: yearData.range,
+            engine: engineData.label,
+          }}
+          stageOrOption={contactModalData.stageOrOption}
+          link={contactModalData.link}
+          scrollPosition={contactModalData.scrollPosition}
+        />
+      </div>
+    </>
   );
 }
