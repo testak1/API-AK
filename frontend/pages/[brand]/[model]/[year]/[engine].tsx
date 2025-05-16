@@ -158,7 +158,8 @@ export default function EnginePage({
   engineData,
 }: EnginePageProps) {
   const router = useRouter();
-  const { stage } = router.query;
+  const stageParam = router.query.stage;
+  const stage = typeof stageParam === "string" ? stageParam : "";
   const [expandedStages, setExpandedStages] = useState<Record<string, boolean>>(
     {},
   );
@@ -251,6 +252,13 @@ export default function EnginePage({
       setExpandedStages(initialExpanded);
     }
   }, [engineData, stage]);
+
+  useEffect(() => {
+    if (stage) {
+      const el = document.getElementById(slugify(stage));
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [stage]);
 
   const watermarkPlugin = {
     id: "watermark",
@@ -452,6 +460,7 @@ export default function EnginePage({
 
             return (
               <div
+                id={slugify(stage.name)}
                 key={stage.name}
                 className="bg-gray-800 rounded-xl shadow-lg border border-gray-700 overflow-hidden"
               >
