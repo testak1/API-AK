@@ -20,6 +20,13 @@ export const brandsLightQuery = `
 export const engineByParamsQuery = `
   *[_type == "brand" && slug.current == $brand][0]{
     name,
+    "logo": logo{
+      alt,
+      "asset": asset->{
+        _id,
+        url
+      }
+    },
     "models": models[]{
       name,
       "years": years[]{
