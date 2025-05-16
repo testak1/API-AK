@@ -241,14 +241,12 @@ export default function EnginePage({
     if (engineData?.stages?.length) {
       const initialExpanded = engineData.stages.reduce(
         (acc, stageObj) => {
-          const match =
-            slugify(stageObj.name) === slugify((stage as string) || "");
-          acc[stageObj.name] = match || stageObj.name === "Steg 1";
+          const isMatch = slugify(stageObj.name) === slugify(stage || "");
+          acc[stageObj.name] = stage ? isMatch : stageObj.name === "Steg 1";
           return acc;
         },
         {} as Record<string, boolean>,
       );
-
       setExpandedStages(initialExpanded);
     }
   }, [engineData, stage]);
