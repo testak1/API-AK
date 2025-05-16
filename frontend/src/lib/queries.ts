@@ -22,6 +22,11 @@ export const engineByParamsQuery = `
     name,
     "models": models[]{
       name,
+      logo {
+        "asset": asset->{
+          _id,
+          url
+        },
       "years": years[]{
         range,
         "engines": engines[]{
@@ -44,7 +49,6 @@ export const engineByParamsQuery = `
     }
   }
 `;
-
 
 // Heavy query (when you need full info like stages, aktplus, engines)
 export const allBrandsQuery = `
