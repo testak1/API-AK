@@ -22,7 +22,7 @@ async function fetchAllRoutes() {
       const modelSlug = slugify(model.slug?.current || model.name);
 
       const yearsRes = await fetch(
-        `${baseUrl}/api/years?brand=${encodeURIComponent(brand.name)}&model=${encodeURIComponent(model.name)}`,
+        `${baseUrl}/api/years?brand=${encodeURIComponent(brand.name)}&model=${encodeURIComponent(model.name)}`
       );
       const yearsJson = await yearsRes.json();
       const years = yearsJson.result || [];
@@ -31,7 +31,7 @@ async function fetchAllRoutes() {
         const yearSlug = slugify(year.range);
 
         const enginesRes = await fetch(
-          `${baseUrl}/api/engines?brand=${encodeURIComponent(brand.name)}&model=${encodeURIComponent(model.name)}&year=${encodeURIComponent(year.range)}`,
+          `${baseUrl}/api/engines?brand=${encodeURIComponent(brand.name)}&model=${encodeURIComponent(model.name)}&year=${encodeURIComponent(year.range)}`
         );
         const enginesJson = await enginesRes.json();
         const engines = enginesJson.result || [];
@@ -40,20 +40,24 @@ async function fetchAllRoutes() {
           const engineSlug = slugify(engine.label);
           const basePath = `/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}`;
 
-          if (Array.isArray(engine.stages) && engine.stages.length > 0) {
+          if (Array.isArray(engine.stages)) {
             for (const stage of engine.stages) {
               const stageSlug = slugify(stage.name);
-              allRoutes.add(`${basePath}?stage=${stageSlug}`);
+              const route = `${basePath}?stage=${stageSlug}`;
+
+              // Lägg endast till riktiga stage-länkar
+              allRoutes.add(route);
             }
-          } else {
-            allRoutes.add(basePath);
           }
         }
       }
     }
   }
 
-  return Array.from(allRoutes);
+  // Filtrera bort specifika paths du inte vill ha med
+  const exclude = new Set(["/", "/embed"]);
+
+  return Array.from(allRoutes).filter((path) => !exclude.has(path));
 }
 
 module.exports = { fetchAllRoutes };
