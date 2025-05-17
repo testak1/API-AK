@@ -3,6 +3,7 @@ const { fetchAllRoutes } = require("./fetchAllRoutes");
 module.exports = {
   siteUrl: "https://tuning.aktuning.se",
   generateRobotsTxt: true,
+  generateIndexSitemap: true, // ← detta skapar sitemap.xml som index
   sitemapSize: 5000,
   additionalPaths: async () => {
     const urls = await fetchAllRoutes();
