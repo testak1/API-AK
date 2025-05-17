@@ -515,7 +515,7 @@ export default function EnginePage({
               src="/ak-logo-svart.png"
               alt="AK-TUNING"
               width={80}
-              height={40}
+              height={80}
               className="h-12 w-auto object-contain cursor-pointer"
             />
           </Link>
