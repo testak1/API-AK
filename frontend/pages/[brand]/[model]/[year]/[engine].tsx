@@ -490,15 +490,13 @@ export default function EnginePage({
 
       <div className="max-w-5xl mx-auto p-4 md:p-8">
         <div className="flex items-center mb-4">
-          <Link href="/">
-            <img
-              src="/ak-logo-svart.png"
-              alt="AK-TUNING"
-              width={80}
-              height={80}
-              className="h-12 w-auto object-contain cursor-pointer"
-            />
-          </Link>
+          <img
+            src="/ak-logo-svart.png"
+            alt="AK-TUNING"
+            style={{ height: "80px", cursor: "pointer" }}
+            className="h-12 object-contain"
+            onClick={() => window.location.reload()}
+          />
         </div>
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-center">
