@@ -515,7 +515,7 @@ export default function EnginePage({
             alt="AK-TUNING"
             style={{ height: "80px", cursor: "pointer" }}
             className="h-12 object-contain"
-            onClick={() => window.location.reload()}
+            onClick={() => (window.location.href = "/")}
           />
         </div>
         <div className="mb-8">
