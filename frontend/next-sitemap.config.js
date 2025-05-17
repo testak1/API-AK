@@ -9,7 +9,11 @@ module.exports = {
     const urls = await fetchAllRoutes();
     console.log(`🧭 Genererade ${urls.length} unika dynamiska länkar`);
 
-    return urls.map((loc) => ({
+    const filteredUrls = urls.filter(
+      (loc) => loc !== "/" && loc !== "/embed"
+    );
+
+    return filteredUrls.map((loc) => ({
       loc: `https://tuning.aktuning.se${loc}`,
       changefreq: "weekly",
       priority: 0.9,
