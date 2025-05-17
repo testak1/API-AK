@@ -376,9 +376,9 @@ export default function EnginePage({
       ? `${selectedStage.price.toLocaleString()} kr`
       : "";
 
-  const pageTitle = `${selectedStep} Motoroptimering – ${brandData.name} – ${modelData.name} – ${yearData.range} – ${engineData.label} | AK-TUNING`;
+  const pageTitle = `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${selectedStep} Mjukvara | AK-TUNING`;
 
-  const pageDescription = `Skräddarsydd ${selectedStep} mjukvara till ${modelData.name} ${engineData.label} – ${hp}hk & ${nm}Nm med mjukvarugaranti! Pris: ${price}`;
+  const pageDescription = `Optimera din ${brandData.name} ${modelData.name} ${engineData.label} – från ${selectedStage?.origHk} hk till ${hp} hk och ${nm} Nm med skräddarsydd ${selectedStep} mjukvara. Pris: ${price}.`;
 
   const pageUrl = `https://tuning.aktuning.se${router.asPath.split("?")[0]}`;
 
@@ -471,7 +471,7 @@ export default function EnginePage({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "Product",
-              name: `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${selectedStage?.name || "Tuning"}`,
+              name: `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${selectedStep} Mjukvara`,
               image: [imageUrl],
               description: pageDescription,
               brand: {
@@ -494,6 +494,14 @@ export default function EnginePage({
                     url: pageUrl,
                   }
                 : undefined,
+              publisher: {
+                "@type": "Organization",
+                name: "AK-TUNING – Marknadsledande på motoroptimering",
+                logo: {
+                  "@type": "ImageObject",
+                  url: "https://tuning.aktuning.se/ak-logo.png",
+                },
+              },
             }),
           }}
         />
