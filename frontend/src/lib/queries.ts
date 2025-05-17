@@ -32,6 +32,7 @@ export const engineByParamsQuery = `
       "years": years[]{
         range,
         "engines": engines[]{
+          _id,
           label,
           fuel,
           "stages": stages[]{
@@ -44,6 +45,51 @@ export const engineByParamsQuery = `
             description,
             descriptionRef->{
               description
+            },
+            "aktPlusOptions": *[_type == "aktPlus" && (
+              isUniversal == true || 
+              ^.^.fuel in applicableFuelTypes
+            ) && (
+              !defined(stageCompatibility) || 
+              stageCompatibility == ^.name
+            )]{
+              _id,
+              title,
+              price,
+              isUniversal,
+              applicableFuelTypes,
+              stageCompatibility,
+              description,
+              "gallery": gallery[]{
+                _key,
+                alt,
+                caption,
+                "asset": asset->{
+                  _id,
+                  url
+                }
+              }
+            }
+          },
+          "globalAktPlusOptions": *[_type == "aktPlus" && (
+            isUniversal == true || 
+            ^.fuel in applicableFuelTypes
+          ) && !defined(stageCompatibility)]{
+            _id,
+            title,
+            price,
+            isUniversal,
+            applicableFuelTypes,
+            stageCompatibility,
+            description,
+            "gallery": gallery[]{
+              _key,
+              alt,
+              caption,
+              "asset": asset->{
+                _id,
+                url
+              }
             }
           }
         }
