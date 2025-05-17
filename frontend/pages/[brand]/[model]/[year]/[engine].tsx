@@ -17,6 +17,7 @@ import { PortableText } from "@portabletext/react";
 import Head from "next/head";
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import ContactModal from "@/components/ContactModal";
+import Link from "next/link";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -509,13 +510,15 @@ export default function EnginePage({
 
       <div className="max-w-5xl mx-auto p-4 md:p-8">
         <div className="flex items-center mb-4">
-          <img
-            src="/ak-logo-svart.png"
-            alt="AK-TUNING"
-            style={{ height: "80px", cursor: "pointer" }}
-            className="h-12 object-contain"
-            onClick={() => (window.location.href = "/")}
-          />
+          <Link href="/">
+            <img
+              src="/ak-logo-svart.png"
+              alt="AK-TUNING"
+              width={80}
+              height={40}
+              className="h-12 w-auto object-contain cursor-pointer"
+            />
+          </Link>
         </div>
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-center">
