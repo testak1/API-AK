@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://tuning.aktuning.se/sitemap.xml
