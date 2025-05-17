@@ -2,7 +2,7 @@
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import client from "@/lib/sanity";
-import { enginePreciseQuery } from "@/src/lib/queries";
+import { engineByParamsQuery } from "@/src/lib/queries";
 import type {
   Brand,
   Model,
@@ -17,7 +17,6 @@ import { PortableText } from "@portabletext/react";
 import Head from "next/head";
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import ContactModal from "@/components/ContactModal";
-import Link from "next/link";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -50,54 +49,57 @@ interface EnginePageProps {
 const normalizeString = (str: string) =>
   str.toLowerCase().replace(/[^a-z0-9]/g, "");
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
+export const getServerSideProps: GetServerSideProps<EnginePageProps> = async (
+  context,
+) => {
   const brand = decodeURIComponent((context.params?.brand as string) || "");
   const model = decodeURIComponent((context.params?.model as string) || "");
   const year = decodeURIComponent((context.params?.year as string) || "");
   const engine = decodeURIComponent((context.params?.engine as string) || "");
 
   try {
-    const data = await client.fetch(enginePreciseQuery, {
+    const brandData = await client.fetch(engineByParamsQuery, {
       brand: brand.toLowerCase(),
-      model: model.toLowerCase(),
-      year: year.toLowerCase(),
-      engine: engine.toLowerCase(),
     });
 
-    const engineData = data?.model?.year?.engine;
+    if (!brandData) return { notFound: true };
 
-    if (!data || !engineData) return { notFound: true };
+    const modelData =
+      brandData.models?.find(
+        (m: Model) =>
+          normalizeString(m.name) === normalizeString(model) ||
+          (m.slug &&
+            normalizeString(
+              typeof m.slug === "string" ? m.slug : m.slug.current,
+            ) === normalizeString(model)),
+      ) || null;
 
-    // Matcha korrekt model
-    const modelSlugMatch =
-      normalizeString(data.model.name) === normalizeString(model);
+    if (!modelData) return { notFound: true };
 
-    // Matcha korrekt year
-    const yearSlugMatch =
-      normalizeString(data.model.year.range) === normalizeString(year);
+    const yearData =
+      modelData.years?.find(
+        (y: Year) =>
+          normalizeString(y.range) === normalizeString(year) ||
+          (y.slug && normalizeString(y.slug) === normalizeString(year)),
+      ) || null;
 
-    // Matcha korrekt engine
-    const engineSlugMatch =
-      normalizeString(engineData.label) === normalizeString(engine);
+    if (!yearData) return { notFound: true };
 
-    if (!modelSlugMatch || !yearSlugMatch || !engineSlugMatch) {
-      return { notFound: true };
-    }
+    const engineData =
+      yearData.engines?.find(
+        (e: Engine) =>
+          normalizeString(e.label) === normalizeString(engine) ||
+          (e.slug && normalizeString(e.slug) === normalizeString(engine)),
+      ) || null;
+
+    if (!engineData) return { notFound: true };
 
     return {
       props: {
-        brandData: {
-          name: data.name,
-          logo: data.logo,
-          slug: data.slug?.current || "", // valfritt
-        },
-        modelData: {
-          name: data.model.name,
-        },
-        yearData: {
-          range: data.model.year.range,
-        },
-        engineData: engineData,
+        brandData,
+        modelData,
+        yearData,
+        engineData,
       },
     };
   } catch (err) {
