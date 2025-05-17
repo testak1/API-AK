@@ -64,7 +64,23 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       engine: engine.toLowerCase(),
     });
 
-    if (!data || !data.model?.year?.engine) {
+    const engineData = data?.model?.year?.engine;
+
+    if (!data || !engineData) return { notFound: true };
+
+    // Matcha korrekt model
+    const modelSlugMatch =
+      normalizeString(data.model.name) === normalizeString(model);
+
+    // Matcha korrekt year
+    const yearSlugMatch =
+      normalizeString(data.model.year.range) === normalizeString(year);
+
+    // Matcha korrekt engine
+    const engineSlugMatch =
+      normalizeString(engineData.label) === normalizeString(engine);
+
+    if (!modelSlugMatch || !yearSlugMatch || !engineSlugMatch) {
       return { notFound: true };
     }
 
@@ -73,6 +89,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         brandData: {
           name: data.name,
           logo: data.logo,
+          slug: data.slug?.current || "", // valfritt
         },
         modelData: {
           name: data.model.name,
@@ -80,7 +97,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         yearData: {
           range: data.model.year.range,
         },
-        engineData: data.model.year.engine,
+        engineData: engineData,
       },
     };
   } catch (err) {
@@ -495,7 +512,7 @@ export default function EnginePage({
             alt="AK-TUNING"
             style={{ height: "80px", cursor: "pointer" }}
             className="h-12 object-contain"
-            onClick={() => window.location.reload()}
+            onClick={() => (window.location.href = "/")}
           />
         </div>
         <div className="mb-8">
