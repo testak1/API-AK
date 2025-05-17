@@ -17,6 +17,7 @@ import { PortableText } from "@portabletext/react";
 import Head from "next/head";
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import ContactModal from "@/components/ContactModal";
+import DtcSearch from "@/components/DtcSearch";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -636,11 +637,13 @@ export default function EnginePage({
                           </p>
                         </div>
                       </div>
-                      {renderStageDescription(stage)}{" "}
+                      {renderStageDescription(stage)}
+
                       <div className="mt-6">
                         <h3 className="text-lg font-medium text-gray-300 mb-2 uppercase">
                           {stage.name}
                         </h3>
+
                         {/* Mobile-only legend above chart */}
                         <div className="flex justify-center items-center gap-2 md:hidden text-xs text-white">
                           <div className="flex items-center gap-1">
@@ -659,11 +662,11 @@ export default function EnginePage({
                             </span>
                           </div>
                           <div className="flex items-center gap-1">
-                            <span className="w-3 h-3 rounded-full border-2 border-gray-300"></span>
+                            <span className="w-3 h-3 rounded-full border-2 border-white"></span>
                             <span>ORG NM</span>
                           </div>
                           <div className="flex items-center gap-1">
-                            <span className="w-3 h-3 rounded-full bg-gray-300"></span>
+                            <span className="w-3 h-3 rounded-full bg-white"></span>
                             <span>
                               {" "}
                               {stage.name
@@ -674,6 +677,7 @@ export default function EnginePage({
                             </span>
                           </div>
                         </div>
+
                         <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
                           {/* Split the spec boxes */}
                           <div className="absolute hidden md:flex flex-row justify-between top-4 left-0 right-0 px-16">
@@ -707,10 +711,11 @@ export default function EnginePage({
                                   .replace("Steg", "ST")
                                   .replace(/\s+/g, "")
                                   .toUpperCase()}
-                                : {stage.tunedHk} NM
+                                : {stage.tunedNm} NM
                               </p>
                             </div>
-                          </div>{" "}
+                          </div>
+
                           {/* Dyno graph */}
                           <Line
                             data={{
@@ -740,10 +745,10 @@ export default function EnginePage({
                                   yAxisID: "hp",
                                 },
                                 {
-                                  label: `ST ${stage.name.replace(/\D/g, "")} hk`,
+                                  label: `ST ${stage.name.replace(/\D/g, "")} HK`,
                                   data: generateDynoCurve(stage.tunedHk, true),
                                   borderColor: "#f87171",
-                                  backgroundColor: "transparent",
+                                  backgroundColor: "#f87171",
                                   borderWidth: 3,
                                   tension: 0.5,
                                   pointRadius: 0,
@@ -761,7 +766,7 @@ export default function EnginePage({
                                   yAxisID: "nm",
                                 },
                                 {
-                                  label: `ST ${stage.name.replace(/\D/g, "")} Nm`,
+                                  label: `ST ${stage.name.replace(/\D/g, "")} NM`,
                                   data: generateDynoCurve(stage.tunedNm, false),
                                   borderColor: "#d1d5db",
                                   backgroundColor: "transparent",
@@ -790,19 +795,21 @@ export default function EnginePage({
                                   borderWidth: 1,
                                   padding: 10,
                                   displayColors: true,
-                                  usePointStyle: true,
+                                  usePointStyle: true, // ✅ this enables circle style
                                   callbacks: {
                                     labelPointStyle: () => ({
-                                      pointStyle: "circle",
+                                      pointStyle: "circle", // ✅ make symbol a circle
                                       rotation: 0,
                                     }),
                                     title: function (tooltipItems) {
+                                      // tooltipItems[0].label will be the RPM (e.g., "4000")
                                       return `${tooltipItems[0].label} RPM`;
                                     },
                                     label: function (context) {
                                       const label = context.dataset.label || "";
                                       const value = context.parsed.y;
 
+                                      // Guard for undefined value
                                       if (value === undefined) return label;
 
                                       const unit =
@@ -821,7 +828,7 @@ export default function EnginePage({
                                   position: "left",
                                   title: {
                                     display: true,
-                                    text: "Effekt (HK)",
+                                    text: "EFFEKT",
                                     color: "white",
                                     font: { size: 14 },
                                   },
@@ -843,7 +850,7 @@ export default function EnginePage({
                                   position: "right",
                                   title: {
                                     display: true,
-                                    text: "Vridmoment (Nm)",
+                                    text: "VRIDMOMENT",
                                     color: "white",
                                     font: { size: 14 },
                                   },
@@ -881,10 +888,12 @@ export default function EnginePage({
                             }}
                             plugins={[watermarkPlugin, shadowPlugin]}
                           />
+
                           <div className="text-center text-white text-xs mt-4 italic">
                             (Simulerad effektkurva)
                           </div>
-                        </div>{" "}
+                        </div>
+
                         {/* Mobile-only small tuned specs */}
                         <div className="block md:hidden text-center mt-6 mb-6">
                           <p className="text-sm text-white font-semibold">
@@ -899,6 +908,9 @@ export default function EnginePage({
                             </span>
                           </p>
                         </div>
+
+                        {/* NOW start new block for the contact button */}
+
                         {/* KONTAKT button */}
                         <div className="mt-8 mb-10 flex flex-col items-center">
                           <button
@@ -909,6 +921,7 @@ export default function EnginePage({
                           </button>
                         </div>
                       </div>
+
                       {allOptions.length > 0 && (
                         <div className="mt-8">
                           {/* AKT+ Toggle Button */}
@@ -944,7 +957,8 @@ export default function EnginePage({
                                 />
                               </svg>
                             </div>
-                          </button>{" "}
+                          </button>
+
                           {/* Expandable AKT+ Grid */}
                           {expandedAktPlus[stage.name] && (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
@@ -1002,6 +1016,15 @@ export default function EnginePage({
                                           />
                                         </div>
                                       )}
+
+                                      {option.title
+                                        .toLowerCase()
+                                        .includes("dtc off") && (
+                                        <div className="mt-4">
+                                          <DtcSearch />
+                                        </div>
+                                      )}
+
                                       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                                         {option.price && (
                                           <p className="font-bold text-green-400">
@@ -1009,6 +1032,7 @@ export default function EnginePage({
                                             {option.price.toLocaleString()} kr
                                           </p>
                                         )}
+
                                         <button
                                           onClick={() =>
                                             handleBookNow(option.title)
