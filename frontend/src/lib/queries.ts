@@ -98,6 +98,85 @@ export const engineByParamsQuery = `
   }
 `;
 
+export const enginePreciseQuery = `
+*[_type == "brand" && slug.current == $brand][0]{
+  name,
+  "logo": logo{
+    alt,
+    "asset": asset->{
+      _id,
+      url
+    }
+  },
+  "model": models[name match $model][0]{
+    name,
+    "year": years[range match $year][0]{
+      range,
+      "engine": engines[label match $engine][0]{
+        _id,
+        label,
+        fuel,
+        "stages": stages[]{
+          name,
+          origHk,
+          tunedHk,
+          origNm,
+          tunedNm,
+          price,
+          description,
+          descriptionRef->{
+            description
+          },
+          "aktPlusOptions": *[_type == "aktPlus" && (
+            isUniversal == true || 
+            ^.^.fuel in applicableFuelTypes
+          ) && (
+            !defined(stageCompatibility) || 
+            stageCompatibility == ^.name
+          )]{
+            _id,
+            title,
+            price,
+            description,
+            isUniversal,
+            applicableFuelTypes,
+            stageCompatibility,
+            "gallery": gallery[]{
+              _key,
+              alt,
+              "asset": asset->{
+                _id,
+                url
+              }
+            }
+          }
+        },
+        "globalAktPlusOptions": *[_type == "aktPlus" && (
+          isUniversal == true || 
+          ^.fuel in applicableFuelTypes
+        ) && !defined(stageCompatibility)]{
+          _id,
+          title,
+          price,
+          description,
+          isUniversal,
+          applicableFuelTypes,
+          stageCompatibility,
+          "gallery": gallery[]{
+            _key,
+            alt,
+            "asset": asset->{
+              _id,
+              url
+            }
+          }
+        }
+      }
+    }
+  }
+}
+`;
+
 // Heavy query (when you need full info like stages, aktplus, engines)
 export const allBrandsQuery = `
 *[_type == "brand"]{

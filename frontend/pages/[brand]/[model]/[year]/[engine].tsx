@@ -2,7 +2,7 @@
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import client from "@/lib/sanity";
-import { engineByParamsQuery } from "@/src/lib/queries";
+import { enginePreciseQuery } from "@/src/lib/queries";
 import type {
   Brand,
   Model,
@@ -50,57 +50,37 @@ interface EnginePageProps {
 const normalizeString = (str: string) =>
   str.toLowerCase().replace(/[^a-z0-9]/g, "");
 
-export const getServerSideProps: GetServerSideProps<EnginePageProps> = async (
-  context,
-) => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
   const brand = decodeURIComponent((context.params?.brand as string) || "");
   const model = decodeURIComponent((context.params?.model as string) || "");
   const year = decodeURIComponent((context.params?.year as string) || "");
   const engine = decodeURIComponent((context.params?.engine as string) || "");
 
   try {
-    const brandData = await client.fetch(engineByParamsQuery, {
+    const data = await client.fetch(enginePreciseQuery, {
       brand: brand.toLowerCase(),
+      model: model.toLowerCase(),
+      year: year.toLowerCase(),
+      engine: engine.toLowerCase(),
     });
 
-    if (!brandData) return { notFound: true };
-
-    const modelData =
-      brandData.models?.find(
-        (m: Model) =>
-          normalizeString(m.name) === normalizeString(model) ||
-          (m.slug &&
-            normalizeString(
-              typeof m.slug === "string" ? m.slug : m.slug.current,
-            ) === normalizeString(model)),
-      ) || null;
-
-    if (!modelData) return { notFound: true };
-
-    const yearData =
-      modelData.years?.find(
-        (y: Year) =>
-          normalizeString(y.range) === normalizeString(year) ||
-          (y.slug && normalizeString(y.slug) === normalizeString(year)),
-      ) || null;
-
-    if (!yearData) return { notFound: true };
-
-    const engineData =
-      yearData.engines?.find(
-        (e: Engine) =>
-          normalizeString(e.label) === normalizeString(engine) ||
-          (e.slug && normalizeString(e.slug) === normalizeString(engine)),
-      ) || null;
-
-    if (!engineData) return { notFound: true };
+    if (!data || !data.model?.year?.engine) {
+      return { notFound: true };
+    }
 
     return {
       props: {
-        brandData,
-        modelData,
-        yearData,
-        engineData,
+        brandData: {
+          name: data.name,
+          logo: data.logo,
+        },
+        modelData: {
+          name: data.model.name,
+        },
+        yearData: {
+          range: data.model.year.range,
+        },
+        engineData: data.model.year.engine,
       },
     };
   } catch (err) {
