@@ -93,6 +93,16 @@ export default function TuningViewer() {
     link: "",
   });
 
+  const getStageColor = (stageName: string) => {
+    const name = stageName.toLowerCase();
+    if (name.includes("steg 1")) return "text-red-500";
+    if (name.includes("steg 2")) return "text-orange-400";
+    if (name.includes("steg 3")) return "text-purple-400";
+    if (name.includes("steg 4")) return "text-green-400";
+    if (name.includes("dsg")) return "text-red-500";
+    return "text-white"; // fallback
+  };
+
   const slugify = (str: string) =>
     str
       .toLowerCase()
@@ -723,7 +733,9 @@ export default function TuningViewer() {
                       )}
                       <h2 className="text-lg font-semibold text-white">
                         {selected.engine} –{" "}
-                        <span className="text-indigo-400 uppercase tracking-wide">
+                        <span
+                          className={`uppercase tracking-wide ${getStageColor(stage.name)}`}
+                        >
                           {stage.name}
                         </span>
                       </h2>
