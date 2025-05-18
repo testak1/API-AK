@@ -488,8 +488,8 @@ export default function EnginePage({
             </h3>
             <ul className="text-gray-300 text-sm space-y-1">
               <li>✅ All mjukvara är skräddarsydd för din bil</li>
-              <li>✅ Fri support efter installation</li>
-              <li>✅ Ingen fysisk modifiering krävs</li>
+              <li>✅ Felsökning inann samt efter optimering</li>
+              <li>✅ Loggning för att anpassa en individuell mjukvara</li>
               <li>✅ Optimerad för både prestanda och bränsleekonomi</li>
             </ul>
             <div className="mt-6 text-sm text-gray-400 leading-relaxed">
