@@ -249,7 +249,7 @@ export default function EnginePage({
       isOpen: true,
       stageOrOption: stageOrOptionName,
       link: finalLink,
-      scrollPosition: isMobile ? undefined : scrollY,
+      scrollPosition: isMobile ? undefined : 0,
     });
   };
 
