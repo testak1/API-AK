@@ -543,9 +543,13 @@ export default function EnginePage({
           />
         </div>
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-center">
+          <h1
+            className="text-2xl font-bold text-center"
+            style={{ fontSize: "clamp(1.5rem, 2vw, 2rem)" }}
+          >
             {brandData.name} {modelData.name} {yearData.range}
           </h1>
+
           <p className="text-lg text-center text-gray-300">
             {engineData.label} ({engineData.fuel})
           </p>
