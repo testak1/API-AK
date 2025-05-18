@@ -560,8 +560,8 @@ export default function EnginePage({
             {brandData.name} {modelData.name} {yearData.range}
           </h1>
 
-          <p className="text-lg text-center text-gray-300">
-            {engineData.label} ({engineData.fuel})
+          <p className="text-lg text-center text-gray-600">
+            {engineData.label}
           </p>
         </div>{" "}
         {engineData.stages?.length > 0 ? (
