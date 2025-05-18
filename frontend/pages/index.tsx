@@ -559,9 +559,39 @@ export default function TuningViewer() {
             )}
           </div>
         )}
+
+        {/* GENERELL INFORMATION */}
+        <div className="bg-gray-800 p-4 border-t md:border-t-0 md:border-l border-gray-600">
+          <h3 className="text-white font-semibold text-sm sm:text-base mb-2">
+            GENERELL INFORMATION
+          </h3>
+          <ul className="text-gray-300 text-sm space-y-1">
+            <li>✅ All mjukvara är skräddarsydd för din bil</li>
+            <li>✅ Fri support efter installation</li>
+            <li>✅ Ingen fysisk modifiering krävs</li>
+            <li>✅ Optimerad för både prestanda och bränsleekonomi</li>
+          </ul>
+          <div className="mt-6 text-sm text-gray-400 leading-relaxed">
+            <p>
+              AK-TUNING är specialister på skräddarsydd motoroptimering,
+              chiptuning och ECU-programmering för alla bilmärken.
+            </p>
+            <p className="mt-2">
+              Vi erbjuder effektökning, bättre bränsleekonomi och optimerade
+              köregenskaper. Tjänster i Göteborg, Stockholm, Malmö, Jönköping,
+              Örebro och Storvik.
+            </p>
+            <p className="mt-2">
+              All mjukvara utvecklas in-house med fokus på kvalitet, säkerhet
+              och lång livslängd. Välkommen till en ny nivå av bilprestanda med
+              AK-TUNING.
+            </p>
+          </div>
+        </div>
       </div>
     );
   };
+
   return (
     <>
       <Head>
@@ -1304,59 +1334,6 @@ export default function TuningViewer() {
           link={contactModalData.link}
           scrollPosition={contactModalData.scrollPosition}
         />
-
-        <InfoModal
-          isOpen={infoModal.open}
-          onClose={() => setInfoModal({ open: false, type: "stage" })}
-          title={
-            infoModal.type === "stage"
-              ? `STEG ${infoModal.stage?.name.replace(/\D/g, "")} INFORMATION`
-              : "GENERELL INFORMATION"
-          }
-          content={
-            infoModal.type === "stage" ? (
-              (() => {
-                const description =
-                  infoModal.stage?.descriptionRef?.description ||
-                  infoModal.stage?.description;
-
-                if (Array.isArray(description)) {
-                  return (
-                    <PortableText
-                      value={description}
-                      components={portableTextComponents}
-                    />
-                  );
-                }
-
-                return <p>{description}</p>;
-              })()
-            ) : (
-              <ul className="space-y-2">
-                <li>✅ All mjukvara är skräddarsydd för din bil</li>
-                <li>✅ Fri support efter installation</li>
-                <li>✅ Ingen fysisk modifiering krävs</li>
-                <li>✅ Optimerad för både prestanda och bränsleekonomi</li>
-              </ul>
-            )
-          }
-        />
-      </div>
-      <div className="mt-6 text-sm text-gray-400 leading-relaxed">
-        <p>
-          AK-TUNING är specialister på skräddarsydd motoroptimering, chiptuning
-          och ECU-programmering för alla bilmärken.
-        </p>
-        <p className="mt-2">
-          Vi erbjuder effektökning, bättre bränsleekonomi och optimerade
-          köregenskaper. Tjänster i Göteborg, Stockholm, Malmö, Jönköping,
-          Örebro och Storvik.
-        </p>
-        <p className="mt-2">
-          All mjukvara utvecklas in-house med fokus på kvalitet, säkerhet och
-          lång livslängd. Välkommen till en ny nivå av bilprestanda med
-          AK-TUNING.
-        </p>
       </div>
     </>
   );
