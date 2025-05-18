@@ -31,7 +31,7 @@ ChartJS.register(
   LineElement,
   LineController,
   Tooltip,
-  Legend
+  Legend,
 );
 
 interface SelectionState {
@@ -56,7 +56,7 @@ export default function TuningViewer() {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [expandedStages, setExpandedStages] = useState<Record<string, boolean>>(
-    {}
+    {},
   );
   const [expandedDescriptions, setExpandedDescriptions] = useState<
     Record<string, boolean>
@@ -107,7 +107,7 @@ export default function TuningViewer() {
 
   const handleBookNow = (
     stageOrOptionName: string,
-    event?: React.MouseEvent
+    event?: React.MouseEvent,
   ) => {
     const selectedBrand = data.find((b) => b.name === selected.brand);
     if (!selectedBrand) return;
@@ -116,7 +116,7 @@ export default function TuningViewer() {
       selectedBrand.slug?.current || slugify(selectedBrand.name);
 
     const selectedModel = selectedBrand.models?.find(
-      (m) => m.name === selected.model
+      (m) => m.name === selected.model,
     );
     if (!selectedModel) return;
 
@@ -126,7 +126,7 @@ export default function TuningViewer() {
         : selectedModel.slug || slugify(selectedModel.name);
 
     const selectedYear = selectedModel.years?.find(
-      (y) => y.range === selected.year
+      (y) => y.range === selected.year,
     );
     if (!selectedYear) return;
 
@@ -135,7 +135,7 @@ export default function TuningViewer() {
       : selectedYear.range;
 
     const selectedEngine = selectedYear.engines?.find(
-      (e) => e.label === selected.engine
+      (e) => e.label === selected.engine,
     );
     if (!selectedEngine) return;
 
@@ -193,7 +193,7 @@ export default function TuningViewer() {
         setIsLoading(true);
         try {
           const res = await fetch(
-            `/api/years?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}`
+            `/api/years?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}`,
           );
           if (!res.ok) throw new Error("Failed to fetch years");
           const years = await res.json();
@@ -207,10 +207,10 @@ export default function TuningViewer() {
                     models: brand.models.map((model) =>
                       model.name !== selected.model
                         ? model
-                        : { ...model, years: years.result }
+                        : { ...model, years: years.result },
                     ),
-                  }
-            )
+                  },
+            ),
           );
         } catch (error) {
           console.error("Error fetching years:", error);
@@ -229,7 +229,7 @@ export default function TuningViewer() {
         setIsLoading(true);
         try {
           const res = await fetch(
-            `/api/engines?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}&year=${encodeURIComponent(selected.year)}`
+            `/api/engines?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}&year=${encodeURIComponent(selected.year)}`,
           );
           if (!res.ok) throw new Error("Failed to fetch engines");
           const engines = await res.json();
@@ -248,12 +248,12 @@ export default function TuningViewer() {
                             years: model.years.map((year) =>
                               year.range !== selected.year
                                 ? year
-                                : { ...year, engines: engines.result }
+                                : { ...year, engines: engines.result },
                             ),
-                          }
+                          },
                     ),
-                  }
-            )
+                  },
+            ),
           );
         } catch (error) {
           console.error("Error fetching engines:", error);
@@ -287,7 +287,7 @@ export default function TuningViewer() {
         acc[fuelType].push(engine);
         return acc;
       },
-      {} as Record<string, typeof engines>
+      {} as Record<string, typeof engines>,
     );
 
     return {
@@ -308,7 +308,7 @@ export default function TuningViewer() {
           acc[stage.name] = stage.name === "Steg 1";
           return acc;
         },
-        {} as Record<string, boolean>
+        {} as Record<string, boolean>,
       );
       setExpandedStages(initialExpandedStates);
     }
@@ -381,7 +381,7 @@ export default function TuningViewer() {
             (opt.isUniversal ||
               opt.applicableFuelTypes?.includes(selectedEngine.fuel) ||
               opt.manualAssignments?.some(
-                (ref) => ref._ref === selectedEngine._id
+                (ref) => ref._ref === selectedEngine._id,
               )) &&
             (!opt.stageCompatibility || opt.stageCompatibility === stage.name)
           ) {
@@ -391,13 +391,13 @@ export default function TuningViewer() {
 
       return Array.from(uniqueOptionsMap.values());
     },
-    [selectedEngine]
+    [selectedEngine],
   );
 
   const generateDynoCurve = (
     peakValue: number,
     isHp: boolean,
-    fuelType: string
+    fuelType: string,
   ) => {
     const rpmRange = fuelType.toLowerCase().includes("diesel")
       ? [1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000]
@@ -516,6 +516,36 @@ export default function TuningViewer() {
 
     if (!description) return null;
 
+    const renderGeneralInfo = () => (
+      <div className="mt-4 border border-gray-700 rounded-lg overflow-hidden bg-gray-800 p-4">
+        <h3 className="text-white font-semibold text-sm sm:text-base mb-2">
+          GENERELL INFORMATION
+        </h3>
+        <ul className="text-gray-300 text-sm space-y-1">
+          <li>✅ All mjukvara är skräddarsydd för din bil</li>
+          <li>✅ Felsökning innan samt efter optimering</li>
+          <li>✅ Loggning för att anpassa en individuell mjukvara</li>
+          <li>✅ Optimerad för både prestanda och bränsleekonomi</li>
+        </ul>
+        <div className="mt-6 text-sm text-gray-400 leading-relaxed">
+          <p>
+            AK-TUNING är specialister på skräddarsydd motoroptimering,
+            chiptuning och ECU-programmering för alla bilmärken.
+          </p>
+          <p className="mt-2">
+            Vi erbjuder effektökning, bättre bränsleekonomi och optimerade
+            köregenskaper. Tjänster i Göteborg, Stockholm, Malmö, Jönköping,
+            Örebro och Storvik.
+          </p>
+          <p className="mt-2">
+            All mjukvara utvecklas in-house med fokus på kvalitet, säkerhet och
+            lång livslängd. Välkommen till en ny nivå av bilprestanda med
+            AK-TUNING.
+          </p>
+        </div>
+      </div>
+    );
+
     return (
       <div className="mt-4 mb-6 border border-gray-700 rounded-lg overflow-hidden">
         <button
@@ -559,35 +589,6 @@ export default function TuningViewer() {
             )}
           </div>
         )}
-
-        {/* GENERELL INFORMATION */}
-        <div className="bg-gray-800 p-4 border-t md:border-t-0 md:border-l border-gray-600">
-          <h3 className="text-white font-semibold text-sm sm:text-base mb-2">
-            GENERELL INFORMATION
-          </h3>
-          <ul className="text-gray-300 text-sm space-y-1">
-            <li>✅ All mjukvara är skräddarsydd för din bil</li>
-            <li>✅ Felsökning inann samt efter optimering</li>
-            <li>✅ Loggning för att anpassa en individuell mjukvara</li>
-            <li>✅ Optimerad för både prestanda och bränsleekonomi</li>
-          </ul>
-          <div className="mt-6 text-sm text-gray-400 leading-relaxed">
-            <p>
-              AK-TUNING är specialister på skräddarsydd motoroptimering,
-              chiptuning och ECU-programmering för alla bilmärken.
-            </p>
-            <p className="mt-2">
-              Vi erbjuder effektökning, bättre bränsleekonomi och optimerade
-              köregenskaper. Tjänster i Göteborg, Stockholm, Malmö, Jönköping,
-              Örebro och Storvik.
-            </p>
-            <p className="mt-2">
-              All mjukvara utvecklas in-house med fokus på kvalitet, säkerhet
-              och lång livslängd. Välkommen till en ny nivå av bilprestanda med
-              AK-TUNING.
-            </p>
-          </div>
-        </div>
       </div>
     );
   };
@@ -668,7 +669,7 @@ export default function TuningViewer() {
                 .concat(
                   brands
                     .filter((b) => b.startsWith("[LASTBIL]"))
-                    .sort((a, b) => a.localeCompare(b))
+                    .sort((a, b) => a.localeCompare(b)),
                 )
                 .map((brand) => (
                   <option key={brand} value={brand}>
@@ -779,7 +780,7 @@ export default function TuningViewer() {
                           ?.asset && (
                           <img
                             src={urlFor(
-                              data.find((b) => b.name === selected.brand)?.logo
+                              data.find((b) => b.name === selected.brand)?.logo,
                             )
                               .width(60)
                               .url()}
@@ -982,7 +983,7 @@ export default function TuningViewer() {
                                   data: generateDynoCurve(
                                     stage.origHk,
                                     true,
-                                    selectedEngine.fuel
+                                    selectedEngine.fuel,
                                   ),
                                   borderColor: "#f87171",
                                   backgroundColor: "transparent",
@@ -997,7 +998,7 @@ export default function TuningViewer() {
                                   data: generateDynoCurve(
                                     stage.tunedHk,
                                     true,
-                                    selectedEngine.fuel
+                                    selectedEngine.fuel,
                                   ),
                                   borderColor: "#f87171",
                                   backgroundColor: "#f87171",
@@ -1011,7 +1012,7 @@ export default function TuningViewer() {
                                   data: generateDynoCurve(
                                     stage.origNm,
                                     false,
-                                    selectedEngine.fuel
+                                    selectedEngine.fuel,
                                   ),
                                   borderColor: "#d1d5db",
                                   backgroundColor: "transparent",
@@ -1026,7 +1027,7 @@ export default function TuningViewer() {
                                   data: generateDynoCurve(
                                     stage.tunedNm,
                                     false,
-                                    selectedEngine.fuel
+                                    selectedEngine.fuel,
                                   ),
                                   borderColor: "#d1d5db",
                                   backgroundColor: "transparent",
