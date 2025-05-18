@@ -429,47 +429,65 @@ export default function EnginePage({
 
     return (
       <div className="mt-4 mb-6 border border-gray-700 rounded-lg overflow-hidden">
-        <button
-          onClick={() =>
-            setExpandedDescriptions((prev) => ({
-              ...prev,
-              [stage.name]: !prev[stage.name],
-            }))
-          }
-          className="w-full px-4 py-3 bg-gray-700 hover:bg-gray-600 flex items-center justify-between text-left transition-colors"
-        >
-          <span className="text-white font-semibold text-sm sm:text-base">
-            STEG {stage.name.replace(/\D/g, "")} INFORMATION
-          </span>
-          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-800">
-            <svg
-              className={`h-5 w-5 text-orange-500 transition-transform duration-300 ${
-                isExpanded ? "rotate-180" : ""
-              }`}
-              viewBox="0 0 20 20"
-              fill="currentColor"
+        <div className="grid md:grid-cols-2 gap-0">
+          {/* STEG X INFORMATION */}
+          <div>
+            <button
+              onClick={() =>
+                setExpandedDescriptions((prev) => ({
+                  ...prev,
+                  [stage.name]: !prev[stage.name],
+                }))
+              }
+              className="w-full px-4 py-3 bg-gray-700 hover:bg-gray-600 flex items-center justify-between text-left transition-colors border-b border-gray-600 md:border-b-0 md:border-r"
             >
-              <path
-                fillRule="evenodd"
-                d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </div>
-        </button>
+              <span className="text-white font-semibold text-sm sm:text-base">
+                STEG {stage.name.replace(/\D/g, "")} INFORMATION
+              </span>
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-800">
+                <svg
+                  className={`h-5 w-5 text-orange-500 transition-transform duration-300 ${
+                    isExpanded ? "rotate-180" : ""
+                  }`}
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+            </button>
 
-        {isExpanded && (
-          <div className="prose prose-invert max-w-none p-4 bg-gray-800">
-            {typeof description === "string" ? (
-              <p>{description}</p>
-            ) : (
-              <PortableText
-                value={description}
-                components={portableTextComponents}
-              />
+            {isExpanded && (
+              <div className="prose prose-invert max-w-none p-4 bg-gray-800">
+                {typeof description === "string" ? (
+                  <p>{description}</p>
+                ) : (
+                  <PortableText
+                    value={description}
+                    components={portableTextComponents}
+                  />
+                )}
+              </div>
             )}
           </div>
-        )}
+
+          {/* GENERELL INFORMATION */}
+          <div className="bg-gray-800 p-4 border-t md:border-t-0 md:border-l border-gray-600">
+            <h3 className="text-white font-semibold text-sm sm:text-base mb-2">
+              GENERELL INFORMATION
+            </h3>
+            <ul className="text-gray-300 text-sm space-y-1">
+              <li>✅ All mjukvara är skräddarsydd för din bil</li>
+              <li>✅ Fri support efter installation</li>
+              <li>✅ Ingen fysisk modifiering krävs</li>
+              <li>✅ Optimerad för både prestanda och bränsleekonomi</li>
+            </ul>
+          </div>
+        </div>
       </div>
     );
   };
