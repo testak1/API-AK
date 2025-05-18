@@ -166,7 +166,7 @@ const getStageColor = (stageName: string) => {
   if (name.includes("steg 2")) return "text-orange-400";
   if (name.includes("steg 3")) return "text-purple-400";
   if (name.includes("steg 4")) return "text-green-400";
-  if (name.includes("dsg")) return "text-red-500";
+  if (name.includes("dsg")) return "text-blue-400";
   return "text-white"; // fallback
 };
 
