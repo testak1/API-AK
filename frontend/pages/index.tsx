@@ -510,89 +510,6 @@ export default function TuningViewer() {
     }));
   };
 
-  const renderStageDescription = (stage: Stage) => {
-    const description = stage.descriptionRef?.description || stage.description;
-    const isExpanded = expandedDescriptions[stage.name] ?? false;
-
-    if (!description) return null;
-
-    const renderGeneralInfo = () => (
-      <div className="mt-4 border border-gray-700 rounded-lg overflow-hidden bg-gray-800 p-4">
-        <h3 className="text-white font-semibold text-sm sm:text-base mb-2">
-          GENERELL INFORMATION
-        </h3>
-        <ul className="text-gray-300 text-sm space-y-1">
-          <li>✅ All mjukvara är skräddarsydd för din bil</li>
-          <li>✅ Felsökning innan samt efter optimering</li>
-          <li>✅ Loggning för att anpassa en individuell mjukvara</li>
-          <li>✅ Optimerad för både prestanda och bränsleekonomi</li>
-        </ul>
-        <div className="mt-6 text-sm text-gray-400 leading-relaxed">
-          <p>
-            AK-TUNING är specialister på skräddarsydd motoroptimering,
-            chiptuning och ECU-programmering för alla bilmärken.
-          </p>
-          <p className="mt-2">
-            Vi erbjuder effektökning, bättre bränsleekonomi och optimerade
-            köregenskaper. Tjänster i Göteborg, Stockholm, Malmö, Jönköping,
-            Örebro och Storvik.
-          </p>
-          <p className="mt-2">
-            All mjukvara utvecklas in-house med fokus på kvalitet, säkerhet och
-            lång livslängd. Välkommen till en ny nivå av bilprestanda med
-            AK-TUNING.
-          </p>
-        </div>
-      </div>
-    );
-
-    return (
-      <div className="mt-4 mb-6 border border-gray-700 rounded-lg overflow-hidden">
-        <button
-          onClick={() =>
-            setExpandedDescriptions((prev) => ({
-              ...prev,
-              [stage.name]: !prev[stage.name],
-            }))
-          }
-          className="w-full px-4 py-3 bg-gray-700 hover:bg-gray-600 flex items-center justify-between text-left transition-colors"
-        >
-          <span className="text-white font-semibold text-sm sm:text-base">
-            STEG {stage.name.replace(/\D/g, "")} INFORMATION
-          </span>
-          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-800">
-            <svg
-              className={`h-5 w-5 text-orange-500 transition-transform duration-300 ${
-                isExpanded ? "rotate-180" : ""
-              }`}
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </div>
-        </button>
-
-        {isExpanded && (
-          <div className="prose prose-invert max-w-none p-4 bg-gray-800">
-            {typeof description === "string" ? (
-              <p>{description}</p>
-            ) : (
-              <PortableText
-                value={description}
-                components={portableTextComponents}
-              />
-            )}
-          </div>
-        )}
-      </div>
-    );
-  };
-
   return (
     <>
       <Head>
@@ -1334,6 +1251,61 @@ export default function TuningViewer() {
           stageOrOption={contactModalData.stageOrOption}
           link={contactModalData.link}
           scrollPosition={contactModalData.scrollPosition}
+        />
+        <InfoModal
+          isOpen={infoModal.open}
+          onClose={() => setInfoModal({ open: false, type: "stage" })}
+          title={
+            infoModal.type === "stage"
+              ? `STEG ${infoModal.stage?.name.replace(/\D/g, "")} INFORMATION`
+              : "GENERELL INFORMATION"
+          }
+          content={
+            infoModal.type === "stage" ? (
+              (() => {
+                const description =
+                  infoModal.stage?.descriptionRef?.description ||
+                  infoModal.stage?.description;
+
+                if (Array.isArray(description)) {
+                  return (
+                    <PortableText
+                      value={description}
+                      components={portableTextComponents}
+                    />
+                  );
+                }
+
+                return <p>{description}</p>;
+              })()
+            ) : (
+              <div>
+                <ul className="space-y-2">
+                  <li>✅ All mjukvara är skräddarsydd för din bil</li>
+                  <li>✅ Felsökning inann samt efter optimering</li>
+                  <li>✅ Loggning för att anpassa en individuell mjukvara</li>
+                  <li>✅ Optimerad för både prestanda och bränsleekonomi</li>
+                </ul>
+
+                <div className="mt-6 text-sm text-gray-400 leading-relaxed">
+                  <p>
+                    AK-TUNING är specialister på skräddarsydd motoroptimering,
+                    chiptuning och ECU-programmering för alla bilmärken.
+                  </p>
+                  <p className="mt-2">
+                    Vi erbjuder effektökning, bättre bränsleekonomi och
+                    optimerade köregenskaper. Tjänster i Göteborg, Stockholm,
+                    Malmö, Jönköping, Örebro och Storvik.
+                  </p>
+                  <p className="mt-2">
+                    All mjukvara utvecklas in-house med fokus på kvalitet,
+                    säkerhet och lång livslängd. Välkommen till en ny nivå av
+                    bilprestanda med AK-TUNING.
+                  </p>
+                </div>
+              </div>
+            )
+          }
         />
       </div>
     </>
