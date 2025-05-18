@@ -1,22 +1,5 @@
 // pages/index.tsx
 import Head from "next/head";
-
-<Head>
-  <script
-    type="application/ld+json"
-    dangerouslySetInnerHTML={{
-      __html: JSON.stringify({
-        "@context": "https://schema.org",
-        "@type": "Motoroptimering",
-        name: "AK-TUNING - Motoroptimering",
-        url: "https://www.aktuning.se",
-        logo: "https://aktuning.se/img/ak-tuning-custom-engine-tuning-logo-1573781489.jpg",
-        description:
-          "Marknadsledande inom motoroptimering, chiptuning, trim m.m. Skräddarsydda mjukvaror! Göteborg - Stockholm - Skåne - Jönköping - Örebro",
-      }),
-    }}
-  />
-</Head>;
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import {
   Chart as ChartJS,
@@ -580,739 +563,783 @@ export default function TuningViewer() {
     );
   };
   return (
-    <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
-      <div className="flex items-center mb-4">
-        <img
-          src="/ak-logo-svart.png"
-          alt="AK-TUNING"
-          style={{ height: "80px", cursor: "pointer" }}
-          className="h-12 object-contain"
-          onClick={() => window.location.reload()}
+    <>
+      <Head>
+        <title>AK-TUNING | Motoroptimering med Garanti</title>
+        <meta
+          name="description"
+          content="Skräddarsydd motoroptimering – Effektökning, bränslebesparing & trygg mjukvara. AK-TUNING finns i hela Sverige!"
         />
-      </div>
+        <meta property="og:title" content="AK-TUNING | Motoroptimering" />
+        <meta
+          property="og:description"
+          content="Skräddarsydd motoroptimering & chiptuning för alla bilmärken – Effektökning, bränslebesparing & trygg mjukvara. AK-TUNING finns i hela Sverige!"
+        />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://tuning.aktuning.se" />
+        <meta
+          property="og:image"
+          content="https://tuning.aktuning.se/ak-logo1.png"
+        />
+        <link rel="icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "AK-TUNING – Marknadsledande på motoroptimering",
+              url: "https://tuning.aktuning.se",
+              logo: "https://tuning.aktuning.se/ak-logo1.png",
+            }),
+          }}
+        />
+      </Head>
 
-      <div className="mb-4">
-        <p className="text-black text-center text-lg font-semibold">
-          Välj din bil nedan för att se vad vi kan erbjuda
-        </p>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-8">
-        <div>
-          <label className="block text-sm font-bold text-black mb-1">
-            MÄRKE
-          </label>
-          <select
-            className={`w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
-              isLoading
-                ? "opacity-50 cursor-not-allowed"
-                : "hover:border-gray-600"
-            }`}
-            value={selected.brand}
-            onChange={handleBrandChange}
-            disabled={isLoading}
-          >
-            <option value="">VÄLJ MÄRKE</option>
-            {[...brands]
-              .filter((b) => !b.startsWith("[LASTBIL]"))
-              .sort((a, b) => a.localeCompare(b))
-              .concat(
-                brands
-                  .filter((b) => b.startsWith("[LASTBIL]"))
-                  .sort((a, b) => a.localeCompare(b))
-              )
-              .map((brand) => (
-                <option key={brand} value={brand}>
-                  {brand}
-                </option>
-              ))}
-          </select>
+      <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
+        <div className="flex items-center mb-4">
+          <img
+            src="/ak-logo-svart.png"
+            alt="AK-TUNING"
+            style={{ height: "80px", cursor: "pointer" }}
+            className="h-12 object-contain"
+            onClick={() => window.location.reload()}
+          />
         </div>
 
-        <div>
-          <label className="block text-sm font-bold text-black mb-1">
-            MODELL
-          </label>
-          <select
-            className={`w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
-              !selected.brand
-                ? "opacity-50 cursor-not-allowed"
-                : "hover:border-gray-600"
-            }`}
-            value={selected.model}
-            onChange={handleModelChange}
-            disabled={!selected.brand}
-          >
-            <option value="">VÄLJ MODELL</option>
-            {models.map((m) => (
-              <option key={m.name} value={m.name}>
-                {m.name}
-              </option>
-            ))}
-          </select>
+        <div className="mb-4">
+          <p className="text-black text-center text-lg font-semibold">
+            Välj din bil nedan för att se vad vi kan erbjuda
+          </p>
         </div>
-
-        <div>
-          <label className="block text-sm font-bold text-black mb-1">
-            ÅRSMODELL
-          </label>
-          <select
-            className={`w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
-              !selected.model
-                ? "opacity-50 cursor-not-allowed"
-                : "hover:border-gray-600"
-            }`}
-            value={selected.year}
-            onChange={handleYearChange}
-            disabled={!selected.model}
-          >
-            <option value="">VÄLJ ÅRSMODELL</option>
-            {years.map((y) => (
-              <option key={y.range} value={y.range}>
-                {y.range}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block text-sm font-bold text-black mb-1">
-            MOTOR
-          </label>
-          <select
-            className={`w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
-              !selected.year
-                ? "opacity-50 cursor-not-allowed"
-                : "hover:border-gray-600"
-            }`}
-            value={selected.engine}
-            onChange={handleEngineChange}
-            disabled={!selected.year}
-          >
-            <option value="">VÄLJ MOTOR</option>
-            {Object.entries(groupedEngines).map(([fuelType, engines]) => (
-              <optgroup
-                label={fuelType.charAt(0).toUpperCase() + fuelType.slice(1)}
-                key={fuelType}
-              >
-                {engines.map((engine) => (
-                  <option key={engine.label} value={engine.label}>
-                    {engine.label}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-8">
+          <div>
+            <label className="block text-sm font-bold text-black mb-1">
+              MÄRKE
+            </label>
+            <select
+              className={`w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
+                isLoading
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:border-gray-600"
+              }`}
+              value={selected.brand}
+              onChange={handleBrandChange}
+              disabled={isLoading}
+            >
+              <option value="">VÄLJ MÄRKE</option>
+              {[...brands]
+                .filter((b) => !b.startsWith("[LASTBIL]"))
+                .sort((a, b) => a.localeCompare(b))
+                .concat(
+                  brands
+                    .filter((b) => b.startsWith("[LASTBIL]"))
+                    .sort((a, b) => a.localeCompare(b))
+                )
+                .map((brand) => (
+                  <option key={brand} value={brand}>
+                    {brand}
                   </option>
                 ))}
-              </optgroup>
-            ))}
-          </select>
-        </div>
-      </div>
+            </select>
+          </div>
 
-      {isLoading ? (
-        <div className="flex justify-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
-        </div>
-      ) : stages.length > 0 ? (
-        <div className="space-y-6">
-          {stages.map((stage) => {
-            const allOptions = getAllAktPlusOptions(stage);
-            const isExpanded = expandedStages[stage.name] ?? false;
+          <div>
+            <label className="block text-sm font-bold text-black mb-1">
+              MODELL
+            </label>
+            <select
+              className={`w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
+                !selected.brand
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:border-gray-600"
+              }`}
+              value={selected.model}
+              onChange={handleModelChange}
+              disabled={!selected.brand}
+            >
+              <option value="">VÄLJ MODELL</option>
+              {models.map((m) => (
+                <option key={m.name} value={m.name}>
+                  {m.name}
+                </option>
+              ))}
+            </select>
+          </div>
 
-            return (
-              <div
-                key={stage.name}
-                className="bg-gray-800 rounded-xl shadow-lg border border-gray-700 overflow-hidden"
-              >
-                <button
-                  onClick={() => toggleStage(stage.name)}
-                  className="w-full p-6 text-left hover:bg-gray-700 transition-colors duration-200"
+          <div>
+            <label className="block text-sm font-bold text-black mb-1">
+              ÅRSMODELL
+            </label>
+            <select
+              className={`w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
+                !selected.model
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:border-gray-600"
+              }`}
+              value={selected.year}
+              onChange={handleYearChange}
+              disabled={!selected.model}
+            >
+              <option value="">VÄLJ ÅRSMODELL</option>
+              {years.map((y) => (
+                <option key={y.range} value={y.range}>
+                  {y.range}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-black mb-1">
+              MOTOR
+            </label>
+            <select
+              className={`w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
+                !selected.year
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:border-gray-600"
+              }`}
+              value={selected.engine}
+              onChange={handleEngineChange}
+              disabled={!selected.year}
+            >
+              <option value="">VÄLJ MOTOR</option>
+              {Object.entries(groupedEngines).map(([fuelType, engines]) => (
+                <optgroup
+                  label={fuelType.charAt(0).toUpperCase() + fuelType.slice(1)}
+                  key={fuelType}
                 >
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-                    <div className="flex items-center gap-4">
-                      {data.find((b) => b.name === selected.brand)?.logo
-                        ?.asset && (
-                        <img
-                          src={urlFor(
-                            data.find((b) => b.name === selected.brand)?.logo
-                          )
-                            .width(60)
-                            .url()}
-                          alt={selected.brand}
-                          className="h-8 w-auto object-contain"
-                        />
-                      )}
-                      <h2 className="text-lg font-semibold text-white">
-                        {selected.engine} -{" "}
-                        <span
-                          className={`uppercase tracking-wide ${getStageColor(stage.name)}`}
-                        >
-                          [{stage.name}]
-                        </span>
-                      </h2>
-                    </div>
+                  {engines.map((engine) => (
+                    <option key={engine.label} value={engine.label}>
+                      {engine.label}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
+          </div>
+        </div>
 
-                    <div className="mt-3 md:mt-0 flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-4 text-center">
-                      <img
-                        src={`/badges/${stage.name.toLowerCase().replace(/\s+/g, "")}.png`}
-                        alt={stage.name}
-                        className="h-8 object-contain"
-                      />
-                      <span className="inline-block bg-red-600 text-black px-4 py-1 rounded-full text-xl font-semibold shadow-md">
-                        {stage.price?.toLocaleString()} kr
-                      </span>
-                      {(stage.name.includes("Steg 2") ||
-                        stage.name.includes("Steg 3") ||
-                        stage.name.includes("Steg 4")) && (
-                        <p className="text-xs text-gray-400 mt-2 italic">
-                          Priset omfattar enbart mjukvaran.
-                          <br />
-                          Kontakta oss för offert inkl hårdvara!
-                        </p>
-                      )}
-                      <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-700 hover:bg-gray-600 hover:scale-110 transform transition-all duration-300">
-                        <svg
-                          className={`h-6 w-6 text-orange-500 transform transition-transform duration-300 ${
-                            isExpanded ? "rotate-180" : ""
-                          }`}
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-                            clipRule="evenodd"
+        {isLoading ? (
+          <div className="flex justify-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+          </div>
+        ) : stages.length > 0 ? (
+          <div className="space-y-6">
+            {stages.map((stage) => {
+              const allOptions = getAllAktPlusOptions(stage);
+              const isExpanded = expandedStages[stage.name] ?? false;
+
+              return (
+                <div
+                  key={stage.name}
+                  className="bg-gray-800 rounded-xl shadow-lg border border-gray-700 overflow-hidden"
+                >
+                  <button
+                    onClick={() => toggleStage(stage.name)}
+                    className="w-full p-6 text-left hover:bg-gray-700 transition-colors duration-200"
+                  >
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+                      <div className="flex items-center gap-4">
+                        {data.find((b) => b.name === selected.brand)?.logo
+                          ?.asset && (
+                          <img
+                            src={urlFor(
+                              data.find((b) => b.name === selected.brand)?.logo
+                            )
+                              .width(60)
+                              .url()}
+                            alt={selected.brand}
+                            className="h-8 w-auto object-contain"
                           />
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-                </button>
-                {isExpanded && (
-                  <div className="px-6 pb-6">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 mt-6">
-                      {/* ORIGINAL & TUNED SPECS */}
-                      <div className="border border-white rounded-lg p-3 text-center">
-                        <p className="text-sm text-white font-bold mb-1">
-                          ORIGINAL HK
-                        </p>
-                        <p className="text-xl text-white font-bold">
-                          {stage.origHk} hk
-                        </p>
-                      </div>
-                      <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
-                        <p className="text-xl text-white font-bold mb-1 uppercase">
-                          {stage.name} HK
-                        </p>
-                        <p className="text-xl font-bold">{stage.tunedHk} hk</p>
-                        <p className="text-xs mt-1 text-red-400">
-                          +{stage.tunedHk - stage.origHk} hk
-                        </p>
-                      </div>
-                      <div className="border border-white rounded-lg p-3 text-center">
-                        <p className="text-sm text-white font-bold mb-1">
-                          ORIGINAL NM
-                        </p>
-                        <p className="text-xl text-white font-bold">
-                          {stage.origNm} Nm
-                        </p>
-                      </div>
-                      <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
-                        <p className="text-xl text-white font-bold mb-1 uppercase">
-                          {stage.name} NM
-                        </p>
-                        <p className="text-xl font-bold">{stage.tunedNm} Nm</p>
-                        <p className="text-xs mt-1 text-red-400">
-                          +{stage.tunedNm - stage.origNm} Nm
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex flex-col sm:flex-row gap-4 mt-4">
-                      <button
-                        onClick={() =>
-                          setInfoModal({ open: true, type: "stage", stage })
-                        }
-                        className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg shadow"
-                      >
-                        📄 STEG {stage.name.replace(/\D/g, "")} INFORMATION
-                      </button>
-                      <button
-                        onClick={() =>
-                          setInfoModal({ open: true, type: "general" })
-                        }
-                        className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg shadow"
-                      >
-                        💡 GENERELL INFORMATION
-                      </button>
-                    </div>
-
-                    <div className="mt-6">
-                      <h3 className="text-lg font-medium text-gray-300 mb-2 uppercase">
-                        {stage.name}
-                      </h3>
-
-                      {/* Mobile-only legend above chart */}
-                      <div className="flex justify-center items-center gap-2 md:hidden text-xs text-white">
-                        <div className="flex items-center gap-1">
-                          <span className="w-3 h-3 rounded-full border-2 border-red-400"></span>
-                          <span>ORG HK</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <span className="w-3 h-3 rounded-full bg-red-400"></span>
-                          <span>
-                            {" "}
-                            {stage.name
-                              .replace("Steg", "ST")
-                              .replace(/\s+/g, "")
-                              .toUpperCase()}{" "}
-                            HK
+                        )}
+                        <h2 className="text-lg font-semibold text-white">
+                          {selected.engine} -{" "}
+                          <span
+                            className={`uppercase tracking-wide ${getStageColor(stage.name)}`}
+                          >
+                            [{stage.name}]
                           </span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <span className="w-3 h-3 rounded-full border-2 border-white"></span>
-                          <span>ORG NM</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <span className="w-3 h-3 rounded-full bg-white"></span>
-                          <span>
-                            {" "}
-                            {stage.name
-                              .replace("Steg", "ST")
-                              .replace(/\s+/g, "")
-                              .toUpperCase()}{" "}
-                            NM
-                          </span>
-                        </div>
+                        </h2>
                       </div>
 
-                      <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
-                        {/* Split the spec boxes */}
-                        <div className="absolute hidden md:flex flex-row justify-between top-4 left-0 right-0 px-16">
-                          {/* ORG HK / Max HK */}
-                          <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
-                            <p className="text-red-600">- - -</p>
-                            <p className="text-white">
-                              HK ORG: {stage.origHk} HK
-                            </p>
-                            <p className="text-red-600">_____</p>
-                            <p className="text-white">
-                              HK{" "}
-                              {stage.name
-                                .replace("Steg", "ST")
-                                .replace(/\s+/g, "")
-                                .toUpperCase()}
-                              : {stage.tunedHk} HK
-                            </p>
-                          </div>
-
-                          {/* ORG NM / Max NM */}
-                          <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
-                            <p className="text-white">- - -</p>
-                            <p className="text-white">
-                              NM ORG: {stage.origNm} NM
-                            </p>
-                            <p className="text-white">_____</p>
-                            <p className="text-white">
-                              NM{" "}
-                              {stage.name
-                                .replace("Steg", "ST")
-                                .replace(/\s+/g, "")
-                                .toUpperCase()}
-                              : {stage.tunedNm} NM
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Dyno graph */}
-                        <Line
-                          data={{
-                            labels: rpmLabels,
-                            datasets: [
-                              {
-                                label: "ORG HK",
-                                data: generateDynoCurve(
-                                  stage.origHk,
-                                  true,
-                                  selectedEngine.fuel
-                                ),
-                                borderColor: "#f87171",
-                                backgroundColor: "transparent",
-                                borderWidth: 2,
-                                borderDash: [5, 3],
-                                tension: 0.5,
-                                pointRadius: 0,
-                                yAxisID: "hp",
-                              },
-                              {
-                                label: `ST ${stage.name.replace(/\D/g, "")} HK`,
-                                data: generateDynoCurve(
-                                  stage.tunedHk,
-                                  true,
-                                  selectedEngine.fuel
-                                ),
-                                borderColor: "#f87171",
-                                backgroundColor: "#f87171",
-                                borderWidth: 3,
-                                tension: 0.5,
-                                pointRadius: 0,
-                                yAxisID: "hp",
-                              },
-                              {
-                                label: "ORG NM",
-                                data: generateDynoCurve(
-                                  stage.origNm,
-                                  false,
-                                  selectedEngine.fuel
-                                ),
-                                borderColor: "#d1d5db",
-                                backgroundColor: "transparent",
-                                borderWidth: 2,
-                                borderDash: [5, 3],
-                                tension: 0.5,
-                                pointRadius: 0,
-                                yAxisID: "nm",
-                              },
-                              {
-                                label: `ST ${stage.name.replace(/\D/g, "")} NM`,
-                                data: generateDynoCurve(
-                                  stage.tunedNm,
-                                  false,
-                                  selectedEngine.fuel
-                                ),
-                                borderColor: "#d1d5db",
-                                backgroundColor: "transparent",
-                                borderWidth: 3,
-                                tension: 0.5,
-                                pointRadius: 0,
-                                yAxisID: "nm",
-                              },
-                            ],
-                          }}
-                          options={{
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                              legend: {
-                                display: false,
-                              },
-                              tooltip: {
-                                enabled: true,
-                                mode: "index",
-                                intersect: false,
-                                backgroundColor: "#1f2937",
-                                titleColor: "#ffffff",
-                                bodyColor: "#ffffff",
-                                borderColor: "#6b7280",
-                                borderWidth: 1,
-                                padding: 10,
-                                displayColors: true,
-                                usePointStyle: true, // ✅ this enables circle style
-                                callbacks: {
-                                  labelPointStyle: () => ({
-                                    pointStyle: "circle", // ✅ make symbol a circle
-                                    rotation: 0,
-                                  }),
-                                  title: function (tooltipItems) {
-                                    // tooltipItems[0].label will be the RPM (e.g., "4000")
-                                    return `${tooltipItems[0].label} RPM`;
-                                  },
-                                  label: function (context) {
-                                    const label = context.dataset.label || "";
-                                    const value = context.parsed.y;
-
-                                    // Guard for undefined value
-                                    if (value === undefined) return label;
-
-                                    const unit =
-                                      context.dataset.yAxisID === "hp"
-                                        ? "hk"
-                                        : "Nm";
-                                    return `${label}: ${Math.round(value)} ${unit}`;
-                                  },
-                                },
-                              },
-                            },
-                            scales: {
-                              hp: {
-                                type: "linear",
-                                display: true,
-                                position: "left",
-                                title: {
-                                  display: true,
-                                  text: "EFFEKT",
-                                  color: "white",
-                                  font: { size: 14 },
-                                },
-                                min: 0,
-                                max: Math.ceil(stage.tunedHk / 100) * 100 + 100,
-                                grid: {
-                                  color: "rgba(255, 255, 255, 0.1)",
-                                },
-                                ticks: {
-                                  color: "#9CA3AF",
-                                  stepSize: 100,
-                                  callback: (value) => `${value}`,
-                                },
-                              },
-                              nm: {
-                                type: "linear",
-                                display: true,
-                                position: "right",
-                                title: {
-                                  display: true,
-                                  text: "VRIDMOMENT",
-                                  color: "white",
-                                  font: { size: 14 },
-                                },
-                                min: 0,
-                                max: Math.ceil(stage.tunedNm / 100) * 100 + 100,
-                                grid: {
-                                  drawOnChartArea: false,
-                                },
-                                ticks: {
-                                  color: "#9CA3AF",
-                                  stepSize: 100,
-                                  callback: (value) => `${value}`,
-                                },
-                              },
-                              x: {
-                                title: {
-                                  display: true,
-                                  text: "RPM",
-                                  color: "#E5E7EB",
-                                  font: { size: 14 },
-                                },
-                                grid: {
-                                  color: "rgba(255, 255, 255, 0.1)",
-                                },
-                                ticks: {
-                                  color: "#9CA3AF",
-                                },
-                              },
-                            },
-                            interaction: {
-                              intersect: false,
-                              mode: "index",
-                            },
-                          }}
-                          plugins={[watermarkPlugin, shadowPlugin]}
+                      <div className="mt-3 md:mt-0 flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-4 text-center">
+                        <img
+                          src={`/badges/${stage.name.toLowerCase().replace(/\s+/g, "")}.png`}
+                          alt={stage.name}
+                          className="h-8 object-contain"
                         />
+                        <span className="inline-block bg-red-600 text-black px-4 py-1 rounded-full text-xl font-semibold shadow-md">
+                          {stage.price?.toLocaleString()} kr
+                        </span>
+                        {(stage.name.includes("Steg 2") ||
+                          stage.name.includes("Steg 3") ||
+                          stage.name.includes("Steg 4")) && (
+                          <p className="text-xs text-gray-400 mt-2 italic">
+                            Priset omfattar enbart mjukvaran.
+                            <br />
+                            Kontakta oss för offert inkl hårdvara!
+                          </p>
+                        )}
+                        <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-700 hover:bg-gray-600 hover:scale-110 transform transition-all duration-300">
+                          <svg
+                            className={`h-6 w-6 text-orange-500 transform transition-transform duration-300 ${
+                              isExpanded ? "rotate-180" : ""
+                            }`}
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                  </button>
+                  {isExpanded && (
+                    <div className="px-6 pb-6">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 mt-6">
+                        {/* ORIGINAL & TUNED SPECS */}
+                        <div className="border border-white rounded-lg p-3 text-center">
+                          <p className="text-sm text-white font-bold mb-1">
+                            ORIGINAL HK
+                          </p>
+                          <p className="text-xl text-white font-bold">
+                            {stage.origHk} hk
+                          </p>
+                        </div>
+                        <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
+                          <p className="text-xl text-white font-bold mb-1 uppercase">
+                            {stage.name} HK
+                          </p>
+                          <p className="text-xl font-bold">
+                            {stage.tunedHk} hk
+                          </p>
+                          <p className="text-xs mt-1 text-red-400">
+                            +{stage.tunedHk - stage.origHk} hk
+                          </p>
+                        </div>
+                        <div className="border border-white rounded-lg p-3 text-center">
+                          <p className="text-sm text-white font-bold mb-1">
+                            ORIGINAL NM
+                          </p>
+                          <p className="text-xl text-white font-bold">
+                            {stage.origNm} Nm
+                          </p>
+                        </div>
+                        <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
+                          <p className="text-xl text-white font-bold mb-1 uppercase">
+                            {stage.name} NM
+                          </p>
+                          <p className="text-xl font-bold">
+                            {stage.tunedNm} Nm
+                          </p>
+                          <p className="text-xs mt-1 text-red-400">
+                            +{stage.tunedNm - stage.origNm} Nm
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex flex-col sm:flex-row gap-4 mt-4">
+                        <button
+                          onClick={() =>
+                            setInfoModal({ open: true, type: "stage", stage })
+                          }
+                          className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg shadow"
+                        >
+                          📄 STEG {stage.name.replace(/\D/g, "")} INFORMATION
+                        </button>
+                        <button
+                          onClick={() =>
+                            setInfoModal({ open: true, type: "general" })
+                          }
+                          className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg shadow"
+                        >
+                          💡 GENERELL INFORMATION
+                        </button>
+                      </div>
 
-                        <div className="text-center text-white text-xs mt-4 italic">
-                          (Simulerad effektkurva)
+                      <div className="mt-6">
+                        <h3 className="text-lg font-medium text-gray-300 mb-2 uppercase">
+                          {stage.name}
+                        </h3>
+
+                        {/* Mobile-only legend above chart */}
+                        <div className="flex justify-center items-center gap-2 md:hidden text-xs text-white">
+                          <div className="flex items-center gap-1">
+                            <span className="w-3 h-3 rounded-full border-2 border-red-400"></span>
+                            <span>ORG HK</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <span className="w-3 h-3 rounded-full bg-red-400"></span>
+                            <span>
+                              {" "}
+                              {stage.name
+                                .replace("Steg", "ST")
+                                .replace(/\s+/g, "")
+                                .toUpperCase()}{" "}
+                              HK
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <span className="w-3 h-3 rounded-full border-2 border-white"></span>
+                            <span>ORG NM</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <span className="w-3 h-3 rounded-full bg-white"></span>
+                            <span>
+                              {" "}
+                              {stage.name
+                                .replace("Steg", "ST")
+                                .replace(/\s+/g, "")
+                                .toUpperCase()}{" "}
+                              NM
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
+                          {/* Split the spec boxes */}
+                          <div className="absolute hidden md:flex flex-row justify-between top-4 left-0 right-0 px-16">
+                            {/* ORG HK / Max HK */}
+                            <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
+                              <p className="text-red-600">- - -</p>
+                              <p className="text-white">
+                                HK ORG: {stage.origHk} HK
+                              </p>
+                              <p className="text-red-600">_____</p>
+                              <p className="text-white">
+                                HK{" "}
+                                {stage.name
+                                  .replace("Steg", "ST")
+                                  .replace(/\s+/g, "")
+                                  .toUpperCase()}
+                                : {stage.tunedHk} HK
+                              </p>
+                            </div>
+
+                            {/* ORG NM / Max NM */}
+                            <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
+                              <p className="text-white">- - -</p>
+                              <p className="text-white">
+                                NM ORG: {stage.origNm} NM
+                              </p>
+                              <p className="text-white">_____</p>
+                              <p className="text-white">
+                                NM{" "}
+                                {stage.name
+                                  .replace("Steg", "ST")
+                                  .replace(/\s+/g, "")
+                                  .toUpperCase()}
+                                : {stage.tunedNm} NM
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Dyno graph */}
+                          <Line
+                            data={{
+                              labels: rpmLabels,
+                              datasets: [
+                                {
+                                  label: "ORG HK",
+                                  data: generateDynoCurve(
+                                    stage.origHk,
+                                    true,
+                                    selectedEngine.fuel
+                                  ),
+                                  borderColor: "#f87171",
+                                  backgroundColor: "transparent",
+                                  borderWidth: 2,
+                                  borderDash: [5, 3],
+                                  tension: 0.5,
+                                  pointRadius: 0,
+                                  yAxisID: "hp",
+                                },
+                                {
+                                  label: `ST ${stage.name.replace(/\D/g, "")} HK`,
+                                  data: generateDynoCurve(
+                                    stage.tunedHk,
+                                    true,
+                                    selectedEngine.fuel
+                                  ),
+                                  borderColor: "#f87171",
+                                  backgroundColor: "#f87171",
+                                  borderWidth: 3,
+                                  tension: 0.5,
+                                  pointRadius: 0,
+                                  yAxisID: "hp",
+                                },
+                                {
+                                  label: "ORG NM",
+                                  data: generateDynoCurve(
+                                    stage.origNm,
+                                    false,
+                                    selectedEngine.fuel
+                                  ),
+                                  borderColor: "#d1d5db",
+                                  backgroundColor: "transparent",
+                                  borderWidth: 2,
+                                  borderDash: [5, 3],
+                                  tension: 0.5,
+                                  pointRadius: 0,
+                                  yAxisID: "nm",
+                                },
+                                {
+                                  label: `ST ${stage.name.replace(/\D/g, "")} NM`,
+                                  data: generateDynoCurve(
+                                    stage.tunedNm,
+                                    false,
+                                    selectedEngine.fuel
+                                  ),
+                                  borderColor: "#d1d5db",
+                                  backgroundColor: "transparent",
+                                  borderWidth: 3,
+                                  tension: 0.5,
+                                  pointRadius: 0,
+                                  yAxisID: "nm",
+                                },
+                              ],
+                            }}
+                            options={{
+                              responsive: true,
+                              maintainAspectRatio: false,
+                              plugins: {
+                                legend: {
+                                  display: false,
+                                },
+                                tooltip: {
+                                  enabled: true,
+                                  mode: "index",
+                                  intersect: false,
+                                  backgroundColor: "#1f2937",
+                                  titleColor: "#ffffff",
+                                  bodyColor: "#ffffff",
+                                  borderColor: "#6b7280",
+                                  borderWidth: 1,
+                                  padding: 10,
+                                  displayColors: true,
+                                  usePointStyle: true, // ✅ this enables circle style
+                                  callbacks: {
+                                    labelPointStyle: () => ({
+                                      pointStyle: "circle", // ✅ make symbol a circle
+                                      rotation: 0,
+                                    }),
+                                    title: function (tooltipItems) {
+                                      // tooltipItems[0].label will be the RPM (e.g., "4000")
+                                      return `${tooltipItems[0].label} RPM`;
+                                    },
+                                    label: function (context) {
+                                      const label = context.dataset.label || "";
+                                      const value = context.parsed.y;
+
+                                      // Guard for undefined value
+                                      if (value === undefined) return label;
+
+                                      const unit =
+                                        context.dataset.yAxisID === "hp"
+                                          ? "hk"
+                                          : "Nm";
+                                      return `${label}: ${Math.round(value)} ${unit}`;
+                                    },
+                                  },
+                                },
+                              },
+                              scales: {
+                                hp: {
+                                  type: "linear",
+                                  display: true,
+                                  position: "left",
+                                  title: {
+                                    display: true,
+                                    text: "EFFEKT",
+                                    color: "white",
+                                    font: { size: 14 },
+                                  },
+                                  min: 0,
+                                  max:
+                                    Math.ceil(stage.tunedHk / 100) * 100 + 100,
+                                  grid: {
+                                    color: "rgba(255, 255, 255, 0.1)",
+                                  },
+                                  ticks: {
+                                    color: "#9CA3AF",
+                                    stepSize: 100,
+                                    callback: (value) => `${value}`,
+                                  },
+                                },
+                                nm: {
+                                  type: "linear",
+                                  display: true,
+                                  position: "right",
+                                  title: {
+                                    display: true,
+                                    text: "VRIDMOMENT",
+                                    color: "white",
+                                    font: { size: 14 },
+                                  },
+                                  min: 0,
+                                  max:
+                                    Math.ceil(stage.tunedNm / 100) * 100 + 100,
+                                  grid: {
+                                    drawOnChartArea: false,
+                                  },
+                                  ticks: {
+                                    color: "#9CA3AF",
+                                    stepSize: 100,
+                                    callback: (value) => `${value}`,
+                                  },
+                                },
+                                x: {
+                                  title: {
+                                    display: true,
+                                    text: "RPM",
+                                    color: "#E5E7EB",
+                                    font: { size: 14 },
+                                  },
+                                  grid: {
+                                    color: "rgba(255, 255, 255, 0.1)",
+                                  },
+                                  ticks: {
+                                    color: "#9CA3AF",
+                                  },
+                                },
+                              },
+                              interaction: {
+                                intersect: false,
+                                mode: "index",
+                              },
+                            }}
+                            plugins={[watermarkPlugin, shadowPlugin]}
+                          />
+
+                          <div className="text-center text-white text-xs mt-4 italic">
+                            (Simulerad effektkurva)
+                          </div>
+                        </div>
+
+                        {/* Mobile-only small tuned specs */}
+                        <div className="block md:hidden text-center mt-6 mb-6">
+                          <p className="text-sm text-white font-semibold">
+                            {stage.tunedHk} HK & {stage.tunedNm} NM
+                            <span className="text-gray-400 text-sm ml-1">
+                              [
+                              {stage.name
+                                .replace("Steg", "STEG ")
+                                .replace(/\s+/g, "")
+                                .toUpperCase()}
+                              ]
+                            </span>
+                          </p>
+                        </div>
+
+                        {/* NOW start new block for the contact button */}
+
+                        {/* KONTAKT button */}
+                        <div className="mt-8 mb-10 flex flex-col items-center">
+                          <button
+                            onClick={() => handleBookNow(stage.name)}
+                            className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg flex items-center gap-2"
+                          >
+                            <span>📩</span> KONTAKT
+                          </button>
                         </div>
                       </div>
 
-                      {/* Mobile-only small tuned specs */}
-                      <div className="block md:hidden text-center mt-6 mb-6">
-                        <p className="text-sm text-white font-semibold">
-                          {stage.tunedHk} HK & {stage.tunedNm} NM
-                          <span className="text-gray-400 text-sm ml-1">
-                            [
-                            {stage.name
-                              .replace("Steg", "STEG ")
-                              .replace(/\s+/g, "")
-                              .toUpperCase()}
-                            ]
-                          </span>
-                        </p>
-                      </div>
-
-                      {/* NOW start new block for the contact button */}
-
-                      {/* KONTAKT button */}
-                      <div className="mt-8 mb-10 flex flex-col items-center">
-                        <button
-                          onClick={() => handleBookNow(stage.name)}
-                          className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg flex items-center gap-2"
-                        >
-                          <span>📩</span> KONTAKT
-                        </button>
-                      </div>
-                    </div>
-
-                    {allOptions.length > 0 && (
-                      <div className="mt-8">
-                        {/* AKT+ Toggle Button */}
-                        <button
-                          onClick={() => toggleAktPlus(stage.name)}
-                          className="flex justify-between items-center w-full px-6 py-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
-                        >
-                          <div className="flex items-center gap-2">
-                            <img
-                              src="/logos/aktplus.png"
-                              alt="AKT+ Logo"
-                              className="h-8 w-auto object-contain"
-                            />
-                            <h3 className="text-md font-semibold text-white">
-                              TILLÄGG
-                            </h3>
-                          </div>
-
-                          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-800">
-                            <svg
-                              className={`h-5 w-5 text-orange-500 transform transition-transform duration-300 ${
-                                expandedAktPlus[stage.name] ? "rotate-180" : ""
-                              }`}
-                              viewBox="0 0 20 20"
-                              fill="currentColor"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-                                clipRule="evenodd"
+                      {allOptions.length > 0 && (
+                        <div className="mt-8">
+                          {/* AKT+ Toggle Button */}
+                          <button
+                            onClick={() => toggleAktPlus(stage.name)}
+                            className="flex justify-between items-center w-full px-6 py-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+                          >
+                            <div className="flex items-center gap-2">
+                              <img
+                                src="/logos/aktplus.png"
+                                alt="AKT+ Logo"
+                                className="h-8 w-auto object-contain"
                               />
-                            </svg>
-                          </div>
-                        </button>
+                              <h3 className="text-md font-semibold text-white">
+                                TILLÄGG
+                              </h3>
+                            </div>
 
-                        {/* Expandable AKT+ Grid */}
-                        {expandedAktPlus[stage.name] && (
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                            {allOptions.map((option) => (
-                              <div
-                                key={option._id}
-                                className="border border-gray-600 rounded-lg overflow-hidden bg-gray-700 transition-all duration-300"
+                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-800">
+                              <svg
+                                className={`h-5 w-5 text-orange-500 transform transition-transform duration-300 ${
+                                  expandedAktPlus[stage.name]
+                                    ? "rotate-180"
+                                    : ""
+                                }`}
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
                               >
-                                <button
-                                  onClick={() => toggleOption(option._id)}
-                                  className="w-full flex justify-between items-center p-4 hover:bg-gray-600 transition-colors"
+                                <path
+                                  fillRule="evenodd"
+                                  d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                            </div>
+                          </button>
+
+                          {/* Expandable AKT+ Grid */}
+                          {expandedAktPlus[stage.name] && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                              {allOptions.map((option) => (
+                                <div
+                                  key={option._id}
+                                  className="border border-gray-600 rounded-lg overflow-hidden bg-gray-700 transition-all duration-300"
                                 >
-                                  <div className="flex items-center gap-3">
-                                    {option.gallery?.[0]?.asset && (
-                                      <img
-                                        src={urlFor(option.gallery[0].asset)
-                                          .width(80)
-                                          .url()}
-                                        alt={
-                                          option.gallery[0].alt || option.title
-                                        }
-                                        className="h-10 w-10 object-contain"
-                                      />
-                                    )}
-                                    <span className="text-lg font-bold text-orange-600">
-                                      {option.title}
-                                    </span>
-                                  </div>
-
-                                  <svg
-                                    className={`h-5 w-5 text-orange-600 transition-transform ${
-                                      expandedOptions[option._id]
-                                        ? "rotate-180"
-                                        : ""
-                                    }`}
-                                    viewBox="0 0 20 20"
-                                    fill="currentColor"
+                                  <button
+                                    onClick={() => toggleOption(option._id)}
+                                    className="w-full flex justify-between items-center p-4 hover:bg-gray-600 transition-colors"
                                   >
-                                    <path
-                                      fillRule="evenodd"
-                                      d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-                                      clipRule="evenodd"
-                                    />
-                                  </svg>
-                                </button>
-
-                                {expandedOptions[option._id] && (
-                                  <div className="bg-gray-800 border-t border-gray-600 p-4 space-y-4">
-                                    {option.description && (
-                                      <div className="prose prose-invert max-w-none text-sm">
-                                        <PortableText
-                                          value={option.description}
-                                          components={portableTextComponents}
+                                    <div className="flex items-center gap-3">
+                                      {option.gallery?.[0]?.asset && (
+                                        <img
+                                          src={urlFor(option.gallery[0].asset)
+                                            .width(80)
+                                            .url()}
+                                          alt={
+                                            option.gallery[0].alt ||
+                                            option.title
+                                          }
+                                          className="h-10 w-10 object-contain"
                                         />
-                                      </div>
-                                    )}
+                                      )}
+                                      <span className="text-lg font-bold text-orange-600">
+                                        {option.title}
+                                      </span>
+                                    </div>
 
-                                    {option.title
-                                      .toLowerCase()
-                                      .includes("dtc off") && (
-                                      <div className="mt-4">
-                                        <DtcSearch />
-                                      </div>
-                                    )}
+                                    <svg
+                                      className={`h-5 w-5 text-orange-600 transition-transform ${
+                                        expandedOptions[option._id]
+                                          ? "rotate-180"
+                                          : ""
+                                      }`}
+                                      viewBox="0 0 20 20"
+                                      fill="currentColor"
+                                    >
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                                        clipRule="evenodd"
+                                      />
+                                    </svg>
+                                  </button>
 
-                                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                                      {option.price && (
-                                        <p className="font-bold text-green-400">
-                                          Pris: {option.price.toLocaleString()}{" "}
-                                          kr
-                                        </p>
+                                  {expandedOptions[option._id] && (
+                                    <div className="bg-gray-800 border-t border-gray-600 p-4 space-y-4">
+                                      {option.description && (
+                                        <div className="prose prose-invert max-w-none text-sm">
+                                          <PortableText
+                                            value={option.description}
+                                            components={portableTextComponents}
+                                          />
+                                        </div>
                                       )}
 
-                                      <button
-                                        onClick={() =>
-                                          handleBookNow(option.title)
-                                        }
-                                        className="bg-green-600 hover:bg-green-700 hover:scale-105 transform transition-all text-white px-6 py-3 rounded-lg font-medium shadow-lg"
-                                      >
-                                        📩 KONTAKT
-                                      </button>
+                                      {option.title
+                                        .toLowerCase()
+                                        .includes("dtc off") && (
+                                        <div className="mt-4">
+                                          <DtcSearch />
+                                        </div>
+                                      )}
+
+                                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                                        {option.price && (
+                                          <p className="font-bold text-green-400">
+                                            Pris:{" "}
+                                            {option.price.toLocaleString()} kr
+                                          </p>
+                                        )}
+
+                                        <button
+                                          onClick={() =>
+                                            handleBookNow(option.title)
+                                          }
+                                          className="bg-green-600 hover:bg-green-700 hover:scale-105 transform transition-all text-white px-6 py-3 rounded-lg font-medium shadow-lg"
+                                        >
+                                          📩 KONTAKT
+                                        </button>
+                                      </div>
                                     </div>
-                                  </div>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      ) : null}
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        ) : null}
 
-      {/* Modal */}
-      <ContactModal
-        isOpen={contactModalData.isOpen}
-        onClose={() =>
-          setContactModalData({ isOpen: false, stageOrOption: "", link: "" })
-        }
-        selectedVehicle={{
-          brand: selected.brand,
-          model: selected.model,
-          year: selected.year,
-          engine: selected.engine,
-        }}
-        stageOrOption={contactModalData.stageOrOption}
-        link={contactModalData.link}
-        scrollPosition={contactModalData.scrollPosition}
-      />
+        {/* Modal */}
+        <ContactModal
+          isOpen={contactModalData.isOpen}
+          onClose={() =>
+            setContactModalData({ isOpen: false, stageOrOption: "", link: "" })
+          }
+          selectedVehicle={{
+            brand: selected.brand,
+            model: selected.model,
+            year: selected.year,
+            engine: selected.engine,
+          }}
+          stageOrOption={contactModalData.stageOrOption}
+          link={contactModalData.link}
+          scrollPosition={contactModalData.scrollPosition}
+        />
 
-      <InfoModal
-        isOpen={infoModal.open}
-        onClose={() => setInfoModal({ open: false, type: "stage" })}
-        title={
-          infoModal.type === "stage"
-            ? `STEG ${infoModal.stage?.name.replace(/\D/g, "")} INFORMATION`
-            : "GENERELL INFORMATION"
-        }
-        content={
-          infoModal.type === "stage" ? (
-            (() => {
-              const description =
-                infoModal.stage?.descriptionRef?.description ||
-                infoModal.stage?.description;
+        <InfoModal
+          isOpen={infoModal.open}
+          onClose={() => setInfoModal({ open: false, type: "stage" })}
+          title={
+            infoModal.type === "stage"
+              ? `STEG ${infoModal.stage?.name.replace(/\D/g, "")} INFORMATION`
+              : "GENERELL INFORMATION"
+          }
+          content={
+            infoModal.type === "stage" ? (
+              (() => {
+                const description =
+                  infoModal.stage?.descriptionRef?.description ||
+                  infoModal.stage?.description;
 
-              if (Array.isArray(description)) {
-                return (
-                  <PortableText
-                    value={description}
-                    components={portableTextComponents}
-                  />
-                );
-              }
+                if (Array.isArray(description)) {
+                  return (
+                    <PortableText
+                      value={description}
+                      components={portableTextComponents}
+                    />
+                  );
+                }
 
-              return <p>{description}</p>;
-            })()
-          ) : (
-            <ul className="space-y-2">
-              <li>✅ All mjukvara är skräddarsydd för din bil</li>
-              <li>✅ Fri support efter installation</li>
-              <li>✅ Ingen fysisk modifiering krävs</li>
-              <li>✅ Optimerad för både prestanda och bränsleekonomi</li>
-            </ul>
-          )
-        }
-      />
-    </div>
+                return <p>{description}</p>;
+              })()
+            ) : (
+              <ul className="space-y-2">
+                <li>✅ All mjukvara är skräddarsydd för din bil</li>
+                <li>✅ Fri support efter installation</li>
+                <li>✅ Ingen fysisk modifiering krävs</li>
+                <li>✅ Optimerad för både prestanda och bränsleekonomi</li>
+              </ul>
+            )
+          }
+        />
+      </div>
+    </>
   );
 }
 
