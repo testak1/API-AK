@@ -565,15 +565,18 @@ export default function TuningViewer() {
   return (
     <>
       <Head>
-        <title>AK-TUNING | Motoroptimering med Garanti</title>
+        <title>
+          AK-TUNING | Skräddarsydd motoroptimering beprövat på vår dyno |
+          Göteborg - Stockholm - Skåne - Jönköping - Örebro
+        </title>
         <meta
           name="description"
-          content="Skräddarsydd motoroptimering – Effektökning, bränslebesparing & trygg mjukvara. AK-TUNING finns i hela Sverige!"
+          content="Skräddarsydd motoroptimering – Effektökning, bränslebesparing & trygg mjukvara. AK-TUNING finns i Göteborg - Stockholm - Skåne - Jönköping - Örebro"
         />
         <meta property="og:title" content="AK-TUNING | Motoroptimering" />
         <meta
           property="og:description"
-          content="Skräddarsydd motoroptimering & chiptuning för alla bilmärken – Effektökning, bränslebesparing & trygg mjukvara. AK-TUNING finns i hela Sverige!"
+          content="Skräddarsydd motoroptimering – Effektökning, bränslebesparing & trygg mjukvara. AK-TUNING finns i Göteborg - Stockholm - Skåne - Jönköping - Örebro"
         />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://tuning.aktuning.se" />
