@@ -376,6 +376,8 @@ export default function EnginePage({
     }));
   };
 
+  const rpmLabels = engineData.fuel.toLowerCase().includes("diesel");
+
   const selectedStage = engineData?.stages?.find((s) => expandedStages[s.name]);
   const selectedStep = selectedStage?.name?.toUpperCase() || "MJUKVARA";
   const hp = selectedStage?.tunedHk ?? "?";
