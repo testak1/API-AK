@@ -419,7 +419,7 @@ export default function EnginePage({
 
   const pageTitle = `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${selectedStep} Mjukvara | AK-TUNING`;
 
-  const pageDescription = `Optimera din ${brandData.name} ${modelData.name} ${engineData.label} – från ${selectedStage?.origHk} hk till ${hp} hk och ${nm} Nm med skräddarsydd ${selectedStep} mjukvara. Pris: ${price}.`;
+  const pageDescription = `Motoroptimera din ${brandData.name} ${modelData.name} ${engineData.label} – från ${selectedStage?.origHk} hk till ${hp} hk och ${nm} Nm med skräddarsydd ${selectedStep} mjukvara. 2 års mjukvaru garanti samt 30 dagar öppet köp! Endast: ${price}.`;
 
   const pageUrl = `https://tuning.aktuning.se${router.asPath.split("?")[0]}`;
 
