@@ -732,11 +732,11 @@ export default function TuningViewer() {
                         />
                       )}
                       <h2 className="text-lg font-semibold text-white">
-                        {selected.engine} |{" "}
+                        {selected.engine} -{" "}
                         <span
                           className={`uppercase tracking-wide ${getStageColor(stage.name)}`}
                         >
-                          {stage.name}
+                          [{stage.name}]
                         </span>
                       </h2>
                     </div>
