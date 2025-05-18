@@ -36,7 +36,7 @@ ChartJS.register(
   LineElement,
   LineController,
   Tooltip,
-  Legend
+  Legend,
 );
 
 interface EnginePageProps {
@@ -50,7 +50,7 @@ const normalizeString = (str: string) =>
   str.toLowerCase().replace(/[^a-z0-9]/g, "");
 
 export const getServerSideProps: GetServerSideProps<EnginePageProps> = async (
-  context
+  context,
 ) => {
   const brand = decodeURIComponent((context.params?.brand as string) || "");
   const model = decodeURIComponent((context.params?.model as string) || "");
@@ -70,8 +70,8 @@ export const getServerSideProps: GetServerSideProps<EnginePageProps> = async (
           normalizeString(m.name) === normalizeString(model) ||
           (m.slug &&
             normalizeString(
-              typeof m.slug === "string" ? m.slug : m.slug.current
-            ) === normalizeString(model))
+              typeof m.slug === "string" ? m.slug : m.slug.current,
+            ) === normalizeString(model)),
       ) || null;
 
     if (!modelData) return { notFound: true };
@@ -80,7 +80,7 @@ export const getServerSideProps: GetServerSideProps<EnginePageProps> = async (
       modelData.years?.find(
         (y: Year) =>
           normalizeString(y.range) === normalizeString(year) ||
-          (y.slug && normalizeString(y.slug) === normalizeString(year))
+          (y.slug && normalizeString(y.slug) === normalizeString(year)),
       ) || null;
 
     if (!yearData) return { notFound: true };
@@ -89,7 +89,7 @@ export const getServerSideProps: GetServerSideProps<EnginePageProps> = async (
       yearData.engines?.find(
         (e: Engine) =>
           normalizeString(e.label) === normalizeString(engine) ||
-          (e.slug && normalizeString(e.slug) === normalizeString(engine))
+          (e.slug && normalizeString(e.slug) === normalizeString(engine)),
       ) || null;
 
     if (!engineData) return { notFound: true };
@@ -133,7 +133,7 @@ const portableTextComponents = {
 const generateDynoCurve = (
   peakValue: number,
   isHp: boolean,
-  fuelType: string
+  fuelType: string,
 ) => {
   // Välj RPM range beroende på motor
   const rpmRange = fuelType.toLowerCase().includes("diesel")
@@ -180,7 +180,7 @@ export default function EnginePage({
   const stageParam = router.query.stage;
   const stage = typeof stageParam === "string" ? stageParam : "";
   const [expandedStages, setExpandedStages] = useState<Record<string, boolean>>(
-    {}
+    {},
   );
   const [expandedDescriptions, setExpandedDescriptions] = useState<
     Record<string, boolean>
@@ -221,7 +221,7 @@ export default function EnginePage({
 
   const handleBookNow = (
     stageOrOptionName: string,
-    event?: React.MouseEvent
+    event?: React.MouseEvent,
   ) => {
     if (!brandData || !modelData || !yearData || !engineData) return;
 
@@ -270,7 +270,7 @@ export default function EnginePage({
           acc[stageObj.name] = stage ? isMatch : stageObj.name === "Steg 1";
           return acc;
         },
-        {} as Record<string, boolean>
+        {} as Record<string, boolean>,
       );
       setExpandedStages(initialExpanded);
     }
@@ -350,7 +350,7 @@ export default function EnginePage({
             (opt.isUniversal ||
               opt.applicableFuelTypes?.includes(engineData.fuel) ||
               opt.manualAssignments?.some(
-                (ref) => ref._ref === engineData._id
+                (ref) => ref._ref === engineData._id,
               )) &&
             (!opt.stageCompatibility || opt.stageCompatibility === stage.name)
           ) {
@@ -360,7 +360,7 @@ export default function EnginePage({
 
       return Array.from(uniqueOptionsMap.values());
     },
-    [engineData]
+    [engineData],
   );
 
   const toggleStage = (stageName: string) => {
@@ -426,93 +426,6 @@ export default function EnginePage({
   const imageUrl = brandData.logo?.asset
     ? urlFor(brandData.logo).width(600).url()
     : "https://aktuning.se/img/ak-tuning-custom-engine-tuning-logo-1573781489.jpg";
-
-  const renderStageDescription = (stage: Stage) => {
-    const description = stage.descriptionRef?.description || stage.description;
-    const isExpanded = expandedDescriptions[stage.name] ?? false;
-
-    if (!description) return null;
-
-    return (
-      <div className="mt-4 mb-6 border border-gray-700 rounded-lg overflow-hidden">
-        <div className="grid md:grid-cols-2 gap-0">
-          {/* STEG X INFORMATION */}
-          <div>
-            <button
-              onClick={() =>
-                setExpandedDescriptions((prev) => ({
-                  ...prev,
-                  [stage.name]: !prev[stage.name],
-                }))
-              }
-              className="w-full px-4 py-3 bg-gray-700 hover:bg-gray-600 flex items-center justify-between text-left transition-colors border-b border-gray-600 md:border-b-0 md:border-r"
-            >
-              <span className="text-white font-semibold text-sm sm:text-base">
-                STEG {stage.name.replace(/\D/g, "")} INFORMATION
-              </span>
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-800">
-                <svg
-                  className={`h-5 w-5 text-orange-500 transition-transform duration-300 ${
-                    isExpanded ? "rotate-180" : ""
-                  }`}
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
-            </button>
-
-            {isExpanded && (
-              <div className="prose prose-invert max-w-none p-4 bg-gray-800">
-                {typeof description === "string" ? (
-                  <p>{description}</p>
-                ) : (
-                  <PortableText
-                    value={description}
-                    components={portableTextComponents}
-                  />
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* GENERELL INFORMATION */}
-          <div className="bg-gray-800 p-4 border-t md:border-t-0 md:border-l border-gray-600">
-            <h3 className="text-white font-semibold text-sm sm:text-base mb-2">
-              GENERELL INFORMATION
-            </h3>
-            <ul className="text-gray-300 text-sm space-y-1">
-              <li>✅ All mjukvara är skräddarsydd för din bil</li>
-              <li>✅ Felsökning inann samt efter optimering</li>
-              <li>✅ Loggning för att anpassa en individuell mjukvara</li>
-              <li>✅ Optimerad för både prestanda och bränsleekonomi</li>
-            </ul>
-            <div className="mt-6 text-sm text-gray-400 leading-relaxed">
-              <p>
-                AK-TUNING är specialister på skräddarsydd motoroptimering,
-                chiptuning och ECU-programmering för alla bilmärken.
-              </p>
-              <p className="mt-2">
-                Vi erbjuder effektökning, bättre bränsleekonomi och optimerade
-                köregenskaper. Tjänster i Göteborg, Stockholm, Malmö, Jönköping,
-                Örebro och Storvik.
-              </p>
-              <p className="mt-2">
-                All mjukvara utvecklas in-house med fokus på kvalitet, säkerhet
-                och lång livslängd. Välkommen till en ny nivå av bilprestanda
-                med AK-TUNING.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
 
   if (!engineData || !brandData || !modelData || !yearData) {
     return (
@@ -837,7 +750,7 @@ export default function EnginePage({
                                   data: generateDynoCurve(
                                     stage.origHk,
                                     true,
-                                    engineData.fuel
+                                    engineData.fuel,
                                   ),
                                   borderColor: "#f87171",
                                   backgroundColor: "transparent",
@@ -852,7 +765,7 @@ export default function EnginePage({
                                   data: generateDynoCurve(
                                     stage.tunedHk,
                                     true,
-                                    engineData.fuel
+                                    engineData.fuel,
                                   ),
                                   borderColor: "#f87171",
                                   backgroundColor: "#f87171",
@@ -866,7 +779,7 @@ export default function EnginePage({
                                   data: generateDynoCurve(
                                     stage.origNm,
                                     false,
-                                    engineData.fuel
+                                    engineData.fuel,
                                   ),
                                   borderColor: "#d1d5db",
                                   backgroundColor: "transparent",
@@ -881,7 +794,7 @@ export default function EnginePage({
                                   data: generateDynoCurve(
                                     stage.tunedNm,
                                     false,
-                                    engineData.fuel
+                                    engineData.fuel,
                                   ),
                                   borderColor: "#d1d5db",
                                   backgroundColor: "transparent",
