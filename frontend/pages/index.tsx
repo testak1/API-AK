@@ -395,19 +395,11 @@ export default function TuningViewer() {
     [selectedEngine]
   );
 
-  const generateDynoCurve = (
-    peakValue: number,
-    isHp: boolean,
-    fuelType: string
-  ) => {
-    // Välj RPM range beroende på motor
-    const rpmRange = fuelType.toLowerCase().includes("diesel")
-      ? [1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000]
-      : [2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000];
-
-    const peakIndex = isHp
-      ? Math.floor(rpmRange.length * 0.6)
-      : Math.floor(rpmRange.length * 0.4);
+  const generateDynoCurve = (peakValue: number, isHp: boolean) => {
+    const rpmRange = [
+      2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000,
+    ];
+    const peakIndex = isHp ? 6 : 4; // HP peak later, NM peak earlier
     const startIndex = 0;
 
     return rpmRange.map((rpm, i) => {
