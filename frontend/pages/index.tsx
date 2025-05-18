@@ -552,6 +552,7 @@ export default function TuningViewer() {
         <div className="flex items-center mb-4">
           <img
             src="/ak-logo-svart.png"
+            fetchPriority="high"
             alt="AK-TUNING"
             style={{ height: "80px", cursor: "pointer" }}
             className="h-12 object-contain"

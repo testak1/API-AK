@@ -517,6 +517,7 @@ export default function EnginePage({
         <div className="flex items-center mb-4">
           <img
             src="/ak-logo-svart.png"
+            fetchPriority="high"
             alt="AK-TUNING"
             style={{ height: "80px", cursor: "pointer" }}
             className="h-12 object-contain"
@@ -524,10 +525,7 @@ export default function EnginePage({
           />
         </div>
         <div className="mb-8">
-          <h1
-            className="text-2xl font-bold text-center"
-            style={{ fontSize: "clamp(1.5rem, 2vw, 2rem)" }}
-          >
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center">
             {brandData.name} {modelData.name} {yearData.range}{" "}
             {engineData.label}
           </h1>
