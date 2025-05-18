@@ -395,14 +395,21 @@ export default function TuningViewer() {
     [selectedEngine]
   );
 
-  const generateDynoCurve = (peakValue: number, isHp: boolean) => {
-    const rpmRange = [
-      2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000,
-    ];
-    const peakIndex = isHp ? 6 : 4; // HP peak later, NM peak earlier
+  const generateDynoCurve = (
+    peakValue: number,
+    isHp: boolean,
+    fuelType: string
+  ) => {
+    const rpmRange = fuelType.toLowerCase().includes("diesel")
+      ? [1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000]
+      : [2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000];
+
+    const peakIndex = isHp
+      ? Math.floor(rpmRange.length * 0.6)
+      : Math.floor(rpmRange.length * 0.4);
     const startIndex = 0;
 
-    return rpmRange.map((rpm, i) => {
+    return rpmRange.map((rpm) => {
       const startRpm = rpmRange[startIndex];
       const peakRpm = rpmRange[peakIndex];
       const endRpm = rpmRange[rpmRange.length - 1];
@@ -416,6 +423,22 @@ export default function TuningViewer() {
       }
     });
   };
+
+  const rpmLabels = selectedEngine?.fuel?.toLowerCase().includes("diesel")
+    ? ["1500", "2000", "2500", "3000", "3500", "4000", "4500", "5000"]
+    : [
+        "2000",
+        "2500",
+        "3000",
+        "3500",
+        "4000",
+        "4500",
+        "5000",
+        "5500",
+        "6000",
+        "6500",
+        "7000",
+      ];
 
   const toggleStage = (stageName: string) => {
     setExpandedStages((prev) => {
@@ -863,23 +886,15 @@ export default function TuningViewer() {
                         {/* Dyno graph */}
                         <Line
                           data={{
-                            labels: [
-                              "2000",
-                              "2500",
-                              "3000",
-                              "3500",
-                              "4000",
-                              "4500",
-                              "5000",
-                              "5500",
-                              "6000",
-                              "6500",
-                              "7000",
-                            ],
+                            labels: rpmLabels,
                             datasets: [
                               {
                                 label: "ORG HK",
-                                data: generateDynoCurve(stage.origHk, true),
+                                data: generateDynoCurve(
+                                  stage.origHk,
+                                  true,
+                                  selectedEngine.fuel
+                                ),
                                 borderColor: "#f87171",
                                 backgroundColor: "transparent",
                                 borderWidth: 2,
@@ -890,7 +905,11 @@ export default function TuningViewer() {
                               },
                               {
                                 label: `ST ${stage.name.replace(/\D/g, "")} HK`,
-                                data: generateDynoCurve(stage.tunedHk, true),
+                                data: generateDynoCurve(
+                                  stage.tunedHk,
+                                  true,
+                                  selectedEngine.fuel
+                                ),
                                 borderColor: "#f87171",
                                 backgroundColor: "#f87171",
                                 borderWidth: 3,
@@ -900,7 +919,11 @@ export default function TuningViewer() {
                               },
                               {
                                 label: "ORG NM",
-                                data: generateDynoCurve(stage.origNm, false),
+                                data: generateDynoCurve(
+                                  stage.origNm,
+                                  false,
+                                  selectedEngine.fuel
+                                ),
                                 borderColor: "#d1d5db",
                                 backgroundColor: "transparent",
                                 borderWidth: 2,
@@ -911,7 +934,11 @@ export default function TuningViewer() {
                               },
                               {
                                 label: `ST ${stage.name.replace(/\D/g, "")} NM`,
-                                data: generateDynoCurve(stage.tunedNm, false),
+                                data: generateDynoCurve(
+                                  stage.tunedNm,
+                                  false,
+                                  selectedEngine.fuel
+                                ),
                                 borderColor: "#d1d5db",
                                 backgroundColor: "transparent",
                                 borderWidth: 3,
