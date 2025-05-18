@@ -523,7 +523,11 @@ export default function EnginePage({
         <meta property="og:url" content={pageUrl} />
         <meta property="og:image" content={imageUrl} />
 
-        {/* Structured data */}
+        {/* Favicon */}
+        <link rel="icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+        {/* Structured Data: Product */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -558,9 +562,23 @@ export default function EnginePage({
                 name: "AK-TUNING – Marknadsledande på motoroptimering",
                 logo: {
                   "@type": "ImageObject",
-                  url: "https://tuning.aktuning.se/ak-logo.png",
+                  url: "https://tuning.aktuning.se/ak-logo1.png",
                 },
               },
+            }),
+          }}
+        />
+
+        {/* Structured Data: Organization for LOGO */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "AK-TUNING",
+              url: "https://tuning.aktuning.se",
+              logo: "https://tuning.aktuning.se/ak-logo1.png",
             }),
           }}
         />
