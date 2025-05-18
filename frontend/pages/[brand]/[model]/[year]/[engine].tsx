@@ -200,6 +200,12 @@ export default function EnginePage({
     link: "",
   });
 
+  const [infoModal, setInfoModal] = useState<{
+    open: boolean;
+    type: "stage" | "general";
+    stage?: Stage;
+  }>({ open: false, type: "stage" });
+
   const slugify = (str: string) =>
     str
       .toLowerCase()
@@ -692,8 +698,24 @@ export default function EnginePage({
                           </p>
                         </div>
                       </div>
-                      {renderStageDescription(stage)}
-
+                      <div className="flex flex-col sm:flex-row gap-4 mt-4">
+                        <button
+                          onClick={() =>
+                            setInfoModal({ open: true, type: "stage", stage })
+                          }
+                          className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg shadow"
+                        >
+                          📄 STEG {stage.name.replace(/\D/g, "")} INFORMATION
+                        </button>
+                        <button
+                          onClick={() =>
+                            setInfoModal({ open: true, type: "general" })
+                          }
+                          className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg shadow"
+                        >
+                          💡 GENERELL INFORMATION
+                        </button>
+                      </div>
                       <div className="mt-6">
                         <h3 className="text-lg font-medium text-gray-300 mb-2 uppercase">
                           {stage.name}
@@ -1127,7 +1149,73 @@ export default function EnginePage({
           link={contactModalData.link}
           scrollPosition={contactModalData.scrollPosition}
         />
+        <InfoModal
+          isOpen={infoModal.open}
+          onClose={() => setInfoModal({ open: false, type: "stage" })}
+          title={
+            infoModal.type === "stage"
+              ? `STEG ${infoModal.stage?.name.replace(/\D/g, "")} INFORMATION`
+              : "GENERELL INFORMATION"
+          }
+          content={
+            infoModal.type === "stage" ? (
+              (() => {
+                const description =
+                  infoModal.stage?.descriptionRef?.description ||
+                  infoModal.stage?.description;
+
+                if (Array.isArray(description)) {
+                  return (
+                    <PortableText
+                      value={description}
+                      components={portableTextComponents}
+                    />
+                  );
+                }
+
+                return <p>{description}</p>;
+              })()
+            ) : (
+              <ul className="space-y-2">
+                <li>✅ All mjukvara är skräddarsydd för din bil</li>
+                <li>✅ Fri support efter installation</li>
+                <li>✅ Ingen fysisk modifiering krävs</li>
+                <li>✅ Optimerad för både prestanda och bränsleekonomi</li>
+              </ul>
+            )
+          }
+        />
       </div>
     </>
   );
 }
+
+const InfoModal = ({
+  isOpen,
+  onClose,
+  title,
+  content,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  content: React.ReactNode;
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
+      <div className="bg-gray-900 p-6 rounded-lg shadow-lg max-w-2xl w-full">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-white text-lg font-semibold">{title}</h2>
+          <button onClick={onClose} className="text-white text-xl">
+            &times;
+          </button>
+        </div>
+        <div className="text-gray-300 text-sm max-h-[70vh] overflow-y-auto">
+          {content}
+        </div>
+      </div>
+    </div>
+  );
+};
