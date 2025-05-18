@@ -557,12 +557,8 @@ export default function EnginePage({
             className="text-2xl font-bold text-center"
             style={{ fontSize: "clamp(1.5rem, 2vw, 2rem)" }}
           >
-            {brandData.name} {modelData.name} {yearData.range}
+            {brandData.name} {yearData.range} {engineData.label}
           </h1>
-
-          <p className="text-lg text-center text-gray-600">
-            {engineData.label}
-          </p>
         </div>{" "}
         {engineData.stages?.length > 0 ? (
           <div className="space-y-6">
