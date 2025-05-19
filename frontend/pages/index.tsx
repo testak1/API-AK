@@ -156,7 +156,7 @@ export default function TuningViewer() {
       isOpen: true,
       stageOrOption: stageOrOptionName,
       link: finalLink,
-      scrollPosition: isMobile ? undefined : scrollY,
+      scrollPosition: isMobile ? undefined : 0,
     });
   };
 
