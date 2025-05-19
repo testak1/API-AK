@@ -610,45 +610,47 @@ export default function EnginePage({
                           {stage.tcuFields?.launchControl && (
                             <div className="border border-blue-400 rounded-lg p-3 text-white">
                               <p className="text-sm font-bold text-blue-300 mb-1">
-                                Launch Control
+                                LAUNCH CONTROL
                               </p>
                               <p>
                                 Original:{" "}
-                                {stage.tcuFields.launchControl.original || "-"}
+                                {stage.tcuFields.launchControl.original || "-"}{" "}
+                                RPM
                               </p>
                               <p>
                                 Optimerad:{" "}
-                                {stage.tcuFields.launchControl.optimized || "-"}
+                                {stage.tcuFields.launchControl.optimized || "-"}{" "}
+                                RPM
                               </p>
                             </div>
                           )}
                           {stage.tcuFields?.rpmLimit && (
                             <div className="border border-blue-400 rounded-lg p-3 text-white">
                               <p className="text-sm font-bold text-blue-300 mb-1">
-                                Varvstopp
+                                VARVSTOPP
                               </p>
                               <p>
                                 Original:{" "}
-                                {stage.tcuFields.rpmLimit.original || "-"}
+                                {stage.tcuFields.rpmLimit.original || "-"} RPM
                               </p>
                               <p>
                                 Optimerad:{" "}
-                                {stage.tcuFields.rpmLimit.optimized || "-"}
+                                {stage.tcuFields.rpmLimit.optimized || "-"} RPM
                               </p>
                             </div>
                           )}
                           {stage.tcuFields?.shiftTime && (
                             <div className="border border-blue-400 rounded-lg p-3 text-white">
                               <p className="text-sm font-bold text-blue-300 mb-1">
-                                Växlingstid
+                                VÄXLINGSTID
                               </p>
                               <p>
                                 Original:{" "}
-                                {stage.tcuFields.shiftTime.original || "-"}
+                                {stage.tcuFields.shiftTime.original || "-"} ms
                               </p>
                               <p>
                                 Optimerad:{" "}
-                                {stage.tcuFields.shiftTime.optimized || "-"}
+                                {stage.tcuFields.shiftTime.optimized || "-"} ms
                               </p>
                             </div>
                           )}
