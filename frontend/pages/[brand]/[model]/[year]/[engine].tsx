@@ -735,38 +735,40 @@ export default function EnginePage({
                         )}
 
                         {/* Mobile-only legend above chart */}
-                        <div className="flex justify-center items-center gap-2 md:hidden text-xs text-white">
-                          <div className="flex items-center gap-1">
-                            <span className="w-3 h-3 rounded-full border-2 border-red-400"></span>
-                            <span>ORG HK</span>
+                        {!isDsgStage && (
+                          <div className="flex justify-center items-center gap-2 md:hidden text-xs text-white">
+                            <div className="flex items-center gap-1">
+                              <span className="w-3 h-3 rounded-full border-2 border-red-400"></span>
+                              <span>ORG HK</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <span className="w-3 h-3 rounded-full bg-red-400"></span>
+                              <span>
+                                {" "}
+                                {stage.name
+                                  .replace("Steg", "ST")
+                                  .replace(/\s+/g, "")
+                                  .toUpperCase()}{" "}
+                                HK
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <span className="w-3 h-3 rounded-full border-2 border-white"></span>
+                              <span>ORG NM</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <span className="w-3 h-3 rounded-full bg-white"></span>
+                              <span>
+                                {" "}
+                                {stage.name
+                                  .replace("Steg", "ST")
+                                  .replace(/\s+/g, "")
+                                  .toUpperCase()}{" "}
+                                NM
+                              </span>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-1">
-                            <span className="w-3 h-3 rounded-full bg-red-400"></span>
-                            <span>
-                              {" "}
-                              {stage.name
-                                .replace("Steg", "ST")
-                                .replace(/\s+/g, "")
-                                .toUpperCase()}{" "}
-                              HK
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <span className="w-3 h-3 rounded-full border-2 border-white"></span>
-                            <span>ORG NM</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <span className="w-3 h-3 rounded-full bg-white"></span>
-                            <span>
-                              {" "}
-                              {stage.name
-                                .replace("Steg", "ST")
-                                .replace(/\s+/g, "")
-                                .toUpperCase()}{" "}
-                              NM
-                            </span>
-                          </div>
-                        </div>
+                        )}
 
                         {!isDsgStage && (
                           <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
@@ -994,20 +996,21 @@ export default function EnginePage({
                         )}
 
                         {/* Mobile-only small tuned specs */}
-                        <div className="block md:hidden text-center mt-6 mb-6">
-                          <p className="text-sm text-white font-semibold">
-                            {stage.tunedHk} HK & {stage.tunedNm} NM
-                            <span className="text-gray-400 text-sm ml-1">
-                              [
-                              {stage.name
-                                .replace("Steg", "STEG ")
-                                .replace(/\s+/g, "")
-                                .toUpperCase()}
-                              ]
-                            </span>
-                          </p>
-                        </div>
-
+                        {!isDsgStage && (
+                          <div className="block md:hidden text-center mt-6 mb-6">
+                            <p className="text-sm text-white font-semibold">
+                              {stage.tunedHk} HK & {stage.tunedNm} NM
+                              <span className="text-gray-400 text-sm ml-1">
+                                [
+                                {stage.name
+                                  .replace("Steg", "STEG ")
+                                  .replace(/\s+/g, "")
+                                  .toUpperCase()}
+                                ]
+                              </span>
+                            </p>
+                          </div>
+                        )}
                         {/* NOW start new block for the contact button */}
 
                         {/* KONTAKT button */}
