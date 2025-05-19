@@ -158,6 +158,7 @@ export default function TuningViewer() {
       link: finalLink,
       scrollPosition: isMobile ? undefined : 0,
     });
+    window.parent.postMessage({ scrollToIframe: true }, "*");
   };
 
   // Load watermark image
