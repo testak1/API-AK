@@ -772,8 +772,11 @@ export default function TuningViewer() {
                               </p>
                               <p>
                                 Optimerad:{" "}
-                                {stage.tcuFields.launchControl.optimized || "-"}{" "}
-                                RPM
+                                <span className="text-green-400">
+                                  {stage.tcuFields.launchControl.optimized ||
+                                    "-"}{" "}
+                                  RPM
+                                </span>
                               </p>
                             </div>
                           )}
@@ -788,7 +791,12 @@ export default function TuningViewer() {
                               </p>
                               <p>
                                 Optimerad:{" "}
-                                {stage.tcuFields.rpmLimit.optimized || "-"} RPM
+                                <span className="text-green-400">
+                                  {stage.tcuFields.launchControl.optimized ||
+                                    "-"}{" "}
+                                  {stage.tcuFields.rpmLimit.optimized || "-"}{" "}
+                                  RPM
+                                </span>
                               </p>
                             </div>
                           )}
@@ -803,7 +811,12 @@ export default function TuningViewer() {
                               </p>
                               <p>
                                 Optimerad:{" "}
-                                {stage.tcuFields.shiftTime.optimized || "-"} ms
+                                <span className="text-green-400">
+                                  {stage.tcuFields.launchControl.optimized ||
+                                    "-"}{" "}
+                                  {stage.tcuFields.shiftTime.optimized || "-"}{" "}
+                                  ms
+                                </span>
                               </p>
                             </div>
                           )}
