@@ -639,8 +639,6 @@ export default function EnginePage({
                               <p>
                                 Optimerad:{" "}
                                 <span className="text-green-400">
-                                  {stage.tcuFields.launchControl.optimized ||
-                                    "-"}{" "}
                                   {stage.tcuFields.rpmLimit.optimized || "-"}{" "}
                                   RPM
                                 </span>
@@ -659,8 +657,6 @@ export default function EnginePage({
                               <p>
                                 Optimerad:{" "}
                                 <span className="text-green-400">
-                                  {stage.tcuFields.launchControl.optimized ||
-                                    "-"}{" "}
                                   {stage.tcuFields.shiftTime.optimized || "-"}{" "}
                                   ms
                                 </span>
@@ -730,10 +726,13 @@ export default function EnginePage({
                           💡 GENERELL INFORMATION
                         </button>
                       </div>
+
                       <div className="mt-6">
-                        <h3 className="text-lg font-medium text-gray-300 mb-2 uppercase">
-                          {stage.name}
-                        </h3>
+                        {!isDsgStage && (
+                          <h3 className="text-lg font-medium text-gray-300 mb-2 uppercase">
+                            {stage.name}
+                          </h3>
+                        )}
 
                         {/* Mobile-only legend above chart */}
                         <div className="flex justify-center items-center gap-2 md:hidden text-xs text-white">
