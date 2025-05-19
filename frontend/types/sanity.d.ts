@@ -52,14 +52,29 @@ export type AktPlusOptionReference = Reference | AktPlusOption;
 export interface Stage {
   name: string;
   slug?: string;
-  origHk: number;
-  origNm: number;
-  tunedHk: number;
-  tunedNm: number;
-  price: number;
+  origHk?: number;
+  origNm?: number;
+  tunedHk?: number;
+  tunedNm?: number;
+  price?: number;
   description?: PortableTextBlock[];
   descriptionRef?: StageDescription | null;
   aktPlusOptions?: AktPlusOptionReference[];
+  type?: "performance" | "tcu";
+  tcuFields?: {
+    launchControl?: {
+      original?: string;
+      optimized?: string;
+    };
+    rpmLimit?: {
+      original?: string;
+      optimized?: string;
+    };
+    shiftTime?: {
+      original?: string;
+      optimized?: string;
+    };
+  };
 }
 
 export interface Engine {

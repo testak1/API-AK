@@ -36,6 +36,7 @@ export const engineByParamsQuery = `
           fuel,
           "stages": stages[]{
             name,
+            type,
             origHk,
             tunedHk,
             origNm,
@@ -44,6 +45,11 @@ export const engineByParamsQuery = `
             description,
             descriptionRef->{
               description
+            },
+            tcuFields {
+              launchControl { original, optimized },
+              rpmLimit { original, optimized },
+              shiftTime { original, optimized }
             }
           }
         }
@@ -51,6 +57,7 @@ export const engineByParamsQuery = `
     }
   }
 `;
+
 
 // Heavy query (when you need full info like stages, aktplus, engines)
 export const allBrandsQuery = `

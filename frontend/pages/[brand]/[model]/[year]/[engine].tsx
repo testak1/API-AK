@@ -604,46 +604,99 @@ export default function EnginePage({
                   </button>
                   {isExpanded && (
                     <div className="px-6 pb-6">
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 mt-6">
-                        <div className="border border-white rounded-lg p-3 text-center">
-                          <p className="text-sm text-white font-bold mb-1">
-                            ORIGINAL HK
-                          </p>
-                          <p className="text-xl text-white font-bold">
-                            {stage.origHk} hk
-                          </p>
+                      {isDsgStage ? (
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 mt-6">
+                          {/* DSG/TCU-FÄLT */}
+                          {stage.tcuFields?.launchControl && (
+                            <div className="border border-blue-400 rounded-lg p-3 text-white">
+                              <p className="text-sm font-bold text-blue-300 mb-1">
+                                Launch Control
+                              </p>
+                              <p>
+                                Original:{" "}
+                                {stage.tcuFields.launchControl.original || "-"}
+                              </p>
+                              <p>
+                                Optimerad:{" "}
+                                {stage.tcuFields.launchControl.optimized || "-"}
+                              </p>
+                            </div>
+                          )}
+                          {stage.tcuFields?.rpmLimit && (
+                            <div className="border border-blue-400 rounded-lg p-3 text-white">
+                              <p className="text-sm font-bold text-blue-300 mb-1">
+                                Varvstopp
+                              </p>
+                              <p>
+                                Original:{" "}
+                                {stage.tcuFields.rpmLimit.original || "-"}
+                              </p>
+                              <p>
+                                Optimerad:{" "}
+                                {stage.tcuFields.rpmLimit.optimized || "-"}
+                              </p>
+                            </div>
+                          )}
+                          {stage.tcuFields?.shiftTime && (
+                            <div className="border border-blue-400 rounded-lg p-3 text-white">
+                              <p className="text-sm font-bold text-blue-300 mb-1">
+                                Växlingstid
+                              </p>
+                              <p>
+                                Original:{" "}
+                                {stage.tcuFields.shiftTime.original || "-"}
+                              </p>
+                              <p>
+                                Optimerad:{" "}
+                                {stage.tcuFields.shiftTime.optimized || "-"}
+                              </p>
+                            </div>
+                          )}
                         </div>
-                        <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
-                          <p className="text-xl text-white font-bold mb-1 uppercase">
-                            {stage.name} HK
-                          </p>
-                          <p className="text-xl font-bold">
-                            {stage.tunedHk} hk
-                          </p>
-                          <p className="text-xs mt-1 text-red-400">
-                            +{stage.tunedHk - stage.origHk} hk
-                          </p>
+                      ) : (
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 mt-6">
+                          {/* ORIGINAL & TUNED SPECS - PERFORMANCE */}
+                          <div className="border border-white rounded-lg p-3 text-center">
+                            <p className="text-sm text-white font-bold mb-1">
+                              ORIGINAL HK
+                            </p>
+                            <p className="text-xl text-white font-bold">
+                              {stage.origHk} hk
+                            </p>
+                          </div>
+                          <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
+                            <p className="text-xl text-white font-bold mb-1 uppercase">
+                              {stage.name} HK
+                            </p>
+                            <p className="text-xl font-bold">
+                              {stage.tunedHk} hk
+                            </p>
+                            <p className="text-xs mt-1 text-red-400">
+                              +{stage.tunedHk - stage.origHk} hk
+                            </p>
+                          </div>
+                          <div className="border border-white rounded-lg p-3 text-center">
+                            <p className="text-sm text-white font-bold mb-1">
+                              ORIGINAL NM
+                            </p>
+                            <p className="text-xl text-white font-bold">
+                              {stage.origNm} Nm
+                            </p>
+                          </div>
+                          <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
+                            <p className="text-xl text-white font-bold mb-1 uppercase">
+                              {stage.name} NM
+                            </p>
+                            <p className="text-xl font-bold">
+                              {stage.tunedNm} Nm
+                            </p>
+                            <p className="text-xs mt-1 text-red-400">
+                              +{stage.tunedNm - stage.origNm} Nm
+                            </p>
+                          </div>
                         </div>
-                        <div className="border border-white rounded-lg p-3 text-center">
-                          <p className="text-sm text-white font-bold mb-1">
-                            ORIGINAL NM
-                          </p>
-                          <p className="text-xl text-white font-bold">
-                            {stage.origNm} Nm
-                          </p>
-                        </div>
-                        <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
-                          <p className="text-xl text-white font-bold mb-1 uppercase">
-                            {stage.name} NM
-                          </p>
-                          <p className="text-xl font-bold">
-                            {stage.tunedNm} Nm
-                          </p>
-                          <p className="text-xs mt-1 text-red-400">
-                            +{stage.tunedNm - stage.origNm} Nm
-                          </p>
-                        </div>
-                      </div>
+                      )}
+
                       <div className="flex flex-col sm:flex-row gap-4 mt-4">
                         <button
                           onClick={() =>
