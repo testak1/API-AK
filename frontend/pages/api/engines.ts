@@ -21,6 +21,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             stages[]{
               name,
               "slug": name,
+              type,
+              tcuFields,
               origHk,
               tunedHk,
               origNm,
