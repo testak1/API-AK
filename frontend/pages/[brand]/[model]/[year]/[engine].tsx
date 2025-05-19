@@ -525,10 +525,10 @@ export default function EnginePage({
           />
         </div>
         <div className="mb-8">
-          <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center">
+          <h5 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center">
             {brandData.name} {modelData.name} {yearData.range}{" "}
             {engineData.label}
-          </h3>
+          </h5>
         </div>{" "}
         {engineData.stages?.length > 0 ? (
           <div className="space-y-6">
