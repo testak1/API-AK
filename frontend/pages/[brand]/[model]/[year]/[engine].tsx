@@ -602,7 +602,7 @@ export default function EnginePage({
                       </div>
                     </div>
                   </button>
-                  
+
                   {isExpanded && (
                     <div className="px-6 pb-6">
                       {isDsgStage ? (
@@ -716,7 +716,7 @@ export default function EnginePage({
                           }
                           className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg shadow"
                         >
-                          📄 STEG {stage.name.replace(/\D/g, "")} INFORMATION
+                          📄 {stage.name.toUpperCase()} INFORMATION{" "}
                         </button>
                         <button
                           onClick={() =>
