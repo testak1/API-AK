@@ -792,8 +792,6 @@ export default function TuningViewer() {
                               <p>
                                 Optimerad:{" "}
                                 <span className="text-green-400">
-                                  {stage.tcuFields.launchControl.optimized ||
-                                    "-"}{" "}
                                   {stage.tcuFields.rpmLimit.optimized || "-"}{" "}
                                   RPM
                                 </span>
@@ -812,8 +810,6 @@ export default function TuningViewer() {
                               <p>
                                 Optimerad:{" "}
                                 <span className="text-green-400">
-                                  {stage.tcuFields.launchControl.optimized ||
-                                    "-"}{" "}
                                   {stage.tcuFields.shiftTime.optimized || "-"}{" "}
                                   ms
                                 </span>
@@ -864,6 +860,7 @@ export default function TuningViewer() {
                           </div>
                         </div>
                       )}
+
                       <div className="flex flex-col sm:flex-row gap-4 mt-4">
                         <button
                           onClick={() =>
@@ -884,9 +881,11 @@ export default function TuningViewer() {
                       </div>
 
                       <div className="mt-6">
-                        <h3 className="text-lg font-medium text-gray-300 mb-2 uppercase">
-                          {stage.name}
-                        </h3>
+                        {!isDsgStage && (
+                          <h3 className="text-lg font-medium text-gray-300 mb-2 uppercase">
+                            {stage.name}
+                          </h3>
+                        )}
 
                         {/* Mobile-only legend above chart */}
                         {!isDsgStage && (

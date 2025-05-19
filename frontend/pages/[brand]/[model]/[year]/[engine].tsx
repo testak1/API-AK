@@ -602,6 +602,7 @@ export default function EnginePage({
                       </div>
                     </div>
                   </button>
+                  
                   {isExpanded && (
                     <div className="px-6 pb-6">
                       {isDsgStage ? (
