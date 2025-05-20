@@ -277,6 +277,32 @@ export default function EnginePage({
     }
   }, [engineData, stage]);
 
+  const getAllAktPlusOptions = useMemo(
+    () => (stage: Stage) => {
+      if (!engineData) return [];
+
+      const options = allAktOptions.filter((opt) => {
+        const isFuelMatch =
+          opt.isUniversal || opt.applicableFuelTypes?.includes(engineData.fuel);
+
+        const isManualMatch = opt.manualAssignments?.some(
+          (ref) => ref._ref === engineData._id,
+        );
+
+        const isStageMatch =
+          !opt.stageCompatibility || opt.stageCompatibility === stage.name;
+
+        return (isFuelMatch || isManualMatch) && isStageMatch;
+      });
+
+      const unique = new Map<string, AktPlusOption>();
+      options.forEach((opt) => unique.set(opt._id, opt));
+
+      return Array.from(unique.values());
+    },
+    [engineData, allAktOptions],
+  );
+
   const mergedAktPlusOptions = useMemo(() => {
     const optionMap = new Map<string, AktPlusOption>();
 
@@ -360,32 +386,6 @@ export default function EnginePage({
   const isExpandedAktPlusOption = (item: any): item is AktPlusOption => {
     return item && "_id" in item && "title" in item;
   };
-
-  const getAllAktPlusOptions = useMemo(
-    () => (stage: Stage) => {
-      if (!engineData) return [];
-
-      const options = allAktOptions.filter((opt) => {
-        const isFuelMatch =
-          opt.isUniversal || opt.applicableFuelTypes?.includes(engineData.fuel);
-
-        const isManualMatch = opt.manualAssignments?.some(
-          (ref) => ref._ref === engineData._id,
-        );
-
-        const isStageMatch =
-          !opt.stageCompatibility || opt.stageCompatibility === stage.name;
-
-        return (isFuelMatch || isManualMatch) && isStageMatch;
-      });
-
-      const unique = new Map<string, AktPlusOption>();
-      options.forEach((opt) => unique.set(opt._id, opt));
-
-      return Array.from(unique.values());
-    },
-    [engineData, allAktOptions],
-  );
 
   const toggleStage = (stageName: string) => {
     setExpandedStages((prev) => {
