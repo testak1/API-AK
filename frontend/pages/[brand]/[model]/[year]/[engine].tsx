@@ -538,10 +538,10 @@ export default function EnginePage({
           />
         </div>
         <div className="mb-8">
-          <h5 className="text-2xl sm:text-3xl md:text-2xl font-bold text-center">
+          <h1 className="text-xl sm:text-3xl md:text-xl font-bold text-center">
             {brandData.name} {modelData.name} {yearData.range}{" "}
             {engineData.label}
-          </h5>
+          </h1>
         </div>{" "}
         {engineData.stages?.length > 0 ? (
           <div className="space-y-6">
@@ -1015,14 +1015,12 @@ export default function EnginePage({
                             <p className="text-sm text-white font-semibold">
                               Motoroptimering
                               <span className="text-white-400 text-sm ml-1">
-                                [
                                 {stage.name
                                   .replace("Steg", "STEG ")
                                   .replace(/\s+/g, "")
                                   .toUpperCase()}
-                                ]
                               </span>
-                              {stage.tunedHk} HK & {stage.tunedNm} NM
+                              " "{stage.tunedHk} HK & {stage.tunedNm} NM
                             </p>
                           </div>
                         )}
