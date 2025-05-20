@@ -262,6 +262,7 @@ export default function EnginePage({
     };
   }, []);
 
+  const [allAktOptions, setAllAktOptions] = useState<AktPlusOption[]>([]);
   useEffect(() => {
     if (engineData?.stages?.length) {
       const initialExpanded = engineData.stages.reduce(
@@ -275,6 +276,20 @@ export default function EnginePage({
       setExpandedStages(initialExpanded);
     }
   }, [engineData, stage]);
+
+  useEffect(() => {
+    const fetchAktPlus = async () => {
+      try {
+        const res = await fetch("/api/aktplus-options");
+        const data = await res.json();
+        setAllAktOptions(data.options || []);
+      } catch (err) {
+        console.error("AKT+ load fail", err);
+      }
+    };
+
+    fetchAktPlus();
+  }, []);
 
   useEffect(() => {
     if (stage) {
@@ -336,31 +351,26 @@ export default function EnginePage({
     () => (stage: Stage) => {
       if (!engineData) return [];
 
-      const combinedOptions: AktPlusOptionReference[] = [
-        ...(engineData.globalAktPlusOptions || []),
-        ...(stage.aktPlusOptions || []),
-      ];
+      const options = allAktOptions.filter((opt) => {
+        const isFuelMatch =
+          opt.isUniversal || opt.applicableFuelTypes?.includes(engineData.fuel);
 
-      const uniqueOptionsMap = new Map<string, AktPlusOption>();
+        const isManualMatch = opt.manualAssignments?.some(
+          (ref) => ref._ref === engineData._id,
+        );
 
-      (combinedOptions as AktPlusOptionReference[])
-        .filter(isExpandedAktPlusOption)
-        .forEach((opt) => {
-          if (
-            (opt.isUniversal ||
-              opt.applicableFuelTypes?.includes(engineData.fuel) ||
-              opt.manualAssignments?.some(
-                (ref) => ref._ref === engineData._id,
-              )) &&
-            (!opt.stageCompatibility || opt.stageCompatibility === stage.name)
-          ) {
-            uniqueOptionsMap.set(opt._id, opt);
-          }
-        });
+        const isStageMatch =
+          !opt.stageCompatibility || opt.stageCompatibility === stage.name;
 
-      return Array.from(uniqueOptionsMap.values());
+        return (isFuelMatch || isManualMatch) && isStageMatch;
+      });
+
+      const unique = new Map<string, AktPlusOption>();
+      options.forEach((opt) => unique.set(opt._id, opt));
+
+      return Array.from(unique.values());
     },
-    [engineData],
+    [engineData, allAktOptions],
   );
 
   const toggleStage = (stageName: string) => {
