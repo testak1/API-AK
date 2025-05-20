@@ -509,14 +509,6 @@ export default function EnginePage({
                     url: pageUrl,
                   }
                 : undefined,
-              publisher: {
-                "@type": "Organization",
-                name: "AK-TUNING – Marknadsledande på motoroptimering",
-                logo: {
-                  "@type": "ImageObject",
-                  url: "https://tuning.aktuning.se/ak-logo1.png",
-                },
-              },
             }),
           }}
         />
@@ -550,21 +542,24 @@ export default function EnginePage({
                   "@type": "ItemList",
                   name: `AKT+ tillägg för ${brandData.name} ${modelData.name} ${engineData.label} – ${stage.name}`,
                   itemListElement: aktOptions.map((opt, index) => ({
-                    "@type": "Product",
+                    "@type": "ListItem",
                     position: index + 1,
-                    name: opt.title,
-                    ...(opt.gallery?.[0]?.asset?.url && {
-                      image: opt.gallery[0].asset.url,
-                    }),
-                    ...(opt.price && {
-                      offers: {
-                        "@type": "Offer",
-                        priceCurrency: "SEK",
-                        price: opt.price,
-                        availability: "https://schema.org/InStock",
-                        url: pageUrl,
-                      },
-                    }),
+                    item: {
+                      "@type": "Product",
+                      name: opt.title,
+                      ...(opt.gallery?.[0]?.asset?.url && {
+                        image: opt.gallery[0].asset.url,
+                      }),
+                      ...(opt.price && {
+                        offers: {
+                          "@type": "Offer",
+                          priceCurrency: "SEK",
+                          price: opt.price,
+                          availability: "https://schema.org/InStock",
+                          url: pageUrl,
+                        },
+                      }),
+                    },
                   })),
                 }),
               }}
