@@ -1157,7 +1157,7 @@ export default function TuningViewer() {
                                   .replace("Steg", "STEG")
                                   .toUpperCase()}
                               </span>
-                              {` ${stage.tunedHk} HK & ${stage.tunedNm} NM`}
+                              {` - ${stage.tunedHk} HK & ${stage.tunedNm} NM`}
                             </p>
                           </div>
                         )}
