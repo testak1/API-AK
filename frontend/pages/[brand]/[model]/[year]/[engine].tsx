@@ -524,6 +524,39 @@ export default function EnginePage({
             }),
           }}
         />
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "ItemList",
+              name: "AKT+ Tillägg",
+              itemListElement: (selectedStage?.aktPlusOptions || []).map(
+                (opt: any, index: number) => ({
+                  "@type": "Product",
+                  position: index + 1,
+                  name: opt.title,
+                  description: opt.description
+                    ? typeof opt.description === "string"
+                      ? opt.description
+                      : "Extra tillval för din optimering."
+                    : "Extra tillval för din optimering.",
+                  image:
+                    opt.gallery?.[0]?.asset?.url ||
+                    "https://tuning.aktuning.se/ak-logo1.png",
+                  offers: {
+                    "@type": "Offer",
+                    priceCurrency: "SEK",
+                    price: opt.price ?? 0,
+                    availability: "https://schema.org/InStock",
+                    url: `https://tuning.aktuning.se${router.asPath}`,
+                  },
+                }),
+              ),
+            }),
+          }}
+        />
       </Head>
 
       <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
