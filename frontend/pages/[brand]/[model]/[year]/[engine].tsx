@@ -744,7 +744,7 @@ export default function EnginePage({
                       <div className="mt-6">
                         {!isDsgStage && (
                           <h3 className="text-lg font-medium text-gray-300 mb-2 uppercase">
-                            {stage.name}
+                            {stage.name} effektkurva
                           </h3>
                         )}
 
@@ -1016,11 +1016,10 @@ export default function EnginePage({
                               Motoroptimering
                               <span className="text-white-400 text-sm ml-1">
                                 {stage.name
-                                  .replace("Steg", "STEG ")
-                                  .replace(/\s+/g, "")
+                                  .replace("Steg", "STEG")
                                   .toUpperCase()}
                               </span>
-                              " "{stage.tunedHk} HK & {stage.tunedNm} NM
+                              {` ${stage.tunedHk} HK & ${stage.tunedNm} NM`}
                             </p>
                           </div>
                         )}
