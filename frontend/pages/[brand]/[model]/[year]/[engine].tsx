@@ -108,6 +108,20 @@ export const getServerSideProps: GetServerSideProps<EnginePageProps> = async (
   }
 };
 
+function extractPlainTextFromDescription(description: any): string {
+  if (!description || !Array.isArray(description)) return "";
+
+  return description
+    .map((block) => {
+      if (block._type === "block" && Array.isArray(block.children)) {
+        return block.children.map((child) => child.text).join("");
+      }
+      return "";
+    })
+    .join("\n")
+    .trim();
+}
+
 const portableTextComponents = {
   types: {
     image: ({ value }: any) => (
@@ -571,12 +585,9 @@ export default function EnginePage({
                   "@type": "Product",
                   name: opt.title,
                   ...(opt.description && {
-                    description:
-                      typeof opt.description === "string"
-                        ? opt.description
-                        : Array.isArray(opt.description)
-                          ? opt.description.join(" ")
-                          : undefined,
+                    description: extractPlainTextFromDescription(
+                      opt.description,
+                    ),
                   }),
                   ...(opt.gallery?.[0]?.asset?.url && {
                     image: opt.gallery[0].asset.url,
