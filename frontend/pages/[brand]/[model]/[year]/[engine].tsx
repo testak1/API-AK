@@ -525,38 +525,42 @@ export default function EnginePage({
           }}
         />
 
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "ItemList",
-              name: "AKT+ Tillägg",
-              itemListElement: (selectedStage?.aktPlusOptions || []).map(
-                (opt: any, index: number) => ({
-                  "@type": "Product",
-                  position: index + 1,
-                  name: opt.title,
-                  description: opt.description
-                    ? typeof opt.description === "string"
-                      ? opt.description
-                      : "Extra tillval för din optimering."
-                    : "Extra tillval för din optimering.",
-                  image:
-                    opt.gallery?.[0]?.asset?.url ||
-                    "https://tuning.aktuning.se/ak-logo1.png",
-                  offers: {
-                    "@type": "Offer",
-                    priceCurrency: "SEK",
-                    price: opt.price ?? 0,
-                    availability: "https://schema.org/InStock",
-                    url: `https://tuning.aktuning.se${router.asPath}`,
-                  },
+        {/* ✅ Structured Data: AKT+ options */}
+        {engineData?.stages?.map((stage) => {
+          const aktOptions = getAllAktPlusOptions(stage);
+          if (!aktOptions.length) return null;
+
+          return (
+            <script
+              key={`aktplus-jsonld-${stage.name}`}
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{
+                __html: JSON.stringify({
+                  "@context": "https://schema.org",
+                  "@type": "ItemList",
+                  name: `AKT+ tillägg för ${brandData.name} ${modelData.name} ${engineData.label} – ${stage.name}`,
+                  itemListElement: aktOptions.map((opt, index) => ({
+                    "@type": "Product",
+                    position: index + 1,
+                    name: opt.title,
+                    ...(opt.gallery?.[0]?.asset?.url && {
+                      image: opt.gallery[0].asset.url,
+                    }),
+                    ...(opt.price && {
+                      offers: {
+                        "@type": "Offer",
+                        priceCurrency: "SEK",
+                        price: opt.price,
+                        availability: "https://schema.org/InStock",
+                        url: pageUrl,
+                      },
+                    }),
+                  })),
                 }),
-              ),
-            }),
-          }}
-        />
+              }}
+            />
+          );
+        })}
       </Head>
 
       <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
