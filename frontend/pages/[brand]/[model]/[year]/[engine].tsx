@@ -570,6 +570,14 @@ export default function EnginePage({
                 item: {
                   "@type": "Product",
                   name: opt.title,
+                  ...(opt.description && {
+                    description:
+                      typeof opt.description === "string"
+                        ? opt.description
+                        : Array.isArray(opt.description)
+                          ? opt.description.join(" ")
+                          : undefined,
+                  }),
                   ...(opt.gallery?.[0]?.asset?.url && {
                     image: opt.gallery[0].asset.url,
                   }),
