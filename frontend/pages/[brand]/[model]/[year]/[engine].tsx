@@ -383,6 +383,21 @@ export default function EnginePage({
     });
   };
 
+  const getUniqueAktPlusOptions = () => {
+    if (!engineData || !engineData.stages?.length) return [];
+
+    const allOptions = engineData.stages.flatMap((stage) =>
+      getAllAktPlusOptions(stage),
+    );
+
+    const uniqueMap = new Map<string, AktPlusOption>();
+    allOptions.forEach((opt) => {
+      if (!uniqueMap.has(opt._id)) uniqueMap.set(opt._id, opt);
+    });
+
+    return Array.from(uniqueMap.values());
+  };
+
   const toggleOption = (optionId: string) => {
     setExpandedOptions((prev) => {
       const newState: Record<string, boolean> = {};
@@ -527,45 +542,37 @@ export default function EnginePage({
           }}
         />
 
-        {/* ✅ Structured Data: AKT+ options */}
-        {engineData?.stages?.map((stage) => {
-          const aktOptions = getAllAktPlusOptions(stage);
-          if (!aktOptions.length) return null;
-
-          return (
-            <script
-              key={`aktplus-jsonld-${stage.name}`}
-              type="application/ld+json"
-              dangerouslySetInnerHTML={{
-                __html: JSON.stringify({
-                  "@context": "https://schema.org",
-                  "@type": "ItemList",
-                  name: `AKT+ tillägg för ${brandData.name} ${modelData.name} ${engineData.label} – ${stage.name}`,
-                  itemListElement: aktOptions.map((opt, index) => ({
-                    "@type": "ListItem",
-                    position: index + 1,
-                    item: {
-                      "@type": "Product",
-                      name: opt.title,
-                      ...(opt.gallery?.[0]?.asset?.url && {
-                        image: opt.gallery[0].asset.url,
-                      }),
-                      ...(opt.price && {
-                        offers: {
-                          "@type": "Offer",
-                          priceCurrency: "SEK",
-                          price: opt.price,
-                          availability: "https://schema.org/InStock",
-                          url: pageUrl,
-                        },
-                      }),
+        {/* ✅ Structured Data: AKT+ options – sammanslagen */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "ItemList",
+              name: `AKT+ tillägg för ${brandData.name} ${modelData.name} ${engineData.label}`,
+              itemListElement: getUniqueAktPlusOptions().map((opt, index) => ({
+                "@type": "ListItem",
+                position: index + 1,
+                item: {
+                  "@type": "Product",
+                  name: opt.title,
+                  ...(opt.gallery?.[0]?.asset?.url && {
+                    image: opt.gallery[0].asset.url,
+                  }),
+                  ...(opt.price && {
+                    offers: {
+                      "@type": "Offer",
+                      priceCurrency: "SEK",
+                      price: opt.price,
+                      availability: "https://schema.org/InStock",
+                      url: pageUrl,
                     },
-                  })),
-                }),
-              }}
-            />
-          );
-        })}
+                  }),
+                },
+              })),
+            }),
+          }}
+        />
       </Head>
 
       <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
