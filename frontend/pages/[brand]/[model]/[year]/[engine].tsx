@@ -277,6 +277,20 @@ export default function EnginePage({
     }
   }, [engineData, stage]);
 
+  const mergedAktPlusOptions = useMemo(() => {
+    const optionMap = new Map<string, AktPlusOption>();
+
+    engineData?.stages?.forEach((stage) => {
+      getAllAktPlusOptions(stage).forEach((opt) => {
+        if (!optionMap.has(opt._id)) {
+          optionMap.set(opt._id, opt);
+        }
+      });
+    });
+
+    return Array.from(optionMap.values());
+  }, [engineData]);
+
   useEffect(() => {
     const fetchAktPlus = async () => {
       try {
@@ -542,7 +556,7 @@ export default function EnginePage({
           }}
         />
 
-        {/* ✅ Structured Data: AKT+ options – sammanslagen */}
+        {/* ✅ Structured Data: AKT+ options — merged across all stages */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -550,7 +564,7 @@ export default function EnginePage({
               "@context": "https://schema.org",
               "@type": "ItemList",
               name: `AKT+ tillägg för ${brandData.name} ${modelData.name} ${engineData.label}`,
-              itemListElement: getUniqueAktPlusOptions().map((opt, index) => ({
+              itemListElement: mergedAktPlusOptions.map((opt, index) => ({
                 "@type": "ListItem",
                 position: index + 1,
                 item: {
