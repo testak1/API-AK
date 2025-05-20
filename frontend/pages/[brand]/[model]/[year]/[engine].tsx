@@ -1019,7 +1019,7 @@ export default function EnginePage({
                                   .replace("Steg", "STEG")
                                   .toUpperCase()}
                               </span>
-                              {` ${stage.tunedHk} HK & ${stage.tunedNm} NM`}
+                              {` - ${stage.tunedHk} HK & ${stage.tunedNm} NM`}
                             </p>
                           </div>
                         )}
