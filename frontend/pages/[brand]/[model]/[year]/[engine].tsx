@@ -36,7 +36,7 @@ ChartJS.register(
   LineElement,
   LineController,
   Tooltip,
-  Legend
+  Legend,
 );
 
 interface EnginePageProps {
@@ -50,7 +50,7 @@ const normalizeString = (str: string) =>
   str.toLowerCase().replace(/[^a-z0-9]/g, "");
 
 export const getServerSideProps: GetServerSideProps<EnginePageProps> = async (
-  context
+  context,
 ) => {
   const brand = decodeURIComponent((context.params?.brand as string) || "");
   const model = decodeURIComponent((context.params?.model as string) || "");
@@ -70,8 +70,8 @@ export const getServerSideProps: GetServerSideProps<EnginePageProps> = async (
           normalizeString(m.name) === normalizeString(model) ||
           (m.slug &&
             normalizeString(
-              typeof m.slug === "string" ? m.slug : m.slug.current
-            ) === normalizeString(model))
+              typeof m.slug === "string" ? m.slug : m.slug.current,
+            ) === normalizeString(model)),
       ) || null;
 
     if (!modelData) return { notFound: true };
@@ -80,7 +80,7 @@ export const getServerSideProps: GetServerSideProps<EnginePageProps> = async (
       modelData.years?.find(
         (y: Year) =>
           normalizeString(y.range) === normalizeString(year) ||
-          (y.slug && normalizeString(y.slug) === normalizeString(year))
+          (y.slug && normalizeString(y.slug) === normalizeString(year)),
       ) || null;
 
     if (!yearData) return { notFound: true };
@@ -89,7 +89,7 @@ export const getServerSideProps: GetServerSideProps<EnginePageProps> = async (
       yearData.engines?.find(
         (e: Engine) =>
           normalizeString(e.label) === normalizeString(engine) ||
-          (e.slug && normalizeString(e.slug) === normalizeString(engine))
+          (e.slug && normalizeString(e.slug) === normalizeString(engine)),
       ) || null;
 
     if (!engineData) return { notFound: true };
@@ -133,7 +133,7 @@ const portableTextComponents = {
 const generateDynoCurve = (
   peakValue: number,
   isHp: boolean,
-  fuelType: string
+  fuelType: string,
 ) => {
   // Välj RPM range beroende på motor
   const rpmRange = fuelType.toLowerCase().includes("diesel")
@@ -180,7 +180,7 @@ export default function EnginePage({
   const stageParam = router.query.stage;
   const stage = typeof stageParam === "string" ? stageParam : "";
   const [expandedStages, setExpandedStages] = useState<Record<string, boolean>>(
-    {}
+    {},
   );
   const [expandedDescriptions, setExpandedDescriptions] = useState<
     Record<string, boolean>
@@ -221,7 +221,7 @@ export default function EnginePage({
 
   const handleBookNow = (
     stageOrOptionName: string,
-    event?: React.MouseEvent
+    event?: React.MouseEvent,
   ) => {
     if (!brandData || !modelData || !yearData || !engineData) return;
 
@@ -270,7 +270,7 @@ export default function EnginePage({
           acc[stageObj.name] = stage ? isMatch : stageObj.name === "Steg 1";
           return acc;
         },
-        {} as Record<string, boolean>
+        {} as Record<string, boolean>,
       );
       setExpandedStages(initialExpanded);
     }
@@ -350,7 +350,7 @@ export default function EnginePage({
             (opt.isUniversal ||
               opt.applicableFuelTypes?.includes(engineData.fuel) ||
               opt.manualAssignments?.some(
-                (ref) => ref._ref === engineData._id
+                (ref) => ref._ref === engineData._id,
               )) &&
             (!opt.stageCompatibility || opt.stageCompatibility === stage.name)
           ) {
@@ -360,7 +360,7 @@ export default function EnginePage({
 
       return Array.from(uniqueOptionsMap.values());
     },
-    [engineData]
+    [engineData],
   );
 
   const toggleStage = (stageName: string) => {
@@ -412,14 +412,27 @@ export default function EnginePage({
   const selectedStep = selectedStage?.name?.toUpperCase() || "MJUKVARA";
   const hp = selectedStage?.tunedHk ?? "?";
   const nm = selectedStage?.tunedNm ?? "?";
+
+  const hkIncrease =
+    typeof selectedStage?.tunedHk === "number" &&
+    typeof selectedStage?.origHk === "number"
+      ? selectedStage.tunedHk - selectedStage.origHk
+      : "?";
+
+  const nmIncrease =
+    typeof selectedStage?.tunedNm === "number" &&
+    typeof selectedStage?.origNm === "number"
+      ? selectedStage.tunedNm - selectedStage.origNm
+      : "?";
+
   const price =
     selectedStage?.price != null
       ? `${selectedStage.price.toLocaleString()} kr`
       : "";
 
-  const pageTitle = `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${selectedStep} Mjukvara | AK-TUNING`;
+  const pageTitle = `Motoroptimering ${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${selectedStep}`;
 
-  const pageDescription = `Motoroptimera din ${brandData.name} ${modelData.name} ${engineData.label} – från ${selectedStage?.origHk} hk till ${hp} hk och ${nm} Nm med skräddarsydd ${selectedStep} mjukvara. 2 års mjukvaru garanti samt 30 dagar öppet köp! Endast: ${price}.`;
+  const pageDescription = `Motoroptimering till ${brandData.name} ${modelData.name} ${engineData.label} – +${hkIncrease} hk & +${nmIncrease} Nm med skräddarsydd ${selectedStep} mjukvara. 2 års mjukvaru garanti samt 30 dagar öppet köp! Endast: ${price}.`;
 
   const pageUrl = `https://tuning.aktuning.se${router.asPath.split("?")[0]}`;
 
@@ -820,7 +833,7 @@ export default function EnginePage({
                                     data: generateDynoCurve(
                                       stage.origHk,
                                       true,
-                                      engineData.fuel
+                                      engineData.fuel,
                                     ),
                                     borderColor: "#f87171",
                                     backgroundColor: "transparent",
@@ -835,7 +848,7 @@ export default function EnginePage({
                                     data: generateDynoCurve(
                                       stage.tunedHk,
                                       true,
-                                      engineData.fuel
+                                      engineData.fuel,
                                     ),
                                     borderColor: "#f87171",
                                     backgroundColor: "#f87171",
@@ -849,7 +862,7 @@ export default function EnginePage({
                                     data: generateDynoCurve(
                                       stage.origNm,
                                       false,
-                                      engineData.fuel
+                                      engineData.fuel,
                                     ),
                                     borderColor: "#d1d5db",
                                     backgroundColor: "transparent",
@@ -864,7 +877,7 @@ export default function EnginePage({
                                     data: generateDynoCurve(
                                       stage.tunedNm,
                                       false,
-                                      engineData.fuel
+                                      engineData.fuel,
                                     ),
                                     borderColor: "#d1d5db",
                                     backgroundColor: "transparent",
