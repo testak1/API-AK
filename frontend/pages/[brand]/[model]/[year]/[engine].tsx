@@ -432,7 +432,7 @@ export default function EnginePage({
 
   const pageTitle = `Motoroptimering ${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${selectedStep}`;
 
-  const pageDescription = `Motoroptimering till ${brandData.name} ${modelData.name} ${engineData.label} – +${hkIncrease} hk & +${nmIncrease} Nm med skräddarsydd ${selectedStep} mjukvara. 2 års mjukvaru garanti samt 30 dagar öppet köp! Endast: ${price}.`;
+  const pageDescription = `Motoroptimering till ${brandData.name} ${modelData.name} ${engineData.label} ökning +${hkIncrease} hk & +${nmIncrease} Nm med skräddarsydd ${selectedStep} mjukvara. 2 års mjukvaru garanti samt 30 dagar öppet köp! Endast: ${price}.`;
 
   const pageUrl = `https://tuning.aktuning.se${router.asPath.split("?")[0]}`;
 
@@ -1009,12 +1009,12 @@ export default function EnginePage({
                           </div>
                         )}
 
-                        {/* Mobile-only small tuned specs */}
+                        {/* small tuned specs */}
                         {!isDsgStage && (
-                          <div className="block md:hidden text-center mt-6 mb-6">
+                          <div className="block text-center mt-6 mb-6">
                             <p className="text-sm text-white font-semibold">
-                              {stage.tunedHk} HK & {stage.tunedNm} NM
-                              <span className="text-gray-400 text-sm ml-1">
+                              Motoroptimering
+                              <span className="text-white-400 text-sm ml-1">
                                 [
                                 {stage.name
                                   .replace("Steg", "STEG ")
@@ -1022,6 +1022,7 @@ export default function EnginePage({
                                   .toUpperCase()}
                                 ]
                               </span>
+                              {stage.tunedHk} HK & {stage.tunedNm} NM
                             </p>
                           </div>
                         )}
