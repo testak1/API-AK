@@ -315,7 +315,7 @@ export default function EnginePage({
     });
 
     return Array.from(optionMap.values());
-  }, [engineData]);
+  }, [engineData, getAllAktPlusOptions]);
 
   useEffect(() => {
     const fetchAktPlus = async () => {
