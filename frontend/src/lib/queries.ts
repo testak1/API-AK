@@ -1,4 +1,7 @@
 // Lightweight query (for /api/brands.ts)
+
+import groq from "groq";
+
 export const brandsLightQuery = `
 *[_type == "brand"]{
   _id,
