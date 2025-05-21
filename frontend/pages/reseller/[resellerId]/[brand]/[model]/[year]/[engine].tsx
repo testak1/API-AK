@@ -204,6 +204,7 @@ export default function EnginePage({
   yearData,
   overrideData,
   engineData,
+  resellerId,
 }: EnginePageProps) {
   const router = useRouter();
   const stageParam = router.query.stage;
@@ -267,7 +268,7 @@ export default function EnginePage({
       : engineData.label;
 
     const stageSlug = slugifyStage(stageOrOptionName);
-    const finalLink = `https://api.aktuning.se/reseller/${resellerId}${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}#${stageSlug}`;
+    const finalLink = `https://api.aktuning.se/reseller/${resellerId}/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}#${stageSlug}`;
 
     const clickY = event?.clientY || 0;
     const scrollY = window.scrollY + clickY;
