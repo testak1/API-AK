@@ -485,7 +485,7 @@ export default function EnginePage({
 
   const pageTitle = `Motoroptimering ${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${selectedStep}`;
 
-  const pageDescription = `Motoroptimering till ${brandData.name} ${modelData.name} ${engineData.label} ökning +${hkIncrease} hk & +${nmIncrease} Nm med skräddarsydd ${selectedStep} mjukvara. 2 års mjukvaru garanti samt 30 dagar öppet köp! Endast: ${price}.`;
+  const pageDescription = `Motoroptimering till ${brandData.name} ${modelData.name} ${engineData.label} ökning +${hkIncrease} hk & +${nmIncrease} Nm med skräddarsydd ${selectedStep} mjukvara. 2 års mjukvaru garanti samt 30 dagar öppet köp!`;
 
   const pageUrl = `https://tuning.aktuning.se${router.asPath.split("?")[0]}`;
 
