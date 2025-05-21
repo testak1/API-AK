@@ -2,17 +2,13 @@
 import React from "react";
 import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 
-export default function Dashboard() {
+export default function DashboardPage() {
   return (
-    <>
-      <SignedOut>
-        <SignInButton />
-      </SignedOut>
-
-      <SignedIn>
-        <h1>Välkommen till din återförsäljarpanel</h1>
-        {/* Komponent för att ändra overrides kommer här */}
-      </SignedIn>
-    </>
+    <div className="p-8">
+      <h1 className="text-2xl font-bold">Återförsäljare Dashboard</h1>
+      <p className="mt-4 text-gray-600">
+        Här kommer du kunna ändra pris, logotyp, AKT+ osv.
+      </p>
+    </div>
   );
 }
