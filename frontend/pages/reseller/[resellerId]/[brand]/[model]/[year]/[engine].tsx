@@ -53,18 +53,18 @@ const normalizeString = (str: string) =>
   str.toLowerCase().replace(/[^a-z0-9]/g, "");
 
 function findModel(brand: any, modelSlug: string) {
-  return brand.models?.find((m: any) => {
+  return brand?.models?.find((m: any) => {
     const mSlug = typeof m.slug === "object" ? m.slug.current : m.slug;
     return mSlug === modelSlug;
   });
 }
 
 function findYear(model: any, yearSlug: string) {
-  return model.years?.find((y: any) => y.range === yearSlug);
+  return model?.years?.find((y: any) => y.range === yearSlug);
 }
 
 function findEngine(year: any, engineSlug: string) {
-  return year.engines?.find((e: any) => {
+  return year?.engines?.find((e: any) => {
     const normalized = (label: string) =>
       label
         .toLowerCase()
