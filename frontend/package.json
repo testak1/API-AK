@@ -16,6 +16,7 @@
     "@sanity/types": "^3.8.0",
     "autoprefixer": "^10.4.21",
     "chart.js": "^4.4.9",
+    "groq": "^3.89.0",
     "jsonwebtoken": "^9.0.2",
     "motion": "^12.9.2",
     "next": "^14.1.10",
