@@ -1,4 +1,4 @@
-// /pages/reseller/[resellerId]/[brand]/[model]/[year]/[engine].tsx
+// pages/reseller/[resellerId]/[brand]/[model]/[year]/[engine].tsx
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import client from "@/lib/sanity";
@@ -53,7 +53,10 @@ const normalizeString = (str: string) =>
   str.toLowerCase().replace(/[^a-z0-9]/g, "");
 
 function findModel(brand: any, modelSlug: string) {
-  return brand.models?.find((m: any) => m.slug.current === modelSlug);
+  return brand.models?.find((m: any) => {
+    const mSlug = typeof m.slug === "object" ? m.slug.current : m.slug;
+    return mSlug === modelSlug;
+  });
 }
 
 function findYear(model: any, yearSlug: string) {
