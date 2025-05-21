@@ -1,4 +1,5 @@
 // pages/dashboard.tsx
+import React from "react";
 import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 
 export default function Dashboard() {
