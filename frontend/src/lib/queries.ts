@@ -58,6 +58,20 @@ export const engineByParamsQuery = `
   }
 `;
 
+export const resellerOverrideQuery = groq`
+  *[_type == "resellerOverride" && resellerId == $resellerId &&
+     brand == $brand && model == $model && year == $year && engine == $engine][0] {
+    logo,
+    aktplusVisible,
+    stages[]{
+      name,
+      price,
+      tunedHk,
+      tunedNm
+    }
+  }
+`;
+
 // Heavy query (when you need full info like stages, aktplus, engines)
 export const allBrandsQuery = `
 *[_type == "brand"]{
