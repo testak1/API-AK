@@ -2,7 +2,7 @@
 import { groq } from "next-sanity";
 import type { NextApiRequest, NextApiResponse } from "next";
 import client from "@/lib/sanity";
-import { resellerOverridesForEngineQuery } from "@/src/lib/queries";
+import { engineByParamsQuery, resellerOverridesForEngineQuery } from "@/src/lib/queries";
 
 export default async function handler(
   req: NextApiRequest,
