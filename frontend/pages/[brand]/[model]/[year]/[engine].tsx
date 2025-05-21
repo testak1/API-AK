@@ -614,6 +614,8 @@ export default function EnginePage({
             src="/ak-logo-svart.png"
             fetchPriority="high"
             alt="AK-TUNING"
+            width={85}
+            height={80}
             style={{ height: "80px", cursor: "pointer" }}
             className="h-12 object-contain"
             onClick={() => (window.location.href = "/")}
@@ -666,6 +668,8 @@ export default function EnginePage({
                         <img
                           src={`/badges/${stage.name.toLowerCase().replace(/\s+/g, "")}.png`}
                           alt={stage.name}
+                          width={66}
+                          height={32}
                           className="h-8 object-contain"
                         />
                         <span className="inline-block bg-red-600 text-black px-4 py-1 rounded-full text-xl font-semibold shadow-md">
@@ -1130,6 +1134,8 @@ export default function EnginePage({
                               <img
                                 src="/logos/aktplus.png"
                                 alt="AKT+ Logo"
+                                width={66}
+                                height={32}
                                 className="h-8 w-auto object-contain"
                               />
                               <h3 className="text-md font-semibold text-white">
