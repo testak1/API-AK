@@ -35,6 +35,7 @@ export const engineByParamsQuery = `
       "years": years[]{
         range,
         "engines": engines[]{
+          _id,
           label,
           fuel,
           "stages": stages[]{
