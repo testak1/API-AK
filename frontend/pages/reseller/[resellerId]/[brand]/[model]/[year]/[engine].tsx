@@ -1,4 +1,4 @@
-// /pages/[resellerId]/[brand]/[model]/[year]/[engine].tsx
+// /pages/reseller/[resellerId]/[brand]/[model]/[year]/[engine].tsx
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import client from "@/lib/sanity";
