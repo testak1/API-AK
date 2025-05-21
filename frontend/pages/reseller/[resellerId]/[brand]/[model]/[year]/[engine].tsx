@@ -263,13 +263,8 @@ export default function EnginePage({
       typeof modelData.slug === "object"
         ? modelData.slug.current
         : modelData.slug || slugify(modelData.name);
-    const yearSlug = yearData.range.includes(" ")
-      ? slugify(yearData.range)
-      : yearData.range;
-    const engineSlug = engineData.label.includes(" ")
-      ? slugify(engineData.label)
-      : engineData.label;
-
+    const yearSlug = slugify(yearData.range);
+    const engineSlug = slugify(engineData.label);
     const stageSlug = slugifyStage(stageOrOptionName);
     const finalLink = `https://api.aktuning.se/reseller/${resellerId}/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}#${stageSlug}`;
 
