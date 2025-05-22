@@ -18,6 +18,7 @@ import { PortableText } from "@portabletext/react";
 import Head from "next/head";
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import ContactModal from "@/components/ContactModal";
+import VehicleSelector from "@/components/VehicleSelector";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -51,6 +52,11 @@ interface EnginePageProps {
 
 const normalizeString = (str: string) =>
   str.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+const [selectedBrand, setSelectedBrand] = useState<string>("");
+const [selectedModel, setSelectedModel] = useState<string>("");
+const [selectedYear, setSelectedYear] = useState<string>("");
+const [selectedEngine, setSelectedEngine] = useState<string>("");
 
 const slugify = (str: string) =>
   str
@@ -541,6 +547,19 @@ export default function EnginePage({
             />
           )}
         </div>
+
+        <VehicleSelector
+  brands={allBrands}
+  selectedBrand={selectedBrand}
+  selectedModel={selectedModel}
+  selectedYear={selectedYear}
+  selectedEngine={selectedEngine}
+  onBrandChange={setSelectedBrand}
+  onModelChange={setSelectedModel}
+  onYearChange={setSelectedYear}
+  onEngineChange={setSelectedEngine}
+  resellerId={resellerId}
+/>
         <div className="mb-8">
           <h1 className="text-xl sm:text-3xl md:text-xl font-bold text-center">
             {"Motoroptimering "}
