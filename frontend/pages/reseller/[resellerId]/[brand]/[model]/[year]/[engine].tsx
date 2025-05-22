@@ -53,11 +53,6 @@ interface EnginePageProps {
 const normalizeString = (str: string) =>
   str.toLowerCase().replace(/[^a-z0-9]/g, "");
 
-const [selectedBrand, setSelectedBrand] = useState<string>("");
-const [selectedModel, setSelectedModel] = useState<string>("");
-const [selectedYear, setSelectedYear] = useState<string>("");
-const [selectedEngine, setSelectedEngine] = useState<string>("");
-
 const slugify = (str: string) =>
   str
     .toLowerCase()
@@ -243,6 +238,10 @@ export default function EnginePage({
   resellerId,
 }: EnginePageProps) {
   const router = useRouter();
+  const [selectedBrand, setSelectedBrand] = useState<string>("");
+const [selectedModel, setSelectedModel] = useState<string>("");
+const [selectedYear, setSelectedYear] = useState<string>("");
+const [selectedEngine, setSelectedEngine] = useState<string>("");
   const stageParam = router.query.stage;
   const stage = typeof stageParam === "string" ? stageParam : "";
   const [expandedStages, setExpandedStages] = useState<Record<string, boolean>>(
