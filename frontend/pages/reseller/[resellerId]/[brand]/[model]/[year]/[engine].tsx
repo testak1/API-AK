@@ -537,7 +537,7 @@ export default function EnginePage({
               height={80}
               style={{ height: "80px", cursor: "pointer" }}
               className="h-12 object-contain"
-              onClick={() => (window.location.href = "/reseller/{resellerId}")}
+              onClick={() => (window.location.href = `/reseller/${resellerId}`)}
             />
           )}
         </div>
