@@ -93,7 +93,7 @@ function applyOverrideToStage(stage: Stage, overrides: any[]): Stage {
   };
 }
 
-const allBrands = await client.fetch(allBrandsQuery);
+
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const { resellerId, brand, model, year, engine } = context.params as {
     resellerId: string;
@@ -102,6 +102,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     year: string;
     engine: string;
   };
+
+  const allBrands = await client.fetch(allBrandsQuery);
 
   // Temporär whitelista – hämta gärna från Sanity i framtiden
   const validResellerIds = ["testak", "test1", "test2"];
