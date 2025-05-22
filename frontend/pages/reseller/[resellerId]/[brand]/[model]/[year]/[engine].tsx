@@ -308,9 +308,11 @@ export default function EnginePage({
     });
   };
 
-  const resellerLogo =
-    overrideData?.find((o) => o.logo?.asset?.url)?.logo?.asset?.url ||
-    (brandData.logo?.asset && urlFor(brandData.logo.asset).url());
+  const resellerLogo = overrideData?.[0]?.logo?.asset
+    ? urlFor(overrideData[0].logo).width(60).url()
+    : brandData.logo?.asset
+      ? urlFor(brandData.logo).width(60).url()
+      : null;
 
   // Load watermark image
   useEffect(() => {
