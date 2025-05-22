@@ -52,26 +52,27 @@ interface EnginePageProps {
 const normalizeString = (str: string) =>
   str.toLowerCase().replace(/[^a-z0-9]/g, "");
 
+const slugify = (str: string) =>
+  str
+    .toLowerCase()
+    .normalize("NFD") // så åäö blir aao
+    .replace(/[\u0300-\u036f]/g, "") // ta bort accent-tecken
+    .replace(/[^\w\s-]/g, "") // ta bort specialtecken
+    .replace(/\s+/g, "-") // ersätt mellanslag med bindestreck
+    .replace(/-+/g, "-"); // ta bort dubletter av bindestreck
+
 function findModel(brand: any, modelSlug: string) {
-  return brand?.models?.find((m: any) => {
-    const mSlug = typeof m.slug === "object" ? m.slug.current : m.slug;
-    return mSlug === modelSlug;
-  });
+  return brand.models?.find((m: any) => slugify(m.name) === slugify(modelSlug));
 }
 
 function findYear(model: any, yearSlug: string) {
-  return model?.years?.find((y: any) => y.range === yearSlug);
+  return model.years?.find((y: any) => slugify(y.range) === slugify(yearSlug));
 }
 
 function findEngine(year: any, engineSlug: string) {
-  return year?.engines?.find((e: any) => {
-    const normalized = (label: string) =>
-      label
-        .toLowerCase()
-        .replace(/\s+/g, "-")
-        .replace(/[^\w-]/g, "");
-    return normalized(e.label) === normalized(engineSlug);
-  });
+  return year.engines?.find(
+    (e: any) => slugify(e.label) === slugify(engineSlug),
+  );
 }
 
 function applyOverrideToStage(stage: Stage, override: any): Stage {
