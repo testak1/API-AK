@@ -3,7 +3,7 @@ import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import client from "@/lib/sanity";
 import { engineByParamsQuery } from "@/src/lib/queries";
-import { resellerOverrideQuery } from "@/src/lib/queries";
+import { resellerOverridesForEngineQuery } from "@/src/lib/queries";
 import type {
   Brand,
   Model,
@@ -77,8 +77,9 @@ function findEngine(year: any, engineSlug: string) {
   );
 }
 
-function applyOverrideToStage(stage: Stage, override: any): Stage {
-  if (!override || override.stageName !== stage.name) return stage;
+function applyOverrideToStage(stage: Stage, overrides: any[]): Stage {
+  const override = overrides.find((o) => o.stageName === stage.name);
+  if (!override) return stage;
 
   return {
     ...stage,
@@ -124,12 +125,10 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
     if (!engineData) return { notFound: true };
 
-    const overrideData = engineData
-      ? await client.fetch(resellerOverrideQuery, {
-          resellerId,
-          engine: engineData._id,
-        })
-      : null;
+    const overrides = await client.fetch(resellerOverridesForEngineQuery, {
+      resellerId,
+      engineId: engineData._id,
+    });
 
     return {
       props: {
@@ -137,7 +136,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         modelData,
         yearData,
         engineData,
-        overrideData,
+        overrideData: overrides,
         resellerId,
       },
     };
