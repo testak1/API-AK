@@ -308,6 +308,10 @@ export default function EnginePage({
     });
   };
 
+  const resellerLogo =
+    overrideData?.find((o) => o.logo?.asset?.url)?.logo?.asset?.url ||
+    (brandData.logo?.asset && urlFor(brandData.logo.asset).url());
+
   // Load watermark image
   useEffect(() => {
     const img = new Image();
@@ -523,16 +527,17 @@ export default function EnginePage({
     <>
       <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
         <div className="flex items-center mb-4">
-          <img
-            src="/ak-logo-svart.png"
-            fetchPriority="high"
-            alt="AK-TUNING"
-            width={85}
-            height={80}
-            style={{ height: "80px", cursor: "pointer" }}
-            className="h-12 object-contain"
-            onClick={() => (window.location.href = "/")}
-          />
+          {resellerLogo && (
+            <img
+              src={resellerLogo}
+              alt="Reseller logo"
+              width={85}
+              height={80}
+              style={{ height: "80px", cursor: "pointer" }}
+              className="h-12 object-contain"
+              onClick={() => (window.location.href = "/")}
+            />
+          )}
         </div>
         <div className="mb-8">
           <h1 className="text-xl sm:text-3xl md:text-xl font-bold text-center">
@@ -544,6 +549,9 @@ export default function EnginePage({
         {overriddenStages?.length > 0 ? (
           <div className="space-y-6">
             {overriddenStages.map((stage) => {
+              const showAktPlus = overrideData?.find(
+                (o) => o.stageName === stage.name,
+              )?.showAktPlus;
               const isDsgStage = stage.name.toLowerCase().includes("dsg");
               const allOptions = getAllAktPlusOptions(stage);
               const isExpanded = expandedStages[stage.name] ?? false;
@@ -1036,7 +1044,7 @@ export default function EnginePage({
                         </div>
                       </div>
 
-                      {!isDsgStage && allOptions.length > 0 && (
+                      {!isDsgStage && showAktPlus && allOptions.length > 0 && (
                         <div className="mt-8">
                           {/* AKT+ Toggle Button */}
                           <button
@@ -1195,7 +1203,11 @@ export default function EnginePage({
           content={
             infoModal.type === "stage" ? (
               (() => {
+                const override = overrideData?.find(
+                  (o) => o.stageName === infoModal.stage?.name,
+                );
                 const description =
+                  override?.customDescription ||
                   infoModal.stage?.descriptionRef?.description ||
                   infoModal.stage?.description;
 
