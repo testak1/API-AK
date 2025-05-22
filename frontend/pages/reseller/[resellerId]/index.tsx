@@ -57,6 +57,8 @@ export default function TuningViewer() {
   });
 
   const router = useRouter();
+  const { resellerId } = router.query as { resellerId?: string };
+  const [resellerLogo, setResellerLogo] = useState<string | null>(null);
 
   const [isLoading, setIsLoading] = useState(true);
   const [expandedStages, setExpandedStages] = useState<Record<string, boolean>>(
@@ -165,25 +167,23 @@ export default function TuningViewer() {
     window.parent.postMessage({ scrollToIframe: true }, "*");
   };
 
-  const [resellerLogo, setResellerLogo] = useState<string | null>(null);
-
   useEffect(() => {
-    const fetchLogo = async () => {
-      if (!router.query.resellerId) return;
+    if (!resellerId) return;
 
+    const fetchResellerData = async () => {
       try {
-        const res = await fetch(
-          `/api/reseller-info?resellerId=${router.query.resellerId}`,
-        );
-        const json = await res.json();
-        setResellerLogo(json.logoUrl);
+        const res = await fetch(`/api/reseller-logo?resellerId=${resellerId}`);
+        const data = await res.json();
+        if (data.logoUrl) {
+          setResellerLogo(data.logoUrl);
+        }
       } catch (err) {
-        console.error("Kunde inte hämta återförsäljarlogo:", err);
+        console.error("Failed to load reseller logo", err);
       }
     };
 
-    fetchLogo();
-  }, [router.query.resellerId]);
+    fetchResellerData();
+  }, [resellerId]);
 
   // Load watermark image
   useEffect(() => {
@@ -539,15 +539,19 @@ export default function TuningViewer() {
     <>
       <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
         <div className="flex items-center mb-4">
-          {resellerLogo && (
+          {resellerLogo ? (
             <img
               src={resellerLogo}
-              alt="Reseller logo"
-              style={{ height: "80px", cursor: "pointer" }}
-              className="h-12 object-contain"
-              onClick={() =>
-                router.push(`/reseller/${router.query.resellerId}`)
-              }
+              alt="Reseller Logo"
+              className="h-12 object-contain cursor-pointer"
+              onClick={() => router.reload()}
+            />
+          ) : (
+            <img
+              src="/ak-logo-svart.png"
+              alt="AK-TUNING"
+              className="h-12 object-contain cursor-pointer"
+              onClick={() => router.reload()}
             />
           )}
         </div>
