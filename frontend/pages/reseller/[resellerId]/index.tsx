@@ -539,19 +539,15 @@ export default function TuningViewer() {
     <>
       <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
         <div className="flex items-center mb-4">
-          {resellerLogo ? (
+          {resellerLogo && (
             <img
               src={resellerLogo}
-              alt="Reseller Logo"
-              className="h-12 object-contain cursor-pointer"
-              onClick={() => router.reload()}
-            />
-          ) : (
-            <img
-              src="/ak-logo-svart.png"
-              alt="AK-TUNING"
-              className="h-12 object-contain cursor-pointer"
-              onClick={() => router.reload()}
+              alt="Reseller logo"
+              style={{ height: "80px", cursor: "pointer" }}
+              className="h-12 object-contain"
+              onClick={() =>
+                router.push(`/reseller/${router.query.resellerId}`)
+              }
             />
           )}
         </div>
