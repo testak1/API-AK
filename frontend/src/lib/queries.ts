@@ -1,3 +1,4 @@
+// src/lib/queries.ts
 // Lightweight query (for /api/brands.ts)
 
 import groq from "groq";

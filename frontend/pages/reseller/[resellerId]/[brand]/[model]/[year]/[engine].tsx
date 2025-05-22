@@ -101,14 +101,33 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       brand: brand.toLowerCase(),
     });
 
-    const modelData = findModel(brandData, model);
-    const yearData = findYear(modelData, year);
-    const engineData = findEngine(yearData, engine);
+    if (!brandData) return { notFound: true };
 
-    const overrideData = await client.fetch(resellerOverrideQuery, {
-      resellerId,
-      engine: engineData._id,
-    });
+    const modelData =
+      brandData.models?.find((m: any) => {
+        const mSlug = typeof m.slug === "object" ? m.slug.current : m.slug;
+        return normalizeString(mSlug || m.name) === normalizeString(model);
+      }) || null;
+    const yearData =
+      modelData?.years?.find(
+        (y: any) => normalizeString(y.range) === normalizeString(year),
+      ) || null;
+    const engineData =
+      yearData?.engines?.find((e: any) => {
+        return (
+          normalizeString(e.label) === normalizeString(engine) ||
+          normalizeString(e.slug) === normalizeString(engine)
+        );
+      }) || null;
+
+    if (!engineData) return { notFound: true };
+
+    const overrideData = engineData
+      ? await client.fetch(resellerOverrideQuery, {
+          resellerId,
+          engine: engineData._id,
+        })
+      : null;
 
     return {
       props: {
