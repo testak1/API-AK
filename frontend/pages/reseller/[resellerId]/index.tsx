@@ -23,6 +23,7 @@ import type {
 } from "@/types/sanity";
 import ContactModal from "@/components/ContactModal";
 import { link } from "fs";
+import { useRouter } from "next/router";
 
 ChartJS.register(
   CategoryScale,
@@ -54,6 +55,9 @@ export default function TuningViewer() {
     year: "",
     engine: "",
   });
+
+  const router = useRouter();
+
   const [isLoading, setIsLoading] = useState(true);
   const [expandedStages, setExpandedStages] = useState<Record<string, boolean>>(
     {},
@@ -160,6 +164,26 @@ export default function TuningViewer() {
     });
     window.parent.postMessage({ scrollToIframe: true }, "*");
   };
+
+  const [resellerLogo, setResellerLogo] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchLogo = async () => {
+      if (!router.query.resellerId) return;
+
+      try {
+        const res = await fetch(
+          `/api/reseller-info?resellerId=${router.query.resellerId}`,
+        );
+        const json = await res.json();
+        setResellerLogo(json.logoUrl);
+      } catch (err) {
+        console.error("Kunde inte hämta återförsäljarlogo:", err);
+      }
+    };
+
+    fetchLogo();
+  }, [router.query.resellerId]);
 
   // Load watermark image
   useEffect(() => {
@@ -513,52 +537,19 @@ export default function TuningViewer() {
 
   return (
     <>
-      <Head>
-        <title>
-          AK-TUNING | Skräddarsydd motoroptimering beprövat på vår dyno |
-          Göteborg - Stockholm - Skåne - Jönköping - Örebro
-        </title>
-        <meta
-          name="description"
-          content="Skräddarsydd motoroptimering – Effektökning, bränslebesparing & trygg mjukvara. AK-TUNING finns i Göteborg - Stockholm - Skåne - Jönköping - Örebro"
-        />
-        <meta property="og:title" content="AK-TUNING | Motoroptimering" />
-        <meta
-          property="og:description"
-          content="Skräddarsydd motoroptimering – Effektökning, bränslebesparing & trygg mjukvara. AK-TUNING finns i Göteborg - Stockholm - Skåne - Jönköping - Örebro"
-        />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://tuning.aktuning.se" />
-        <meta
-          property="og:image"
-          content="https://tuning.aktuning.se/ak-logo1.png"
-        />
-        <link rel="icon" href="/favicon.ico" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Organization",
-              name: "AK-TUNING – Marknadsledande på motoroptimering",
-              url: "https://tuning.aktuning.se",
-              logo: "https://tuning.aktuning.se/ak-logo1.png",
-            }),
-          }}
-        />
-      </Head>
-
       <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
         <div className="flex items-center mb-4">
-          <img
-            src="/ak-logo-svart.png"
-            fetchPriority="high"
-            alt="AK-TUNING"
-            style={{ height: "80px", cursor: "pointer" }}
-            className="h-12 object-contain"
-            onClick={() => window.location.reload()}
-          />
+          {resellerLogo && (
+            <img
+              src={resellerLogo}
+              alt="Reseller logo"
+              style={{ height: "80px", cursor: "pointer" }}
+              className="h-12 object-contain"
+              onClick={() =>
+                router.push(`/reseller/${router.query.resellerId}`)
+              }
+            />
+          )}
         </div>
 
         <div className="mb-4">
