@@ -130,6 +130,11 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       engineId: engineData._id,
     });
 
+    // Om inga overrides hittas för den resellerId + engine kombinationen → 404
+    if (!overrides || overrides.length === 0) {
+      return { notFound: true };
+    }
+
     return {
       props: {
         brandData,
