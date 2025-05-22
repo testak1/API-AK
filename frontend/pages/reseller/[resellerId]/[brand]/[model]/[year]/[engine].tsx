@@ -239,9 +239,9 @@ export default function EnginePage({
 }: EnginePageProps) {
   const router = useRouter();
   const [selectedBrand, setSelectedBrand] = useState<string>("");
-const [selectedModel, setSelectedModel] = useState<string>("");
-const [selectedYear, setSelectedYear] = useState<string>("");
-const [selectedEngine, setSelectedEngine] = useState<string>("");
+  const [selectedModel, setSelectedModel] = useState<string>("");
+  const [selectedYear, setSelectedYear] = useState<string>("");
+  const [selectedEngine, setSelectedEngine] = useState<string>("");
   const stageParam = router.query.stage;
   const stage = typeof stageParam === "string" ? stageParam : "";
   const [expandedStages, setExpandedStages] = useState<Record<string, boolean>>(
@@ -546,19 +546,18 @@ const [selectedEngine, setSelectedEngine] = useState<string>("");
             />
           )}
         </div>
-
         <VehicleSelector
-  brands={allBrands}
-  selectedBrand={selectedBrand}
-  selectedModel={selectedModel}
-  selectedYear={selectedYear}
-  selectedEngine={selectedEngine}
-  onBrandChange={setSelectedBrand}
-  onModelChange={setSelectedModel}
-  onYearChange={setSelectedYear}
-  onEngineChange={setSelectedEngine}
-  resellerId={resellerId}
-/>
+          brands={allBrands}
+          selectedBrand={selectedBrand}
+          selectedModel={selectedModel}
+          selectedYear={selectedYear}
+          selectedEngine={selectedEngine}
+          onBrandChange={setSelectedBrand}
+          onModelChange={setSelectedModel}
+          onYearChange={setSelectedYear}
+          onEngineChange={setSelectedEngine}
+          resellerId={resellerId}
+        />
         <div className="mb-8">
           <h1 className="text-xl sm:text-3xl md:text-xl font-bold text-center">
             {"Motoroptimering "}
