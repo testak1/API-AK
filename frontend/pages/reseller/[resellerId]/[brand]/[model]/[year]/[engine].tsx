@@ -71,7 +71,9 @@ function findYear(model: any, yearSlug: string) {
 
 function findEngine(year: any, engineSlug: string) {
   return year.engines?.find(
-    (e: any) => slugify(e.label) === slugify(engineSlug),
+    (e: any) =>
+      slugify(e.label) === slugify(engineSlug) ||
+      (e.slug && slugify(e.slug) === slugify(engineSlug)),
   );
 }
 
