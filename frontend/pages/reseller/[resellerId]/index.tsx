@@ -24,6 +24,8 @@ import type {
 import ContactModal from "@/components/ContactModal";
 import { link } from "fs";
 import { useRouter } from "next/router";
+import { GetServerSideProps } from "next";
+import client from "@/lib/sanity";
 
 ChartJS.register(
   CategoryScale,
@@ -46,6 +48,25 @@ interface Slug {
   _type: "slug";
   current: string;
 }
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { resellerId } = context.params as { resellerId: string };
+
+  const isValid = await client.fetch(
+    `count(*[_type == "resellerOverride" && resellerId == $resellerId]) > 0`,
+    { resellerId },
+  );
+
+  if (!isValid) {
+    return {
+      notFound: true,
+    };
+  }
+
+  return {
+    props: {}, // Skicka props om du vill använda t.ex. `resellerId` senare
+  };
+};
 
 export default function TuningViewer() {
   const [data, setData] = useState<Brand[]>([]);
@@ -542,12 +563,9 @@ export default function TuningViewer() {
           {resellerLogo && (
             <img
               src={resellerLogo}
-              alt="Reseller logo"
-              style={{ height: "80px", cursor: "pointer" }}
-              className="h-12 object-contain"
-              onClick={() =>
-                router.push(`/reseller/${router.query.resellerId}`)
-              }
+              alt="Reseller Logo"
+              className="h-12 object-contain cursor-pointer"
+              onClick={() => router.reload()}
             />
           )}
         </div>
