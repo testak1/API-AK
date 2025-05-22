@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import client from "@/lib/sanity";
 import { engineByParamsQuery } from "@/src/lib/queries";
 import { resellerOverridesForEngineQuery } from "@/src/lib/queries";
+import { allBrandsQuery } from "@/src/lib/queries";
 import type {
   Brand,
   Model,
@@ -48,6 +49,7 @@ interface EnginePageProps {
   engineData: Engine | null;
   overrideData: any | null;
   resellerId: string;
+  allBrands: Brand[];
 }
 
 const normalizeString = (str: string) =>
@@ -91,6 +93,7 @@ function applyOverrideToStage(stage: Stage, overrides: any[]): Stage {
   };
 }
 
+const allBrands = await client.fetch(allBrandsQuery);
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const { resellerId, brand, model, year, engine } = context.params as {
     resellerId: string;
@@ -145,6 +148,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         engineData,
         overrideData: overrides,
         resellerId,
+        allBrands,
       },
     };
   } catch (err) {
@@ -236,6 +240,7 @@ export default function EnginePage({
   overrideData,
   engineData,
   resellerId,
+  allBrands,
 }: EnginePageProps) {
   const router = useRouter();
   const [selectedBrand, setSelectedBrand] = useState<string>("");
