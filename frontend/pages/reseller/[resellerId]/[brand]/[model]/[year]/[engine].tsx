@@ -99,6 +99,12 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     engine: string;
   };
 
+  // Temporär whitelista – hämta gärna från Sanity i framtiden
+  const validResellerIds = ["testak", "test1", "test2"];
+  if (!validResellerIds.includes(resellerId.toLowerCase())) {
+    return { notFound: true };
+  }
+
   try {
     const brandData = await client.fetch(engineByParamsQuery, {
       brand: brand.toLowerCase(),
@@ -107,21 +113,17 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     if (!brandData) return { notFound: true };
 
     const modelData =
-      brandData.models?.find((m: any) => {
-        const mSlug = typeof m.slug === "object" ? m.slug.current : m.slug;
-        return normalizeString(mSlug || m.name) === normalizeString(model);
-      }) || null;
+      brandData.models?.find((m: any) => slugify(m.name) === slugify(model)) ||
+      null;
     const yearData =
-      modelData?.years?.find(
-        (y: any) => normalizeString(y.range) === normalizeString(year),
-      ) || null;
+      modelData?.years?.find((y: any) => slugify(y.range) === slugify(year)) ||
+      null;
     const engineData =
-      yearData?.engines?.find((e: any) => {
-        return (
-          normalizeString(e.label) === normalizeString(engine) ||
-          normalizeString(e.slug) === normalizeString(engine)
-        );
-      }) || null;
+      yearData?.engines?.find(
+        (e: any) =>
+          slugify(e.label) === slugify(engine) ||
+          (e.slug && slugify(e.slug) === slugify(engine)),
+      ) || null;
 
     if (!engineData) return { notFound: true };
 
@@ -130,7 +132,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       engineId: engineData._id,
     });
 
-    // Om inga overrides hittas för den resellerId + engine kombinationen → 404
     if (!overrides || overrides.length === 0) {
       return { notFound: true };
     }
