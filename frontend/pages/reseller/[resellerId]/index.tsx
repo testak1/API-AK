@@ -1,4 +1,4 @@
-// pages/index.tsx
+// pages/reseller/[resellerId]/index.tsx;
 import Head from "next/head";
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import {
@@ -217,20 +217,23 @@ export default function TuningViewer() {
 
   // Fetch brands and models
   useEffect(() => {
+    if (!resellerId) return;
+
     const fetchBrands = async () => {
       try {
-        const res = await fetch("/api/brands");
+        const res = await fetch("/api/brands-with-overrides");
         if (!res.ok) throw new Error("Failed to fetch brands");
         const json = await res.json();
-        setData(json.result || []);
+        setData(json.brands || []);
       } catch (error) {
         console.error("Error fetching brands:", error);
       } finally {
         setIsLoading(false);
       }
     };
+
     fetchBrands();
-  }, []);
+  }, [resellerId]);
 
   // Fetch years
   useEffect(() => {
