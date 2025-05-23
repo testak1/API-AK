@@ -13,7 +13,7 @@ const config: ClientConfig = {
   dataset: "production",
   apiVersion: "2025-04-23",
   useCdn: process.env.NODE_ENV === "production",
-  token: process.env.SANITY_API_TOKEN,
+  token: process.env.SANITY_WRITE_TOKEN,
   ignoreBrowserTokenWarning: true,
 };
 
