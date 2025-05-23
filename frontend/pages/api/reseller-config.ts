@@ -12,7 +12,5 @@ export default async function handler(req, res) {
 
   res.status(200).json({
     logo: result?.logo ?? null,
-    currency: result?.currency ?? "SEK",
-    language: result?.language ?? "sv",
   });
 }
