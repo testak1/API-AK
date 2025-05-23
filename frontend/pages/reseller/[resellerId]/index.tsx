@@ -80,21 +80,26 @@ export default function TuningViewer() {
   const router = useRouter();
 
   const { resellerId } = router.query as { resellerId?: string };
-  const [resellerConfig, setResellerConfig] = useState({
-    logo: null,
-    theme: "dark",
-    language: "sv",
-  });
+  const [resellerLogo, setResellerLogo] = useState<string | null>(null);
+
   useEffect(() => {
     if (!resellerId) return;
 
-    const fetchConfig = async () => {
-      const res = await fetch(`/api/reseller-config?resellerId=${resellerId}`);
-      const config = await res.json();
-      setResellerConfig(config);
+    const fetchResellerLogo = async () => {
+      try {
+        const res = await fetch(
+          `/api/reseller-config?resellerId=${resellerId}`,
+        );
+        const json = await res.json();
+        if (json.logo?.asset) {
+          setResellerLogo(urlFor(json.logo).width(100).url());
+        }
+      } catch (err) {
+        console.error("Failed to load reseller logo", err);
+      }
     };
 
-    fetchConfig();
+    fetchResellerLogo();
   }, [resellerId]);
 
   const [isLoading, setIsLoading] = useState(true);
@@ -561,9 +566,9 @@ export default function TuningViewer() {
     <>
       <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
         <div className="flex items-center mb-4">
-          {resellerConfig.logo?.asset && (
+          {resellerLogo && (
             <img
-              src={urlFor(resellerConfig.logo).width(100).url()}
+              src={resellerLogo}
               alt="Reseller Logo"
               className="h-12 object-contain"
               onClick={() => router.reload()}
