@@ -2,7 +2,12 @@ import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 const users = [
-  { email: "reseller1@example.com", password: "demo123", resellerId: "testreseller" },
+  {
+    id: "1", // ✅ Required
+    email: "reseller1@example.com",
+    password: "demo123",
+    resellerId: "testak",
+  },
 ];
 
 export const authOptions = {
@@ -15,7 +20,9 @@ export const authOptions = {
       },
       authorize(credentials) {
         const user = users.find(
-          (u) => u.email === credentials?.email && u.password === credentials?.password
+          (u) =>
+            u.email === credentials?.email &&
+            u.password === credentials?.password,
         );
         return user || null;
       },
