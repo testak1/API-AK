@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 
 export default function ResellerAdmin() {
-  const { data: session, status } = useSession();
+  const sessionData = useSession();
+  const session = sessionData?.data;
+  const status = sessionData?.status;
   const [brands, setBrands] = useState([]);
   const [overrides, setOverrides] = useState([]);
 
