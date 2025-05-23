@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { useSession, signOut } from "next-auth/react";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "../api/auth/[...nextauth]";
+import { signOut } from "next-auth/react";
 
-export default function ResellerAdmin() {
-  const { data: session, status } = useSession();
-
+export default function ResellerAdmin({ session }) {
   const [brands, setBrands] = useState([]);
   const [overrides, setOverrides] = useState([]);
 
@@ -69,9 +69,6 @@ export default function ResellerAdmin() {
       alert("Error saving override");
     }
   };
-
-  if (status === "loading") return <p>Loading...</p>;
-  if (status === "unauthenticated") return <p>Access Denied</p>;
 
   const selectedStages =
     brands
@@ -242,6 +239,19 @@ export default function ResellerAdmin() {
   );
 }
 
-export async function getServerSideProps() {
-  return { props: {} };
+export async function getServerSideProps(context) {
+  const session = await getServerSession(context.req, context.res, authOptions);
+
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/admin/login",
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: { session },
+  };
 }
