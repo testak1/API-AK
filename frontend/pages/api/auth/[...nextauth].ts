@@ -3,10 +3,10 @@ import CredentialsProvider from "next-auth/providers/credentials";
 
 const users = [
   {
-    id: "1", // ✅ Required
+    id: "1",
     email: "reseller1@example.com",
     password: "demo123",
-    resellerId: "testak",
+    resellerId: "testreseller",
   },
 ];
 
@@ -19,12 +19,14 @@ export const authOptions = {
         password: { label: "Password", type: "password" },
       },
       authorize(credentials) {
+        console.log("LOGIN ATTEMPT", credentials);
         const user = users.find(
           (u) =>
             u.email === credentials?.email &&
             u.password === credentials?.password,
         );
-        return user || null;
+        console.log("USER FOUND", user);
+        return user ?? null;
       },
     }),
   ],
