@@ -34,8 +34,8 @@ export default function ResellerAdmin({ session }) {
       try {
         const res = await fetch("/api/reseller-config");
         const json = await res.json();
-        setCurrency(json.currency || "SEK");
-        setLanguage(json.language || "sv");
+        if (json.currency) setCurrency(json.currency);
+        if (json.language) setLanguage(json.language);
       } catch (err) {
         console.error("Failed to load reseller settings", err);
       }
