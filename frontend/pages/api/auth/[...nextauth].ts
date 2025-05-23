@@ -3,7 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 
 const users = [
   {
-    id: "1",
+    id: "4844e087-e532-492b-a67a-57f4b77f590f",
     email: "reseller1@example.com",
     password: "demo123",
     resellerId: "testreseller",
