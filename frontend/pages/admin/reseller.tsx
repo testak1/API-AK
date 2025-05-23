@@ -233,11 +233,13 @@ export default function ResellerAdmin({ session }) {
               <p>
                 Base: {stage.price} kr | {stage.tunedHk} HK | {stage.tunedNm} NM
               </p>
+              <p className="text-sm text-gray-500">
+                Current: {override?.price ?? stage.price} {currency}
+              </p>
               <input
                 id={`price-${stage.name}`}
-                defaultValue={override?.price ?? stage.price}
-                className="block border p-1 mt-2 w-full"
-                placeholder="Price"
+                className="block border p-2 mt-1 w-full rounded border-gray-300 focus:ring focus:ring-blue-300"
+                placeholder="New price"
               />
               <input
                 id={`hk-${stage.name}`}
