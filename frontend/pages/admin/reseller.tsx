@@ -2,9 +2,7 @@ import { useEffect, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 
 export default function ResellerAdmin() {
-  const sessionData = useSession();
-  const session = sessionData?.data;
-  const status = sessionData?.status;
+  const { data: session, status } = useSession();
 
   const [brands, setBrands] = useState([]);
   const [overrides, setOverrides] = useState([]);
@@ -16,10 +14,14 @@ export default function ResellerAdmin() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await fetch("/api/brands-with-overrides");
-      const { brands, overrides } = await res.json();
-      setBrands(brands);
-      setOverrides(overrides);
+      try {
+        const res = await fetch("/api/brands-with-overrides");
+        const { brands, overrides } = await res.json();
+        setBrands(brands || []);
+        setOverrides(overrides || []);
+      } catch (err) {
+        console.error("Error fetching brand data:", err);
+      }
     };
     fetchData();
   }, []);
@@ -45,22 +47,27 @@ export default function ResellerAdmin() {
     hk,
     nm,
   ) => {
-    await fetch("/api/overrides", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        overrideId,
-        brand,
-        model,
-        year,
-        engine,
-        stageName,
-        price,
-        tunedHk: hk,
-        tunedNm: nm,
-      }),
-    });
-    alert("Saved");
+    try {
+      await fetch("/api/overrides", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          overrideId,
+          brand,
+          model,
+          year,
+          engine,
+          stageName,
+          price,
+          tunedHk: hk,
+          tunedNm: nm,
+        }),
+      });
+      alert("Saved");
+    } catch (error) {
+      console.error("Failed to save override:", error);
+      alert("Error saving override");
+    }
   };
 
   if (status === "loading") return <p>Loading...</p>;
@@ -69,9 +76,9 @@ export default function ResellerAdmin() {
   const selectedStages =
     brands
       .find((b) => b.name === selectedBrand)
-      ?.models.find((m) => m.name === selectedModel)
-      ?.years.find((y) => y.range === selectedYear)
-      ?.engines.find((e) => e.label === selectedEngine)?.stages || [];
+      ?.models?.find((m) => m.name === selectedModel)
+      ?.years?.find((y) => y.range === selectedYear)
+      ?.engines?.find((e) => e.label === selectedEngine)?.stages || [];
 
   return (
     <div className="p-6 max-w-3xl mx-auto">
@@ -89,6 +96,8 @@ export default function ResellerAdmin() {
           onChange={(e) => {
             setSelectedBrand(e.target.value);
             setSelectedModel("");
+            setSelectedYear("");
+            setSelectedEngine("");
           }}
           className="w-full p-2 border rounded"
         >
@@ -106,13 +115,14 @@ export default function ResellerAdmin() {
             onChange={(e) => {
               setSelectedModel(e.target.value);
               setSelectedYear("");
+              setSelectedEngine("");
             }}
             className="w-full p-2 border rounded"
           >
             <option value="">Select Model</option>
             {brands
               .find((b) => b.name === selectedBrand)
-              ?.models.map((m) => (
+              ?.models?.map((m) => (
                 <option key={m.name} value={m.name}>
                   {m.name}
                 </option>
@@ -132,8 +142,8 @@ export default function ResellerAdmin() {
             <option value="">Select Year</option>
             {brands
               .find((b) => b.name === selectedBrand)
-              ?.models.find((m) => m.name === selectedModel)
-              ?.years.map((y) => (
+              ?.models?.find((m) => m.name === selectedModel)
+              ?.years?.map((y) => (
                 <option key={y.range} value={y.range}>
                   {y.range}
                 </option>
@@ -150,9 +160,9 @@ export default function ResellerAdmin() {
             <option value="">Select Engine</option>
             {brands
               .find((b) => b.name === selectedBrand)
-              ?.models.find((m) => m.name === selectedModel)
-              ?.years.find((y) => y.range === selectedYear)
-              ?.engines.map((e) => (
+              ?.models?.find((m) => m.name === selectedModel)
+              ?.years?.find((y) => y.range === selectedYear)
+              ?.engines?.map((e) => (
                 <option key={e.label} value={e.label}>
                   {e.label}
                 </option>
