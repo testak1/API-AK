@@ -90,6 +90,21 @@ export default function TuningViewer() {
     language: "sv",
   });
 
+  const t = {
+    sv: {
+      selectBrand: "VÄLJ MÄRKE",
+      selectModel: "VÄLJ MODELL",
+      selectYear: "VÄLJ ÅRSMODELL",
+      selectEngine: "VÄLJ MOTOR",
+    },
+    en: {
+      selectBrand: "SELECT BRAND",
+      selectModel: "SELECT MODEL",
+      selectYear: "SELECT YEAR",
+      selectEngine: "SELECT ENGINE",
+    },
+  }[settings.language];
+
   useEffect(() => {
     if (!resellerId) return;
 
@@ -629,7 +644,7 @@ export default function TuningViewer() {
               onChange={handleBrandChange}
               disabled={isLoading}
             >
-              <option value="">VÄLJ MÄRKE</option>
+              <option value="">{t.selectBrand}</option>
               {[...brands]
                 .filter((b) => !b.startsWith("[LASTBIL]"))
                 .sort((a, b) => a.localeCompare(b))
@@ -660,7 +675,7 @@ export default function TuningViewer() {
               onChange={handleModelChange}
               disabled={!selected.brand}
             >
-              <option value="">VÄLJ MODELL</option>
+              <option value="">{t.selectModel}</option>
               {models.map((m) => (
                 <option key={m.name} value={m.name}>
                   {m.name}
@@ -683,7 +698,7 @@ export default function TuningViewer() {
               onChange={handleYearChange}
               disabled={!selected.model}
             >
-              <option value="">VÄLJ ÅRSMODELL</option>
+              <option value="">{t.selectYear}</option>
               {years.map((y) => (
                 <option key={y.range} value={y.range}>
                   {y.range}
@@ -705,7 +720,7 @@ export default function TuningViewer() {
               onChange={handleEngineChange}
               disabled={!selected.year}
             >
-              <option value="">VÄLJ MOTOR</option>
+              <option value="">{t.selectEngine}</option>
               {Object.entries(groupedEngines).map(([fuelType, engines]) => (
                 <optgroup
                   label={fuelType.charAt(0).toUpperCase() + fuelType.slice(1)}
