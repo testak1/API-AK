@@ -64,7 +64,7 @@ export default function ResellerAdmin() {
   };
 
   if (status === "loading") return <p>Loading...</p>;
-  if (!session) return <p>Access Denied</p>;
+  if (status === "unauthenticated") return <p>Access Denied</p>;
 
   const selectedStages =
     brands
