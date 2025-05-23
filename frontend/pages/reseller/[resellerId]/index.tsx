@@ -78,8 +78,24 @@ export default function TuningViewer() {
   });
 
   const router = useRouter();
+
   const { resellerId } = router.query as { resellerId?: string };
-  const [resellerLogo, setResellerLogo] = useState<string | null>(null);
+  const [resellerConfig, setResellerConfig] = useState({
+    logo: null,
+    theme: "dark",
+    language: "sv",
+  });
+  useEffect(() => {
+    if (!resellerId) return;
+
+    const fetchConfig = async () => {
+      const res = await fetch(`/api/reseller-config?resellerId=${resellerId}`);
+      const config = await res.json();
+      setResellerConfig(config);
+    };
+
+    fetchConfig();
+  }, [resellerId]);
 
   const [isLoading, setIsLoading] = useState(true);
   const [expandedStages, setExpandedStages] = useState<Record<string, boolean>>(
@@ -187,24 +203,6 @@ export default function TuningViewer() {
     });
     window.parent.postMessage({ scrollToIframe: true }, "*");
   };
-
-  useEffect(() => {
-    if (!resellerId) return;
-
-    const fetchResellerData = async () => {
-      try {
-        const res = await fetch(`/api/reseller-logo?resellerId=${resellerId}`);
-        const data = await res.json();
-        if (data.logoUrl) {
-          setResellerLogo(data.logoUrl);
-        }
-      } catch (err) {
-        console.error("Failed to load reseller logo", err);
-      }
-    };
-
-    fetchResellerData();
-  }, [resellerId]);
 
   // Load watermark image
   useEffect(() => {
@@ -563,11 +561,11 @@ export default function TuningViewer() {
     <>
       <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
         <div className="flex items-center mb-4">
-          {resellerLogo && (
+          {resellerConfig.logo?.asset && (
             <img
-              src={resellerLogo}
+              src={urlFor(resellerConfig.logo).width(100).url()}
               alt="Reseller Logo"
-              className="h-12 object-contain cursor-pointer"
+              className="h-12 object-contain"
               onClick={() => router.reload()}
             />
           )}
