@@ -52,7 +52,7 @@ export default async function handler(req, res) {
 
     const overrideMap = new Map();
     for (const o of overrides) {
-      const key = `${o.brand}|${o.model}|${o.year}|${o.engine}|${o.stageName}`;
+      const key = `${o.brand.trim()}|${o.model.trim()}|${o.year.trim()}|${o.engine.trim()}|${o.stageName.trim()}`;
       overrideMap.set(key, o);
     }
 
@@ -65,8 +65,12 @@ export default async function handler(req, res) {
           engines: (year.engines || []).map((engine) => ({
             ...engine,
             stages: (engine.stages || []).map((stage) => {
-              const key = `${brand.name}|${model.name}|${year.range}|${engine.label}|${stage.name}`;
+              const key = `${brand.name.trim()}|${model.name.trim()}|${year.range.trim()}|${engine.label.trim()}|${stage.name.trim()}`;
               const override = overrideMap.get(key);
+
+              if (!override && process.env.NODE_ENV !== "production") {
+                console.warn("No override for key:", key);
+              }
 
               return override
                 ? {
@@ -81,7 +85,6 @@ export default async function handler(req, res) {
         })),
       })),
     }));
-
     return res.status(200).json({ brands });
   } catch (err) {
     console.error("Error in /api/brands-with-overrides:", err);
