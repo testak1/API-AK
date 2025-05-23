@@ -1,3 +1,4 @@
+// pages/api/reseller-config.ts
 import sanity from "@/lib/sanity";
 
 export default async function handler(req, res) {
@@ -7,24 +8,14 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Missing resellerId" });
   }
 
-  try {
-    const result = await sanity.fetch(
-      `*[_type == "resellerUser" && resellerId == $resellerId][0]{
-    logo {
-      asset->{
-        _id,
-        url
-      }
-    },
-    language,
-    theme
-  }`,
-      { resellerId },
-    );
+  const result = await sanity.fetch(
+    `*[_type == "resellerUser" && resellerId == $resellerId][0]{
+      logo
+    }`,
+    { resellerId },
+  );
 
-    return res.status(200).json(result || {});
-  } catch (error) {
-    console.error("Failed to fetch reseller config:", error);
-    return res.status(500).json({ error: "Internal server error" });
-  }
+  res.status(200).json({
+    logo: result?.logo ?? null,
+  });
 }
