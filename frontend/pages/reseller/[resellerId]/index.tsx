@@ -632,7 +632,7 @@ export default function TuningViewer() {
               onChange={handleBrandChange}
               disabled={isLoading}
             >
-              <option value="">{t.selectBrand}</option>
+              <option value="">{translate(settings.language, "selectBrand")}</option>
               {[...brands]
                 .filter((b) => !b.startsWith("[LASTBIL]"))
                 .sort((a, b) => a.localeCompare(b))
@@ -663,7 +663,7 @@ export default function TuningViewer() {
               onChange={handleModelChange}
               disabled={!selected.brand}
             >
-              <option value="">{t.selectModel}</option>
+              <option value="">{translate(settings.language, "selectModel")}</option>
               {models.map((m) => (
                 <option key={m.name} value={m.name}>
                   {m.name}
@@ -686,7 +686,7 @@ export default function TuningViewer() {
               onChange={handleYearChange}
               disabled={!selected.model}
             >
-              <option value="">{t.selectYear}</option>
+              <option value="">{translate(settings.language, "selectYear")}</option>
               {years.map((y) => (
                 <option key={y.range} value={y.range}>
                   {y.range}
@@ -708,7 +708,7 @@ export default function TuningViewer() {
               onChange={handleEngineChange}
               disabled={!selected.year}
             >
-              <option value="">{t.selectEngine}</option>
+              <option value="">{translate(settings.language, "selectEngine")}</option>
               {Object.entries(groupedEngines).map(([fuelType, engines]) => (
                 <optgroup
                   label={fuelType.charAt(0).toUpperCase() + fuelType.slice(1)}
