@@ -149,4 +149,6 @@ export default function ResellerAdmin() {
   );
 }
 
-export const dynamic = "force-dynamic";
+export async function getServerSideProps() {
+  return { props: {} };
+}
