@@ -6,7 +6,7 @@ const users = [
     id: "1",
     email: "reseller1@example.com",
     password: "demo123",
-    resellerId: "testreseller",
+    resellerId: "testak",
   },
 ];
 
