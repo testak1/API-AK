@@ -3,12 +3,16 @@ import { useSession, signOut } from "next-auth/react";
 
 export default function ResellerAdmin() {
   const sessionData = useSession();
-  console.log("SESSION DEBUG:", sessionData);
   const session = sessionData?.data;
   const status = sessionData?.status;
-  console.log("Session status:", status);
+
   const [brands, setBrands] = useState([]);
   const [overrides, setOverrides] = useState([]);
+
+  const [selectedBrand, setSelectedBrand] = useState("");
+  const [selectedModel, setSelectedModel] = useState("");
+  const [selectedYear, setSelectedYear] = useState("");
+  const [selectedEngine, setSelectedEngine] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -20,8 +24,8 @@ export default function ResellerAdmin() {
     fetchData();
   }, []);
 
-  const findOverride = (brand, model, year, engine, stageName) => {
-    return overrides.find(
+  const findOverride = (brand, model, year, engine, stageName) =>
+    overrides.find(
       (o) =>
         o.brand === brand &&
         o.model === model &&
@@ -29,7 +33,6 @@ export default function ResellerAdmin() {
         o.engine === engine &&
         o.stageName === stageName,
     );
-  };
 
   const handleSave = async (
     overrideId,
@@ -61,94 +64,170 @@ export default function ResellerAdmin() {
   };
 
   if (status === "loading") return <p>Loading...</p>;
-  if (status === "unauthenticated") return <p>Access Denied</p>;
+  if (!session) return <p>Access Denied</p>;
+
+  const selectedStages =
+    brands
+      .find((b) => b.name === selectedBrand)
+      ?.models.find((m) => m.name === selectedModel)
+      ?.years.find((y) => y.range === selectedYear)
+      ?.engines.find((e) => e.label === selectedEngine)?.stages || [];
 
   return (
-    <div className="p-6">
-      <h1 className="text-xl font-bold">Reseller Admin</h1>
-      <button onClick={() => signOut()}>Sign out</button>
-      {brands.map((brand) =>
-        brand.models.map((model) =>
-          model.years.map((year) =>
-            year.engines.map((engine) =>
-              engine.stages.map((stage) => {
-                const override = findOverride(
-                  brand.name,
-                  model.name,
-                  year.range,
-                  engine.label,
-                  stage.name,
-                );
-                return (
-                  <div
-                    key={`${brand.name}-${model.name}-${year.range}-${engine.label}-${stage.name}`}
-                    style={{
-                      border: "1px solid #ccc",
-                      padding: "10px",
-                      margin: "10px 0",
-                    }}
-                  >
-                    <p>
-                      <b>
-                        {brand.name} / {model.name} / {year.range} /{" "}
-                        {engine.label} / {stage.name}
-                      </b>
-                    </p>
-                    <p>
-                      Base: {stage.price} kr | {stage.tunedHk} HK |{" "}
-                      {stage.tunedNm} NM
-                    </p>
-                    <input
-                      placeholder="Price"
-                      defaultValue={override?.price ?? stage.price}
-                      id={`price-${stage.name}`}
-                    />
-                    <input
-                      placeholder="HK"
-                      defaultValue={override?.tunedHk ?? stage.tunedHk}
-                      id={`hk-${stage.name}`}
-                    />
-                    <input
-                      placeholder="NM"
-                      defaultValue={override?.tunedNm ?? stage.tunedNm}
-                      id={`nm-${stage.name}`}
-                    />
-                    <button
-                      onClick={() =>
-                        handleSave(
-                          override?._id || null,
-                          brand.name,
-                          model.name,
-                          year.range,
-                          engine.label,
-                          stage.name,
-                          +(
-                            document.getElementById(
-                              `price-${stage.name}`,
-                            ) as HTMLInputElement
-                          ).value,
-                          +(
-                            document.getElementById(
-                              `hk-${stage.name}`,
-                            ) as HTMLInputElement
-                          ).value,
-                          +(
-                            document.getElementById(
-                              `nm-${stage.name}`,
-                            ) as HTMLInputElement
-                          ).value,
-                        )
-                      }
-                    >
-                      Save
-                    </button>
-                  </div>
-                );
-              }),
-            ),
-          ),
-        ),
-      )}
+    <div className="p-6 max-w-3xl mx-auto">
+      <h1 className="text-2xl font-bold mb-4">Reseller Admin</h1>
+      <button
+        className="mb-4 underline text-blue-500"
+        onClick={() => signOut()}
+      >
+        Sign out
+      </button>
+
+      <div className="space-y-4">
+        <select
+          value={selectedBrand}
+          onChange={(e) => {
+            setSelectedBrand(e.target.value);
+            setSelectedModel("");
+          }}
+          className="w-full p-2 border rounded"
+        >
+          <option value="">Select Brand</option>
+          {brands.map((b) => (
+            <option key={b.name} value={b.name}>
+              {b.name}
+            </option>
+          ))}
+        </select>
+
+        {selectedBrand && (
+          <select
+            value={selectedModel}
+            onChange={(e) => {
+              setSelectedModel(e.target.value);
+              setSelectedYear("");
+            }}
+            className="w-full p-2 border rounded"
+          >
+            <option value="">Select Model</option>
+            {brands
+              .find((b) => b.name === selectedBrand)
+              ?.models.map((m) => (
+                <option key={m.name} value={m.name}>
+                  {m.name}
+                </option>
+              ))}
+          </select>
+        )}
+
+        {selectedModel && (
+          <select
+            value={selectedYear}
+            onChange={(e) => {
+              setSelectedYear(e.target.value);
+              setSelectedEngine("");
+            }}
+            className="w-full p-2 border rounded"
+          >
+            <option value="">Select Year</option>
+            {brands
+              .find((b) => b.name === selectedBrand)
+              ?.models.find((m) => m.name === selectedModel)
+              ?.years.map((y) => (
+                <option key={y.range} value={y.range}>
+                  {y.range}
+                </option>
+              ))}
+          </select>
+        )}
+
+        {selectedYear && (
+          <select
+            value={selectedEngine}
+            onChange={(e) => setSelectedEngine(e.target.value)}
+            className="w-full p-2 border rounded"
+          >
+            <option value="">Select Engine</option>
+            {brands
+              .find((b) => b.name === selectedBrand)
+              ?.models.find((m) => m.name === selectedModel)
+              ?.years.find((y) => y.range === selectedYear)
+              ?.engines.map((e) => (
+                <option key={e.label} value={e.label}>
+                  {e.label}
+                </option>
+              ))}
+          </select>
+        )}
+      </div>
+
+      <div className="mt-6 space-y-6">
+        {selectedStages.map((stage) => {
+          const override = findOverride(
+            selectedBrand,
+            selectedModel,
+            selectedYear,
+            selectedEngine,
+            stage.name,
+          );
+          return (
+            <div key={stage.name} className="border p-4 rounded">
+              <p className="font-semibold">{stage.name}</p>
+              <p>
+                Base: {stage.price} kr | {stage.tunedHk} HK | {stage.tunedNm} NM
+              </p>
+              <input
+                id={`price-${stage.name}`}
+                defaultValue={override?.price ?? stage.price}
+                className="block border p-1 mt-2 w-full"
+                placeholder="Price"
+              />
+              <input
+                id={`hk-${stage.name}`}
+                defaultValue={override?.tunedHk ?? stage.tunedHk}
+                className="block border p-1 mt-2 w-full"
+                placeholder="HK"
+              />
+              <input
+                id={`nm-${stage.name}`}
+                defaultValue={override?.tunedNm ?? stage.tunedNm}
+                className="block border p-1 mt-2 w-full"
+                placeholder="NM"
+              />
+              <button
+                className="mt-2 px-4 py-1 bg-green-600 text-white rounded"
+                onClick={() =>
+                  handleSave(
+                    override?._id || null,
+                    selectedBrand,
+                    selectedModel,
+                    selectedYear,
+                    selectedEngine,
+                    stage.name,
+                    +(
+                      document.getElementById(
+                        `price-${stage.name}`,
+                      ) as HTMLInputElement
+                    ).value,
+                    +(
+                      document.getElementById(
+                        `hk-${stage.name}`,
+                      ) as HTMLInputElement
+                    ).value,
+                    +(
+                      document.getElementById(
+                        `nm-${stage.name}`,
+                      ) as HTMLInputElement
+                    ).value,
+                  )
+                }
+              >
+                Save
+              </button>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
