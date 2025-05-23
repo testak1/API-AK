@@ -15,6 +15,7 @@ import { Line } from "react-chartjs-2";
 import { PortableText } from "@portabletext/react";
 import { urlFor } from "@/lib/sanity";
 import DtcSearch from "@/components/DtcSearch";
+import { t as translate } from "@/lib/translations";
 import type {
   Brand,
   Stage,
@@ -90,20 +91,7 @@ export default function TuningViewer() {
     language: "sv",
   });
 
-  const t = {
-    sv: {
-      selectBrand: "VÄLJ MÄRKE",
-      selectModel: "VÄLJ MODELL",
-      selectYear: "VÄLJ ÅRSMODELL",
-      selectEngine: "VÄLJ MOTOR",
-    },
-    en: {
-      selectBrand: "SELECT BRAND",
-      selectModel: "SELECT MODEL",
-      selectYear: "SELECT YEAR",
-      selectEngine: "SELECT ENGINE",
-    },
-  }[settings.language];
+
 
   useEffect(() => {
     if (!resellerId) return;
@@ -626,7 +614,7 @@ export default function TuningViewer() {
 
         <div className="mb-4">
           <p className="text-black text-center text-lg font-semibold">
-            Välj din bil nedan för att se vad vi kan erbjuda
+            {translate(settings.language, "headline")}
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-8">
