@@ -408,6 +408,24 @@ export default function ResellerAdmin({ session }) {
                         </span>
                       </div>
 
+                      {/* Original Configuration */}
+                      <div className="mb-2 p-3 bg-gray-100 rounded">
+                        <p className="text-sm text-gray-600 font-medium mb-1">
+                          Original Configuration
+                        </p>
+                        <div className="grid grid-cols-2 gap-2 text-sm">
+                          <div>
+                            <p className="text-gray-500">Original HP</p>
+                            <p>{stage.origHk} HK</p>
+                          </div>
+                          <div>
+                            <p className="text-gray-500">Original Torque</p>
+                            <p>{stage.origNm} NM</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Base Configuration */}
                       <div className="mb-3 p-3 bg-gray-50 rounded">
                         <p className="text-sm text-gray-600 font-medium mb-1">
                           Base Configuration
@@ -428,6 +446,7 @@ export default function ResellerAdmin({ session }) {
                         </div>
                       </div>
 
+                      {/* Custom Configuration */}
                       <div className="space-y-3">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
