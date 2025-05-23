@@ -1,3 +1,4 @@
+// pages/api/overrides.ts
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./auth/[...nextauth]";
 import sanity from "@/lib/sanity";
@@ -9,7 +10,17 @@ export default async function handler(req, res) {
   if (!resellerId) return res.status(401).json({ error: "Unauthorized" });
 
   if (req.method === "POST") {
-    const { overrideId, brand, model, year, engine, stageName, price, tunedHk, tunedNm } = req.body;
+    const {
+      overrideId,
+      brand,
+      model,
+      year,
+      engine,
+      stageName,
+      price,
+      tunedHk,
+      tunedNm,
+    } = req.body;
 
     if (overrideId) {
       await sanity.patch(overrideId).set({ price, tunedHk, tunedNm }).commit();
