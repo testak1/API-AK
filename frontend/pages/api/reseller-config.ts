@@ -7,18 +7,19 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Missing resellerId" });
   }
 
-  const result = await sanity.fetch(
-    `*[_type == "resellerUser" && resellerId == $resellerId][0]{
-    logo {
-      asset->{
-        _ref
-      }
-    },
-    language,
-    theme
-  }`,
-    { resellerId },
-  );
+  try {
+    const result = await sanity.fetch(
+      `*[_type == "resellerUser" && resellerId == $resellerId][0]{
+        logo,
+        language,
+        theme
+      }`,
+      { resellerId },
+    );
 
-  res.status(200).json(result || {});
+    return res.status(200).json(result || {});
+  } catch (error) {
+    console.error("Failed to fetch reseller config:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
 }
