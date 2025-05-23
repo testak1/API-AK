@@ -43,32 +43,28 @@ export default async function handler(req, res) {
   // Apply overrides
   const brands = baseBrands.map((brand) => ({
     ...brand,
-    models:
-      brand.models?.map((model) => ({
-        ...model,
-        years:
-          model.years?.map((year) => ({
-            ...year,
-            engines:
-              year.engines?.map((engine) => ({
-                ...engine,
-                stages:
-                  engine.stages?.map((stage) => {
-                    const key = `${brand.name}|${model.name}|${year.range}|${engine.label}|${stage.name}`;
-                    const override = overrideMap.get(key);
+    models: (brand.models || []).map((model) => ({
+      ...model,
+      years: (model.years || []).map((year) => ({
+        ...year,
+        engines: (year.engines || []).map((engine) => ({
+          ...engine,
+          stages: (engine.stages || []).map((stage) => {
+            const key = `${brand.name}|${model.name}|${year.range}|${engine.label}|${stage.name}`;
+            const override = overrideMap.get(key);
 
-                    return override
-                      ? {
-                          ...stage,
-                          price: override.price,
-                          tunedHk: override.tunedHk,
-                          tunedNm: override.tunedNm,
-                        }
-                      : stage;
-                  }) ?? [],
-              })) ?? [],
-          })) ?? [],
-      })) ?? [],
+            return override
+              ? {
+                  ...stage,
+                  price: override.price,
+                  tunedHk: override.tunedHk,
+                  tunedNm: override.tunedNm,
+                }
+              : stage;
+          }),
+        })),
+      })),
+    })),
   }));
 
   console.log(
