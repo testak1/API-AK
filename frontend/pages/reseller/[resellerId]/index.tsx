@@ -53,7 +53,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const { resellerId } = context.params as { resellerId: string };
 
   const isValid = await client.fetch(
-    `count(*[_type == "resellerOverride" && resellerId == $resellerId]) > 0`,
+    `count(*[_type == "resellerUser" && resellerId == $resellerId]) > 0`,
     { resellerId },
   );
 
