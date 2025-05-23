@@ -5,13 +5,15 @@ import sanity from "@/lib/sanity";
 export default async function handler(req, res) {
   try {
     const session = await getServerSession(req, res, authOptions);
-    const resellerId = session?.user?.resellerId;
+    const resellerIdFromSession = session?.user?.resellerId;
+    const resellerIdFromQuery = req.query.resellerId;
+
+    const resellerId = resellerIdFromSession || resellerIdFromQuery;
 
     if (!resellerId) {
-      return res.status(401).json({ error: "Unauthorized" });
+      return res.status(400).json({ error: "Missing resellerId" });
     }
 
-    // Fetch both brands and overrides
     const [baseBrands, overrides] = await Promise.all([
       sanity.fetch(`*[_type == "brand"]{
         name,
@@ -48,14 +50,12 @@ export default async function handler(req, res) {
       ),
     ]);
 
-    // Build override map
     const overrideMap = new Map();
-    for (const override of overrides) {
-      const key = `${override.brand}|${override.model}|${override.year}|${override.engine}|${override.stageName}`;
-      overrideMap.set(key, override);
+    for (const o of overrides) {
+      const key = `${o.brand}|${o.model}|${o.year}|${o.engine}|${o.stageName}`;
+      overrideMap.set(key, o);
     }
 
-    // Merge overrides into brand data
     const brands = (baseBrands || []).map((brand) => ({
       ...brand,
       models: (brand.models || []).map((model) => ({

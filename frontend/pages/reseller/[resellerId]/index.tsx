@@ -227,6 +227,7 @@ export default function TuningViewer() {
         const res = await fetch("/api/brands-with-overrides");
         if (!res.ok) throw new Error("Failed to fetch brands");
         const json = await res.json();
+        console.log("Fetched brands:", json.brands);
         setData(json.brands || []);
       } catch (error) {
         console.error("Error fetching brands:", error);
