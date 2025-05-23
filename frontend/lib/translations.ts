@@ -1,5 +1,43 @@
-export const translations = {"selectCar": {"sv": "Välj din bil nedan för att se vad vi kan erbjuda", "en": "Select your car below to see what we can offer", "de": "Wählen Sie Ihr Auto unten aus, um zu sehen, was wir anbieten können"}, "stock": {"sv": "Original", "en": "Stock", "de": "Serie"}, "stage": {"sv": "Steg", "en": "Stage", "de": "Stufe"}, "petrol": {"sv": "Bensin", "en": "Petrol", "de": "Benzin"}, "contact": {"sv": "KONTAKT", "en": "CONTACT", "de": "KONTAKT"}, "selectBrand": {"sv": "VÄLJ MÄRKE", "en": "SELECT BRAND", "de": "MARKE WÄHLEN"}, "selectModel": {"sv": "VÄLJ MODELL", "en": "SELECT MODEL", "de": "MODELL WÄHLEN"}, "selectYear": {"sv": "VÄLJ ÅRSMODELL", "en": "SELECT YEAR", "de": "BAUJAHR WÄHLEN"}, "selectEngine": {"sv": "VÄLJ MOTOR", "en": "SELECT ENGINE", "de": "MOTOR WÄHLEN"}};
+// lib/translations.ts
+export const translations = {
+  sv: {
+    selectBrand: "VÄLJ MÄRKE",
+    selectModel: "VÄLJ MODELL",
+    selectYear: "VÄLJ ÅRSMODELL",
+    selectEngine: "VÄLJ MOTOR",
+    headline: "Välj din bil nedan för att se vad vi kan erbjuda",
+    contact: "KONTAKT",
+    fuelPetrol: "Bensin",
+    originalHp: "ORIGINAL HK",
+    stageLabel: "Steg",
+    stockHp: "Original HK",
+  },
+  en: {
+    selectBrand: "SELECT BRAND",
+    selectModel: "SELECT MODEL",
+    selectYear: "SELECT YEAR",
+    selectEngine: "SELECT ENGINE",
+    headline: "Select your car below to see what we can offer",
+    contact: "CONTACT",
+    fuelPetrol: "Petrol",
+    originalHp: "Stock HP",
+    stageLabel: "Stage",
+    stockHp: "Stock HP",
+  },
+  de: {
+    selectBrand: "MARKE WÄHLEN",
+    selectModel: "MODELL WÄHLEN",
+    selectYear: "BAUJAHR WÄHLEN",
+    selectEngine: "MOTOR WÄHLEN",
+    headline: "Wähle dein Auto unten aus, um unser Angebot zu sehen",
+    contact: "KONTAKT",
+    fuelPetrol: "Benzin",
+    originalHp: "Serien-PS",
+    stageLabel: "Stufe",
+    stockHp: "Serien-PS",
+  },
+};
 
-export function t(key: keyof typeof translations, lang: string): string {
-  return translations[key]?.[lang] || translations[key]?.sv || key;
-}
+export const t = (lang: string, key: keyof typeof translations["sv"]) => {
+  return translations[lang]?.[key] ?? translations["sv"][key];
+};
