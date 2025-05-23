@@ -16,11 +16,7 @@ export default function LoginPage() {
       callbackUrl: "/admin/reseller",
     });
 
-    if (res?.ok) {
-      router.push("/admin/reseller");
-    } else {
-      alert("Login failed");
-    }
+    if (res?.ok) router.push(res.url || "/admin/reseller");
   };
 
   return (

@@ -3,7 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 
 const users = [
   {
-    id: "4844e087-e532-492b-a67a-57f4b77f590f",
+    id: "1",
     email: "reseller1@example.com",
     password: "demo123",
     resellerId: "testreseller",
@@ -32,13 +32,15 @@ export const authOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
-      if (user) token.resellerId = user.resellerId;
-      return token;
-    },
     async session({ session, token }) {
       session.user.resellerId = token.resellerId;
       return session;
+    },
+    async jwt({ token, user }) {
+      if (user?.resellerId) {
+        token.resellerId = user.resellerId;
+      }
+      return token;
     },
   },
   pages: {

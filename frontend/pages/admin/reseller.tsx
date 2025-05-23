@@ -3,8 +3,10 @@ import { useSession, signOut } from "next-auth/react";
 
 export default function ResellerAdmin() {
   const sessionData = useSession();
+  console.log("SESSION DEBUG:", sessionData);
   const session = sessionData?.data;
   const status = sessionData?.status;
+  console.log("Session status:", status);
   const [brands, setBrands] = useState([]);
   const [overrides, setOverrides] = useState([]);
 
@@ -60,8 +62,6 @@ export default function ResellerAdmin() {
 
   if (status === "loading") return <p>Loading...</p>;
   if (status === "unauthenticated") return <p>Access Denied</p>;
-  if (!session) return <p>Access Denied</p>;
-  console.log("Session:", session);
 
   return (
     <div className="p-6">
