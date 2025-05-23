@@ -148,3 +148,7 @@ export default function ResellerAdmin() {
     </div>
   );
 }
+
+export async function getServerSideProps() {
+  return { props: {} };
+}
