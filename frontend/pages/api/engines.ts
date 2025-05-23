@@ -1,11 +1,14 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import client from '@/lib/sanity';
+import { NextApiRequest, NextApiResponse } from "next";
+import client from "@/lib/sanity";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { brand, model, year } = req.query;
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
+  const { brand, model, year, resellerId } = req.query;
 
   if (!brand || !model || !year) {
-    return res.status(400).json({ error: 'Missing parameters' });
+    return res.status(400).json({ error: "Missing parameters" });
   }
 
   const query = `
@@ -98,9 +101,42 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const result = await client.fetch(query, { brand, model, year });
+
+    if (!Array.isArray(result)) {
+      return res.status(200).json({ result: [] });
+    }
+
+    if (resellerId) {
+      const overrides = await client.fetch(
+        `*[_type == "resellerOverride" && resellerId == $resellerId]`,
+        { resellerId },
+      );
+
+      const overrideMap = new Map();
+      for (const o of overrides) {
+        const key = `${o.brand}|${o.model}|${o.year}|${o.engine}|${o.stageName}`;
+        overrideMap.set(key, o);
+      }
+
+      result.forEach((engine) => {
+        engine.stages = engine.stages.map((stage) => {
+          const key = `${brand}|${model}|${year}|${engine.label}|${stage.name}`;
+          const override = overrideMap.get(key);
+          return override
+            ? {
+                ...stage,
+                price: override.price,
+                tunedHk: override.tunedHk,
+                tunedNm: override.tunedNm,
+              }
+            : stage;
+        });
+      });
+    }
+
     res.status(200).json({ result });
   } catch (error) {
-    console.error('Error fetching engines:', error);
-    res.status(500).json({ error: 'Failed to load engines' });
+    console.error("Error fetching engines with overrides:", error);
+    res.status(500).json({ error: "Failed to load engines" });
   }
 }
