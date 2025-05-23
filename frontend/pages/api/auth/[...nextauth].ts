@@ -1,14 +1,6 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-
-const users = [
-  {
-    id: "1",
-    email: "reseller1@example.com",
-    password: "demo123",
-    resellerId: "testreseller",
-  },
-];
+import sanity from "@/lib/sanity";
 
 export const authOptions = {
   secret: process.env.NEXTAUTH_SECRET,
@@ -19,15 +11,25 @@ export const authOptions = {
         email: { label: "Email", type: "text" },
         password: { label: "Password", type: "password" },
       },
-      authorize(credentials) {
-        console.log("LOGIN ATTEMPT", credentials);
+      authorize: async (credentials) => {
+        const users = await sanity.fetch(
+          `*[_type == "resellerUser"]{email, password, resellerId}`,
+        );
+
         const user = users.find(
           (u) =>
             u.email === credentials?.email &&
             u.password === credentials?.password,
         );
-        console.log("USER FOUND", user);
-        return user ?? null;
+
+        if (user) {
+          return {
+            id: user.email,
+            email: user.email,
+            resellerId: user.resellerId,
+          };
+        }
+        return null;
       },
     }),
   ],
