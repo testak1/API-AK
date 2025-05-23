@@ -224,7 +224,9 @@ export default function TuningViewer() {
 
     const fetchBrands = async () => {
       try {
-        const res = await fetch("/api/brands-with-overrides");
+        const res = await fetch(
+          `/api/brands-with-overrides?resellerId=${resellerId}`,
+        );
         if (!res.ok) throw new Error("Failed to fetch brands");
         const json = await res.json();
         console.log("Fetched brands:", json.brands);
