@@ -1,3 +1,4 @@
+// pages/api/brands-with-overrides.ts
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./auth/[...nextauth]";
 import sanity from "@/lib/sanity";

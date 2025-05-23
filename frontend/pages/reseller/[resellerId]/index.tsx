@@ -81,6 +81,14 @@ export default function TuningViewer() {
 
   const { resellerId } = router.query as { resellerId?: string };
   const [resellerLogo, setResellerLogo] = useState<string | null>(null);
+  const [settings, setSettings] = useState<{
+    logo?: any;
+    currency: string;
+    language: string;
+  }>({
+    currency: "SEK",
+    language: "sv",
+  });
 
   useEffect(() => {
     if (!resellerId) return;
@@ -101,6 +109,25 @@ export default function TuningViewer() {
 
     fetchResellerLogo();
   }, [resellerId]);
+
+  useEffect(() => {
+    if (!resellerId) return;
+
+    const fetchSettings = async () => {
+      const res = await fetch(`/api/reseller-config?resellerId=${resellerId}`);
+      const json = await res.json();
+      setSettings(json);
+    };
+
+    fetchSettings();
+  }, [resellerId]);
+
+  const currencySymbol =
+    settings.currency === "EUR"
+      ? "€"
+      : settings.currency === "USD"
+        ? "$"
+        : "kr";
 
   const [isLoading, setIsLoading] = useState(true);
   const [expandedStages, setExpandedStages] = useState<Record<string, boolean>>(
@@ -746,7 +773,7 @@ export default function TuningViewer() {
                           className="h-8 object-contain"
                         />
                         <span className="inline-block bg-red-600 text-black px-4 py-1 rounded-full text-xl font-semibold shadow-md">
-                          {stage.price?.toLocaleString()} kr
+                          {stage.price?.toLocaleString()} {currencySymbol}
                         </span>
                         {(stage.name.includes("Steg 2") ||
                           stage.name.includes("Steg 3") ||
