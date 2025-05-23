@@ -11,17 +11,33 @@ export default async function handler(req, res) {
       return res.status(401).json({ error: "Unauthorized" });
     }
 
+    // Fetch both brands and overrides
     const [baseBrands, overrides] = await Promise.all([
       sanity.fetch(`*[_type == "brand"]{
         name,
+        slug,
+        logo,
         models[]{
           name,
+          slug,
           years[]{
             range,
             engines[]{
               label,
               fuel,
-              stages[]{ name, price, tunedHk, tunedNm }
+              globalAktPlusOptions,
+              stages[]{
+                name,
+                price,
+                tunedHk,
+                tunedNm,
+                origHk,
+                origNm,
+                type,
+                tcuFields,
+                aktPlusOptions,
+                descriptionRef
+              }
             }
           }
         }
@@ -32,12 +48,14 @@ export default async function handler(req, res) {
       ),
     ]);
 
+    // Build override map
     const overrideMap = new Map();
-    for (const o of overrides) {
-      const key = `${o.brand}|${o.model}|${o.year}|${o.engine}|${o.stageName}`;
-      overrideMap.set(key, o);
+    for (const override of overrides) {
+      const key = `${override.brand}|${override.model}|${override.year}|${override.engine}|${override.stageName}`;
+      overrideMap.set(key, override);
     }
 
+    // Merge overrides into brand data
     const brands = (baseBrands || []).map((brand) => ({
       ...brand,
       models: (brand.models || []).map((model) => ({
@@ -63,8 +81,6 @@ export default async function handler(req, res) {
         })),
       })),
     }));
-
-    console.dir(brands, { depth: null }); // Debugging structure
 
     return res.status(200).json({ brands });
   } catch (err) {
