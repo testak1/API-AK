@@ -225,7 +225,7 @@ export default function TuningViewer() {
     const fetchBrands = async () => {
       try {
         const res = await fetch(
-          `/api/brands-with-overrides?resellerId=${resellerId}`,
+          `/api/brands-with-overrides?resellerId=${encodeURIComponent(resellerId.toString())}`,
         );
         if (!res.ok) throw new Error("Failed to fetch brands");
         const json = await res.json();
@@ -243,82 +243,85 @@ export default function TuningViewer() {
 
   // Fetch years
   useEffect(() => {
-    const fetchYears = async () => {
-      if (selected.brand && selected.model) {
-        setIsLoading(true);
-        try {
-          const res = await fetch(
-            `/api/years?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}&resellerId=${resellerId}`,
-          );
-          if (!res.ok) throw new Error("Failed to fetch years");
-          const years = await res.json();
+    if (!selected.brand || !selected.model || !resellerId) return;
 
-          setData((prev) =>
-            prev.map((brand) =>
-              brand.name !== selected.brand
-                ? brand
-                : {
-                    ...brand,
-                    models: brand.models.map((model) =>
-                      model.name !== selected.model
-                        ? model
-                        : { ...model, years: years.result },
-                    ),
-                  },
-            ),
-          );
-        } catch (error) {
-          console.error("Error fetching years:", error);
-        } finally {
-          setIsLoading(false);
-        }
+    const fetchYears = async () => {
+      setIsLoading(true);
+      try {
+        const res = await fetch(
+          `/api/years?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}&resellerId=${encodeURIComponent(resellerId.toString())}`,
+        );
+        if (!res.ok) throw new Error("Failed to fetch years");
+        const years = await res.json();
+
+        setData((prev) =>
+          prev.map((brand) =>
+            brand.name !== selected.brand
+              ? brand
+              : {
+                  ...brand,
+                  models: brand.models.map((model) =>
+                    model.name !== selected.model
+                      ? model
+                      : { ...model, years: years.result },
+                  ),
+                },
+          ),
+        );
+      } catch (error) {
+        console.error("Error fetching years:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
+
     fetchYears();
-  }, [selected.brand, selected.model]);
+  }, [selected.brand, selected.model, resellerId]);
 
   // Fetch engines
   useEffect(() => {
-    const fetchEngines = async () => {
-      if (selected.brand && selected.model && selected.year) {
-        setIsLoading(true);
-        try {
-          const res = await fetch(
-            `/api/engines?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}&year=${encodeURIComponent(selected.year)}&resellerId=${resellerId}`,
-          );
-          if (!res.ok) throw new Error("Failed to fetch engines");
-          const engines = await res.json();
+    if (!selected.brand || !selected.model || !selected.year || !resellerId)
+      return;
 
-          setData((prev) =>
-            prev.map((brand) =>
-              brand.name !== selected.brand
-                ? brand
-                : {
-                    ...brand,
-                    models: brand.models.map((model) =>
-                      model.name !== selected.model
-                        ? model
-                        : {
-                            ...model,
-                            years: model.years.map((year) =>
-                              year.range !== selected.year
-                                ? year
-                                : { ...year, engines: engines.result },
-                            ),
-                          },
-                    ),
-                  },
-            ),
-          );
-        } catch (error) {
-          console.error("Error fetching engines:", error);
-        } finally {
-          setIsLoading(false);
-        }
+    const fetchEngines = async () => {
+      setIsLoading(true);
+      try {
+        const res = await fetch(
+          `/api/engines?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}&year=${encodeURIComponent(selected.year)}&resellerId=${encodeURIComponent(resellerId.toString())}`,
+        );
+        if (!res.ok) throw new Error("Failed to fetch engines");
+        const engines = await res.json();
+
+        setData((prev) =>
+          prev.map((brand) =>
+            brand.name !== selected.brand
+              ? brand
+              : {
+                  ...brand,
+                  models: brand.models.map((model) =>
+                    model.name !== selected.model
+                      ? model
+                      : {
+                          ...model,
+                          years: model.years.map((year) =>
+                            year.range !== selected.year
+                              ? year
+                              : { ...year, engines: engines.result },
+                          ),
+                        },
+                  ),
+                },
+          ),
+        );
+      } catch (error) {
+        console.error("Error fetching engines:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
+
     fetchEngines();
-  }, [selected.brand, selected.model, selected.year]);
+  }, [selected.brand, selected.model, selected.year, resellerId]);
   const {
     brands,
     models,
