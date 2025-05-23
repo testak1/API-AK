@@ -26,26 +26,36 @@ export default function ResellerAdmin({ session }) {
     fetchData();
   }, []);
 
-  const [settings, setSettings] = useState({
-    currency: "SEK",
-    language: "sv",
-  });
+  const [currency, setCurrency] = useState("SEK");
+  const [language, setLanguage] = useState("sv");
 
   useEffect(() => {
     const fetchSettings = async () => {
       try {
         const res = await fetch("/api/reseller-config");
         const json = await res.json();
-        setSettings({
-          currency: json.currency || "SEK",
-          language: json.language || "sv",
-        });
+        setCurrency(json.currency || "SEK");
+        setLanguage(json.language || "sv");
       } catch (err) {
         console.error("Failed to load reseller settings", err);
       }
     };
     fetchSettings();
   }, []);
+
+  const handleSettingsSave = async () => {
+    try {
+      await fetch("/api/update-reseller-settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ currency, language }),
+      });
+      alert("Settings saved!");
+    } catch (err) {
+      console.error("Error updating settings", err);
+      alert("Failed to save settings.");
+    }
+  };
 
   const findOverride = (brand, model, year, engine, stageName) =>
     overrides.find(
@@ -112,43 +122,19 @@ export default function ResellerAdmin({ session }) {
         <h2 className="text-xl font-bold mb-2">Reseller Settings</h2>
 
         <label className="block mt-4">Currency</label>
-        <select
-          value={settings.currency}
-          onChange={(e) =>
-            setSettings({ ...settings, currency: e.target.value })
-          }
-          className="w-full border p-2 rounded"
-        >
+        <select value={currency} onChange={(e) => setCurrency(e.target.value)}>
           <option value="SEK">SEK (kr)</option>
           <option value="EUR">EUR (€)</option>
           <option value="USD">USD ($)</option>
         </select>
 
         <label className="block mt-4">Language</label>
-        <select
-          value={settings.language}
-          onChange={(e) =>
-            setSettings({ ...settings, language: e.target.value })
-          }
-          className="w-full border p-2 rounded"
-        >
+        <select value={language} onChange={(e) => setLanguage(e.target.value)}>
           <option value="sv">Swedish</option>
           <option value="en">English</option>
         </select>
 
-        <button
-          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded"
-          onClick={async () => {
-            await fetch("/api/update-reseller-settings", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(settings),
-            });
-            alert("Settings updated");
-          }}
-        >
-          Save Settings
-        </button>
+        <button onClick={handleSettingsSave}>Save Settings</button>
       </div>
 
       <div className="space-y-4">
