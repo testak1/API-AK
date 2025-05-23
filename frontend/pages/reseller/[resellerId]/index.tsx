@@ -561,7 +561,7 @@ export default function TuningViewer() {
     <>
       <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
         <div className="flex items-center mb-4">
-          {resellerConfig.logo?.asset && (
+          {resellerConfig.logo?.asset?._ref && (
             <img
               src={urlFor(resellerConfig.logo).width(100).url()}
               alt="Reseller Logo"
