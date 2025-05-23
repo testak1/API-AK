@@ -102,7 +102,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   };
 
   // Temporär whitelista – hämta gärna från Sanity i framtiden
-  const validResellerIds = ["testak", "test1", "test2"];
+  const validResellerIds = ["testak", "testreseller", "test2"];
   if (!validResellerIds.includes(resellerId.toLowerCase())) {
     return { notFound: true };
   }
