@@ -1370,7 +1370,8 @@ export default function TuningViewer() {
                                               settings.language,
                                               "priceLabel",
                                             )}
-                                            : {option.price.toLocaleString()}
+                                            : {option.price.toLocaleString()}{" "}
+                                            {currencySymbol}
                                           </p>
                                         )}
 
