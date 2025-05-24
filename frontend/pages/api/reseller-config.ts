@@ -10,9 +10,17 @@ export default async function handler(req, res) {
     { resellerId },
   );
 
+  // Static exchange rates (SEK is base)
+  const exchangeRates = {
+    SEK: 1,
+    EUR: 0.1,
+    USD: 0.095,
+  };
+
   res.status(200).json({
     logo: result?.logo ?? null,
     currency: result?.currency ?? "SEK",
     language: result?.language ?? "sv",
+    exchangeRates,
   });
 }

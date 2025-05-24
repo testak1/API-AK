@@ -86,9 +86,11 @@ export default function TuningViewer() {
     logo?: any;
     currency: string;
     language: string;
+    exchangeRates: Record<string, number>;
   }>({
     currency: "SEK",
     language: "sv",
+    exchangeRates: { SEK: 1, EUR: 0.1, USD: 0.095 },
   });
 
   useEffect(() => {
@@ -122,6 +124,16 @@ export default function TuningViewer() {
 
     fetchSettings();
   }, [resellerId]);
+
+  const convertPrice = (priceInSek: number): string => {
+    const rate = settings.exchangeRates[settings.currency] || 1;
+    const converted = priceInSek * rate;
+    return converted.toLocaleString(undefined, {
+      style: "currency",
+      currency: settings.currency,
+      maximumFractionDigits: 0,
+    });
+  };
 
   const currencySymbol =
     settings.currency === "EUR"
@@ -792,7 +804,7 @@ export default function TuningViewer() {
                           className="h-8 object-contain"
                         />
                         <span className="inline-block bg-red-600 text-black px-4 py-1 rounded-full text-xl font-semibold shadow-md">
-                          {stage.price?.toLocaleString()} {currencySymbol}
+                          <span>{convertPrice(stage.price)}</span>
                         </span>
                         {(stage.name.includes("Steg 2") ||
                           stage.name.includes("Steg 3") ||
