@@ -774,6 +774,7 @@ export default function TuningViewer() {
                           <span
                             className={`uppercase tracking-wide ${getStageColor(stage.name)}`}
                           >
+                            [
                             {translate(
                               settings.language,
                               "translateStageName",
