@@ -4,40 +4,7 @@ import Link from 'next/link';
 
 export default function APISalesPage() {
   const [activeTab, setActiveTab] = useState<'features' | 'pricing' | 'demo'>('features');
-  const [apiKey, setApiKey] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [demoResponse, setDemoResponse] = useState(null);
-
-  const handleTryDemo = async () => {
-    setIsLoading(true);
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setDemoResponse({
-        success: true,
-        data: {
-          brand: "Volkswagen",
-          model: "Golf R",
-          year: "2022",
-          stages: [
-            {
-              name: "Stage 1",
-              origHk: 320,
-              tunedHk: 380,
-              price: 4995
-            }
-          ]
-        }
-      });
-    } catch (error) {
-      setDemoResponse({
-        success: false,
-        error: "Failed to fetch demo data"
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const [iframeLoaded, setIframeLoaded] = useState(false);
 
   return (
     <>
@@ -230,71 +197,39 @@ export default function APISalesPage() {
             )}
 
             {activeTab === 'demo' && (
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                <div className="grid md:grid-cols-2">
-                  <div className="p-8">
-                    <h3 className="text-2xl font-bold mb-6">Try Our API Live</h3>
-                    <p className="text-gray-600 mb-6">
-                      Enter your API key or use our demo key to test the API endpoints in real-time.
-                    </p>
-                    
-                    <div className="mb-6">
-                      <label htmlFor="api-key" className="block text-sm font-medium text-gray-700 mb-2">
-                        API Key
-                      </label>
-                      <input
-                        type="text"
-                        id="api-key"
-                        value={apiKey}
-                        onChange={(e) => setApiKey(e.target.value)}
-                        placeholder="Enter your API key or use 'demo'"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      />
-                    </div>
-                    
-                    <button
-                      onClick={handleTryDemo}
-                      disabled={isLoading}
-                      className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700 transition disabled:opacity-70"
-                    >
-                      {isLoading ? (
-                        <span className="flex items-center justify-center">
-                          <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                          Loading...
-                        </span>
-                      ) : (
-                        "Send Test Request"
-                      )}
-                    </button>
+              <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div className="p-8">
+                  <h2 className="text-3xl font-bold mb-6">Live API Demo</h2>
+                  <p className="text-gray-600 mb-6">
+                    Interact with our API directly through this live demo. The demo loads our actual API interface where you can test endpoints.
+                  </p>
+                  
+                  <div className="relative pt-[75%] rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
+                    {!iframeLoaded && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="animate-pulse text-gray-500">
+                          Loading API demo...
+                        </div>
+                      </div>
+                    )}
+                    <iframe
+                      src="https://api.aktuning.se"
+                      className="absolute top-0 left-0 w-full h-full border-0"
+                      onLoad={() => setIframeLoaded(true)}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      sandbox="allow-scripts allow-same-origin allow-forms"
+                    />
                   </div>
                   
-                  <div className="bg-gray-50 p-8 border-t md:border-t-0 md:border-l border-gray-200">
-                    <div className="flex items-center justify-between mb-4">
-                      <h4 className="font-medium text-gray-700">API Response</h4>
-                      <div className="flex space-x-2">
-                        <span className="px-2 py-1 bg-gray-200 text-gray-700 text-xs rounded">GET</span>
-                        <span className="px-2 py-1 bg-gray-200 text-gray-700 text-xs rounded">/api/v1/vehicle</span>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-gray-900 rounded-lg p-4 h-64 overflow-auto">
-                      {demoResponse ? (
-                        <pre className="text-green-400 text-sm">
-                          {JSON.stringify(demoResponse, null, 2)}
-                        </pre>
-                      ) : (
-                        <div className="h-full flex items-center justify-center text-gray-500">
-                          {isLoading ? (
-                            <span className="animate-pulse">Waiting for response...</span>
-                          ) : (
-                            "Send a request to see the API response"
-                          )}
-                        </div>
-                      )}
-                    </div>
+                  <div className="mt-6 bg-blue-50 p-4 rounded-lg border border-blue-100">
+                    <h3 className="font-medium text-blue-800 mb-2">Demo Tips</h3>
+                    <ul className="space-y-2 text-sm text-gray-700">
+                      <li>• Use the navigation to explore different API endpoints</li>
+                      <li>• Try making sample requests with the demo credentials</li>
+                      <li>• Check the response formats and status codes</li>
+                      <li>• The demo resets every 30 minutes</li>
+                    </ul>
                   </div>
                 </div>
               </div>
@@ -322,58 +257,6 @@ export default function APISalesPage() {
               >
                 Contact Sales
               </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* Documentation Preview */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold mb-4">Comprehensive Documentation</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Our detailed documentation makes integration simple with code examples in multiple languages.
-            </p>
-          </div>
-          
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="grid md:grid-cols-2">
-              <div className="p-8">
-                <h3 className="text-xl font-bold mb-4">API Endpoints</h3>
-                <ul className="space-y-4">
-                  <li>
-                    <div className="flex items-start">
-                      <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded mr-3 mt-1">GET</span>
-                      <div>
-                        <code className="text-sm font-mono text-gray-800">/api/v1/vehicles</code>
-                        <p className="text-gray-600 text-sm mt-1">List all available vehicles</p>
-                      </div>
-                    </div>
-                  </li>
-                  {/* Add more endpoints */}
-                </ul>
-              </div>
-              
-              <div className="bg-gray-900 p-8">
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-gray-300 font-medium">Example Request</h4>
-                  <div className="flex space-x-2">
-                    <button className="text-xs text-gray-400 hover:text-white">JavaScript</button>
-                    <button className="text-xs text-gray-400 hover:text-white">Python</button>
-                    <button className="text-xs text-gray-400 hover:text-white">cURL</button>
-                  </div>
-                </div>
-                
-                <pre className="text-green-400 text-sm overflow-auto">
-                  {`fetch('https://api.aktuning.se/api/v1/vehicles', {
-  headers: {
-    'Authorization': 'Bearer YOUR_API_KEY',
-    'Content-Type': 'application/json'
-  }
-})
-.then(response => response.json())
-.then(data => console.log(data));`}
-                </pre>
-              </div>
             </div>
           </div>
         </section>
@@ -514,7 +397,7 @@ const footerLinks = [
     links: [
       { text: 'Features', url: '#features' },
       { text: 'Pricing', url: '#pricing' },
-      { text: 'Documentation', url: '#docs' },
+      { text: 'Documentation', url: 'https://docs.aktuning.se' },
       { text: 'Changelog', url: '#' },
       { text: 'Status', url: '#' }
     ]
