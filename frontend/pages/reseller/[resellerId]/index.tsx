@@ -956,7 +956,11 @@ export default function TuningViewer() {
                       <div className="mt-6">
                         {!isDsgStage && (
                           <h3 className="text-lg font-medium text-gray-300 mb-2 uppercase">
-                            {stage.name} effektkurva
+                            {translate(
+                              settings.language,
+                              "powerCurveLabel",
+                              stage.name,
+                            )}
                           </h3>
                         )}
 

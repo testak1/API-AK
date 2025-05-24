@@ -33,6 +33,7 @@ export const translations = {
     additionsLabel: "TILLÄGG",
     horsepowerUnit: "hk",
     stageNameWithHP: (stageName: string) => `${stageName} HK`,
+    powerCurveLabel: (stageName: string) => `${stageName} effektkurva`,
   },
   en: {
     BrandValue: "MAKE",
@@ -67,6 +68,7 @@ export const translations = {
     additionsLabel: "ADDONS",
     horsepowerUnit: "hp",
     stageNameWithHP: (stageName: string) => `${stageName} HP`,
+    powerCurveLabel: (stageName: string) => `${stageName} power curve`,
   },
   de: {
     BrandValue: "MARKE",
@@ -102,6 +104,7 @@ export const translations = {
     additionsLabel: "ZUSATZ",
     horsepowerUnit: "PS",
     stageNameWithHP: (stageName: string) => `${stageName} PS`,
+    powerCurveLabel: (stageName: string) => `${stageName} Leistungskurve`,
   },
 };
 
