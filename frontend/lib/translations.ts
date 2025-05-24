@@ -9,6 +9,7 @@ export const translations = {
     contact: "KONTAKT",
     fuelPetrol: "Bensin",
     originalHp: "ORIGINAL HK",
+    originalNm: "ORIGINAL Nm",
     stockHp: "Original HK",
     stageLabel: "Steg",
     infoGeneral: "GENERELL INFORMATION",
@@ -21,6 +22,8 @@ export const translations = {
     shiftTime: "VÄXLINGSTID",
     tuningCurveNote: "(Simulerad effektkurva)",
     tuningIntro: "Motoroptimering",
+    stageSoftwareOnly: "Priset omfattar enbart mjukvaran.",
+    stageContactForHardware: "Kontakta oss för offert inkl hårdvara!",
   },
   en: {
     selectBrand: "SELECT BRAND",
@@ -30,7 +33,8 @@ export const translations = {
     headline: "Select your car below to see what we can offer",
     contact: "CONTACT",
     fuelPetrol: "Petrol",
-    originalHp: "Stock HP",
+    originalHp: "STOCK HP",
+    originalNm: "ORI Nm",
     stockHp: "Stock HP",
     stageLabel: "Stage",
     infoGeneral: "GENERAL INFORMATION",
@@ -43,6 +47,8 @@ export const translations = {
     shiftTime: "SHIFT TIME",
     tuningCurveNote: "(Simulated power curve)",
     tuningIntro: "Performance Tuning",
+    stageSoftwareOnly: "The price includes the software only.",
+    stageContactForHardware: "Contact us for a quote including hardware!",
   },
   de: {
     selectBrand: "MARKE WÄHLEN",
@@ -53,6 +59,7 @@ export const translations = {
     contact: "KONTAKT",
     fuelPetrol: "Benzin",
     originalHp: "Serien-PS",
+    originalNm: "Serien Nm",
     stockHp: "Serien-PS",
     stageLabel: "Stufe",
     infoGeneral: "ALLGEMEINE INFORMATIONEN",
@@ -68,6 +75,6 @@ export const translations = {
   },
 };
 
-export const t = (lang: string, key: keyof typeof translations["sv"]) => {
+export const t = (lang: string, key: keyof (typeof translations)["sv"]) => {
   return translations[lang]?.[key] ?? translations["sv"][key];
 };

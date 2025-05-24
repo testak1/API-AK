@@ -618,7 +618,7 @@ export default function TuningViewer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-8">
           <div>
             <label className="block text-sm font-bold text-black mb-1">
-              MÄRKE
+              {translate(settings.language, "selectBrand")}
             </label>
             <select
               className={`w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
@@ -717,7 +717,11 @@ export default function TuningViewer() {
               </option>
               {Object.entries(groupedEngines).map(([fuelType, engines]) => (
                 <optgroup
-                  label={fuelType.charAt(0).toUpperCase() + fuelType.slice(1)}
+                  label={
+                    fuelType.toLowerCase() === "bensin"
+                      ? translate(settings.language, "fuelPetrol")
+                      : fuelType.charAt(0).toUpperCase() + fuelType.slice(1)
+                  }
                   key={fuelType}
                 >
                   {engines.map((engine) => (
@@ -770,7 +774,12 @@ export default function TuningViewer() {
                           <span
                             className={`uppercase tracking-wide ${getStageColor(stage.name)}`}
                           >
-                            [{stage.name}]
+                            [
+                            {stage.name.replace(
+                              "Steg",
+                              translate(settings.language, "stageLabel"),
+                            )}
+                            ]
                           </span>
                         </h2>
                       </div>
@@ -788,9 +797,12 @@ export default function TuningViewer() {
                           stage.name.includes("Steg 3") ||
                           stage.name.includes("Steg 4")) && (
                           <p className="text-xs text-gray-400 mt-2 italic">
-                            Priset omfattar enbart mjukvaran.
+                            {translate(settings.language, "stageSoftwareOnly")}
                             <br />
-                            Kontakta oss för offert inkl hårdvara!
+                            {translate(
+                              settings.language,
+                              "stageContactForHardware",
+                            )}
                           </p>
                         )}
                         <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-700 hover:bg-gray-600 hover:scale-110 transform transition-all duration-300">
@@ -879,7 +891,7 @@ export default function TuningViewer() {
                           {/* ORIGINAL & TUNED SPECS - PERFORMANCE */}
                           <div className="border border-white rounded-lg p-3 text-center">
                             <p className="text-sm text-white font-bold mb-1">
-                              ORIGINAL HK
+                              {translate(settings.language, "originalHp")}
                             </p>
                             <p className="text-xl text-white font-bold">
                               {stage.origHk} hk
@@ -898,7 +910,7 @@ export default function TuningViewer() {
                           </div>
                           <div className="border border-white rounded-lg p-3 text-center">
                             <p className="text-sm text-white font-bold mb-1">
-                              ORIGINAL NM
+                              {translate(settings.language, "originalNm")}
                             </p>
                             <p className="text-xl text-white font-bold">
                               {stage.origNm} Nm
