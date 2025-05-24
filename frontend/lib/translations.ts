@@ -18,7 +18,7 @@ export const translations = {
     stageLabel: "Steg",
     infoGeneral: "GENERELL INFORMATION",
     infoStage: "INFORMATION",
-    buttonClose: "STÄNG",
+    closeButton: "STÄNG",
     priceLabel: "Pris",
     optimized: "Optimerad",
     launchControl: "LAUNCH CONTROL",
@@ -36,6 +36,9 @@ export const translations = {
     powerCurveLabel: (stageName: string) => `${stageName} effektkurva`,
     translateStageName: (stageName: string) =>
       stageName.replace("Steg", "Steg"),
+    stageInfoPrefix: "STEG",
+    stageInfoSuffix: "INFORMATION",
+    generalInfoLabel: "GENERELL INFORMATION",
   },
   en: {
     BrandValue: "MAKE",
@@ -73,6 +76,9 @@ export const translations = {
     powerCurveLabel: (stageName: string) => `${stageName} power curve`,
     translateStageName: (stageName: string) =>
       stageName.replace("Steg", "Stage"),
+    stageInfoPrefix: "STAGE",
+    stageInfoSuffix: "INFO",
+    generalInfoLabel: "GENERAL INFO",
   },
   de: {
     BrandValue: "MARKE",
@@ -89,7 +95,7 @@ export const translations = {
     originalHp: "SERIEN PS",
     originalNm: "SERIEN NM",
     stockHp: "SERIEN PS",
-    stageLabel: "Stufe",
+    stageLabel: "STUFE",
     infoGeneral: "ALLGEMEINE INFO",
     infoStage: "INFO",
     buttonClose: "SCHLIESSEN",
@@ -111,6 +117,9 @@ export const translations = {
     powerCurveLabel: (stageName: string) => `${stageName} Leistungskurve`,
     translateStageName: (stageName: string) =>
       stageName.replace("Steg", "Stufe"),
+    stageInfoPrefix: "STUFE",
+    stageInfoSuffix: "INFO",
+    generalInfoLabel: "ALLGEMEINE INFO",
   },
 };
 

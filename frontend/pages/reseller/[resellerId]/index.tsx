@@ -1156,7 +1156,10 @@ export default function TuningViewer() {
                                     position: "left",
                                     title: {
                                       display: true,
-                                      text: "EFFEKT",
+                                      text: translate(
+                                        settings.language,
+                                        "powerLabel",
+                                      ),
                                       color: "white",
                                       font: { size: 14 },
                                     },
@@ -1418,8 +1421,8 @@ export default function TuningViewer() {
           onClose={() => setInfoModal({ open: false, type: "stage" })}
           title={
             infoModal.type === "stage"
-              ? `STEG ${infoModal.stage?.name.replace(/\D/g, "")} INFORMATION`
-              : "GENERELL INFORMATION"
+              ? `${translate(settings.language, "stageInfoPrefix")} ${infoModal.stage?.name.replace(/\D/g, "")} ${translate(settings.language, "stageInfoSuffix")}`
+              : translate(settings.language, "generalInfoLabel")
           }
           content={
             infoModal.type === "stage" ? (
