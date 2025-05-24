@@ -135,6 +135,20 @@ export default function TuningViewer() {
     });
   };
 
+  const translateStageName = (lang: string, name: string): string => {
+    const match = name.match(/Steg\s?(\d+)/i);
+    if (!match) return name;
+
+    const stageNum = match[1];
+    const translations: Record<string, string> = {
+      sv: `Steg ${stageNum}`,
+      en: `Stage ${stageNum}`,
+      de: `Stufe ${stageNum}`,
+    };
+
+    return translations[lang] || name;
+  };
+
   const currencySymbol =
     settings.currency === "EUR"
       ? "€"
@@ -788,12 +802,7 @@ export default function TuningViewer() {
                           <span
                             className={`uppercase tracking-wide ${getStageColor(stage.name)}`}
                           >
-                            [
-                            {translate(
-                              settings.language,
-                              "translateStageName",
-                              stage.name,
-                            )}
+                            [{translateStageName(settings.language, stage.name)}
                             ]
                           </span>
                         </h2>
@@ -938,7 +947,11 @@ export default function TuningViewer() {
                           </div>
                           <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
                             <p className="text-xl text-white font-bold mb-1 uppercase">
-                              {stage.name} NM
+                              {translateStageName(
+                                settings.language,
+                                stage.name,
+                              )}{" "}
+                              NM
                             </p>
                             <p className="text-xl font-bold">
                               {stage.tunedNm} Nm
