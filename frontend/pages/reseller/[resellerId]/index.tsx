@@ -1265,9 +1265,10 @@ export default function TuningViewer() {
                             <p className="text-sm text-white font-semibold">
                               {translate(settings.language, "tuningIntro")}
                               <span className="text-white-400 text-sm ml-1">
-                                {stage.name
-                                  .replace("Steg", "STEG")
-                                  .toUpperCase()}
+                                {translateStageName(
+                                  settings.language,
+                                  stage.name,
+                                ).toUpperCase()}
                               </span>
                               {` - ${stage.tunedHk} HK & ${stage.tunedNm} NM`}
                             </p>
