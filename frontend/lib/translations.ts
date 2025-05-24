@@ -34,6 +34,8 @@ export const translations = {
     horsepowerUnit: "hk",
     stageNameWithHP: (stageName: string) => `${stageName} HK`,
     powerCurveLabel: (stageName: string) => `${stageName} effektkurva`,
+    translateStageName: (stageName: string) =>
+      stageName.replace("Steg", "Steg"),
   },
   en: {
     BrandValue: "MAKE",
@@ -51,8 +53,8 @@ export const translations = {
     originalNm: "STOCK NM",
     stockHp: "Stock HP",
     stageLabel: "Stage",
-    infoGeneral: "GENERAL INFORMATION",
-    infoStage: "INFORMATION",
+    infoGeneral: "GENERAL INFO",
+    infoStage: "INFO",
     buttonClose: "CLOSE",
     priceLabel: "Price",
     optimized: "Optimized",
@@ -69,6 +71,8 @@ export const translations = {
     horsepowerUnit: "hp",
     stageNameWithHP: (stageName: string) => `${stageName} HP`,
     powerCurveLabel: (stageName: string) => `${stageName} power curve`,
+    translateStageName: (stageName: string) =>
+      stageName.replace("Steg", "Stage"),
   },
   de: {
     BrandValue: "MARKE",
@@ -82,12 +86,12 @@ export const translations = {
     headline: "Wähle dein Auto unten aus, um unser Angebot zu sehen",
     contactvalue: "KONTAKT",
     fuelPetrol: "Benzin",
-    originalHp: "Serien-PS",
-    originalNm: "Serien NM",
-    stockHp: "Serien-PS",
+    originalHp: "SERIEN PS",
+    originalNm: "SERIEN NM",
+    stockHp: "SERIEN PS",
     stageLabel: "Stufe",
-    infoGeneral: "ALLGEMEINE INFORMATIONEN",
-    infoStage: "INFORMATION",
+    infoGeneral: "ALLGEMEINE INFO",
+    infoStage: "INFO",
     buttonClose: "SCHLIESSEN",
     priceLabel: "Preis",
     optimized: "Optimiert",
@@ -105,6 +109,8 @@ export const translations = {
     horsepowerUnit: "PS",
     stageNameWithHP: (stageName: string) => `${stageName} PS`,
     powerCurveLabel: (stageName: string) => `${stageName} Leistungskurve`,
+    translateStageName: (stageName: string) =>
+      stageName.replace("Steg", "Stufe"),
   },
 };
 
