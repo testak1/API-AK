@@ -618,7 +618,7 @@ export default function TuningViewer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-8">
           <div>
             <label className="block text-sm font-bold text-black mb-1">
-              {translate(settings.language, "selectBrand")}
+              {translate(settings.language, "Brand")}
             </label>
             <select
               className={`w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
@@ -651,7 +651,7 @@ export default function TuningViewer() {
 
           <div>
             <label className="block text-sm font-bold text-black mb-1">
-              MODELL
+              {translate(settings.language, "Model")}
             </label>
             <select
               className={`w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
@@ -676,7 +676,7 @@ export default function TuningViewer() {
 
           <div>
             <label className="block text-sm font-bold text-black mb-1">
-              ÅRSMODELL
+              {translate(settings.language, "Year")}
             </label>
             <select
               className={`w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
@@ -700,7 +700,7 @@ export default function TuningViewer() {
           </div>
           <div>
             <label className="block text-sm font-bold text-black mb-1">
-              MOTOR
+              {translate(settings.language, "Engine")}
             </label>
             <select
               className={`w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
@@ -1239,7 +1239,8 @@ export default function TuningViewer() {
                             onClick={() => handleBookNow(stage.name)}
                             className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg flex items-center gap-2"
                           >
-                            <span>📩</span> KONTAKT
+                            <span>📩</span>{" "}
+                            {translate(settings.language, "Contact")}
                           </button>
                         </div>
                       </div>

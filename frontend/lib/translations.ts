@@ -1,6 +1,10 @@
 // lib/translations.ts
 export const translations = {
   sv: {
+    Brand: "MÄRKE",
+    Model: "MODELL",
+    Year: "ÅRSMODELL",
+    Engine: "MOTOR",
     selectBrand: "VÄLJ MÄRKE",
     selectModel: "VÄLJ MODELL",
     selectYear: "VÄLJ ÅRSMODELL",
@@ -24,8 +28,15 @@ export const translations = {
     tuningIntro: "Motoroptimering",
     stageSoftwareOnly: "Priset omfattar enbart mjukvaran.",
     stageContactForHardware: "Kontakta oss för offert inkl hårdvara!",
+    powerLabel: "EFFEKT",
+    torqueLabel: "VRIDMOMENT",
+    additionsLabel: "TILLÄGG",
   },
   en: {
+    Brand: "MAKE",
+    Model: "MODEL",
+    Year: "YEAR",
+    Engine: "ENGINE",
     selectBrand: "SELECT BRAND",
     selectModel: "SELECT MODEL",
     selectYear: "SELECT YEAR",
@@ -49,8 +60,15 @@ export const translations = {
     tuningIntro: "Performance Tuning",
     stageSoftwareOnly: "The price includes the software only.",
     stageContactForHardware: "Contact us for a quote including hardware!",
+    powerLabel: "POWER",
+    torqueLabel: "TORQUE",
+    additionsLabel: "ADDONS",
   },
   de: {
+    Brand: "MARKE",
+    Model: "MODELL",
+    Year: "BAUJAHR",
+    Engine: "MOTOR",
     selectBrand: "MARKE WÄHLEN",
     selectModel: "MODELL WÄHLEN",
     selectYear: "BAUJAHR WÄHLEN",
@@ -72,6 +90,9 @@ export const translations = {
     shiftTime: "SCHALTZEIT",
     tuningCurveNote: "(Simulierte Leistungskurve)",
     tuningIntro: "Motoroptimierung",
+    powerLabel: "WIRKUNG",
+    torqueLabel: "DREHMOMENT",
+    additionsLabel: "ZUSATZ",
   },
 };
 
