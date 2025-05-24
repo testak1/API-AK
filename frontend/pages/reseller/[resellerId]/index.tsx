@@ -899,7 +899,11 @@ export default function TuningViewer() {
                           </div>
                           <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
                             <p className="text-xl text-white font-bold mb-1 uppercase">
-                              {stage.name} HK
+                              {translate(
+                                settings.language,
+                                "stageNameWithHP",
+                                stage.name,
+                              )}
                             </p>
                             <p className="text-xl font-bold">
                               {stage.tunedHk} hk
@@ -1220,7 +1224,7 @@ export default function TuningViewer() {
                         {!isDsgStage && (
                           <div className="block text-center mt-6 mb-6">
                             <p className="text-sm text-white font-semibold">
-                              Motoroptimering
+                              {translate(settings.language, "tuningIntro")}
                               <span className="text-white-400 text-sm ml-1">
                                 {stage.name
                                   .replace("Steg", "STEG")
@@ -1259,7 +1263,7 @@ export default function TuningViewer() {
                                 className="h-8 w-auto object-contain"
                               />
                               <h3 className="text-md font-semibold text-white">
-                                TILLÄGG
+                                {translate(settings.language, "additionsLabel")}
                               </h3>
                             </div>
 
@@ -1351,8 +1355,11 @@ export default function TuningViewer() {
                                       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                                         {option.price && (
                                           <p className="font-bold text-green-400">
-                                            Pris:{" "}
-                                            {option.price.toLocaleString()} kr
+                                            {translate(
+                                              settings.language,
+                                              "priceLabel",
+                                            )}
+                                            : {option.price.toLocaleString()}
                                           </p>
                                         )}
 
@@ -1362,7 +1369,11 @@ export default function TuningViewer() {
                                           }
                                           className="bg-green-600 hover:bg-green-700 hover:scale-105 transform transition-all text-white px-6 py-3 rounded-lg font-medium shadow-lg"
                                         >
-                                          📩 KONTAKT
+                                          <span>📩</span>{" "}
+                                          {translate(
+                                            settings.language,
+                                            "contactvalue",
+                                          )}
                                         </button>
                                       </div>
                                     </div>

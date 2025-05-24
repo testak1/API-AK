@@ -31,6 +31,8 @@ export const translations = {
     powerLabel: "EFFEKT",
     torqueLabel: "VRIDMOMENT",
     additionsLabel: "TILLÄGG",
+    horsepowerUnit: "hk",
+    stageNameWithHP: (stageName: string) => `${stageName} HK`,
   },
   en: {
     BrandValue: "MAKE",
@@ -63,6 +65,8 @@ export const translations = {
     powerLabel: "POWER",
     torqueLabel: "TORQUE",
     additionsLabel: "ADDONS",
+    horsepowerUnit: "hp",
+    stageNameWithHP: (stageName: string) => `${stageName} HP`,
   },
   de: {
     BrandValue: "MARKE",
@@ -90,12 +94,26 @@ export const translations = {
     shiftTime: "SCHALTZEIT",
     tuningCurveNote: "(Simulierte Leistungskurve)",
     tuningIntro: "Motoroptimierung",
+    stageSoftwareOnly: "Im Preis ist nur die Software enthalten.",
+    stageContactForHardware:
+      "Kontaktieren Sie uns für ein Angebot inklusive Hardware!",
     powerLabel: "WIRKUNG",
     torqueLabel: "DREHMOMENT",
     additionsLabel: "ZUSATZ",
+    horsepowerUnit: "PS",
+    stageNameWithHP: (stageName: string) => `${stageName} PS`,
   },
 };
 
-export const t = (lang: string, key: keyof (typeof translations)["sv"]) => {
-  return translations[lang]?.[key] ?? translations["sv"][key];
+export const t = (
+  lang: string,
+  key: keyof (typeof translations)["sv"],
+  ...args: any[]
+) => {
+  const translation = translations[lang]?.[key] ?? translations["sv"][key];
+
+  if (typeof translation === "function") {
+    return translation(...args);
+  }
+  return translation;
 };
