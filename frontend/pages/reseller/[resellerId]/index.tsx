@@ -933,7 +933,7 @@ export default function TuningViewer() {
                           }
                           className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg shadow"
                         >
-                          💡 GENERELL INFORMATION
+                          💡 {translate(settings.language, "infoGeneral")}
                         </button>
                       </div>
 
