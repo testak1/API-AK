@@ -44,7 +44,9 @@ export default function ResellerAdmin({ session }) {
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        const res = await fetch("/api/reseller-config");
+        const res = await fetch(
+          `/api/reseller-config?resellerId=${session.user.resellerId}`,
+        );
         const json = await res.json();
         if (json.currency) setCurrency(json.currency);
         if (json.language) setLanguage(json.language);
@@ -53,8 +55,11 @@ export default function ResellerAdmin({ session }) {
         setSaveStatus({ message: "Failed to load settings", isError: true });
       }
     };
-    fetchSettings();
-  }, []);
+
+    if (session?.user?.resellerId) {
+      fetchSettings();
+    }
+  }, [session]);
 
   const handleSettingsSave = async () => {
     try {
