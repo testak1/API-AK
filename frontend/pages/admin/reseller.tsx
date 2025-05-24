@@ -254,6 +254,9 @@ export default function ResellerAdmin({ session }) {
                   <option value="sv">Swedish</option>
                   <option value="en">English</option>
                   <option value="de">Deutch</option>
+                  <option value="da">Denmark</option>
+                  <option value="no">Norway</option>
+                  <option value="ar">Arabic</option>
                 </select>
               </div>
             </div>
