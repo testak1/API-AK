@@ -251,12 +251,14 @@ export default function TuningViewer() {
 
   // Load watermark image
   useEffect(() => {
+    if (!resellerLogo) return;
+
     const img = new Image();
-    img.src = "/ak-logo.png";
+    img.src = resellerLogo;
     img.onload = () => {
       watermarkImageRef.current = img;
     };
-  }, []);
+  }, [resellerLogo]);
 
   // Fetch brands and models
   useEffect(() => {
