@@ -158,6 +158,17 @@ export default function ResellerAdmin({ session }) {
     }));
   };
 
+  const currencySymbols = {
+    SEK: "kr",
+    EUR: "€",
+    USD: "$",
+  };
+
+  const convertCurrency = (amount: number, currency: string): number => {
+    const rates = { EUR: 0.091, USD: 0.1 }; // You can adjust these
+    return Math.round(amount * (rates[currency] || 1));
+  };
+
   const selectedStages =
     brands
       .find((b) => b.name === selectedBrand)
@@ -434,7 +445,16 @@ export default function ResellerAdmin({ session }) {
                         <div className="grid grid-cols-3 gap-2 text-sm">
                           <div>
                             <p className="text-gray-500">Price</p>
-                            <p>{stage.price} kr</p>
+                            <p>
+                              {stage.price} SEK
+                              {currency !== "SEK" && (
+                                <>
+                                  <br />≈{" "}
+                                  {convertCurrency(stage.price, currency)}{" "}
+                                  {currencySymbols[currency]}
+                                </>
+                              )}
+                            </p>
                           </div>
                           <div>
                             <p className="text-gray-500">HP</p>
@@ -451,7 +471,7 @@ export default function ResellerAdmin({ session }) {
                       <div className="space-y-3">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Custom Price (kr)
+                            Custom Price ({currencySymbols[currency]})
                           </label>
                           <input
                             value={price}
