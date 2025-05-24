@@ -1182,7 +1182,10 @@ export default function TuningViewer() {
                                     position: "right",
                                     title: {
                                       display: true,
-                                      text: "VRIDMOMENT",
+                                      text: translate(
+                                        settings.language,
+                                        "torqueLabel",
+                                      ),
                                       color: "white",
                                       font: { size: 14 },
                                     },
