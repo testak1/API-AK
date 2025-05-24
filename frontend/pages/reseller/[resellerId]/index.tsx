@@ -618,7 +618,7 @@ export default function TuningViewer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-8">
           <div>
             <label className="block text-sm font-bold text-black mb-1">
-              {translate(settings.language, "Brand")}
+              {translate(settings.language, "BrandValue")}
             </label>
             <select
               className={`w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
@@ -651,7 +651,7 @@ export default function TuningViewer() {
 
           <div>
             <label className="block text-sm font-bold text-black mb-1">
-              {translate(settings.language, "Model")}
+              {translate(settings.language, "ModelValue")}
             </label>
             <select
               className={`w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
@@ -676,7 +676,7 @@ export default function TuningViewer() {
 
           <div>
             <label className="block text-sm font-bold text-black mb-1">
-              {translate(settings.language, "Year")}
+              {translate(settings.language, "YearValue")}
             </label>
             <select
               className={`w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
@@ -700,7 +700,7 @@ export default function TuningViewer() {
           </div>
           <div>
             <label className="block text-sm font-bold text-black mb-1">
-              {translate(settings.language, "Engine")}
+              {translate(settings.language, "EngineValue")}
             </label>
             <select
               className={`w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
@@ -1240,7 +1240,7 @@ export default function TuningViewer() {
                             className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg flex items-center gap-2"
                           >
                             <span>📩</span>{" "}
-                            {translate(settings.language, "Contact")}
+                            {translate(settings.language, "contactvalue")}
                           </button>
                         </div>
                       </div>
