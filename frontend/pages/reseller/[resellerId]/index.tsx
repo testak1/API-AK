@@ -1385,7 +1385,7 @@ export default function TuningViewer() {
                                             )}
                                             :{" "}
                                             <span>
-                                              {convertPrice(stage.price)}
+                                              {convertPrice(option.price)}
                                             </span>
                                           </p>
                                         )}
