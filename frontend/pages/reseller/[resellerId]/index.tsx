@@ -919,7 +919,8 @@ export default function TuningViewer() {
                               )}
                             </p>
                             <p className="text-xl font-bold">
-                              {stage.tunedHk} hk
+                              {stage.tunedHk}{" "}
+                              {translate(settings.language, "horsepowerUnit")}
                             </p>
                             <p className="text-xs mt-1 text-red-400">
                               +{stage.tunedHk - stage.origHk} hk

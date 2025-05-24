@@ -31,7 +31,6 @@ export const translations = {
     powerLabel: "EFFEKT",
     torqueLabel: "VRIDMOMENT",
     additionsLabel: "TILLÄGG",
-    horsepowerUnit: "hk",
     stageNameWithHP: (stageName: string) => `${stageName} HK`,
     powerCurveLabel: (stageName: string) => `${stageName} effektkurva`,
     translateStageName: (stageName: string) =>
@@ -39,6 +38,8 @@ export const translations = {
     stageInfoPrefix: "STEG",
     stageInfoSuffix: "INFORMATION",
     generalInfoLabel: "GENERELL INFORMATION",
+    horsepowerUnit: "hk",
+    horsepowerDisplay: (value: number) => `${value} hk`,
   },
   en: {
     BrandValue: "MAKE",
@@ -71,7 +72,6 @@ export const translations = {
     powerLabel: "POWER",
     torqueLabel: "TORQUE",
     additionsLabel: "ADDONS",
-    horsepowerUnit: "hp",
     stageNameWithHP: (stageName: string) => `${stageName} HP`,
     powerCurveLabel: (stageName: string) => `${stageName} power curve`,
     translateStageName: (stageName: string) =>
@@ -79,6 +79,8 @@ export const translations = {
     stageInfoPrefix: "STAGE",
     stageInfoSuffix: "INFO",
     generalInfoLabel: "GENERAL INFO",
+    horsepowerUnit: "hp",
+    horsepowerDisplay: (value: number) => `${value} hp`,
   },
   de: {
     BrandValue: "MARKE",
@@ -112,7 +114,6 @@ export const translations = {
     powerLabel: "WIRKUNG",
     torqueLabel: "DREHMOMENT",
     additionsLabel: "ZUSATZ",
-    horsepowerUnit: "PS",
     stageNameWithHP: (stageName: string) => `${stageName} PS`,
     powerCurveLabel: (stageName: string) => `${stageName} Leistungskurve`,
     translateStageName: (stageName: string) =>
@@ -120,6 +121,8 @@ export const translations = {
     stageInfoPrefix: "STUFE",
     stageInfoSuffix: "INFO",
     generalInfoLabel: "ALLGEMEINE INFO",
+    horsepowerUnit: "PS",
+    horsepowerDisplay: (value: number) => `${value} PS`,
   },
 };
 
