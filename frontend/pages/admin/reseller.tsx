@@ -20,6 +20,16 @@ export default function ResellerAdmin({ session }) {
   const [language, setLanguage] = useState("sv");
   const [activeTab, setActiveTab] = useState("tuning");
 
+  interface ResellerAdminProps {
+    session: {
+      user: {
+        resellerId: string;
+        name?: string;
+        email: string;
+      };
+    };
+  }
+
   // New state for General tab
   const [bulkPrices, setBulkPrices] = useState({
     stage1: "",
