@@ -1,7 +1,16 @@
-// pages/api/bulk-overrides.ts
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./auth/[...nextauth]";
 import sanity from "@/lib/sanity";
+
+interface BulkOverrideRequest {
+  brand: string;
+  model?: string;
+  year?: string;
+  stage1Price?: number;
+  stage2Price?: number;
+  stage1Description?: string;
+  stage2Description?: string;
+}
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -15,7 +24,15 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
-  const { brand, model, year, stage1Price, stage2Price } = req.body;
+  const {
+    brand,
+    model,
+    year,
+    stage1Price,
+    stage2Price,
+    stage1Description,
+    stage2Description,
+  } = req.body as BulkOverrideRequest;
 
   try {
     // Build GROQ query filter
@@ -25,6 +42,7 @@ export default async function handler(req, res) {
       `brand == $brand`,
       model ? `model == $model` : `!defined(model)`,
       year ? `year == $year` : `!defined(year)`,
+      `!isGlobalDescription`,
     ];
     const query = `*[${filters.join(" && ")}]`;
 
@@ -34,19 +52,15 @@ export default async function handler(req, res) {
 
     // 1. Delete existing overrides in scope
     const existingOverrides = await sanity.fetch(query, params);
-    const deleteTransaction = sanity.transaction();
+    const transaction = sanity.transaction();
+
     existingOverrides.forEach((doc) => {
-      if (doc._id) deleteTransaction.delete(doc._id);
+      if (doc._id) transaction.delete(doc._id);
     });
-    if (existingOverrides.length > 0) {
-      await deleteTransaction.commit();
-    }
 
     // 2. Create new overrides
-    const createTransaction = sanity.transaction();
-
     if (stage1Price) {
-      createTransaction.create({
+      transaction.create({
         _type: "resellerOverride",
         resellerId,
         brand,
@@ -54,16 +68,13 @@ export default async function handler(req, res) {
         year: year || null,
         stageName: "Stage 1",
         price: Number(stage1Price),
-        tunedHk: null,
-        tunedNm: null,
-        stageDescriptions: {
-          stage1: req.body.stage1Description || null,
-        },
+        stageDescription: stage1Description || null,
+        isGlobalDescription: false,
       });
     }
 
     if (stage2Price) {
-      createTransaction.create({
+      transaction.create({
         _type: "resellerOverride",
         resellerId,
         brand,
@@ -71,20 +82,21 @@ export default async function handler(req, res) {
         year: year || null,
         stageName: "Stage 2",
         price: Number(stage2Price),
-        tunedHk: null,
-        tunedNm: null,
+        stageDescription: stage2Description || null,
+        isGlobalDescription: false,
       });
     }
 
-    if (stage1Price || stage2Price) {
-      await createTransaction.commit();
-    }
+    await transaction.commit();
 
     // 3. Return updated overrides
     const updatedOverrides = await sanity.fetch(query, params);
     return res.status(200).json(updatedOverrides);
   } catch (err) {
     console.error("Bulk override error:", err);
-    return res.status(500).json({ error: "Internal Server Error" });
+    return res.status(500).json({
+      error: "Internal Server Error",
+      details: err.message,
+    });
   }
 }
