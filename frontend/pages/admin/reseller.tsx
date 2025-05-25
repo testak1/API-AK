@@ -219,6 +219,14 @@ export default function ResellerAdmin({ session }) {
     }));
   };
 
+  useEffect(() => {
+    setBulkPrices((prev) => ({
+      ...prev,
+      stage1: "",
+      stage2: "",
+    }));
+  }, [selectedBrand, selectedModel, selectedYear, bulkPrices.applyLevel]);
+
   const handleBulkPriceChange = (field, value) => {
     setBulkPrices((prev) => ({
       ...prev,
