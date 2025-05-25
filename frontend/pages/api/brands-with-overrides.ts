@@ -57,10 +57,8 @@ export default async function handler(req, res) {
           tunedHk,
           tunedNm,
           resellerId,
-          createdAt,
-          updatedAt
         }`,
-        { resellerId }
+        { resellerId },
       ),
     ]);
 
@@ -74,21 +72,46 @@ export default async function handler(req, res) {
           engines: (year.engines || []).map((engine) => ({
             ...engine,
             stages: (engine.stages || []).map((stage) => {
-              const matchingOverride = overrides.find(
+              // Priority order for overrides:
+              // 1. Exact match (brand+model+year+engine)
+              // 2. Model-level bulk (brand+model)
+              // 3. Year-level bulk (brand+year)
+
+              const exact = overrides.find(
                 (o) =>
                   o.brand === brand.name &&
                   o.model === model.name &&
                   o.year === year.range &&
                   o.engine === engine.label &&
-                  o.stageName === stage.name
+                  o.stageName === stage.name,
               );
 
-              return matchingOverride
+              const modelLevel = overrides.find(
+                (o) =>
+                  o.brand === brand.name &&
+                  o.model === model.name &&
+                  !o.year &&
+                  !o.engine &&
+                  o.stageName === stage.name,
+              );
+
+              const yearLevel = overrides.find(
+                (o) =>
+                  o.brand === brand.name &&
+                  o.year === year.range &&
+                  !o.model &&
+                  !o.engine &&
+                  o.stageName === stage.name,
+              );
+
+              const override = exact || modelLevel || yearLevel;
+
+              return override
                 ? {
                     ...stage,
-                    price: matchingOverride.price,
-                    tunedHk: matchingOverride.tunedHk,
-                    tunedNm: matchingOverride.tunedNm,
+                    price: override.price ?? stage.price,
+                    tunedHk: override.tunedHk ?? stage.tunedHk,
+                    tunedNm: override.tunedNm ?? stage.tunedNm,
                   }
                 : stage;
             }),
