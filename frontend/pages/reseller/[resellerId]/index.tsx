@@ -194,6 +194,35 @@ export default function TuningViewer() {
     return "text-white"; // fallback
   };
 
+  const getStageDescription = (stage: Stage): React.ReactNode => {
+    // Check for direct override first
+    if (stage.description) {
+      return Array.isArray(stage.description) ? (
+        <PortableText
+          value={stage.description}
+          components={portableTextComponents}
+        />
+      ) : (
+        <p>{stage.description}</p>
+      );
+    }
+
+    // Then check referenced description
+    if (stage.descriptionRef?.description) {
+      return Array.isArray(stage.descriptionRef.description) ? (
+        <PortableText
+          value={stage.descriptionRef.description}
+          components={portableTextComponents}
+        />
+      ) : (
+        <p>{stage.descriptionRef.description}</p>
+      );
+    }
+
+    // Fallback to default
+    return <p>No description available</p>;
+  };
+
   const slugify = (str: string) =>
     str
       .toLowerCase()
@@ -1475,22 +1504,9 @@ export default function TuningViewer() {
           }
           content={
             infoModal.type === "stage" ? (
-              (() => {
-                const description =
-                  infoModal.stage?.descriptionRef?.description ||
-                  infoModal.stage?.description;
-
-                if (Array.isArray(description)) {
-                  return (
-                    <PortableText
-                      value={description}
-                      components={portableTextComponents}
-                    />
-                  );
-                }
-
-                return <p>{description}</p>;
-              })()
+              <div className="prose prose-invert max-w-none">
+                {infoModal.stage && getStageDescription(infoModal.stage)}
+              </div>
             ) : (
               <div>
                 <ul className="space-y-2">

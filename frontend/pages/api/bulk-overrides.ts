@@ -56,6 +56,9 @@ export default async function handler(req, res) {
         price: Number(stage1Price),
         tunedHk: null,
         tunedNm: null,
+        stageDescriptions: {
+          stage1: req.body.stage1Description || null,
+        },
       });
     }
 

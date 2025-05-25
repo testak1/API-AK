@@ -23,7 +23,12 @@ export default function ResellerAdmin({ session }) {
   const [bulkPrices, setBulkPrices] = useState({
     stage1: "",
     stage2: "",
-    applyLevel: "model", // 'model' or 'year'
+    stage1Description: "",
+    stage2Description: "",
+    stage3Description: "",
+    stage4Description: "",
+    dsgDescription: "",
+    applyLevel: "model",
   });
 
   useEffect(() => {
@@ -114,6 +119,9 @@ export default function ResellerAdmin({ session }) {
           year: bulkPrices.applyLevel === "year" ? selectedYear : undefined,
           stage1Price: bulkPrices.stage1,
           stage2Price: bulkPrices.stage2,
+          stage1Description: bulkPrices.stage1Description,
+          stage2Description: bulkPrices.stage2Description,
+          // Add other stages...
           resellerId: session.user.resellerId,
         }),
       });
@@ -524,6 +532,7 @@ export default function ResellerAdmin({ session }) {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Stage 1 Price Field (keep this as is) */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Stage 1 Price ({currencySymbols[currency]})
@@ -536,16 +545,29 @@ export default function ResellerAdmin({ session }) {
                     </div>
                     <input
                       type="number"
-                      value={
-                        bulkPrices.stage1 || getBulkOverridePrice("Stage 1")
-                      }
+                      value={bulkPrices.stage1}
                       onChange={(e) =>
                         handleBulkPriceChange("stage1", e.target.value)
                       }
                       className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md p-2 border"
-                      placeholder="Leave empty to keep original"
+                      placeholder="Enter price"
                     />
                   </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Stage 1 Description
+                  </label>
+                  <textarea
+                    value={bulkPrices.stage1Description}
+                    onChange={(e) =>
+                      handleBulkPriceChange("stage1Description", e.target.value)
+                    }
+                    className="focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md p-2 border"
+                    rows={3}
+                    placeholder="Custom description for Stage 1"
+                  />
                 </div>
 
                 <div>

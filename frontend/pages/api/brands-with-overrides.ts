@@ -102,6 +102,12 @@ export default async function handler(req, res) {
                     price: matchingOverride.price,
                     tunedHk: matchingOverride.tunedHk ?? stage.tunedHk,
                     tunedNm: matchingOverride.tunedNm ?? stage.tunedNm,
+                    description:
+                      matchingOverride.stageDescriptions?.[
+                        stage.name.toLowerCase().replace(" ", "")
+                      ] ??
+                      stage.descriptionRef?.description ??
+                      stage.description,
                   }
                 : stage;
             }),
