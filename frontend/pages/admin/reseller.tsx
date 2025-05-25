@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../api/auth/[...nextauth]";
 import { signOut } from "next-auth/react";
-import sanity from "@/lib/sanity";
 
 export default function ResellerAdmin({ session }) {
   const [brands, setBrands] = useState([]);
@@ -20,75 +19,51 @@ export default function ResellerAdmin({ session }) {
   const [language, setLanguage] = useState("sv");
   const [activeTab, setActiveTab] = useState("tuning");
 
-  interface ResellerAdminProps {
-    session: {
-      user: {
-        resellerId: string;
-        name?: string;
-        email: string;
-      };
-    };
-  }
-
   // New state for General tab
   const [bulkPrices, setBulkPrices] = useState({
     stage1: "",
     stage2: "",
-    stage1Description: "",
-    stage2Description: "",
-    stage3Description: "",
-    stage4Description: "",
-    dsgDescription: "",
-    applyLevel: "model",
+    applyLevel: "model", // 'model' or 'year'
   });
 
-  const [globalDescriptions, setGlobalDescriptions] = useState<
-    Record<string, string>
-  >({});
+  const [stageDescriptions, setStageDescriptions] = useState([]);
 
-  const handleGlobalDescriptionChange = (stage: string, value: string) => {
-    setGlobalDescriptions((prev) => ({
-      ...prev,
-      [stage]: value,
-    }));
-  };
+  useEffect(() => {
+    const fetchDescriptions = async () => {
+      try {
+        const res = await fetch("/api/stage-descriptions");
+        const { descriptions } = await res.json();
+        setStageDescriptions(descriptions || []);
+      } catch (err) {
+        console.error("Failed to load stage descriptions", err);
+      }
+    };
 
-  const saveGlobalDescriptions = async () => {
-    setIsLoading(true);
-    try {
-      await Promise.all(
-        Object.entries(globalDescriptions).map(([stageName, description]) =>
-          sanity.create({
-            _type: "resellerOverride",
-            resellerId: session.user.resellerId,
-            stageName,
-            stageDescription: description,
-            isGlobalDescription: true,
-          }),
-        ),
-      );
-      setSaveStatus({
-        message: "Global descriptions saved successfully!",
-        isError: false,
-      });
-      // Refresh data after save
-      const res = await fetch("/api/brands-with-overrides");
-      const { brands, overrides } = await res.json();
-      setBrands(brands || []);
-      setOverrides(overrides || []);
-    } catch (error) {
-      console.error("Failed to save global descriptions:", error);
-      setSaveStatus({
-        message: "Error saving global descriptions",
-        isError: true,
-      });
-    } finally {
-      setIsLoading(false);
-      setTimeout(() => setSaveStatus({ message: "", isError: false }), 3000);
+    if (session?.user?.resellerId) {
+      fetchDescriptions();
     }
-  };
+  }, [session]);
 
-  const [previewMode, setPreviewMode] = useState(false);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const res = await fetch("/api/brands-with-overrides");
+        const { brands, overrides } = await res.json();
+        setBrands(brands || []);
+        setOverrides(overrides || []);
+      } catch (err) {
+        console.error("Error fetching brand data:", err);
+        setSaveStatus({
+          message: "Failed to load vehicle data",
+          isError: true,
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -109,28 +84,6 @@ export default function ResellerAdmin({ session }) {
       fetchSettings();
     }
   }, [session]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        const res = await fetch("/api/brands-with-overrides");
-        const { brands, overrides, globalDescriptions } = await res.json();
-        setBrands(brands || []);
-        setOverrides(overrides || []);
-        setGlobalDescriptions(globalDescriptions || {});
-      } catch (err) {
-        console.error("Error fetching brand data:", err);
-        setSaveStatus({
-          message: "Failed to load vehicle data",
-          isError: true,
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
 
   const handleSettingsSave = async () => {
     try {
@@ -179,9 +132,6 @@ export default function ResellerAdmin({ session }) {
           year: bulkPrices.applyLevel === "year" ? selectedYear : undefined,
           stage1Price: bulkPrices.stage1,
           stage2Price: bulkPrices.stage2,
-          stage1Description: bulkPrices.stage1Description,
-          stage2Description: bulkPrices.stage2Description,
-          // Add other stages...
           resellerId: session.user.resellerId,
         }),
       });
@@ -334,6 +284,10 @@ export default function ResellerAdmin({ session }) {
       ?.years?.find((y) => y.range === selectedYear)
       ?.engines?.find((e) => e.label === selectedEngine)?.stages || [];
 
+  const descriptionEntry = stageDescriptions.find(
+    (d) => d.stageName === selectedStages[0]?.name,
+  );
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -466,16 +420,6 @@ export default function ResellerAdmin({ session }) {
               General Pricing
             </button>
             <button
-              onClick={() => setActiveTab("descriptions")}
-              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === "descriptions"
-                  ? "border-blue-500 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
-            >
-              Descriptions
-            </button>
-            <button
               onClick={() => setActiveTab("settings")}
               className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === "settings"
@@ -602,7 +546,6 @@ export default function ResellerAdmin({ session }) {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Stage 1 Price Field (keep this as is) */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Stage 1 Price ({currencySymbols[currency]})
@@ -615,29 +558,16 @@ export default function ResellerAdmin({ session }) {
                     </div>
                     <input
                       type="number"
-                      value={bulkPrices.stage1}
+                      value={
+                        bulkPrices.stage1 || getBulkOverridePrice("Stage 1")
+                      }
                       onChange={(e) =>
                         handleBulkPriceChange("stage1", e.target.value)
                       }
                       className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md p-2 border"
-                      placeholder="Enter price"
+                      placeholder="Leave empty to keep original"
                     />
                   </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Stage 1 Description
-                  </label>
-                  <textarea
-                    value={bulkPrices.stage1Description}
-                    onChange={(e) =>
-                      handleBulkPriceChange("stage1Description", e.target.value)
-                    }
-                    className="focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md p-2 border"
-                    rows={3}
-                    placeholder="Custom description for Stage 1"
-                  />
                 </div>
 
                 <div>
@@ -662,23 +592,6 @@ export default function ResellerAdmin({ session }) {
                   </div>
                 </div>
               </div>
-
-              <button
-                type="button"
-                onClick={() => setPreviewMode(!previewMode)}
-                className="mt-4 bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded"
-              >
-                {previewMode ? "Hide Preview" : "Show Preview"}
-              </button>
-
-              {previewMode && (
-                <div className="mt-4 p-4 bg-gray-100 rounded">
-                  <h3 className="font-bold mb-2">Description Preview</h3>
-                  <div className="prose max-w-none">
-                    {bulkPrices.stage1Description || "No description entered"}
-                  </div>
-                </div>
-              )}
 
               <div className="mt-6 flex justify-end">
                 <button
@@ -815,49 +728,6 @@ export default function ResellerAdmin({ session }) {
           </div>
         )}
 
-        {activeTab === "descriptions" && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8">
-            <div className="px-6 py-5 border-b border-gray-200">
-              <h2 className="text-lg font-semibold text-gray-900">
-                Global Stage Descriptions
-              </h2>
-              <p className="mt-1 text-sm text-gray-500">
-                These descriptions will apply to all vehicles
-              </p>
-            </div>
-            <div className="px-6 py-5 space-y-6">
-              {["Stage 1", "Stage 2", "Stage 3", "Stage 4", "DSG"].map(
-                (stage) => (
-                  <div key={stage} className="space-y-2">
-                    <h3 className="font-medium text-gray-700">
-                      {stage} Description
-                    </h3>
-                    <textarea
-                      value={globalDescriptions[stage] || ""}
-                      onChange={(e) =>
-                        handleGlobalDescriptionChange(stage, e.target.value)
-                      }
-                      className="w-full border rounded p-2 text-sm"
-                      rows={4}
-                      placeholder={`Enter ${stage} description`}
-                    />
-                  </div>
-                ),
-              )}
-
-              <div className="flex justify-end">
-                <button
-                  onClick={saveGlobalDescriptions}
-                  disabled={isLoading}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-70 disabled:cursor-not-allowed"
-                >
-                  {isLoading ? "Saving..." : "Save Descriptions"}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Tuning Tab */}
         {activeTab === "tuning" && (
           <>
@@ -976,6 +846,24 @@ export default function ResellerAdmin({ session }) {
                         </select>
                       </div>
                     )}
+
+                    {descriptionEntry && (
+                      <div className="mb-4">
+                        <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                          Description{" "}
+                          {descriptionEntry.isOverride ? "(Custom)" : ""}
+                        </h4>
+                        <div className="prose prose-sm max-w-none text-gray-700">
+                          {/* Sanity block content to HTML rendering can be done using something like @portabletext/react */}
+                          {/* For now, just display plain text or fallback */}
+                          {descriptionEntry.description.map((block, idx) => (
+                            <p key={idx}>
+                              {block.children?.map((c) => c.text).join("")}
+                            </p>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -1018,6 +906,9 @@ export default function ResellerAdmin({ session }) {
                         currentInputs.hk ?? override?.tunedHk ?? stage.tunedHk;
                       const nm =
                         currentInputs.nm ?? override?.tunedNm ?? stage.tunedNm;
+                      const descriptionEntry = stageDescriptions.find(
+                        (d) => d.stageName === stage.name,
+                      );
 
                       return (
                         <div
