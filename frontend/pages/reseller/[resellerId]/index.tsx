@@ -93,6 +93,25 @@ export default function TuningViewer() {
     exchangeRates: { SEK: 1, EUR: 0.1, USD: 0.095 },
   });
 
+  const [stageDescriptions, setStageDescriptions] = useState([]);
+
+  useEffect(() => {
+    if (!resellerId) return;
+
+    const fetchDescriptions = async () => {
+      try {
+        const res = await fetch(`/api/stage-descriptions`);
+        if (!res.ok) throw new Error("Failed to fetch descriptions");
+        const json = await res.json();
+        setStageDescriptions(json.descriptions || []);
+      } catch (err) {
+        console.error("Failed to fetch stage descriptions", err);
+      }
+    };
+
+    fetchDescriptions();
+  }, [resellerId]);
+
   useEffect(() => {
     if (!resellerId) return;
 
@@ -773,6 +792,9 @@ export default function TuningViewer() {
               const isDsgStage = stage.name.toLowerCase().includes("dsg");
               const allOptions = getAllAktPlusOptions(stage);
               const isExpanded = expandedStages[stage.name] ?? false;
+              const stageDesc = stageDescriptions.find(
+                (d) => d.stageName === stage.name,
+              );
 
               return (
                 <div
@@ -1477,6 +1499,9 @@ export default function TuningViewer() {
             infoModal.type === "stage" ? (
               (() => {
                 const description =
+                  stageDescriptions.find(
+                    (d) => d.stageName === infoModal.stage?.name,
+                  )?.description ||
                   infoModal.stage?.descriptionRef?.description ||
                   infoModal.stage?.description;
 

@@ -420,6 +420,16 @@ export default function ResellerAdmin({ session }) {
               General Pricing
             </button>
             <button
+              onClick={() => setActiveTab("descriptions")}
+              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === "descriptions"
+                  ? "border-blue-500 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+            >
+              Stage Descriptions
+            </button>
+            <button
               onClick={() => setActiveTab("settings")}
               className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === "settings"
@@ -728,6 +738,95 @@ export default function ResellerAdmin({ session }) {
           </div>
         )}
 
+        {activeTab === "descriptions" && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8">
+            <div className="px-6 py-5 border-b border-gray-200">
+              <h2 className="text-lg font-semibold text-gray-900">
+                Edit Stage Descriptions
+              </h2>
+              <p className="mt-1 text-sm text-gray-500">
+                Update reseller-specific tuning stage descriptions
+              </p>
+            </div>
+            <div className="px-6 py-5 space-y-6">
+              {stageDescriptions.map((desc, index) => (
+                <div
+                  key={desc.stageName}
+                  className="border border-gray-100 rounded p-4"
+                >
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {desc.stageName} {desc.isOverride && "(Custom Override)"}
+                  </label>
+                  <textarea
+                    rows={5}
+                    value={
+                      desc.description
+                        .map(
+                          (block) =>
+                            block.children?.map((c) => c.text).join("") || "",
+                        )
+                        .join("\n\n") || ""
+                    }
+                    onChange={(e) => {
+                      const updated = [...stageDescriptions];
+                      updated[index] = {
+                        ...desc,
+                        description: [
+                          {
+                            _type: "block",
+                            style: "normal",
+                            children: [{ _type: "span", text: e.target.value }],
+                          },
+                        ],
+                      };
+                      setStageDescriptions(updated);
+                    }}
+                    className="block w-full mt-1 p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  />
+                  <div className="mt-2 flex justify-end">
+                    <button
+                      onClick={async () => {
+                        try {
+                          const res = await fetch("/api/stage-descriptions", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              stageName: desc.stageName,
+                              description: desc.description,
+                            }),
+                          });
+
+                          if (!res.ok) throw new Error("Save failed");
+
+                          setSaveStatus({
+                            message: `Saved ${desc.stageName} successfully!`,
+                            isError: false,
+                          });
+                        } catch (err) {
+                          console.error("Failed to save", err);
+                          setSaveStatus({
+                            message: "Failed to save description",
+                            isError: true,
+                          });
+                        } finally {
+                          setTimeout(
+                            () =>
+                              setSaveStatus({ message: "", isError: false }),
+                            3000,
+                          );
+                        }
+                      }}
+                      className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
+                    >
+                      Save
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Tuning Tab */}
         {activeTab === "tuning" && (
           <>
@@ -844,24 +943,6 @@ export default function ResellerAdmin({ session }) {
                               </option>
                             ))}
                         </select>
-                      </div>
-                    )}
-
-                    {descriptionEntry && (
-                      <div className="mb-4">
-                        <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                          Description{" "}
-                          {descriptionEntry.isOverride ? "(Custom)" : ""}
-                        </h4>
-                        <div className="prose prose-sm max-w-none text-gray-700">
-                          {/* Sanity block content to HTML rendering can be done using something like @portabletext/react */}
-                          {/* For now, just display plain text or fallback */}
-                          {descriptionEntry.description.map((block, idx) => (
-                            <p key={idx}>
-                              {block.children?.map((c) => c.text).join("")}
-                            </p>
-                          ))}
-                        </div>
                       </div>
                     )}
                   </div>
