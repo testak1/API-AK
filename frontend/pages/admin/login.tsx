@@ -55,14 +55,12 @@ export default function LoginPage() {
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <div className="flex justify-center">
              <img
-    src="https://api.aktuning.se/ak-logo.png"
+    src="https://api.aktuning.se/ak-logo-svart.png"
     alt="Reseller Logo"
     className="h-12 object-contain cursor-pointer"
     onClick={() => router.reload()}
                />
-            <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center text-white text-2xl font-bold">
-              R
-            </div>
+          
           </div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             API Portal
