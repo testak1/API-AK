@@ -46,17 +46,25 @@ export default async function handler(req, res) {
         }
       }`),
       sanity.fetch(
-        `*[_type == "resellerOverride" && resellerId == $resellerId]`,
-        { resellerId },
+        `*[_type == "resellerOverride" && resellerId == $resellerId]{
+          _id,
+          brand,
+          model,
+          year,
+          engine,
+          stageName,
+          price,
+          tunedHk,
+          tunedNm,
+          resellerId,
+          createdAt,
+          updatedAt
+        }`,
+        { resellerId }
       ),
     ]);
 
-    const overrideMap = new Map();
-    for (const o of overrides) {
-      const key = `${o.brand.trim()}|${o.model.trim()}|${o.year.trim()}|${o.engine.trim()}|${o.stageName.trim()}`;
-      overrideMap.set(key, o);
-    }
-
+    // Process brands with overrides
     const brands = (baseBrands || []).map((brand) => ({
       ...brand,
       models: (brand.models || []).map((model) => ({
@@ -66,19 +74,21 @@ export default async function handler(req, res) {
           engines: (year.engines || []).map((engine) => ({
             ...engine,
             stages: (engine.stages || []).map((stage) => {
-              const key = `${brand.name.trim()}|${model.name.trim()}|${year.range.trim()}|${engine.label.trim()}|${stage.name.trim()}`;
-              const override = overrideMap.get(key);
+              const matchingOverride = overrides.find(
+                (o) =>
+                  o.brand === brand.name &&
+                  o.model === model.name &&
+                  o.year === year.range &&
+                  o.engine === engine.label &&
+                  o.stageName === stage.name
+              );
 
-              if (!override && process.env.NODE_ENV !== "production") {
-                console.warn("No override for key:", key);
-              }
-
-              return override
+              return matchingOverride
                 ? {
                     ...stage,
-                    price: override.price,
-                    tunedHk: override.tunedHk,
-                    tunedNm: override.tunedNm,
+                    price: matchingOverride.price,
+                    tunedHk: matchingOverride.tunedHk,
+                    tunedNm: matchingOverride.tunedNm,
                   }
                 : stage;
             }),
@@ -86,7 +96,8 @@ export default async function handler(req, res) {
         })),
       })),
     }));
-    return res.status(200).json({ brands });
+
+    return res.status(200).json({ brands, overrides });
   } catch (err) {
     console.error("Error in /api/brands-with-overrides:", err);
     return res.status(500).json({ error: "Internal Server Error" });
