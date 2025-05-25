@@ -997,9 +997,9 @@ export default function TuningViewer() {
                           <h3 className="text-lg font-medium text-gray-300 mb-2 uppercase">
                             {translate(
                               settings.language,
-                              "powerCurveLabel",
+                              "translateStageName",
                               stage.name,
-                            )}
+                            ).toUpperCase()}
                           </h3>
                         )}
 
