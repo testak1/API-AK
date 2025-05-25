@@ -60,6 +60,8 @@ export default async function handler(req, res) {
       ),
     ]);
 
+    const isEmpty = (v) => v === undefined || v === null;
+
     // Process brands with possible overrides (specific or bulk)
     const brands = (baseBrands || []).map((brand) => ({
       ...brand,
@@ -84,17 +86,17 @@ export default async function handler(req, res) {
                 (o) =>
                   o.brand === brand.name &&
                   o.model === model.name &&
-                  !o.year &&
-                  !o.engine &&
+                  isEmpty(o.year) &&
+                  isEmpty(o.engine) &&
                   o.stageName === stage.name,
               );
 
               const yearLevelMatch = overrides.find(
                 (o) =>
                   o.brand === brand.name &&
-                  !o.model &&
+                  isEmpty(o.model) &&
                   o.year === year.range &&
-                  !o.engine &&
+                  isEmpty(o.engine) &&
                   o.stageName === stage.name,
               );
 
