@@ -245,7 +245,6 @@ export default function ResellerAdmin({ session }) {
   };
 
   const [aktPlusOverrides, setAktPlusOverrides] = useState([]);
-  const [defaultAktPlus, setDefaultAktPlus] = useState([]);
   const [aktPlusInputs, setAktPlusInputs] = useState({});
 
   useEffect(() => {
@@ -255,8 +254,7 @@ export default function ResellerAdmin({ session }) {
       try {
         const res = await fetch("/api/aktplus-overrides");
         const json = await res.json();
-        setDefaultAktPlus(json.defaults || []);
-        setAktPlusOverrides(json.overrides || []);
+        setAktPlusOverrides(json.aktplus || []);
       } catch (err) {
         console.error("Failed to load AKTPLUS data", err);
       }
@@ -711,23 +709,20 @@ export default function ResellerAdmin({ session }) {
               </p>
             </div>
             <div className="px-6 py-5 space-y-8">
-              {(defaultAktPlus || []).map((item) => {
-                const override = aktPlusOverrides.find(
-                  (o) => o.title === item.title
-                );
-                const currentInput = aktPlusInputs[item.title] || {
+              {(aktPlusOverrides || []).map((item) => {
+                const currentInput = aktPlusInputs[item.id] || {
                   title: item.title,
-                  content: override?.content || item.content || [],
+                  content: item.description || [],
                 };
 
                 return (
-                  <div key={item.title} className="space-y-3">
+                  <div key={item.id} className="space-y-3">
                     <div>
                       <h3 className="text-sm font-bold text-gray-700">
                         {item.title}
                       </h3>
                       <div className="prose prose-sm text-gray-500">
-                        {override ? (
+                        {item.isOverride ? (
                           <p className="text-xs text-blue-500">
                             Custom override applied
                           </p>
@@ -745,8 +740,9 @@ export default function ResellerAdmin({ session }) {
                       onChange={(e) =>
                         setAktPlusInputs((prev) => ({
                           ...prev,
-                          [item.title]: {
-                            ...prev[item.title],
+                          [item.id]: {
+                            ...prev[item.id],
+                            title: item.title,
                             content: [
                               {
                                 _type: "block",
@@ -768,14 +764,15 @@ export default function ResellerAdmin({ session }) {
                           method: "POST",
                           headers: { "Content-Type": "application/json" },
                           body: JSON.stringify({
-                            resellerId: session.user.resellerId,
+                            aktPlusId: item.id,
                             title: currentInput.title,
-                            content: currentInput.content,
+                            description: currentInput.content,
                           }),
                         });
+
                         const res = await fetch("/api/aktplus-overrides");
                         const json = await res.json();
-                        setAktPlusOverrides(json.overrides);
+                        setAktPlusOverrides(json.aktplus || []);
                       }}
                       className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 transition"
                     >
