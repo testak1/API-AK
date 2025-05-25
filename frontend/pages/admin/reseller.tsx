@@ -704,7 +704,7 @@ export default function ResellerAdmin({ session }) {
                 AKTPLUS Configuration
               </h2>
               <p className="mt-1 text-sm text-gray-500">
-                View and override default AKTPLUS option descriptions
+                View and override default AKTPLUS option descriptions and prices
               </p>
             </div>
             <div className="px-6 py-5 space-y-8">
@@ -712,6 +712,7 @@ export default function ResellerAdmin({ session }) {
                 const currentInput = aktPlusInputs[item.id] || {
                   title: item.title,
                   content: item.description || [],
+                  price: item.price,
                 };
 
                 return (
@@ -730,7 +731,7 @@ export default function ResellerAdmin({ session }) {
                         </h3>
                         {typeof item.price === "number" && (
                           <p className="text-sm text-green-600 font-medium">
-                            Price: {item.price.toLocaleString()} SEK
+                            Default Price: {item.price.toLocaleString()} SEK
                           </p>
                         )}
                         <div className="prose prose-sm text-gray-500">
@@ -747,6 +748,27 @@ export default function ResellerAdmin({ session }) {
                       </div>
                     </div>
 
+                    <label className="block text-sm font-medium text-gray-700">
+                      Custom Price (SEK)
+                    </label>
+                    <input
+                      type="number"
+                      className="w-full border border-gray-300 rounded-md p-2 text-sm"
+                      value={currentInput.price || ""}
+                      onChange={(e) =>
+                        setAktPlusInputs((prev) => ({
+                          ...prev,
+                          [item.id]: {
+                            ...prev[item.id],
+                            price: parseFloat(e.target.value),
+                          },
+                        }))
+                      }
+                    />
+
+                    <label className="block text-sm font-medium text-gray-700 mt-3">
+                      Description Override
+                    </label>
                     <textarea
                       value={currentInput.content
                         .map((b) => b.children?.map((c) => c.text).join(""))
@@ -772,6 +794,7 @@ export default function ResellerAdmin({ session }) {
                       className="w-full border border-gray-300 rounded-md p-3 text-sm"
                       placeholder="Write custom override..."
                     />
+
                     <button
                       onClick={async () => {
                         await fetch("/api/aktplus-overrides", {
@@ -781,6 +804,7 @@ export default function ResellerAdmin({ session }) {
                             aktPlusId: item.id,
                             title: currentInput.title,
                             description: currentInput.content,
+                            price: currentInput.price,
                           }),
                         });
 

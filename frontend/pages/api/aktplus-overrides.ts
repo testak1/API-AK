@@ -10,20 +10,18 @@ export default async function handler(req, res) {
   if (!resellerId) return res.status(401).json({ error: "Unauthorized" });
 
   try {
+    // Fetch defaults and overrides
     const [defaults, overrides] = await Promise.all([
-      sanity.fetch(`*[_type == "aktPlus"]{
-        _id,
-        title,
-        description,
-        price,
-        installationTime,
-        "imageUrl": gallery[0].asset->url
-      }`),
+      sanity.fetch(
+        `*[_type == "aktPlus"]{_id, title, description, price, gallery}`
+      ),
       sanity.fetch(
         `*[_type == "resellerAktPlusOverride" && resellerId == $resellerId]{
+          _id,
           aktPlusId->{_id},
           title,
-          description
+          description,
+          price
         }`,
         { resellerId }
       ),
@@ -31,22 +29,18 @@ export default async function handler(req, res) {
 
     const merged = defaults.map((item) => {
       const override = overrides.find((o) => o.aktPlusId?._id === item._id);
-
       return {
         id: item._id,
         title: override?.title || item.title,
         description: override?.description || item.description,
-        price: item.price ?? 0,
-        imageUrl: item.gallery?.[0]?.asset
-          ? urlFor(item.gallery[0].asset).width(80).url()
-          : null,
-        installationTime: item.installationTime ?? 1,
+        price: override?.price ?? item.price ?? 0,
         isOverride: !!override,
+        imageUrl: item.gallery?.[0]?.asset ? urlFor(item.gallery[0]).width(100).url() : null,
       };
     });
 
     if (req.method === "POST") {
-      const { aktPlusId, title, description } = req.body;
+      const { aktPlusId, title, description, price } = req.body;
 
       if (!aktPlusId || !description) {
         return res.status(400).json({ error: "Missing data" });
@@ -58,7 +52,10 @@ export default async function handler(req, res) {
       );
 
       if (existing?._id) {
-        await sanity.patch(existing._id).set({ title, description }).commit();
+        await sanity
+          .patch(existing._id)
+          .set({ title, description, price })
+          .commit();
       } else {
         await sanity.create({
           _type: "resellerAktPlusOverride",
@@ -66,6 +63,7 @@ export default async function handler(req, res) {
           aktPlusId: { _type: "reference", _ref: aktPlusId },
           title,
           description,
+          price,
         });
       }
 
