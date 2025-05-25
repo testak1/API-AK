@@ -13,16 +13,16 @@ export default async function handler(req, res) {
       sanity.fetch(`*[_type == "aktPlus"]{_id, title, description}`),
       sanity.fetch(
         `*[_type == "resellerAktPlusOverride" && resellerId == $resellerId]{
-          aktPlusId->_id,
+          aktPlusId->{_id},
           title,
           description
         }`,
-        { resellerId },
+        { resellerId }
       ),
     ]);
 
     const merged = defaults.map((item) => {
-      const override = overrides.find((o) => o.aktPlusId === item._id);
+      const override = overrides.find((o) => o.aktPlusId?._id === item._id);
       return {
         id: item._id,
         title: override?.title || item.title,
@@ -40,7 +40,7 @@ export default async function handler(req, res) {
 
       const existing = await sanity.fetch(
         `*[_type == "resellerAktPlusOverride" && resellerId == $resellerId && aktPlusId._ref == $aktPlusId][0]{_id}`,
-        { resellerId, aktPlusId },
+        { resellerId, aktPlusId }
       );
 
       if (existing?._id) {
