@@ -54,7 +54,12 @@ export default function LoginPage() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <div className="flex justify-center">
-            {/* Add your logo here */}
+             <img
+    src="https://api.aktuning.se/ak-logo.png"
+    alt="Reseller Logo"
+    className="h-12 object-contain cursor-pointer"
+    onClick={() => router.reload()}
+               />
             <div className="w-16 h-16 bg-blue-600 rounded-lg flex items-center justify-center text-white text-2xl font-bold">
               R
             </div>
