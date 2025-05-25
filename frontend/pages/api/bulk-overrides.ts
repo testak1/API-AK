@@ -17,23 +17,34 @@ export default async function handler(req, res) {
 
   const { brand, model, year, stage1Price, stage2Price } = req.body;
 
+  if (!brand) {
+    return res.status(400).json({ error: "Missing brand" });
+  }
+
   try {
-    // 1. Delete existing overrides for this scope
-    await sanity.delete({
-      query: `*[_type == "resellerOverride" && 
-              resellerId == $resellerId && 
-              brand == $brand &&
-              ${model ? "model == $model" : "!defined(model)"} &&
-              ${year ? "year == $year" : "!defined(year)"}]`,
-      params: { resellerId, brand, model, year },
+    // 1. Construct query for existing overrides
+    const deleteQuery = `*[_type == "resellerOverride" &&
+      resellerId == $resellerId &&
+      brand == $brand &&
+      ${model ? "model == $model" : "!defined(model)"} &&
+      ${year ? "year == $year" : "!defined(year)"}]._id`;
+
+    const idsToDelete = await sanity.fetch(deleteQuery, {
+      resellerId,
+      brand,
+      model,
+      year,
     });
 
-    // 2. Create new overrides if needed
-    const transaction = sanity.transaction();
-    let hasOperations = false;
+    // 2. Remove existing overrides for same scope
+    let tx = sanity.transaction();
+    idsToDelete.forEach((id) => {
+      tx = tx.delete(id);
+    });
 
+    // 3. Create new overrides
     if (stage1Price) {
-      transaction.create({
+      tx = tx.create({
         _type: "resellerOverride",
         resellerId,
         brand,
@@ -44,11 +55,10 @@ export default async function handler(req, res) {
         tunedHk: null,
         tunedNm: null,
       });
-      hasOperations = true;
     }
 
     if (stage2Price) {
-      transaction.create({
+      tx = tx.create({
         _type: "resellerOverride",
         resellerId,
         brand,
@@ -59,14 +69,13 @@ export default async function handler(req, res) {
         tunedHk: null,
         tunedNm: null,
       });
-      hasOperations = true;
     }
 
-    if (hasOperations) {
-      await transaction.commit();
+    // 4. Only commit if transaction has changes
+    if (idsToDelete.length || stage1Price || stage2Price) {
+      await tx.commit();
     }
 
-    // 3. Return success
     res.status(200).json({ success: true });
   } catch (err) {
     console.error("Bulk override error:", err);
