@@ -697,7 +697,6 @@ export default function ResellerAdmin({ session }) {
             </div>
           </div>
         )}
-
         {activeTab === "aktplus" && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8">
             <div className="px-6 py-5 border-b border-gray-200">
@@ -716,23 +715,38 @@ export default function ResellerAdmin({ session }) {
                 };
 
                 return (
-                  <div key={item.id} className="space-y-3">
-                    <div>
-                      <h3 className="text-sm font-bold text-gray-700">
-                        {item.title}
-                      </h3>
-                      <div className="prose prose-sm text-gray-500">
-                        {item.isOverride ? (
-                          <p className="text-xs text-blue-500">
-                            Custom override applied
-                          </p>
-                        ) : (
-                          <p className="text-xs text-gray-400">
-                            Using default description
+                  <div key={item.id} className="space-y-3 border-b pb-4">
+                    <div className="flex items-start gap-4">
+                      {item.imageUrl && (
+                        <img
+                          src={item.imageUrl}
+                          alt={item.title}
+                          className="w-16 h-16 object-contain rounded-md border"
+                        />
+                      )}
+                      <div className="flex-1">
+                        <h3 className="text-sm font-bold text-gray-700">
+                          {item.title}
+                        </h3>
+                        {typeof item.price === "number" && (
+                          <p className="text-sm text-green-600 font-medium">
+                            Price: {item.price.toLocaleString()} SEK
                           </p>
                         )}
+                        <div className="prose prose-sm text-gray-500">
+                          {item.isOverride ? (
+                            <p className="text-xs text-blue-500">
+                              Custom override applied
+                            </p>
+                          ) : (
+                            <p className="text-xs text-gray-400">
+                              Using default description
+                            </p>
+                          )}
+                        </div>
                       </div>
                     </div>
+
                     <textarea
                       value={currentInput.content
                         .map((b) => b.children?.map((c) => c.text).join(""))
