@@ -81,27 +81,6 @@ export default function ResellerAdmin({ session }) {
   const [previewMode, setPreviewMode] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        const res = await fetch("/api/brands-with-overrides");
-        const { brands, overrides } = await res.json();
-        setBrands(brands || []);
-        setOverrides(overrides || []);
-      } catch (err) {
-        console.error("Error fetching brand data:", err);
-        setSaveStatus({
-          message: "Failed to load vehicle data",
-          isError: true,
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
-
-  useEffect(() => {
     const fetchSettings = async () => {
       try {
         const res = await fetch(
