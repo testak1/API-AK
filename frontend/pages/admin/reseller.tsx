@@ -238,6 +238,19 @@ export default function ResellerAdmin({ session }) {
     return Math.round(amount * (rates[currency] || 1));
   };
 
+  const getBulkOverridePrice = (stageName) => {
+    const match = overrides.find(
+      (o) =>
+        o.brand === selectedBrand &&
+        (bulkPrices.applyLevel === "model"
+          ? o.model === selectedModel
+          : o.year === selectedYear) &&
+        o.stageName === stageName &&
+        !o.engine,
+    );
+    return match?.price || "";
+  };
+
   const selectedStages =
     brands
       .find((b) => b.name === selectedBrand)
@@ -515,7 +528,9 @@ export default function ResellerAdmin({ session }) {
                     </div>
                     <input
                       type="number"
-                      value={bulkPrices.stage1}
+                      value={
+                        bulkPrices.stage1 || getBulkOverridePrice("Stage 1")
+                      }
                       onChange={(e) =>
                         handleBulkPriceChange("stage1", e.target.value)
                       }
