@@ -14,7 +14,8 @@ export default async function handler(req, res) {
   const exchangeRates = {
     SEK: 1,
     EUR: 0.1,
-    USD: 0.095,
+    USD: 0.1,
+    GBP: 0.08,
   };
 
   res.status(200).json({

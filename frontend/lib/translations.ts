@@ -246,7 +246,7 @@ export const translations = {
     generalInfoLabel: "GENERELL INFO",
     horsepowerUnit: "hk",
     horsepowerDisplay: (value: number) => `${value} hk`,
-  }
+  },
 };
 
 export const t = (
