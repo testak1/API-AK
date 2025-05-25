@@ -95,7 +95,15 @@ export default function TuningViewer() {
 
   const [stageDescriptions, setStageDescriptions] = useState([]);
   const [aktPlusOptions, setAktPlusOptions] = useState<
-    { id: string; title: string; description: any[]; isOverride: boolean }[]
+    {
+      id: string;
+      title: string;
+      description: any[];
+      isOverride: boolean;
+      price: number;
+      installationTime: number;
+      imageUrl: string | null;
+    }[]
   >([]);
 
   useEffect(() => {

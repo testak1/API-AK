@@ -47,6 +47,16 @@ export interface AktPlusOption {
   manualAssignments?: Reference[];
 }
 
+export interface AktPlusResolved {
+  id: string;
+  title: string;
+  description: PortableTextBlock[];
+  isOverride: boolean;
+  price: number;
+  imageUrl: string | null;
+  installationTime: number;
+}
+
 export type AktPlusOptionReference = Reference | AktPlusOption;
 
 export interface Stage {

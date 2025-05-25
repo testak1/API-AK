@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./auth/[...nextauth]";
 import sanity from "@/lib/sanity";
+import { urlFor } from "@/lib/sanity";
 
 export default async function handler(req, res) {
   const session = await getServerSession(req, res, authOptions);
@@ -10,7 +11,14 @@ export default async function handler(req, res) {
 
   try {
     const [defaults, overrides] = await Promise.all([
-      sanity.fetch(`*[_type == "aktPlus"]{_id, title, description}`),
+      sanity.fetch(`*[_type == "aktPlus"]{
+        _id,
+        title,
+        description,
+        price,
+        installationTime,
+        "imageUrl": gallery[0].asset->url
+      }`),
       sanity.fetch(
         `*[_type == "resellerAktPlusOverride" && resellerId == $resellerId]{
           aktPlusId->{_id},
@@ -23,10 +31,16 @@ export default async function handler(req, res) {
 
     const merged = defaults.map((item) => {
       const override = overrides.find((o) => o.aktPlusId?._id === item._id);
+
       return {
         id: item._id,
         title: override?.title || item.title,
         description: override?.description || item.description,
+        price: item.price ?? 0,
+        imageUrl: item.gallery?.[0]?.asset
+          ? urlFor(item.gallery[0].asset).width(80).url()
+          : null,
+        installationTime: item.installationTime ?? 1,
         isOverride: !!override,
       };
     });
