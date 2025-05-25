@@ -244,6 +244,27 @@ export default function ResellerAdmin({ session }) {
     }));
   };
 
+  const [aktPlusOverrides, setAktPlusOverrides] = useState([]);
+  const [defaultAktPlus, setDefaultAktPlus] = useState([]);
+  const [aktPlusInputs, setAktPlusInputs] = useState({});
+
+  useEffect(() => {
+    if (!session?.user?.resellerId) return;
+
+    const fetchAktPlus = async () => {
+      try {
+        const res = await fetch("/api/aktplus-overrides");
+        const json = await res.json();
+        setDefaultAktPlus(json.defaults || []);
+        setAktPlusOverrides(json.overrides || []);
+      } catch (err) {
+        console.error("Failed to load AKTPLUS data", err);
+      }
+    };
+
+    fetchAktPlus();
+  }, [session]);
+
   useEffect(() => {
     setBulkPrices((prev) => ({
       ...prev,
@@ -450,6 +471,16 @@ export default function ResellerAdmin({ session }) {
               }`}
             >
               General Info
+            </button>
+            <button
+              onClick={() => setActiveTab("aktplus")}
+              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === "aktplus"
+                  ? "border-blue-500 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+            >
+              ADDITIONAL OPTIONS
             </button>
             <button
               onClick={() => setActiveTab("settings")}
@@ -665,6 +696,94 @@ export default function ResellerAdmin({ session }) {
                   )}
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "aktplus" && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8">
+            <div className="px-6 py-5 border-b border-gray-200">
+              <h2 className="text-lg font-semibold text-gray-900">
+                AKTPLUS Configuration
+              </h2>
+              <p className="mt-1 text-sm text-gray-500">
+                View and override default AKTPLUS option descriptions
+              </p>
+            </div>
+            <div className="px-6 py-5 space-y-8">
+              {(defaultAktPlus || []).map((item) => {
+                const override = aktPlusOverrides.find(
+                  (o) => o.title === item.title,
+                );
+                const currentInput = aktPlusInputs[item.title] || {
+                  title: item.title,
+                  content: override?.content || item.content || [],
+                };
+
+                return (
+                  <div key={item.title} className="space-y-3">
+                    <div>
+                      <h3 className="text-sm font-bold text-gray-700">
+                        {item.title}
+                      </h3>
+                      <div className="prose prose-sm text-gray-500">
+                        {override ? (
+                          <p className="text-xs text-blue-500">
+                            Custom override applied
+                          </p>
+                        ) : (
+                          <p className="text-xs text-gray-400">
+                            Using default description
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <textarea
+                      value={currentInput.content
+                        .map((b) => b.children?.map((c) => c.text).join(""))
+                        .join("\n")}
+                      onChange={(e) =>
+                        setAktPlusInputs((prev) => ({
+                          ...prev,
+                          [item.title]: {
+                            ...prev[item.title],
+                            content: [
+                              {
+                                _type: "block",
+                                children: [
+                                  { _type: "span", text: e.target.value },
+                                ],
+                              },
+                            ],
+                          },
+                        }))
+                      }
+                      rows={5}
+                      className="w-full border border-gray-300 rounded-md p-3 text-sm"
+                      placeholder="Write custom override..."
+                    />
+                    <button
+                      onClick={async () => {
+                        await fetch("/api/aktplus-overrides", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            resellerId: session.user.resellerId,
+                            title: currentInput.title,
+                            content: currentInput.content,
+                          }),
+                        });
+                        const res = await fetch("/api/aktplus-overrides");
+                        const json = await res.json();
+                        setAktPlusOverrides(json.overrides);
+                      }}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 transition"
+                    >
+                      Save Override
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
@@ -1071,9 +1190,6 @@ export default function ResellerAdmin({ session }) {
                         currentInputs.hk ?? override?.tunedHk ?? stage.tunedHk;
                       const nm =
                         currentInputs.nm ?? override?.tunedNm ?? stage.tunedNm;
-                      const descriptionEntry = stageDescriptions.find(
-                        (d) => d.stageName === stage.name,
-                      );
 
                       return (
                         <div
