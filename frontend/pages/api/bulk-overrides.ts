@@ -17,78 +17,69 @@ export default async function handler(req, res) {
 
   const { brand, model, year, stage1Price, stage2Price } = req.body;
 
+  if (!brand) {
+    return res.status(400).json({ error: "Missing brand" });
+  }
+
   try {
-    // 1. Delete existing overrides for this scope
-    const deleteQuery = `*[_type == "resellerOverride" && 
-      resellerId == $resellerId && 
-      brand == $brand &&
-      ${model ? "model == $model" : "!defined(model)"} &&
-      ${year ? "year == $year" : "!defined(year)"}]`;
+    // 1. Find existing overrides to delete
+    const idsToDelete = await sanity.fetch(
+      `*[_type == "resellerOverride" &&
+       resellerId == $resellerId &&
+       brand == $brand &&
+       ${model ? "model == $model" : "!defined(model)"} &&
+       ${year ? "year == $year" : "!defined(year)"}]._id`,
+      { resellerId, brand, model, year },
+    );
 
-    const existingOverrides = await sanity.fetch(deleteQuery, {
-      resellerId,
-      brand,
-      model,
-      year,
+    // 2. Prepare transaction
+    let tx = sanity.transaction();
+
+    // Delete existing overrides
+    idsToDelete.forEach((id) => {
+      tx = tx.delete(id);
     });
 
-    const deleteTransaction = sanity.transaction();
-    existingOverrides.forEach((doc) => {
-      if (doc._id) deleteTransaction.delete(doc._id);
-    });
-
-    if (existingOverrides.length > 0) {
-      await deleteTransaction.commit();
-    }
-
-    // 2. Prepare new overrides if any
-    const createTransaction = sanity.transaction();
-
+    // Create new overrides
     if (stage1Price) {
-      createTransaction.create({
+      tx = tx.create({
         _type: "resellerOverride",
         resellerId,
         brand,
-        model: model || null,
-        year: year || null,
+        model: model || undefined,
+        year: year || undefined,
         stageName: "Stage 1",
         price: Number(stage1Price),
-        tunedHk: null,
-        tunedNm: null,
+        tunedHk: undefined,
+        tunedNm: undefined,
       });
     }
 
     if (stage2Price) {
-      createTransaction.create({
+      tx = tx.create({
         _type: "resellerOverride",
         resellerId,
         brand,
-        model: model || null,
-        year: year || null,
+        model: model || undefined,
+        year: year || undefined,
         stageName: "Stage 2",
         price: Number(stage2Price),
-        tunedHk: null,
-        tunedNm: null,
+        tunedHk: undefined,
+        tunedNm: undefined,
       });
     }
 
-    if (stage1Price || stage2Price) {
-      await createTransaction.commit();
+    // 3. Execute if we have operations
+    if (idsToDelete.length > 0 || stage1Price || stage2Price) {
+      await tx.commit();
     }
 
-    // 3. Fetch and return updated overrides
-    const updatedOverrides = await sanity.fetch(
-      `*[_type == "resellerOverride" && 
-         resellerId == $resellerId && 
-         brand == $brand &&
-         ${model ? "model == $model" : "!defined(model)"} &&
-         ${year ? "year == $year" : "!defined(year)"}]`,
-      { resellerId, brand, model, year },
-    );
-
-    res.status(200).json(updatedOverrides);
+    return res.status(200).json({ success: true });
   } catch (err) {
     console.error("Bulk override error:", err);
-    res.status(500).json({ error: "Internal Server Error" });
+    return res.status(500).json({
+      error: "Internal Server Error",
+      message: err.message,
+    });
   }
 }
