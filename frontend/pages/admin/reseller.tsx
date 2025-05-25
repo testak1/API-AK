@@ -120,23 +120,12 @@ export default function ResellerAdmin({ session }) {
 
       if (!response.ok) throw new Error("Failed to save bulk prices");
 
-      const updatedOverrides = await response.json();
-      setOverrides((prev) => {
-        // Remove any existing overrides that match the bulk update criteria
-        const filtered = prev.filter(
-          (o) =>
-            !(
-              o.brand === selectedBrand &&
-              ((bulkPrices.applyLevel === "model" &&
-                o.model === selectedModel &&
-                !o.year) ||
-                (bulkPrices.applyLevel === "year" &&
-                  o.year === selectedYear &&
-                  !o.model))
-            ),
-        );
-        return [...filtered, ...updatedOverrides];
-      });
+      // ✅ Refetch updated data after save
+      const refreshed = await fetch("/api/brands-with-overrides");
+      const { brands: refreshedBrands, overrides: refreshedOverrides } =
+        await refreshed.json();
+      setBrands(refreshedBrands);
+      setOverrides(refreshedOverrides);
 
       setSaveStatus({
         message: "Bulk prices saved successfully!",
