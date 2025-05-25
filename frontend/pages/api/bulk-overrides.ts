@@ -22,34 +22,35 @@ export default async function handler(req, res) {
   }
 
   try {
-    // 1. Construct query for existing overrides
-    const deleteQuery = `*[_type == "resellerOverride" &&
+    // 1. Hämta dokument att radera
+    const query = `*[_type == "resellerOverride" &&
       resellerId == $resellerId &&
       brand == $brand &&
       ${model ? "model == $model" : "!defined(model)"} &&
       ${year ? "year == $year" : "!defined(year)"}]._id`;
 
-    const idsToDelete = await sanity.fetch(deleteQuery, {
+    const idsToDelete = await sanity.fetch(query, {
       resellerId,
       brand,
       model,
       year,
     });
 
-    // 2. Remove existing overrides for same scope
     let tx = sanity.transaction();
-    idsToDelete.forEach((id) => {
-      tx = tx.delete(id);
-    });
 
-    // 3. Create new overrides
+    // 2. Radera gamla
+    for (const id of idsToDelete) {
+      tx = tx.delete(id);
+    }
+
+    // 3. Skapa nya
     if (stage1Price) {
       tx = tx.create({
         _type: "resellerOverride",
         resellerId,
         brand,
-        model: model || null,
-        year: year || null,
+        model: model || undefined,
+        year: year || undefined,
         stageName: "Stage 1",
         price: Number(stage1Price),
         tunedHk: null,
@@ -62,8 +63,8 @@ export default async function handler(req, res) {
         _type: "resellerOverride",
         resellerId,
         brand,
-        model: model || null,
-        year: year || null,
+        model: model || undefined,
+        year: year || undefined,
         stageName: "Stage 2",
         price: Number(stage2Price),
         tunedHk: null,
@@ -71,14 +72,16 @@ export default async function handler(req, res) {
       });
     }
 
-    // 4. Only commit if transaction has changes
+    // 4. Bara spara om det finns ändringar
     if (idsToDelete.length || stage1Price || stage2Price) {
       await tx.commit();
     }
 
     res.status(200).json({ success: true });
   } catch (err) {
-    console.error("Bulk override error:", err);
-    res.status(500).json({ error: "Internal Server Error" });
+    console.error("Bulk override error:", err.message);
+    res
+      .status(500)
+      .json({ error: "Internal Server Error", detail: err.message });
   }
 }
