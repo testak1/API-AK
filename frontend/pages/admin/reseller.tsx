@@ -110,10 +110,10 @@ export default function ResellerAdmin({ session }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           brand: selectedBrand,
-          model: bulkPrices.applyLevel === "model" ? selectedModel : null,
-          year: bulkPrices.applyLevel === "year" ? selectedYear : null,
-          stage1Price: bulkPrices.stage1 ? Number(bulkPrices.stage1) : null,
-          stage2Price: bulkPrices.stage2 ? Number(bulkPrices.stage2) : null,
+          model: bulkPrices.applyLevel === "model" ? selectedModel : undefined,
+          year: bulkPrices.applyLevel === "year" ? selectedYear : undefined,
+          stage1Price: bulkPrices.stage1,
+          stage2Price: bulkPrices.stage2,
           resellerId: session.user.resellerId,
         }),
       });
