@@ -76,7 +76,7 @@ export default function ResellerAdmin({ session }) {
     const fetchSettings = async () => {
       try {
         const res = await fetch(
-          `/api/reseller-config?resellerId=${session.user.resellerId}`,
+          `/api/reseller-config?resellerId=${session.user.resellerId}`
         );
         const json = await res.json();
         if (json.currency) setCurrency(json.currency);
@@ -172,7 +172,7 @@ export default function ResellerAdmin({ session }) {
         o.model === model &&
         o.year === year &&
         o.engine === engine &&
-        o.stageName === stageName,
+        o.stageName === stageName
     );
 
   const handleSave = async (
@@ -184,7 +184,7 @@ export default function ResellerAdmin({ session }) {
     stageName,
     price,
     hk,
-    nm,
+    nm
   ) => {
     try {
       setIsLoading(true);
@@ -211,7 +211,7 @@ export default function ResellerAdmin({ session }) {
         const existing = prev.find((o) => o._id === updatedOverride._id);
         if (existing) {
           return prev.map((o) =>
-            o._id === updatedOverride._id ? updatedOverride : o,
+            o._id === updatedOverride._id ? updatedOverride : o
           );
         }
         return [...prev, updatedOverride];
@@ -300,7 +300,7 @@ export default function ResellerAdmin({ session }) {
           ? o.model === selectedModel
           : o.year === selectedYear) &&
         o.stageName === stageName &&
-        !o.engine,
+        !o.engine
     );
     return match?.price || "";
   };
@@ -313,7 +313,7 @@ export default function ResellerAdmin({ session }) {
       ?.engines?.find((e) => e.label === selectedEngine)?.stages || [];
 
   const descriptionEntry = stageDescriptions.find(
-    (d) => d.stageName === selectedStages[0]?.name,
+    (d) => d.stageName === selectedStages[0]?.name
   );
 
   const [generalInfo, setGeneralInfo] = useState({
@@ -713,7 +713,7 @@ export default function ResellerAdmin({ session }) {
             <div className="px-6 py-5 space-y-8">
               {(defaultAktPlus || []).map((item) => {
                 const override = aktPlusOverrides.find(
-                  (o) => o.title === item.title,
+                  (o) => o.title === item.title
                 );
                 const currentInput = aktPlusInputs[item.title] || {
                   title: item.title,
@@ -838,7 +838,7 @@ export default function ResellerAdmin({ session }) {
                     });
                     setTimeout(
                       () => setSaveStatus({ message: "", isError: false }),
-                      3000,
+                      3000
                     );
                   }}
                   className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
@@ -966,7 +966,7 @@ export default function ResellerAdmin({ session }) {
                       desc.description
                         .map(
                           (block) =>
-                            block.children?.map((c) => c.text).join("") || "",
+                            block.children?.map((c) => c.text).join("") || ""
                         )
                         .join("\n\n") || ""
                     }
@@ -1015,7 +1015,7 @@ export default function ResellerAdmin({ session }) {
                           setTimeout(
                             () =>
                               setSaveStatus({ message: "", isError: false }),
-                            3000,
+                            3000
                           );
                         }
                       }}
@@ -1180,7 +1180,7 @@ export default function ResellerAdmin({ session }) {
                         selectedModel,
                         selectedYear,
                         selectedEngine,
-                        stage.name,
+                        stage.name
                       );
 
                       const currentInputs = stageInputs[stage.name] || {};
@@ -1284,7 +1284,7 @@ export default function ResellerAdmin({ session }) {
                                       handleInputChange(
                                         stage.name,
                                         "price",
-                                        e.target.value,
+                                        e.target.value
                                       )
                                     }
                                     type="number"
@@ -1303,7 +1303,7 @@ export default function ResellerAdmin({ session }) {
                                     handleInputChange(
                                       stage.name,
                                       "hk",
-                                      e.target.value,
+                                      e.target.value
                                     )
                                   }
                                   className="focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md p-2 border"
@@ -1321,7 +1321,7 @@ export default function ResellerAdmin({ session }) {
                                     handleInputChange(
                                       stage.name,
                                       "nm",
-                                      e.target.value,
+                                      e.target.value
                                     )
                                   }
                                   className="focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md p-2 border"
@@ -1341,7 +1341,7 @@ export default function ResellerAdmin({ session }) {
                                   stage.name,
                                   Number(price),
                                   Number(hk),
-                                  Number(nm),
+                                  Number(nm)
                                 )
                               }
                               disabled={isLoading}
