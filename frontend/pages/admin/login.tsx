@@ -48,7 +48,7 @@ export default function LoginPage() {
   return (
     <>
       <Head>
-        <title>API Login</title>
+        <title>AK-TUNING API DASHBOARD</title>
         <meta name="description" content="Login to the Reseller Portal" />
       </Head>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -63,7 +63,7 @@ export default function LoginPage() {
           
           </div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            API Portal
+            API Dashboard Login
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600 max-w">
             Enter your credentials to access your dashboard
