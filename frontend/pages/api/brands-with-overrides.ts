@@ -62,7 +62,6 @@ export default async function handler(req, res) {
 
     const isEmpty = (v) => v === undefined || v === null;
 
-    // Process brands with possible overrides (specific or bulk)
     const brands = (baseBrands || []).map((brand) => ({
       ...brand,
       models: (brand.models || []).map((model) => ({
@@ -72,42 +71,30 @@ export default async function handler(req, res) {
           engines: (year.engines || []).map((engine) => ({
             ...engine,
             stages: (engine.stages || []).map((stage) => {
-              // Match order: exact > bulk model > bulk year
-              const exactMatch = overrides.find(
+              const matchingOverride = overrides.find(
                 (o) =>
                   o.brand === brand.name &&
-                  o.model === model.name &&
-                  o.year === year.range &&
-                  o.engine === engine.label &&
-                  o.stageName === stage.name,
+                  o.stageName === stage.name &&
+                  // 1. Exact match
+                  ((o.model === model.name &&
+                    o.year === year.range &&
+                    o.engine === engine.label) ||
+                    // 2. Model-level override
+                    (o.model === model.name &&
+                      isEmpty(o.year) &&
+                      isEmpty(o.engine)) ||
+                    // 3. Year-level override
+                    (isEmpty(o.model) &&
+                      o.year === year.range &&
+                      isEmpty(o.engine))),
               );
 
-              const modelLevelMatch = overrides.find(
-                (o) =>
-                  o.brand === brand.name &&
-                  o.model === model.name &&
-                  isEmpty(o.year) &&
-                  isEmpty(o.engine) &&
-                  o.stageName === stage.name,
-              );
-
-              const yearLevelMatch = overrides.find(
-                (o) =>
-                  o.brand === brand.name &&
-                  isEmpty(o.model) &&
-                  o.year === year.range &&
-                  isEmpty(o.engine) &&
-                  o.stageName === stage.name,
-              );
-
-              const match = exactMatch || modelLevelMatch || yearLevelMatch;
-
-              return match
+              return matchingOverride
                 ? {
                     ...stage,
-                    price: match.price,
-                    tunedHk: match.tunedHk ?? stage.tunedHk,
-                    tunedNm: match.tunedNm ?? stage.tunedNm,
+                    price: matchingOverride.price,
+                    tunedHk: matchingOverride.tunedHk ?? stage.tunedHk,
+                    tunedNm: matchingOverride.tunedNm ?? stage.tunedNm,
                   }
                 : stage;
             }),
