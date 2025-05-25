@@ -1018,7 +1018,7 @@ export default function TuningViewer() {
                             "translateStageName",
                             stage.name,
                           ).toUpperCase()}{" "}
-                          INFORMATION
+                          INFO
                         </button>
                         <button
                           onClick={() =>
@@ -1539,6 +1539,7 @@ export default function TuningViewer() {
               />
             )
           }
+          language={settings.language}
         />
       </div>
     </>
@@ -1550,11 +1551,13 @@ const InfoModal = ({
   onClose,
   title,
   content,
+  language,
 }: {
   isOpen: boolean;
   onClose: () => void;
   title: string;
   content: React.ReactNode;
+  language: string;
 }) => {
   if (!isOpen) return null;
 
@@ -1571,13 +1574,12 @@ const InfoModal = ({
           {content}
         </div>
 
-        {/* ✅ STÄNG-KNAPP LÄNGST NER */}
         <div className="mt-6 text-right">
           <button
             onClick={onClose}
             className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition"
           >
-            ❌ STÄNG
+            ❌ STÄNG {translate(language, "closeButton")}
           </button>
         </div>
       </div>
