@@ -60,8 +60,7 @@ export default async function handler(req, res) {
       ),
     ]);
 
-    const isEmpty = (v) => v === undefined || v === null;
-
+    const isEmpty = (v) => v === undefined || v === null || v === "";
     const brands = (baseBrands || []).map((brand) => ({
       ...brand,
       models: (brand.models || []).map((model) => ({
