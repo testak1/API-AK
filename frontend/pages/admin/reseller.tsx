@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../api/auth/[...nextauth]";
 import { signOut } from "next-auth/react";
+import sanity from "@/lib/sanity";
 
 export default function ResellerAdmin({ session }) {
   const [brands, setBrands] = useState([]);
@@ -30,6 +31,52 @@ export default function ResellerAdmin({ session }) {
     dsgDescription: "",
     applyLevel: "model",
   });
+
+  const [globalDescriptions, setGlobalDescriptions] = useState<
+    Record<string, string>
+  >({});
+
+  const handleGlobalDescriptionChange = (stage: string, value: string) => {
+    setGlobalDescriptions((prev) => ({
+      ...prev,
+      [stage]: value,
+    }));
+  };
+
+  const saveGlobalDescriptions = async () => {
+    setIsLoading(true);
+    try {
+      await Promise.all(
+        Object.entries(globalDescriptions).map(([stageName, description]) =>
+          sanity.create({
+            _type: "resellerOverride",
+            resellerId: session.user.resellerId,
+            stageName,
+            stageDescription: description,
+            isGlobalDescription: true,
+          }),
+        ),
+      );
+      setSaveStatus({
+        message: "Global descriptions saved successfully!",
+        isError: false,
+      });
+      // Refresh data after save
+      const res = await fetch("/api/brands-with-overrides");
+      const { brands, overrides } = await res.json();
+      setBrands(brands || []);
+      setOverrides(overrides || []);
+    } catch (error) {
+      console.error("Failed to save global descriptions:", error);
+      setSaveStatus({
+        message: "Error saving global descriptions",
+        isError: true,
+      });
+    } finally {
+      setIsLoading(false);
+      setTimeout(() => setSaveStatus({ message: "", isError: false }), 3000);
+    }
+  };
 
   const [previewMode, setPreviewMode] = useState(false);
 
@@ -73,6 +120,28 @@ export default function ResellerAdmin({ session }) {
       fetchSettings();
     }
   }, [session]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const res = await fetch("/api/brands-with-overrides");
+        const { brands, overrides, globalDescriptions } = await res.json();
+        setBrands(brands || []);
+        setOverrides(overrides || []);
+        setGlobalDescriptions(globalDescriptions || {});
+      } catch (err) {
+        console.error("Error fetching brand data:", err);
+        setSaveStatus({
+          message: "Failed to load vehicle data",
+          isError: true,
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   const handleSettingsSave = async () => {
     try {
@@ -408,6 +477,16 @@ export default function ResellerAdmin({ session }) {
               General Pricing
             </button>
             <button
+              onClick={() => setActiveTab("descriptions")}
+              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === "descriptions"
+                  ? "border-blue-500 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+            >
+              Descriptions
+            </button>
+            <button
               onClick={() => setActiveTab("settings")}
               className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === "settings"
@@ -741,6 +820,49 @@ export default function ResellerAdmin({ session }) {
                   ) : (
                     "Save Settings"
                   )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "descriptions" && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8">
+            <div className="px-6 py-5 border-b border-gray-200">
+              <h2 className="text-lg font-semibold text-gray-900">
+                Global Stage Descriptions
+              </h2>
+              <p className="mt-1 text-sm text-gray-500">
+                These descriptions will apply to all vehicles
+              </p>
+            </div>
+            <div className="px-6 py-5 space-y-6">
+              {["Stage 1", "Stage 2", "Stage 3", "Stage 4", "DSG"].map(
+                (stage) => (
+                  <div key={stage} className="space-y-2">
+                    <h3 className="font-medium text-gray-700">
+                      {stage} Description
+                    </h3>
+                    <textarea
+                      value={globalDescriptions[stage] || ""}
+                      onChange={(e) =>
+                        handleGlobalDescriptionChange(stage, e.target.value)
+                      }
+                      className="w-full border rounded p-2 text-sm"
+                      rows={4}
+                      placeholder={`Enter ${stage} description`}
+                    />
+                  </div>
+                ),
+              )}
+
+              <div className="flex justify-end">
+                <button
+                  onClick={saveGlobalDescriptions}
+                  disabled={isLoading}
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? "Saving..." : "Save Descriptions"}
                 </button>
               </div>
             </div>

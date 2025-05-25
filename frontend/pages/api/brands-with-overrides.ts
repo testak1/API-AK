@@ -13,7 +13,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Missing resellerId" });
     }
 
-    const [baseBrands, overrides] = await Promise.all([
+    const [baseBrands, overrides, globalDescriptions] = await Promise.all([
       sanity.fetch(`*[_type == "brand"]{
         name,
         slug,
@@ -37,14 +37,17 @@ export default async function handler(req, res) {
                 type,
                 tcuFields,
                 aktPlusOptions,
-                descriptionRef
+                description,
+                descriptionRef->{
+                  description
+                }
               }
             }
           }
         }
       }`),
       sanity.fetch(
-        `*[_type == "resellerOverride" && resellerId == $resellerId]{
+        `*[_type == "resellerOverride" && resellerId == $resellerId && !isGlobalDescription]{
           _id,
           brand,
           model,
@@ -54,6 +57,16 @@ export default async function handler(req, res) {
           price,
           tunedHk,
           tunedNm,
+          stageDescription,
+          resellerId
+        }`,
+        { resellerId },
+      ),
+      sanity.fetch(
+        `*[_type == "resellerOverride" && resellerId == $resellerId && isGlobalDescription == true]{
+          _id,
+          stageName,
+          stageDescription,
           resellerId
         }`,
         { resellerId },
@@ -61,6 +74,16 @@ export default async function handler(req, res) {
     ]);
 
     const isEmpty = (v) => v === undefined || v === null || v === "";
+
+    // Create a map of global descriptions by stage name
+    const globalDescriptionsMap = (globalDescriptions || []).reduce(
+      (acc, desc) => {
+        acc[desc.stageName] = desc.stageDescription;
+        return acc;
+      },
+      {},
+    );
+
     const brands = (baseBrands || []).map((brand) => ({
       ...brand,
       models: (brand.models || []).map((model) => ({
@@ -70,53 +93,48 @@ export default async function handler(req, res) {
           engines: (year.engines || []).map((engine) => ({
             ...engine,
             stages: (engine.stages || []).map((stage) => {
-              const matchingOverride =
-                overrides.find(
-                  (o) =>
-                    o.brand === brand.name &&
-                    o.model === model.name &&
-                    o.year === year.range &&
-                    o.engine === engine.label &&
-                    o.stageName === stage.name,
-                ) ||
-                overrides.find(
-                  (o) =>
-                    o.brand === brand.name &&
-                    o.model === model.name &&
-                    isEmpty(o.year) &&
-                    isEmpty(o.engine) &&
-                    o.stageName === stage.name,
-                ) ||
-                overrides.find(
-                  (o) =>
-                    o.brand === brand.name &&
-                    isEmpty(o.model) &&
-                    o.year === year.range &&
-                    isEmpty(o.engine) &&
-                    o.stageName === stage.name,
-                );
+              // Find matching override
+              const matchingOverride = overrides.find(
+                (o) =>
+                  o.brand === brand.name &&
+                  (isEmpty(o.model) || o.model === model.name) &&
+                  (isEmpty(o.year) || o.year === year.range) &&
+                  (isEmpty(o.engine) || o.engine === engine.label) &&
+                  o.stageName === stage.name,
+              );
 
-              return matchingOverride
-                ? {
-                    ...stage,
-                    price: matchingOverride.price,
-                    tunedHk: matchingOverride.tunedHk ?? stage.tunedHk,
-                    tunedNm: matchingOverride.tunedNm ?? stage.tunedNm,
-                    description:
-                      matchingOverride.stageDescriptions?.[
-                        stage.name.toLowerCase().replace(" ", "")
-                      ] ??
-                      stage.descriptionRef?.description ??
-                      stage.description,
-                  }
-                : stage;
+              return {
+                ...stage,
+                // Apply overrides if they exist
+                ...(matchingOverride
+                  ? {
+                      price: matchingOverride.price,
+                      tunedHk: matchingOverride.tunedHk ?? stage.tunedHk,
+                      tunedNm: matchingOverride.tunedNm ?? stage.tunedNm,
+                      description:
+                        matchingOverride.stageDescription ??
+                        stage.description ??
+                        stage.descriptionRef?.description ??
+                        globalDescriptionsMap[stage.name],
+                    }
+                  : {
+                      description:
+                        stage.description ??
+                        stage.descriptionRef?.description ??
+                        globalDescriptionsMap[stage.name],
+                    }),
+              };
             }),
           })),
         })),
       })),
     }));
 
-    return res.status(200).json({ brands, overrides });
+    return res.status(200).json({
+      brands,
+      overrides,
+      globalDescriptions: globalDescriptionsMap,
+    });
   } catch (err) {
     console.error("Error in /api/brands-with-overrides:", err);
     return res.status(500).json({ error: "Internal Server Error" });
