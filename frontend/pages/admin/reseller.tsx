@@ -31,6 +31,8 @@ export default function ResellerAdmin({ session }) {
     applyLevel: "model",
   });
 
+  const [previewMode, setPreviewMode] = useState(false);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -592,6 +594,23 @@ export default function ResellerAdmin({ session }) {
                   </div>
                 </div>
               </div>
+
+              <button
+                type="button"
+                onClick={() => setPreviewMode(!previewMode)}
+                className="mt-4 bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded"
+              >
+                {previewMode ? "Hide Preview" : "Show Preview"}
+              </button>
+
+              {previewMode && (
+                <div className="mt-4 p-4 bg-gray-100 rounded">
+                  <h3 className="font-bold mb-2">Description Preview</h3>
+                  <div className="prose max-w-none">
+                    {bulkPrices.stage1Description || "No description entered"}
+                  </div>
+                </div>
+              )}
 
               <div className="mt-6 flex justify-end">
                 <button
