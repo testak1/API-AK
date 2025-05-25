@@ -48,7 +48,7 @@ export default function LoginPage() {
   return (
     <>
       <Head>
-        <title>Reseller Login</title>
+        <title>API Login</title>
         <meta name="description" content="Login to the Reseller Portal" />
       </Head>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -60,7 +60,7 @@ export default function LoginPage() {
             </div>
           </div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Reseller Portal
+            API Portal
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600 max-w">
             Enter your credentials to access your dashboard
@@ -184,14 +184,7 @@ export default function LoginPage() {
                   </label>
                 </div>
 
-                <div className="text-sm">
-                  <Link
-                    href="/forgot-password"
-                    className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
-                  >
-                    Forgot your password?
-                  </Link>
-                </div>
+
               </div>
 
               <div>
@@ -261,17 +254,7 @@ export default function LoginPage() {
             </div>
           </div>
           
-          <div className="mt-6 text-center text-sm text-gray-600">
-            <p>
-              Don't have an account?{' '}
-              <Link
-                href="/register"
-                className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
-              >
-                Request access
-              </Link>
-            </p>
-          </div>
+        
         </div>
       </div>
     </>
