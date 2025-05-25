@@ -1368,72 +1368,142 @@ export default function TuningViewer() {
                         </div>
                       </div>
 
-                      {!isDsgStage && aktPlusOptions.length > 0 && (
+                      {!isDsgStage && allOptions.length > 0 && (
                         <div className="mt-8">
-                          <h3 className="text-lg font-semibold text-white mb-4">
-                            {translate(settings.language, "additionsLabel")}
-                          </h3>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {aktPlusOptions.map((opt) => (
-                              <div
-                                key={opt.id}
-                                className="border border-gray-600 rounded-lg overflow-hidden bg-gray-700 transition-all duration-300 p-4"
-                              >
-                                <div className="flex items-center justify-between mb-2">
-                                  <div className="flex items-center gap-3">
-                                    {opt.imageUrl && (
-                                      <img
-                                        src={opt.imageUrl}
-                                        alt={opt.title}
-                                        className="h-10 w-10 object-contain"
-                                      />
-                                    )}
-                                    <h4 className="text-orange-400 font-bold text-lg">
-                                      {opt.title}
-                                    </h4>
-                                  </div>
-                                  {opt.isOverride && (
-                                    <span className="text-xs text-blue-400 whitespace-nowrap">
-                                      Custom override
-                                    </span>
-                                  )}
-                                </div>
+                          {/* AKT+ Toggle Button */}
+                          <button
+                            onClick={() => toggleAktPlus(stage.name)}
+                            className="flex justify-between items-center w-full px-6 py-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+                          >
+                            <div className="flex items-center gap-2">
+                              <img
+                                src="/logos/aktplus.png"
+                                alt="AKT+ Logo"
+                                className="h-8 w-auto object-contain"
+                              />
+                              <h3 className="text-md font-semibold text-white">
+                                {translate(settings.language, "additionsLabel")}
+                              </h3>
+                            </div>
 
-                                {opt.description &&
-                                  Array.isArray(opt.description) && (
-                                    <div className="prose prose-invert text-sm max-w-none mb-4">
-                                      <PortableText
-                                        value={opt.description}
-                                        components={portableTextComponents}
+                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-800">
+                              <svg
+                                className={`h-5 w-5 text-orange-500 transform transition-transform duration-300 ${
+                                  expandedAktPlus[stage.name]
+                                    ? "rotate-180"
+                                    : ""
+                                }`}
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                            </div>
+                          </button>
+
+                          {/* Expandable AKT+ Grid */}
+                          {expandedAktPlus[stage.name] && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                              {allOptions.map((option) => (
+                                <div
+                                  key={option._id}
+                                  className="border border-gray-600 rounded-lg overflow-hidden bg-gray-700 transition-all duration-300"
+                                >
+                                  <button
+                                    onClick={() => toggleOption(option._id)}
+                                    className="w-full flex justify-between items-center p-4 hover:bg-gray-600 transition-colors"
+                                  >
+                                    <div className="flex items-center gap-3">
+                                      {option.gallery?.[0]?.asset && (
+                                        <img
+                                          src={urlFor(option.gallery[0])
+                                            .width(80)
+                                            .url()}
+                                          alt={
+                                            option.gallery[0].alt ||
+                                            option.title
+                                          }
+                                          className="h-10 w-10 object-contain"
+                                        />
+                                      )}
+                                      <span className="text-lg font-bold text-orange-600">
+                                        {option.title}
+                                      </span>
+                                    </div>
+
+                                    <svg
+                                      className={`h-5 w-5 text-orange-600 transition-transform ${
+                                        expandedOptions[option._id]
+                                          ? "rotate-180"
+                                          : ""
+                                      }`}
+                                      viewBox="0 0 20 20"
+                                      fill="currentColor"
+                                    >
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                                        clipRule="evenodd"
                                       />
+                                    </svg>
+                                  </button>
+
+                                  {expandedOptions[option._id] && (
+                                    <div className="bg-gray-800 border-t border-gray-600 p-4 space-y-4">
+                                      {option.description && (
+                                        <div className="prose prose-invert max-w-none text-sm">
+                                          <PortableText
+                                            value={option.description}
+                                            components={portableTextComponents}
+                                          />
+                                        </div>
+                                      )}
+
+                                      {option.title
+                                        .toLowerCase()
+                                        .includes("dtc off") && (
+                                        <div className="mt-4">
+                                          <DtcSearch />
+                                        </div>
+                                      )}
+
+                                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                                        {option.price !== undefined && (
+                                          <p className="font-bold text-green-400">
+                                            {translate(
+                                              settings.language,
+                                              "priceLabel"
+                                            )}
+                                            :{" "}
+                                            <span>
+                                              {convertPrice(option.price)}
+                                            </span>
+                                          </p>
+                                        )}
+
+                                        <button
+                                          onClick={() =>
+                                            handleBookNow(option.title)
+                                          }
+                                          className="bg-green-600 hover:bg-green-700 hover:scale-105 transform transition-all text-white px-6 py-3 rounded-lg font-medium shadow-lg"
+                                        >
+                                          <span>📩</span>{" "}
+                                          {translate(
+                                            settings.language,
+                                            "contactvalue"
+                                          )}
+                                        </button>
+                                      </div>
                                     </div>
                                   )}
-
-                                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                                  {opt.price && (
-                                    <p className="font-bold text-green-400 text-sm">
-                                      {translate(
-                                        settings.language,
-                                        "priceLabel"
-                                      )}
-                                      : <span>{convertPrice(opt.price)}</span>
-                                    </p>
-                                  )}
-
-                                  <button
-                                    onClick={() => handleBookNow(opt.title)}
-                                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm shadow"
-                                  >
-                                    📩{" "}
-                                    {translate(
-                                      settings.language,
-                                      "contactvalue"
-                                    )}
-                                  </button>
                                 </div>
-                              </div>
-                            ))}
-                          </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
@@ -1536,7 +1606,7 @@ const InfoModal = ({
             onClick={onClose}
             className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition"
           >
-            ❌ STÄNG {translate(language, "closeButton")}
+            ❌ {translate(language, "closeButton")}
           </button>
         </div>
       </div>
