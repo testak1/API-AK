@@ -224,7 +224,7 @@ export default function LoginPage() {
                     <>
                       <span className="absolute left-0 inset-y-0 flex items-center pl-3">
                         <svg
-                          className="h-5 w-5 text-blue-300 group-hover:text-blue-200 transition-colors"
+                          className="h-5 w-5 text-red-300 group-hover:text-red-200 transition-colors"
                           xmlns="http://www.w3.org/2000/svg"
                           viewBox="0 0 20 20"
                           fill="currentColor"
