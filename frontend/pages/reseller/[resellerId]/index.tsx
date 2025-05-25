@@ -109,7 +109,7 @@ export default function TuningViewer() {
   useEffect(() => {
     if (!resellerId) return;
 
-    const fetchAktPlusOverrides = async () => {
+    const fetchOverrides = async () => {
       try {
         const res = await fetch("/api/aktplus-overrides");
         const json = await res.json();
@@ -119,7 +119,7 @@ export default function TuningViewer() {
       }
     };
 
-    fetchAktPlusOverrides();
+    fetchOverrides();
   }, [resellerId]);
 
   useEffect(() => {
@@ -1385,7 +1385,6 @@ export default function TuningViewer() {
                                 {translate(settings.language, "additionsLabel")}
                               </h3>
                             </div>
-
                             <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-800">
                               <svg
                                 className={`h-5 w-5 text-orange-500 transform transition-transform duration-300 ${
@@ -1408,100 +1407,112 @@ export default function TuningViewer() {
                           {/* Expandable AKT+ Grid */}
                           {expandedAktPlus[stage.name] && (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                              {allOptions.map((option) => (
-                                <div
-                                  key={option._id}
-                                  className="border border-gray-600 rounded-lg overflow-hidden bg-gray-700 transition-all duration-300"
-                                >
-                                  <button
-                                    onClick={() => toggleOption(option._id)}
-                                    className="w-full flex justify-between items-center p-4 hover:bg-gray-600 transition-colors"
+                              {allOptions.map((option) => {
+                                const override = aktPlusOptions.find(
+                                  (o) => o.id === option._id
+                                );
+
+                                const title = override?.title || option.title;
+                                const description =
+                                  override?.description || option.description;
+                                const price = override?.price ?? option.price;
+
+                                return (
+                                  <div
+                                    key={option._id}
+                                    className="border border-gray-600 rounded-lg overflow-hidden bg-gray-700 transition-all duration-300"
                                   >
-                                    <div className="flex items-center gap-3">
-                                      {option.gallery?.[0]?.asset && (
-                                        <img
-                                          src={urlFor(option.gallery[0])
-                                            .width(80)
-                                            .url()}
-                                          alt={
-                                            option.gallery[0].alt ||
-                                            option.title
-                                          }
-                                          className="h-10 w-10 object-contain"
-                                        />
-                                      )}
-                                      <span className="text-lg font-bold text-orange-600">
-                                        {option.title}
-                                      </span>
-                                    </div>
-
-                                    <svg
-                                      className={`h-5 w-5 text-orange-600 transition-transform ${
-                                        expandedOptions[option._id]
-                                          ? "rotate-180"
-                                          : ""
-                                      }`}
-                                      viewBox="0 0 20 20"
-                                      fill="currentColor"
+                                    <button
+                                      onClick={() => toggleOption(option._id)}
+                                      className="w-full flex justify-between items-center p-4 hover:bg-gray-600 transition-colors"
                                     >
-                                      <path
-                                        fillRule="evenodd"
-                                        d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-                                        clipRule="evenodd"
-                                      />
-                                    </svg>
-                                  </button>
-
-                                  {expandedOptions[option._id] && (
-                                    <div className="bg-gray-800 border-t border-gray-600 p-4 space-y-4">
-                                      {option.description && (
-                                        <div className="prose prose-invert max-w-none text-sm">
-                                          <PortableText
-                                            value={option.description}
-                                            components={portableTextComponents}
+                                      <div className="flex items-center gap-3">
+                                        {option.gallery?.[0]?.asset && (
+                                          <img
+                                            src={urlFor(option.gallery[0])
+                                              .width(80)
+                                              .url()}
+                                            alt={
+                                              option.gallery[0].alt ||
+                                              option.title
+                                            }
+                                            className="h-10 w-10 object-contain"
                                           />
-                                        </div>
-                                      )}
+                                        )}
+                                        <span className="text-lg font-bold text-orange-600">
+                                          {title}
+                                        </span>
+                                      </div>
 
-                                      {option.title
-                                        .toLowerCase()
-                                        .includes("dtc off") && (
-                                        <div className="mt-4">
-                                          <DtcSearch />
-                                        </div>
-                                      )}
+                                      <svg
+                                        className={`h-5 w-5 text-orange-600 transition-transform ${
+                                          expandedOptions[option._id]
+                                            ? "rotate-180"
+                                            : ""
+                                        }`}
+                                        viewBox="0 0 20 20"
+                                        fill="currentColor"
+                                      >
+                                        <path
+                                          fillRule="evenodd"
+                                          d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                                          clipRule="evenodd"
+                                        />
+                                      </svg>
+                                    </button>
 
-                                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                                        {option.price !== undefined && (
-                                          <p className="font-bold text-green-400">
-                                            {translate(
-                                              settings.language,
-                                              "priceLabel"
-                                            )}
-                                            :{" "}
-                                            <span>
-                                              {convertPrice(option.price)}
-                                            </span>
-                                          </p>
+                                    {expandedOptions[option._id] && (
+                                      <div className="bg-gray-800 border-t border-gray-600 p-4 space-y-4">
+                                        {description && (
+                                          <div className="prose prose-invert max-w-none text-sm">
+                                            <PortableText
+                                              value={description}
+                                              components={
+                                                portableTextComponents
+                                              }
+                                            />
+                                          </div>
                                         )}
 
-                                        <button
-                                          onClick={() =>
-                                            handleBookNow(option.title)
-                                          }
-                                          className="bg-green-600 hover:bg-green-700 hover:scale-105 transform transition-all text-white px-6 py-3 rounded-lg font-medium shadow-lg"
-                                        >
-                                          <span>📩</span>{" "}
-                                          {translate(
-                                            settings.language,
-                                            "contactvalue"
+                                        {title
+                                          .toLowerCase()
+                                          .includes("dtc off") && (
+                                          <div className="mt-4">
+                                            <DtcSearch />
+                                          </div>
+                                        )}
+
+                                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                                          {price !== undefined && (
+                                            <p className="font-bold text-green-400">
+                                              {translate(
+                                                settings.language,
+                                                "priceLabel"
+                                              )}
+                                              :
+                                              <span>
+                                                {" "}
+                                                {convertPrice(price)}
+                                              </span>
+                                            </p>
                                           )}
-                                        </button>
+
+                                          <button
+                                            onClick={() => handleBookNow(title)}
+                                            className="bg-green-600 hover:bg-green-700 hover:scale-105 transform transition-all text-white px-6 py-3 rounded-lg font-medium shadow-lg"
+                                          >
+                                            <span>📩</span>{" "}
+                                            {translate(
+                                              settings.language,
+                                              "contactvalue"
+                                            )}
+                                          </button>
+                                        </div>
                                       </div>
-                                    </div>
-                                  )}
-                                </div>
-                              ))}
+                                    )}
+                                  </div>
+                                );
+                              })}
                             </div>
                           )}
                         </div>
