@@ -19,6 +19,13 @@ export default function ResellerAdmin({ session }) {
   const [language, setLanguage] = useState("sv");
   const [activeTab, setActiveTab] = useState("tuning");
 
+  // New state for General tab
+  const [bulkPrices, setBulkPrices] = useState({
+    stage1: "",
+    stage2: "",
+    applyLevel: "model" // 'model' or 'year'
+  });
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -75,6 +82,57 @@ export default function ResellerAdmin({ session }) {
     } catch (err) {
       console.error("Error updating settings", err);
       setSaveStatus({ message: "Failed to save settings.", isError: true });
+    } finally {
+      setIsLoading(false);
+      setTimeout(() => setSaveStatus({ message: "", isError: false }), 3000);
+    }
+  };
+
+  // New function to handle bulk price save
+  const handleBulkPriceSave = async () => {
+    if (!selectedBrand || (!selectedModel && bulkPrices.applyLevel === "model") || 
+        (!selectedYear && bulkPrices.applyLevel === "year")) {
+      setSaveStatus({ message: "Please select brand and model/year", isError: true });
+      setTimeout(() => setSaveStatus({ message: "", isError: false }), 3000);
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const response = await fetch("/api/bulk-overrides", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          brand: selectedBrand,
+          model: bulkPrices.applyLevel === "model" ? selectedModel : null,
+          year: bulkPrices.applyLevel === "year" ? selectedYear : null,
+          stage1Price: bulkPrices.stage1 ? Number(bulkPrices.stage1) : null,
+          stage2Price: bulkPrices.stage2 ? Number(bulkPrices.stage2) : null,
+          resellerId: session.user.resellerId
+        }),
+      });
+
+      if (!response.ok) throw new Error("Failed to save bulk prices");
+
+      const updatedOverrides = await response.json();
+      setOverrides((prev) => {
+        // Remove any existing overrides that match the bulk update criteria
+        const filtered = prev.filter(o => 
+          !(o.brand === selectedBrand && 
+            ((bulkPrices.applyLevel === "model" && o.model === selectedModel && !o.year) || 
+             (bulkPrices.applyLevel === "year" && o.year === selectedYear && !o.model))
+          )
+        );
+        return [...filtered, ...updatedOverrides];
+      });
+
+      setSaveStatus({
+        message: "Bulk prices saved successfully!",
+        isError: false,
+      });
+    } catch (error) {
+      console.error("Failed to save bulk prices:", error);
+      setSaveStatus({ message: "Error saving bulk prices", isError: true });
     } finally {
       setIsLoading(false);
       setTimeout(() => setSaveStatus({ message: "", isError: false }), 3000);
@@ -160,7 +218,12 @@ export default function ResellerAdmin({ session }) {
     }));
   };
 
-  const [bulkPrices, setBulkPrices] = useState({});
+  const handleBulkPriceChange = (field, value) => {
+    setBulkPrices(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
 
   const currencySymbols = {
     SEK: "kr",
@@ -299,17 +362,16 @@ export default function ResellerAdmin({ session }) {
             >
               Tuning Configurations
             </button>
-
             <button
-  onClick={() => setActiveTab("general")}
-  className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
-    activeTab === "general"
-      ? "border-blue-500 text-blue-600"
-      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-  }`}
->
-  General
-</button>
+              onClick={() => setActiveTab("general")}
+              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === "general"
+                  ? "border-blue-500 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+            >
+              General Pricing
+            </button>
             <button
               onClick={() => setActiveTab("settings")}
               className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
@@ -323,8 +385,168 @@ export default function ResellerAdmin({ session }) {
           </nav>
         </div>
 
+        {/* General Tab */}
+        {activeTab === "general" && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8">
+            <div className="px-6 py-5 border-b border-gray-200">
+              <h2 className="text-lg font-semibold text-gray-900">
+                Bulk Pricing Configuration
+              </h2>
+              <p className="mt-1 text-sm text-gray-500">
+                Apply standard pricing to all vehicles at model or year level
+              </p>
+            </div>
+            <div className="px-6 py-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Apply To
+                  </label>
+                  <div className="flex space-x-4">
+                    <label className="inline-flex items-center">
+                      <input
+                        type="radio"
+                        className="form-radio h-4 w-4 text-blue-600"
+                        checked={bulkPrices.applyLevel === "model"}
+                        onChange={() => handleBulkPriceChange("applyLevel", "model")}
+                      />
+                      <span className="ml-2 text-gray-700">Entire Model</span>
+                    </label>
+                    <label className="inline-flex items-center">
+                      <input
+                        type="radio"
+                        className="form-radio h-4 w-4 text-blue-600"
+                        checked={bulkPrices.applyLevel === "year"}
+                        onChange={() => handleBulkPriceChange("applyLevel", "year")}
+                      />
+                      <span className="ml-2 text-gray-700">Specific Year</span>
+                    </label>
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    {bulkPrices.applyLevel === "model" ? "Model" : "Year"}
+                  </label>
+                  {bulkPrices.applyLevel === "model" ? (
+                    <select
+                      value={selectedModel}
+                      onChange={(e) => setSelectedModel(e.target.value)}
+                      className="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border"
+                      disabled={!selectedBrand || isLoading}
+                    >
+                      <option value="">Select Model</option>
+                      {selectedBrand && brands
+                        .find((b) => b.name === selectedBrand)
+                        ?.models?.map((m) => (
+                          <option key={m.name} value={m.name}>
+                            {m.name}
+                          </option>
+                        ))}
+                    </select>
+                  ) : (
+                    <select
+                      value={selectedYear}
+                      onChange={(e) => setSelectedYear(e.target.value)}
+                      className="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border"
+                      disabled={!selectedModel || isLoading}
+                    >
+                      <option value="">Select Year</option>
+                      {selectedModel && brands
+                        .find((b) => b.name === selectedBrand)
+                        ?.models?.find((m) => m.name === selectedModel)
+                        ?.years?.map((y) => (
+                          <option key={y.range} value={y.range}>
+                            {y.range}
+                          </option>
+                        ))}
+                    </select>
+                  )}
+                </div>
+              </div>
 
-        
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Stage 1 Price ({currencySymbols[currency]})
+                  </label>
+                  <div className="relative rounded-md shadow-sm">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <span className="text-gray-500 sm:text-sm">
+                        {currencySymbols[currency]}
+                      </span>
+                    </div>
+                    <input
+                      type="number"
+                      value={bulkPrices.stage1}
+                      onChange={(e) => handleBulkPriceChange("stage1", e.target.value)}
+                      className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md p-2 border"
+                      placeholder="Leave empty to keep original"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Stage 2 Price ({currencySymbols[currency]})
+                  </label>
+                  <div className="relative rounded-md shadow-sm">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <span className="text-gray-500 sm:text-sm">
+                        {currencySymbols[currency]}
+                      </span>
+                    </div>
+                    <input
+                      type="number"
+                      value={bulkPrices.stage2}
+                      onChange={(e) => handleBulkPriceChange("stage2", e.target.value)}
+                      className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md p-2 border"
+                      placeholder="Leave empty to keep original"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 flex justify-end">
+                <button
+                  onClick={handleBulkPriceSave}
+                  disabled={isLoading || !selectedBrand || 
+                    (bulkPrices.applyLevel === "model" && !selectedModel) || 
+                    (bulkPrices.applyLevel === "year" && !selectedYear)}
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? (
+                    <>
+                      <svg
+                        className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      Saving...
+                    </>
+                  ) : (
+                    "Apply Bulk Prices"
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Settings Tab */}
         {activeTab === "settings" && (
