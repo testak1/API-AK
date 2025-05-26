@@ -438,7 +438,7 @@ export default function ResellerAdmin({ session }) {
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
               }`}
             >
-              Tuning Configurations
+              TUNING CONFIG
             </button>
             <button
               onClick={() => setActiveTab("general")}
@@ -448,7 +448,7 @@ export default function ResellerAdmin({ session }) {
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
               }`}
             >
-              General Pricing
+              OVERALL PRICING
             </button>
             <button
               onClick={() => setActiveTab("descriptions")}
@@ -458,7 +458,7 @@ export default function ResellerAdmin({ session }) {
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
               }`}
             >
-              Stage Descriptions
+              STAGE DESCRIPTIONS
             </button>
             <button
               onClick={() => setActiveTab("generalInfo")}
@@ -468,7 +468,7 @@ export default function ResellerAdmin({ session }) {
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
               }`}
             >
-              General Info
+              GENERAL INFO DESCR
             </button>
             <button
               onClick={() => setActiveTab("aktplus")}
@@ -488,7 +488,7 @@ export default function ResellerAdmin({ session }) {
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
               }`}
             >
-              Reseller Settings
+              SETTINGS
             </button>
           </nav>
         </div>
@@ -861,8 +861,7 @@ export default function ResellerAdmin({ session }) {
             </div>
             <div className="px-6 py-5 space-y-4">
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                General Info Content{" "}
-                {generalInfo.isOverride && "(Custom Override)"}
+                General Info Content {generalInfo.isOverride}
               </label>
               <textarea
                 rows={8}
@@ -1019,8 +1018,7 @@ export default function ResellerAdmin({ session }) {
                   className="border border-gray-100 rounded p-4"
                 >
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {desc.stageName.replace("Steg", "Stage")}{" "}
-                    {desc.isOverride && "(Custom Override)"}
+                    {desc.stageName.replace("Steg", "Stage")} {desc.isOverride}
                   </label>
                   <textarea
                     rows={5}
