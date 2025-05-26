@@ -637,7 +637,7 @@ export default function ResellerAdmin({ session }) {
                       type="number"
                       value={bulkPrices.steg1 || getBulkOverridePrice("Steg 1")}
                       onChange={(e) =>
-                        handleBulkPriceChange("stage1", e.target.value)
+                        handleBulkPriceChange("steg1", e.target.value)
                       }
                       className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md p-2 border"
                       placeholder="Leave empty to keep original"
