@@ -151,7 +151,7 @@ export default function ResellerAdmin({ session }) {
       setBrands(refreshedBrands);
       setOverrides(refreshedOverrides);
 
-      setSaveStatus({yo
+      setSaveStatus({
         message: "Bulk prices saved successfully!",
         isError: false,
       });
