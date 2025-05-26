@@ -349,7 +349,7 @@ export default function ResellerAdmin({ session }) {
               </div>
               <div>
                 <h1 className="text-2xl md:text-3xl font-bold">
-                  Reseller Portal
+                  API Dashboard Portal
                 </h1>
                 <p className="text-blue-100 text-sm">
                   Customize and manage your tuning configurations
@@ -714,11 +714,22 @@ export default function ResellerAdmin({ session }) {
             </div>
             <div className="px-6 py-5 space-y-8">
               {(aktPlusOverrides || []).map((item) => {
+                const conversionRates = {
+                  EUR: 0.1,
+                  USD: 0.1,
+                  GBP: 0.08,
+                  SEK: 1,
+                };
+
                 const currentInput = {
                   title: aktPlusInputs[item.id]?.title ?? item.title,
                   content:
                     aktPlusInputs[item.id]?.content ?? (item.description || []),
-                  price: aktPlusInputs[item.id]?.price ?? item.price ?? 0,
+                  price:
+                    aktPlusInputs[item.id]?.price ??
+                    Math.round(
+                      (item.price ?? 0) * (conversionRates[currency] || 1)
+                    ),
                 };
 
                 return (
