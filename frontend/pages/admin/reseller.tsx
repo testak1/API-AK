@@ -21,8 +21,8 @@ export default function ResellerAdmin({ session }) {
 
   // New state for General tab
   const [bulkPrices, setBulkPrices] = useState({
-    stage1: "",
-    stage2: "",
+    steg1: "",
+    steg2: "",
     applyLevel: "model", // 'model' or 'year'
   });
 
@@ -137,8 +137,8 @@ export default function ResellerAdmin({ session }) {
           brand: selectedBrand,
           model: bulkPrices.applyLevel === "model" ? selectedModel : undefined,
           year: bulkPrices.applyLevel === "year" ? selectedYear : undefined,
-          stage1Price: bulkPrices.stage1,
-          stage2Price: bulkPrices.stage2,
+          steg11Price: bulkPrices.steg1,
+          steg2Price: bulkPrices.steg2,
         }),
       });
 
@@ -265,8 +265,8 @@ export default function ResellerAdmin({ session }) {
   useEffect(() => {
     setBulkPrices((prev) => ({
       ...prev,
-      stage1: "",
-      stage2: "",
+      steg1: "",
+      steg2: "",
     }));
   }, [selectedBrand, selectedModel, selectedYear, bulkPrices.applyLevel]);
 
@@ -635,9 +635,7 @@ export default function ResellerAdmin({ session }) {
                     </div>
                     <input
                       type="number"
-                      value={
-                        bulkPrices.stage1 || getBulkOverridePrice("Stage 1")
-                      }
+                      value={bulkPrices.steg1 || getBulkOverridePrice("Steg 1")}
                       onChange={(e) =>
                         handleBulkPriceChange("stage1", e.target.value)
                       }
@@ -659,9 +657,9 @@ export default function ResellerAdmin({ session }) {
                     </div>
                     <input
                       type="number"
-                      value={bulkPrices.stage2}
+                      value={bulkPrices.steg2}
                       onChange={(e) =>
-                        handleBulkPriceChange("stage2", e.target.value)
+                        handleBulkPriceChange("steg2", e.target.value)
                       }
                       className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md p-2 border"
                       placeholder="Leave empty to keep original"
