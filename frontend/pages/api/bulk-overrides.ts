@@ -30,6 +30,7 @@ export default async function handler(req, res) {
       `*[_type == "resellerConfig" && resellerId == $resellerId][0]{currency}`,
       { resellerId }
     );
+
     const currency = settings?.currency || "SEK";
     const rate = conversionRates[currency] || 1;
 
@@ -38,28 +39,63 @@ export default async function handler(req, res) {
     const stage1SEK = !isNaN(parsedStage1) ? Math.round(parsedStage1 / rate) : null;
     const stage2SEK = !isNaN(parsedStage2) ? Math.round(parsedStage2 / rate) : null;
 
-    // Fetch engine list
     let engineList = [];
 
+    // Fetch engine labels depending on level
     if (brand && model && year) {
       const data = await sanity.fetch(
-        `*[_type == "vehicleBrand" && name == $brand][0].models[name == $model][0].years[range == $year][0].engines`,
+        `*[_type == "vehicleBrand" && name == $brand][0]{
+          models[name == $model][0]{
+            years[range == $year][0]{
+              engines[]{ label }
+            }
+          }
+        }`,
         { brand, model, year }
       );
-      engineList = data?.map((e) => e.label) || [];
+      engineList = data?.models?.years?.engines?.map((e) => e.label) || [];
+
     } else if (brand && model) {
       const data = await sanity.fetch(
-        `*[_type == "vehicleBrand" && name == $brand][0].models[name == $model][0].years[].engines[]`,
+        `*[_type == "vehicleBrand" && name == $brand][0]{
+          models[name == $model][0]{
+            years[]{
+              engines[]{ label }
+            }
+          }
+        }`,
         { brand, model }
       );
-      engineList = [...new Set(data?.map((e) => e.label) || [])];
+      engineList = [
+        ...new Set(
+          (data?.models?.years || [])
+            .flatMap((y) => y.engines || [])
+            .map((e) => e.label)
+        ),
+      ];
+
     } else if (brand) {
       const data = await sanity.fetch(
-        `*[_type == "vehicleBrand" && name == $brand][0].models[].years[].engines[]`,
+        `*[_type == "vehicleBrand" && name == $brand][0]{
+          models[]{
+            years[]{
+              engines[]{ label }
+            }
+          }
+        }`,
         { brand }
       );
-      engineList = [...new Set(data?.map((e) => e.label) || [])];
+      engineList = [
+        ...new Set(
+          (data?.models || [])
+            .flatMap((m) => m.years || [])
+            .flatMap((y) => y.engines || [])
+            .map((e) => e.label)
+        ),
+      ];
     }
+
+    console.log("Engines found for override:", engineList);
 
     const createTransaction = sanity.transaction();
 
