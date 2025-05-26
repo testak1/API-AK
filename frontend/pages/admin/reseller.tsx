@@ -798,21 +798,41 @@ export default function ResellerAdmin({ session }) {
 
                     <button
                       onClick={async () => {
-                        const parsedPrice = parseFloat(currentInput.price);
-                        await fetch("/api/aktplus-overrides", {
-                          method: "POST",
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({
-                            aktPlusId: item.id,
-                            title: currentInput.title,
-                            description: currentInput.content,
-                            price: isNaN(parsedPrice) ? 0 : parsedPrice,
-                          }),
-                        });
+                        try {
+                          const parsedPrice = parseFloat(currentInput.price);
+                          await fetch("/api/aktplus-overrides", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              aktPlusId: item.id,
+                              title: currentInput.title,
+                              description: currentInput.content,
+                              price: isNaN(parsedPrice) ? 0 : parsedPrice,
+                            }),
+                          });
 
-                        const res = await fetch("/api/aktplus-overrides");
-                        const json = await res.json();
-                        setAktPlusOverrides(json.aktplus || []);
+                          const res = await fetch("/api/aktplus-overrides");
+                          const json = await res.json();
+                          setAktPlusOverrides(json.aktplus || []);
+
+                          setSaveStatus({
+                            message: "AKTPLUS override saved successfully!",
+                            isError: false,
+                          });
+
+                          setTimeout(() => {
+                            setSaveStatus({ message: "", isError: false });
+                          }, 3000);
+                        } catch (error) {
+                          console.error(
+                            "Failed to save AKTPLUS override",
+                            error
+                          );
+                          setSaveStatus({
+                            message: "Failed to save AKTPLUS override.",
+                            isError: true,
+                          });
+                        }
                       }}
                       className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 transition"
                     >
