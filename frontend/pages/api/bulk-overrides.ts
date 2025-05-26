@@ -109,24 +109,24 @@ export default async function handler(req, res) {
 
     let engineList: string[] = [];
     if (matchedYear) {
-      engineList = matchedYear.engines?.map((e: { label: string }) => e.label) || [];
+      engineList = matchedYear.engines?.map((e: { label: string }) => e.label) as string[] || [];
     } else if (matchedModel) {
       engineList = [
         ...new Set(
           (matchedModel.years || [])
             .flatMap((y) => (y.engines as { label: string }[]) || [])
-            .map((e: { label: string }) => e.label)
+            .map((e) => e.label)
         ),
-      ];
+      ] as string[];
     } else {
       engineList = [
         ...new Set(
           (matchedBrand.models || [])
             .flatMap((m) => m.years || [])
             .flatMap((y) => (y.engines as { label: string }[]) || [])
-            .map((e: { label: string }) => e.label)
+            .map((e) => e.label)
         ),
-      ];
+      ] as string[];
     }
 
     if (!engineList.length) {
