@@ -23,7 +23,7 @@ export default async function handler(req, res) {
 
   let { brand, model, year, stage1Price, stage2Price } = req.body;
 
-  // Trim inputs to avoid mismatches
+  // Normalize inputs
   brand = brand?.trim();
   model = model?.trim();
   year = year?.trim();
@@ -53,15 +53,15 @@ export default async function handler(req, res) {
 
     type Engine = { label: string };
     type Year = { engines?: Engine[] };
-    type Model = { years?: Year[] };
+    type Model = { name: string; years?: Year[] };
     type Brand = { models?: Model[] };
 
     console.log("Fetching engines for:", { brand, model, year });
 
     if (brand && model && year) {
       const data = await sanity.fetch(
-        `*[_type == "vehicleBrand" && name == $brand][0]{
-          models[name == $model][0]{
+        `*[_type == "vehicleBrand" && name match $brand][0]{
+          models[name match $model][0]{
             years[range == $year][0]{
               engines[]{ label }
             }
@@ -71,16 +71,16 @@ export default async function handler(req, res) {
       );
 
       if (!data?.models?.years?.engines) {
+        console.warn("No engines found for brand/model/year:", brand, model, year);
         return res.status(404).json({ error: "Brand/model/year not found or missing engines" });
       }
 
-      const engines = (data.models.years.engines || []) as Engine[];
-      engineList = engines.map((e) => e.label);
+      engineList = data.models.years.engines.map((e: { label: string }) => e.label);
 
     } else if (brand && model) {
       const data = await sanity.fetch(
-        `*[_type == "vehicleBrand" && name == $brand][0]{
-          models[name == $model]{
+        `*[_type == "vehicleBrand" && name match $brand][0]{
+          models[name match $model]{
             years[]{
               engines[]{ label }
             }
@@ -90,6 +90,7 @@ export default async function handler(req, res) {
       );
 
       if (!data?.models?.length) {
+        console.warn("No models found for brand:", brand, "model:", model);
         return res.status(404).json({ error: "Brand/model not found" });
       }
 
@@ -104,7 +105,7 @@ export default async function handler(req, res) {
 
     } else if (brand) {
       const data = await sanity.fetch(
-        `*[_type == "vehicleBrand" && name == $brand][0]{
+        `*[_type == "vehicleBrand" && name match $brand][0]{
           models[]{
             years[]{
               engines[]{ label }
@@ -115,6 +116,7 @@ export default async function handler(req, res) {
       );
 
       if (!data?.models?.length) {
+        console.warn("No models found for brand:", brand);
         return res.status(404).json({ error: "Brand not found" });
       }
 
@@ -127,6 +129,11 @@ export default async function handler(req, res) {
             .map((e) => e.label)
         ),
       ];
+    }
+
+    if (!engineList.length) {
+      console.warn("No engines matched for", { brand, model, year });
+      return res.status(404).json({ error: "No engines found to apply pricing" });
     }
 
     const createTransaction = sanity.transaction();
