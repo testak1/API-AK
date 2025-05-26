@@ -4,6 +4,11 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "./auth/[...nextauth]";
 import sanity from "@/lib/sanity";
 
+function generateOverrideId(resellerId, brand, model, year, engine, stageName) {
+  const parts = [resellerId, brand, model || "", year || "", engine, stageName];
+  return `override-${parts.map((p) => p.toLowerCase().replace(/\s+/g, "-")).join("-")}`;
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -38,61 +43,134 @@ export default async function handler(req, res) {
     const stage1SEK = !isNaN(parsedStage1) ? Math.round(parsedStage1 / rate) : null;
     const stage2SEK = !isNaN(parsedStage2) ? Math.round(parsedStage2 / rate) : null;
 
-    const createTransaction = sanity.transaction();
+    // Fetch engine list
+    let engineList = [];
 
-    // Create model-level overrides (year and engine will be null)
-    if (stage1SEK !== null) {
-      const existingSteg1 = await sanity.fetch(
-        `*[_type == "resellerOverride" && 
-         resellerId == $resellerId && 
-         brand == $brand && 
-         model == $model && 
-         year == null && 
-         engine == null && 
-         stageName == "Steg 1"][0]`,
-        { resellerId, brand, model }
+    if (brand && model && year) {
+      const data = await sanity.fetch(
+        `*[_type == "vehicleBrand" && name == $brand][0]{
+          models[name == $model][0]{
+            years[range == $year][0]{
+              engines[]{ label }
+            }
+          }
+        }`,
+        { brand, model, year }
       );
+      engineList = data?.models?.years?.engines?.map((e) => e.label) || [];
 
-      createTransaction.createOrReplace({
-        _type: "resellerOverride",
-        _id: existingSteg1?._id || undefined,
-        resellerId,
-        brand,
-        model,
-        year: null,
-        engine: null,
-        stageName: "Steg 1",
-        price: stage1SEK,
-        tunedHk: null, // Don't override HP for bulk updates
-        tunedNm: null, // Don't override NM for bulk updates
-      });
+    } else if (brand && model) {
+      const data = await sanity.fetch(
+        `*[_type == "vehicleBrand" && name == $brand][0]{
+          models[name == $model][0]{
+            years[]{
+              engines[]{ label }
+            }
+          }
+        }`,
+        { brand, model }
+      );
+      engineList = [
+        ...new Set(
+          (data?.models?.years || [])
+            .flatMap((y) => y.engines || [])
+            .map((e) => e.label)
+        ),
+      ];
+
+    } else if (brand) {
+      const data = await sanity.fetch(
+        `*[_type == "vehicleBrand" && name == $brand][0]{
+          models[]{
+            years[]{
+              engines[]{ label }
+            }
+          }
+        }`,
+        { brand }
+      );
+      engineList = [
+        ...new Set(
+          (data?.models || [])
+            .flatMap((m) => m.years || [])
+            .flatMap((y) => y.engines || [])
+            .map((e) => e.label)
+        ),
+      ];
     }
 
-    if (stage2SEK !== null) {
-      const existingSteg2 = await sanity.fetch(
-        `*[_type == "resellerOverride" && 
-         resellerId == $resellerId && 
-         brand == $brand && 
-         model == $model && 
-         year == null && 
-         engine == null && 
-         stageName == "Steg 2"][0]`,
-        { resellerId, brand, model }
-      );
+    const createTransaction = sanity.transaction();
 
-      createTransaction.createOrReplace({
-        _type: "resellerOverride",
-        _id: existingSteg2?._id || undefined,
-        resellerId,
-        brand,
-        model,
-        year: null,
-        engine: null,
-        stageName: "Steg 2",
-        price: stage2SEK,
-        tunedHk: null, // Don't override HP for bulk updates
-        tunedNm: null, // Don't override NM for bulk updates
-      });
+    for (const engine of engineList) {
+      // === STEG 1 ===
+      if (stage1SEK !== null) {
+        const steg1Query = `*[_type == "resellerOverride" && 
+          resellerId == $resellerId && 
+          brand == $brand && 
+          model == $model && 
+          ${year ? "year == $year &&" : ""} 
+          engine == $engine && 
+          stageName == "Steg 1"][0]`;
+
+        const steg1Params = {
+          resellerId,
+          brand,
+          model,
+          engine,
+          ...(year ? { year } : {}),
+        };
+
+        const existingSteg1 = await sanity.fetch(steg1Query, steg1Params);
+
+        createTransaction.createOrReplace({
+          _type: "resellerOverride",
+          _id: existingSteg1?._id || generateOverrideId(resellerId, brand, model, year, engine, "Steg 1"),
+          resellerId,
+          brand,
+          model: model || null,
+          year: year || null,
+          engine,
+          stageName: "Steg 1",
+          price: stage1SEK,
+          tunedHk: existingSteg1?.tunedHk ?? null,
+          tunedNm: existingSteg1?.tunedNm ?? null,
+        });
+      }
+
+      // === STEG 2 ===
+      if (stage2SEK !== null) {
+        const steg2Query = `*[_type == "resellerOverride" && 
+          resellerId == $resellerId && 
+          brand == $brand && 
+          model == $model && 
+          ${year ? "year == $year &&" : ""} 
+          engine == $engine && 
+          stageName == "Steg 2"][0]`;
+
+        const steg2Params = {
+          resellerId,
+          brand,
+          model,
+          engine,
+          ...(year ? { year } : {}),
+        };
+
+        const existingSteg2 = await sanity.fetch(steg2Query, steg2Params);
+
+        createTransaction.createOrReplace({
+          _type: "resellerOverride",
+          _id: existingSteg2?._id || generateOverrideId(resellerId, brand, model, year, engine, "Steg 2"),
+          resellerId,
+          brand,
+          model: model || null,
+          year: year || null,
+          engine,
+          stageName: "Steg 2",
+          price: stage2SEK,
+          tunedHk: existingSteg2?.tunedHk ?? null,
+          tunedNm: existingSteg2?.tunedNm ?? null,
+        });
+      }
     }
 
     if (stage1SEK !== null || stage2SEK !== null) {
