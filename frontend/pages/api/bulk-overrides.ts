@@ -1,10 +1,8 @@
-// pages/api/bulk-overrides.ts
-
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./auth/[...nextauth]";
 import sanity from "@/lib/sanity";
 
-// Utility slug + normalize helpers
+// Helpers
 const normalizeString = (str: string) =>
   str.toLowerCase().replace(/[^a-z0-9]/g, "");
 
@@ -49,7 +47,6 @@ export default async function handler(req, res) {
     const stage1SEK = !isNaN(parsedStage1) ? Math.round(parsedStage1 / rate) : null;
     const stage2SEK = !isNaN(parsedStage2) ? Math.round(parsedStage2 / rate) : null;
 
-    // === Fetch ALL brands/models/years/engines ===
     const allBrands = await sanity.fetch(
       `*[_type == "vehicleBrand"]{
         name,
@@ -70,7 +67,6 @@ export default async function handler(req, res) {
     const normModel = normalizeString(model || "");
     const normYear = normalizeString(year || "");
 
-    // === Match brand ===
     const matchedBrand = allBrands.find((b) =>
       normalizeString(b.name) === normBrand ||
       normalizeString(b.slug?.current || "") === normBrand
@@ -81,7 +77,6 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: "Brand not found" });
     }
 
-    // === Match model ===
     let matchedModel = null;
     if (model) {
       matchedModel =
@@ -97,7 +92,6 @@ export default async function handler(req, res) {
       }
     }
 
-    // === Match year ===
     let matchedYear = null;
     if (matchedModel && year) {
       matchedYear =
@@ -113,7 +107,6 @@ export default async function handler(req, res) {
       }
     }
 
-    // === Build engine list ===
     let engineList: string[] = [];
     if (matchedYear) {
       engineList = matchedYear.engines?.map((e: { label: string }) => e.label) || [];
@@ -122,7 +115,7 @@ export default async function handler(req, res) {
         ...new Set(
           (matchedModel.years || [])
             .flatMap((y) => (y.engines as { label: string }[]) || [])
-            .map((e) => e.label)
+            .map((e: { label: string }) => e.label)
         ),
       ];
     } else {
@@ -131,7 +124,7 @@ export default async function handler(req, res) {
           (matchedBrand.models || [])
             .flatMap((m) => m.years || [])
             .flatMap((y) => (y.engines as { label: string }[]) || [])
-            .map((e) => e.label)
+            .map((e: { label: string }) => e.label)
         ),
       ];
     }
