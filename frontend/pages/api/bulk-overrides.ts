@@ -51,7 +51,10 @@ export default async function handler(req, res) {
     let updatedCount = 0;
 
     type Engine = { label: string };
-    type Year = { engines?: Engine[] };
+    type Year = {
+      range?: string;
+      engines?: Engine[];
+    };
     type Model = { name: string; years?: Year[] };
     type Brand = { models?: Model[] };
 
