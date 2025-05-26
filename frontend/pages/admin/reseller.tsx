@@ -285,9 +285,14 @@ export default function ResellerAdmin({ session }) {
     GBP: "£",
   };
 
-  const convertCurrency = (amount: number, currency: string): number => {
-    const rates = { EUR: 0.1, USD: 0.1, GBP: 0.08 };
-    return Math.round(amount * (rates[currency] || 1));
+  const convertCurrency = (price: number, currency: string) => {
+    const rates = {
+      EUR: 0.1,
+      USD: 0.1,
+      GBP: 0.08,
+      SEK: 1,
+    };
+    return Math.round(price * (rates[currency] || 1));
   };
 
   const getBulkOverridePrice = (stageName) => {
