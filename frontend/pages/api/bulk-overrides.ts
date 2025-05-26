@@ -32,6 +32,13 @@ export default async function handler(req, res) {
     if (model) params.model = model;
     if (year) params.year = year;
 
+    const conversionRates = {
+      EUR: 0.1,
+      USD: 0.1,
+      GBP: 0.08,
+      SEK: 1,
+    };
+
     // 1. Delete existing overrides in scope
     const existingOverrides = await sanity.fetch(query, params);
     const deleteTransaction = sanity.transaction();
@@ -42,10 +49,22 @@ export default async function handler(req, res) {
       await deleteTransaction.commit();
     }
 
+    const settings = await sanity.fetch(
+      `*[_type == "resellerConfig" && resellerId == $resellerId][0]{currency}`,
+      { resellerId }
+    );
+    const currency = settings?.currency || "SEK";
+    const rate = conversionRates[currency] || 1;
+    
+    const parsedStage1 = parseFloat(stage1Price);
+    const parsedStage2 = parseFloat(stage2Price);
+    const stage1SEK = !isNaN(parsedStage1) ? Math.round(parsedStage1 / rate) : null;
+    const stage2SEK = !isNaN(parsedStage2) ? Math.round(parsedStage2 / rate) : null;
+
     // 2. Create new overrides
     const createTransaction = sanity.transaction();
 
-    if (stage1Price) {
+    if (stage1SEK) {
       createTransaction.create({
         _type: "resellerOverride",
         resellerId,
@@ -53,13 +72,13 @@ export default async function handler(req, res) {
         model: model || null,
         year: year || null,
         stageName: "Stage 1",
-        price: Number(stage1Price),
+        price: stage1SEK,
         tunedHk: null,
         tunedNm: null,
       });
     }
-
-    if (stage2Price) {
+    
+    if (stage2SEK) {
       createTransaction.create({
         _type: "resellerOverride",
         resellerId,
@@ -67,15 +86,16 @@ export default async function handler(req, res) {
         model: model || null,
         year: year || null,
         stageName: "Stage 2",
-        price: Number(stage2Price),
+        price: stage2SEK,
         tunedHk: null,
         tunedNm: null,
       });
     }
 
-    if (stage1Price || stage2Price) {
+    if (stage1SEK !== null || stage2SEK !== null) {
       await createTransaction.commit();
     }
+    
 
     // 3. Return updated overrides
     const updatedOverrides = await sanity.fetch(query, params);
