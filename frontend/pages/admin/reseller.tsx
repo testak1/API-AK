@@ -13,7 +13,7 @@ export default function ResellerAdmin({ session }) {
   const [selectedModel, setSelectedModel] = useState("");
   const [selectedYear, setSelectedYear] = useState("");
   const [selectedEngine, setSelectedEngine] = useState("");
-
+  
   const [stageInputs, setStageInputs] = useState({});
   const [currency, setCurrency] = useState("SEK");
   const [language, setLanguage] = useState("sv");
@@ -137,8 +137,8 @@ export default function ResellerAdmin({ session }) {
           brand: selectedBrand,
           model: bulkPrices.applyLevel === "model" ? selectedModel : undefined,
           year: bulkPrices.applyLevel === "year" ? selectedYear : undefined,
-          steg11Price: bulkPrices.steg1,
-          steg2Price: bulkPrices.steg2,
+          stage1Price: bulkPrices.steg1,
+          stage2Price: bulkPrices.steg2,
         }),
       });
 
@@ -151,7 +151,7 @@ export default function ResellerAdmin({ session }) {
       setBrands(refreshedBrands);
       setOverrides(refreshedOverrides);
 
-      setSaveStatus({
+      setSaveStatus({yo
         message: "Bulk prices saved successfully!",
         isError: false,
       });
