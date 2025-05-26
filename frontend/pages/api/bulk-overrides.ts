@@ -4,9 +4,20 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "./auth/[...nextauth]";
 import sanity from "@/lib/sanity";
 
+// Utility slug + normalize helpers
+const normalizeString = (str: string) =>
+  str.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+const slugify = (str: string) =>
+  str
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+
 function generateOverrideId(resellerId, brand, model, year, engine, stageName) {
   const parts = [resellerId, brand, model || "", year || "", engine, stageName];
-  return `override-${parts.map((p) => p.toLowerCase().replace(/\s+/g, "-")).join("-")}`;
+  return `override-${parts.map((p) => slugify(p || "")).join("-")}`;
 }
 
 export default async function handler(req, res) {
@@ -16,10 +27,7 @@ export default async function handler(req, res) {
 
   const session = await getServerSession(req, res, authOptions);
   const resellerId = session?.user?.resellerId;
-
-  if (!resellerId) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
+  if (!resellerId) return res.status(401).json({ error: "Unauthorized" });
 
   let { brand, model, year, stage1Price, stage2Price } = req.body;
 
@@ -28,13 +36,7 @@ export default async function handler(req, res) {
   year = year?.trim();
 
   try {
-    const conversionRates = {
-      EUR: 0.1,
-      USD: 0.1,
-      GBP: 0.08,
-      SEK: 1,
-    };
-
+    const conversionRates = { EUR: 0.1, USD: 0.1, GBP: 0.08, SEK: 1 };
     const settings = await sanity.fetch(
       `*[_type == "resellerConfig" && resellerId == $resellerId][0]{currency}`,
       { resellerId }
@@ -47,53 +49,74 @@ export default async function handler(req, res) {
     const stage1SEK = !isNaN(parsedStage1) ? Math.round(parsedStage1 / rate) : null;
     const stage2SEK = !isNaN(parsedStage2) ? Math.round(parsedStage2 / rate) : null;
 
-    let engineList: string[] = [];
-    let updatedCount = 0;
-
-    type Engine = { label: string };
-    type Year = {
-      range?: string;
-      engines?: Engine[];
-    };
-    type Model = { name: string; years?: Year[] };
-    type Brand = { models?: Model[] };
-
-    console.log("Fetching engines for:", { brand, model, year });
-
-    const data: Brand = await sanity.fetch(
-      `*[_type == "vehicleBrand" && name match $brand][0]{
+    // === Fetch ALL brands/models/years/engines ===
+    const allBrands = await sanity.fetch(
+      `*[_type == "vehicleBrand"]{
+        name,
+        slug,
         models[]{
           name,
+          slug,
           years[]{
             range,
+            slug,
             engines[]{ label }
           }
         }
-      }`,
-      { brand }
+      }`
     );
 
-    if (!data?.models?.length) {
-      console.warn("No models found for brand:", brand);
+    const normBrand = normalizeString(brand || "");
+    const normModel = normalizeString(model || "");
+    const normYear = normalizeString(year || "");
+
+    // === Match brand ===
+    const matchedBrand = allBrands.find((b) =>
+      normalizeString(b.name) === normBrand ||
+      normalizeString(b.slug?.current || "") === normBrand
+    );
+
+    if (!matchedBrand) {
+      console.warn("Brand not found:", brand);
       return res.status(404).json({ error: "Brand not found" });
     }
 
-    let matchedModel: Model | undefined;
-
+    // === Match model ===
+    let matchedModel = null;
     if (model) {
-      matchedModel = data.models.find((m) =>
-        m.name.toLowerCase().includes(model.toLowerCase())
-      );
+      matchedModel =
+        matchedBrand.models?.find(
+          (m) =>
+            normalizeString(m.name) === normModel ||
+            normalizeString(m.slug?.current || "") === normModel
+        ) || null;
 
       if (!matchedModel) {
-        console.warn("No model matched:", model);
-        return res.status(404).json({ error: "Model not found under brand" });
+        console.warn("Model not found under brand:", model);
+        return res.status(404).json({ error: "Model not found" });
       }
     }
 
+    // === Match year ===
+    let matchedYear = null;
     if (matchedModel && year) {
-      const matchedYear = matchedModel.years?.find((y) => y.range === year);
-      engineList = matchedYear?.engines?.map((e) => e.label) || [];
+      matchedYear =
+        matchedModel.years?.find(
+          (y) =>
+            normalizeString(y.range) === normYear ||
+            normalizeString(y.slug || "") === normYear
+        ) || null;
+
+      if (!matchedYear) {
+        console.warn("Year not found under model:", year);
+        return res.status(404).json({ error: "Year not found" });
+      }
+    }
+
+    // === Build engine list ===
+    let engineList: string[] = [];
+    if (matchedYear) {
+      engineList = matchedYear.engines?.map((e) => e.label) || [];
     } else if (matchedModel) {
       engineList = [
         ...new Set(
@@ -103,10 +126,9 @@ export default async function handler(req, res) {
         ),
       ];
     } else {
-      // No model specified — use all models
       engineList = [
         ...new Set(
-          (data.models || [])
+          (matchedBrand.models || [])
             .flatMap((m) => m.years || [])
             .flatMap((y) => y.engines || [])
             .map((e) => e.label)
@@ -115,15 +137,14 @@ export default async function handler(req, res) {
     }
 
     if (!engineList.length) {
-      console.warn("No engines found for", { brand, model, year });
-      return res.status(404).json({ error: "No engines found to apply pricing" });
+      console.warn("No engines found for selection:", { brand, model, year });
+      return res.status(404).json({ error: "No engines found" });
     }
 
     const createTransaction = sanity.transaction();
-    let didModify = false;
+    let updatedCount = 0;
 
     for (const engine of engineList) {
-      // === STAGE 1 ===
       if (stage1SEK !== null) {
         const steg1Query = `*[_type == "resellerOverride" &&
           resellerId == $resellerId &&
@@ -135,8 +156,8 @@ export default async function handler(req, res) {
 
         const steg1Params = {
           resellerId,
-          brand,
-          model,
+          brand: matchedBrand.name,
+          model: matchedModel?.name || null,
           engine,
           ...(year ? { year } : {}),
         };
@@ -145,10 +166,11 @@ export default async function handler(req, res) {
 
         createTransaction.createOrReplace({
           _type: "resellerOverride",
-          _id: existingSteg1?._id || generateOverrideId(resellerId, brand, model, year, engine, "Stage 1"),
+          _id: existingSteg1?._id ||
+            generateOverrideId(resellerId, matchedBrand.name, matchedModel?.name, year, engine, "Stage 1"),
           resellerId,
-          brand,
-          model: model || null,
+          brand: matchedBrand.name,
+          model: matchedModel?.name || null,
           year: year || null,
           engine,
           stageName: "Stage 1",
@@ -157,11 +179,9 @@ export default async function handler(req, res) {
           tunedNm: existingSteg1?.tunedNm ?? null,
         });
 
-        didModify = true;
         updatedCount++;
       }
 
-      // === STAGE 2 ===
       if (stage2SEK !== null) {
         const steg2Query = `*[_type == "resellerOverride" &&
           resellerId == $resellerId &&
@@ -173,8 +193,8 @@ export default async function handler(req, res) {
 
         const steg2Params = {
           resellerId,
-          brand,
-          model,
+          brand: matchedBrand.name,
+          model: matchedModel?.name || null,
           engine,
           ...(year ? { year } : {}),
         };
@@ -183,10 +203,11 @@ export default async function handler(req, res) {
 
         createTransaction.createOrReplace({
           _type: "resellerOverride",
-          _id: existingSteg2?._id || generateOverrideId(resellerId, brand, model, year, engine, "Stage 2"),
+          _id: existingSteg2?._id ||
+            generateOverrideId(resellerId, matchedBrand.name, matchedModel?.name, year, engine, "Stage 2"),
           resellerId,
-          brand,
-          model: model || null,
+          brand: matchedBrand.name,
+          model: matchedModel?.name || null,
           year: year || null,
           engine,
           stageName: "Stage 2",
@@ -195,14 +216,13 @@ export default async function handler(req, res) {
           tunedNm: existingSteg2?.tunedNm ?? null,
         });
 
-        didModify = true;
         updatedCount++;
       }
     }
 
-    if (didModify) {
+    if (updatedCount > 0) {
       await createTransaction.commit();
-      console.log("Bulk override completed. Total overrides updated:", updatedCount);
+      console.log(`Bulk override completed. ${updatedCount} overrides updated.`);
     }
 
     return res.status(200).json({ success: true, updated: updatedCount });
