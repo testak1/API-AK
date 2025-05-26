@@ -43,8 +43,7 @@ export default async function handler(req, res) {
     const stage1SEK = !isNaN(parsedStage1) ? Math.round(parsedStage1 / rate) : null;
     const stage2SEK = !isNaN(parsedStage2) ? Math.round(parsedStage2 / rate) : null;
 
-    // Fetch engine list
-    let engineList = [];
+    let engineList: string[] = [];
 
     if (brand && model && year) {
       const data = await sanity.fetch(
@@ -62,7 +61,7 @@ export default async function handler(req, res) {
     } else if (brand && model) {
       const data = await sanity.fetch(
         `*[_type == "vehicleBrand" && name == $brand][0]{
-          models[name == $model][0]{
+          models[name == $model]{
             years[]{
               engines[]{ label }
             }
@@ -72,7 +71,7 @@ export default async function handler(req, res) {
       );
       engineList = [
         ...new Set(
-          (data?.models?.years || [])
+          (data?.models?.[0]?.years || [])
             .flatMap((y) => y.engines || [])
             .map((e) => e.label)
         ),
@@ -100,6 +99,7 @@ export default async function handler(req, res) {
     }
 
     const createTransaction = sanity.transaction();
+    let didModify = false;
 
     for (const engine of engineList) {
       // === STEG 1 ===
@@ -135,6 +135,8 @@ export default async function handler(req, res) {
           tunedHk: existingSteg1?.tunedHk ?? null,
           tunedNm: existingSteg1?.tunedNm ?? null,
         });
+
+        didModify = true;
       }
 
       // === STEG 2 ===
@@ -170,10 +172,12 @@ export default async function handler(req, res) {
           tunedHk: existingSteg2?.tunedHk ?? null,
           tunedNm: existingSteg2?.tunedNm ?? null,
         });
+
+        didModify = true;
       }
     }
 
-    if (stage1SEK !== null || stage2SEK !== null) {
+    if (didModify) {
       await createTransaction.commit();
     }
 
