@@ -738,10 +738,14 @@ export default function ResellerAdmin({ session }) {
                         {typeof item.price === "number" && (
                           <p className="text-sm text-green-600 font-medium">
                             Price:{" "}
-                            {new Intl.NumberFormat("sv-SE", {
-                              style: "currency",
-                              currency: currency,
-                            }).format(item.price)}
+                            {new Intl.NumberFormat(
+                              currency === "SEK" ? "sv-SE" : "en-US",
+                              {
+                                style: "currency",
+                                currency: currency,
+                                maximumFractionDigits: 0, // optional, based on your preference
+                              }
+                            ).format(convertCurrency(item.price, currency))}
                           </p>
                         )}
                         <div className="prose prose-sm text-gray-500">
@@ -808,7 +812,20 @@ export default function ResellerAdmin({ session }) {
                     <button
                       onClick={async () => {
                         try {
+                          const conversionRates = {
+                            EUR: 0.1,
+                            USD: 0.1,
+                            GBP: 0.08,
+                            SEK: 1,
+                          };
+
                           const parsedPrice = parseFloat(currentInput.price);
+                          const priceInSek = isNaN(parsedPrice)
+                            ? 0
+                            : Math.round(
+                                parsedPrice / (conversionRates[currency] || 1)
+                              );
+
                           await fetch("/api/aktplus-overrides", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
@@ -816,7 +833,7 @@ export default function ResellerAdmin({ session }) {
                               aktPlusId: item.id,
                               title: currentInput.title,
                               description: currentInput.content,
-                              price: isNaN(parsedPrice) ? 0 : parsedPrice,
+                              price: priceInSek,
                             }),
                           });
 
