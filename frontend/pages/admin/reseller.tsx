@@ -1019,7 +1019,8 @@ export default function ResellerAdmin({ session }) {
                   className="border border-gray-100 rounded p-4"
                 >
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {desc.stageName} {desc.isOverride && "(Custom Override)"}
+                    {desc.stageName.replace("Steg", "Stage")}{" "}
+                    {desc.isOverride && "(Custom Override)"}
                   </label>
                   <textarea
                     rows={5}
