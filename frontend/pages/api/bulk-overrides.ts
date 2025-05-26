@@ -2,7 +2,6 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "./auth/[...nextauth]";
 import sanity from "@/lib/sanity";
 
-// Helpers
 const normalizeString = (str: string) =>
   str.toLowerCase().replace(/[^a-z0-9]/g, "");
 
@@ -28,7 +27,6 @@ export default async function handler(req, res) {
   if (!resellerId) return res.status(401).json({ error: "Unauthorized" });
 
   let { brand, model, year, stage1Price, stage2Price } = req.body;
-
   brand = brand?.trim();
   model = model?.trim();
   year = year?.trim();
@@ -47,7 +45,6 @@ export default async function handler(req, res) {
     const stage1SEK = !isNaN(parsedStage1) ? Math.round(parsedStage1 / rate) : null;
     const stage2SEK = !isNaN(parsedStage2) ? Math.round(parsedStage2 / rate) : null;
 
-    // === Fetch all real brands ===
     const allBrands = await sanity.fetch(
       `*[_type == "brand"]{
         name,
@@ -58,7 +55,14 @@ export default async function handler(req, res) {
           years[]{
             range,
             slug,
-            engines[]{ label }
+            engines[]{
+              label,
+              stages[]{
+                name,
+                tunedHk,
+                tunedNm
+              }
+            }
           }
         }
       }`
@@ -141,75 +145,95 @@ export default async function handler(req, res) {
     let updatedCount = 0;
 
     for (const engine of engineList) {
+      const findEngine = (engines: any[]) =>
+        engines?.find((e) => e.label === engine);
+
+      const allEngines =
+        matchedYear?.engines ||
+        matchedModel?.years?.flatMap((y) => y.engines || []) ||
+        matchedBrand.models?.flatMap((m) => m.years || []).flatMap((y) => y.engines || []);
+
+      const matchingEngine = findEngine(allEngines || []);
+      const getStageData = (name: string) =>
+        matchingEngine?.stages?.find((s) =>
+          normalizeString(s.name) === normalizeString(name)
+        );
+
+      const yearValue = matchedYear?.range || year || null;
+
+      // === STEG 1 ===
       if (stage1SEK !== null) {
         const steg1Query = `*[_type == "resellerOverride" &&
           resellerId == $resellerId &&
           brand == $brand &&
           model == $model &&
-          ${year ? "year == $year &&" : ""}
+          ${yearValue ? "year == $year &&" : ""}
           engine == $engine &&
-          stageName == "Stage 1"][0]`;
+          stageName == "Steg 1"][0]`;
 
         const steg1Params = {
           resellerId,
           brand: matchedBrand.name,
           model: matchedModel?.name || null,
           engine,
-          ...(year ? { year } : {}),
+          ...(yearValue ? { year: yearValue } : {}),
         };
 
         const existingSteg1 = await sanity.fetch(steg1Query, steg1Params);
+        const stageData = getStageData("Steg 1");
 
         createTransaction.createOrReplace({
           _type: "resellerOverride",
           _id: existingSteg1?._id ||
-            generateOverrideId(resellerId, matchedBrand.name, matchedModel?.name, year, engine, "Stage 1"),
+            generateOverrideId(resellerId, matchedBrand.name, matchedModel?.name, yearValue, engine, "Steg 1"),
           resellerId,
           brand: matchedBrand.name,
           model: matchedModel?.name || null,
-          year: year || null,
+          year: yearValue,
           engine,
-          stageName: "Stage 1",
+          stageName: "Steg 1",
           price: stage1SEK,
-          tunedHk: existingSteg1?.tunedHk ?? null,
-          tunedNm: existingSteg1?.tunedNm ?? null,
+          tunedHk: existingSteg1?.tunedHk ?? stageData?.tunedHk ?? null,
+          tunedNm: existingSteg1?.tunedNm ?? stageData?.tunedNm ?? null,
         });
 
         updatedCount++;
       }
 
+      // === STEG 2 ===
       if (stage2SEK !== null) {
         const steg2Query = `*[_type == "resellerOverride" &&
           resellerId == $resellerId &&
           brand == $brand &&
           model == $model &&
-          ${year ? "year == $year &&" : ""}
+          ${yearValue ? "year == $year &&" : ""}
           engine == $engine &&
-          stageName == "Stage 2"][0]`;
+          stageName == "Steg 2"][0]`;
 
         const steg2Params = {
           resellerId,
           brand: matchedBrand.name,
           model: matchedModel?.name || null,
           engine,
-          ...(year ? { year } : {}),
+          ...(yearValue ? { year: yearValue } : {}),
         };
 
         const existingSteg2 = await sanity.fetch(steg2Query, steg2Params);
+        const stageData = getStageData("Steg 2");
 
         createTransaction.createOrReplace({
           _type: "resellerOverride",
           _id: existingSteg2?._id ||
-            generateOverrideId(resellerId, matchedBrand.name, matchedModel?.name, year, engine, "Stage 2"),
+            generateOverrideId(resellerId, matchedBrand.name, matchedModel?.name, yearValue, engine, "Steg 2"),
           resellerId,
           brand: matchedBrand.name,
           model: matchedModel?.name || null,
-          year: year || null,
+          year: yearValue,
           engine,
-          stageName: "Stage 2",
+          stageName: "Steg 2",
           price: stage2SEK,
-          tunedHk: existingSteg2?.tunedHk ?? null,
-          tunedNm: existingSteg2?.tunedNm ?? null,
+          tunedHk: existingSteg2?.tunedHk ?? stageData?.tunedHk ?? null,
+          tunedNm: existingSteg2?.tunedNm ?? stageData?.tunedNm ?? null,
         });
 
         updatedCount++;
