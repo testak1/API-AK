@@ -46,6 +46,12 @@ export default async function handler(req, res) {
     let engineList: string[] = [];
     let updatedCount = 0;
 
+    // === Define shared types for structure ===
+    type Engine = { label: string };
+    type Year = { engines?: Engine[] };
+    type Model = { years?: Year[] };
+    type Brand = { models?: Model[] };
+
     if (brand && model && year) {
       const data = await sanity.fetch(
         `*[_type == "vehicleBrand" && name == $brand][0]{
@@ -57,7 +63,8 @@ export default async function handler(req, res) {
         }`,
         { brand, model, year }
       );
-      engineList = data?.models?.years?.engines?.map((e: { label: string }) => e.label) || [];
+      const engines = (data?.models?.years?.engines || []) as Engine[];
+      engineList = engines.map((e) => e.label);
 
     } else if (brand && model) {
       const data = await sanity.fetch(
@@ -70,10 +77,11 @@ export default async function handler(req, res) {
         }`,
         { brand, model }
       );
+      const modelData = data as Brand;
       engineList = [
         ...new Set(
-          (data?.models?.[0]?.years || [])
-            .flatMap((y: any) => (y.engines as { label: string }[]) || [])
+          (modelData.models?.[0]?.years || [])
+            .flatMap((y) => y.engines || [])
             .map((e) => e.label)
         ),
       ];
@@ -89,11 +97,12 @@ export default async function handler(req, res) {
         }`,
         { brand }
       );
+      const brandData = data as Brand;
       engineList = [
         ...new Set(
-          (data?.models || [])
-            .flatMap((m: any) => m.years || [])
-            .flatMap((y: any) => (y.engines as { label: string }[]) || [])
+          (brandData.models || [])
+            .flatMap((m) => m.years || [])
+            .flatMap((y) => y.engines || [])
             .map((e) => e.label)
         ),
       ];
