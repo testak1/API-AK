@@ -1,3 +1,5 @@
+// pages/api/bulk-overrides.ts
+
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./auth/[...nextauth]";
 import sanity from "@/lib/sanity";
@@ -26,12 +28,12 @@ export default async function handler(req, res) {
   const resellerId = session?.user?.resellerId;
   if (!resellerId) return res.status(401).json({ error: "Unauthorized" });
 
-  let { brand, model, stage1Price, stage2Price } = req.body;
+  let { brand, model, stage1Price, stage2Price, stage3Price, stage4Price, dsgPrice } = req.body;
   brand = brand?.trim();
   model = model?.trim();
 
   try {
-    const conversionRates = { EUR: 0.1, USD: 0.1, GBP: 0.08, SEK: 1 };
+    const conversionRates = { EUR: 10, USD: 10, GBP: 12.5, SEK: 1 };
     const settings = await sanity.fetch(
       `*[_type == "resellerConfig" && resellerId == $resellerId][0]{currency}`,
       { resellerId }
@@ -39,12 +41,19 @@ export default async function handler(req, res) {
     const currency = settings?.currency || "SEK";
     const rate = conversionRates[currency] || 1;
 
-    const parsedStage1 = parseFloat(stage1Price);
-    const parsedStage2 = parseFloat(stage2Price);
-    const stage1SEK = !isNaN(parsedStage1) ? Math.round(parsedStage1 / rate) : null;
-    const stage2SEK = !isNaN(parsedStage2) ? Math.round(parsedStage2 / rate) : null;
+    const parseToSEK = (val: string | number | null) => {
+      const parsed = parseFloat(String(val).replace(/[^0-9.]/g, ""));
+      return !isNaN(parsed) ? Math.round(parsed * rate) : null;
+    };
 
-    // === Fetch brands, models, years, engines, stages
+    const pricesSEK = {
+      "Steg 1": parseToSEK(stage1Price),
+      "Steg 2": parseToSEK(stage2Price),
+      "Steg 3": parseToSEK(stage3Price),
+      "Steg 4": parseToSEK(stage4Price),
+      "DSG": parseToSEK(dsgPrice),
+    };
+
     const allBrands = await sanity.fetch(
       `*[_type == "brand"]{
         name,
@@ -77,10 +86,7 @@ export default async function handler(req, res) {
       normalizeString(b.name).includes(normBrand)
     );
 
-    if (!matchedBrand) {
-      console.warn("Brand not found:", brand);
-      return res.status(404).json({ error: "Brand not found" });
-    }
+    if (!matchedBrand) return res.status(404).json({ error: "Brand not found" });
 
     const matchedModel = matchedBrand.models?.find(
       (m) =>
@@ -89,16 +95,10 @@ export default async function handler(req, res) {
         normalizeString(m.name).includes(normModel)
     );
 
-    if (!matchedModel) {
-      console.warn("Model not found under brand:", model);
-      return res.status(404).json({ error: "Model not found" });
-    }
+    if (!matchedModel) return res.status(404).json({ error: "Model not found" });
 
     const yearsToProcess = matchedModel.years || [];
-    if (!yearsToProcess.length) {
-      console.warn("No years found under model:", model);
-      return res.status(404).json({ error: "No years with engines found" });
-    }
+    if (!yearsToProcess.length) return res.status(404).json({ error: "No years with engines found" });
 
     const createTransaction = sanity.transaction();
     let updatedCount = 0;
@@ -109,83 +109,45 @@ export default async function handler(req, res) {
 
       for (const engine of engines) {
         const getStageData = (name: string) =>
-          engine.stages?.find(
-            (s) => normalizeString(s.name) === normalizeString(name)
-          );
+          engine.stages?.find((s) => normalizeString(s.name) === normalizeString(name));
 
-        // === STEG 1 ===
-        if (stage1SEK !== null) {
-          const steg1Query = `*[_type == "resellerOverride" &&
+        for (const stageName of ["Steg 1", "Steg 2", "Steg 3", "Steg 4", "DSG"]) {
+          const priceSEK = pricesSEK[stageName];
+          if (priceSEK === null) continue;
+
+          const query = `*[_type == "resellerOverride" &&
             resellerId == $resellerId &&
             brand == $brand &&
             model == $model &&
             year == $year &&
             engine == $engine &&
-            stageName == "Steg 1"][0]`;
+            stageName == $stageName][0]`;
 
-          const steg1Params = {
+          const params = {
             resellerId,
             brand: matchedBrand.name,
             model: matchedModel.name,
             year: yearValue,
             engine: engine.label,
+            stageName,
           };
 
-          const existingSteg1 = await sanity.fetch(steg1Query, steg1Params);
-          const stageData = getStageData("Steg 1");
+          const existing = await sanity.fetch(query, params);
+          const stageData = getStageData(stageName);
 
           createTransaction.createOrReplace({
             _type: "resellerOverride",
-            _id: existingSteg1?._id ||
-              generateOverrideId(resellerId, matchedBrand.name, matchedModel.name, yearValue, engine.label, "Steg 1"),
+            _id: existing?._id ||
+              generateOverrideId(resellerId, matchedBrand.name, matchedModel.name, yearValue, engine.label, stageName),
             resellerId,
             brand: matchedBrand.name,
             model: matchedModel.name,
             year: yearValue,
             engine: engine.label,
-            stageName: "Steg 1",
-            price: stage1SEK,
-            tunedHk: existingSteg1?.tunedHk ?? stageData?.tunedHk ?? null,
-            tunedNm: existingSteg1?.tunedNm ?? stageData?.tunedNm ?? null,
-          });
-
-          updatedCount++;
-        }
-
-        // === STEG 2 ===
-        if (stage2SEK !== null) {
-          const steg2Query = `*[_type == "resellerOverride" &&
-            resellerId == $resellerId &&
-            brand == $brand &&
-            model == $model &&
-            year == $year &&
-            engine == $engine &&
-            stageName == "Steg 2"][0]`;
-
-          const steg2Params = {
-            resellerId,
-            brand: matchedBrand.name,
-            model: matchedModel.name,
-            year: yearValue,
-            engine: engine.label,
-          };
-
-          const existingSteg2 = await sanity.fetch(steg2Query, steg2Params);
-          const stageData = getStageData("Steg 2");
-
-          createTransaction.createOrReplace({
-            _type: "resellerOverride",
-            _id: existingSteg2?._id ||
-              generateOverrideId(resellerId, matchedBrand.name, matchedModel.name, yearValue, engine.label, "Steg 2"),
-            resellerId,
-            brand: matchedBrand.name,
-            model: matchedModel.name,
-            year: yearValue,
-            engine: engine.label,
-            stageName: "Steg 2",
-            price: stage2SEK,
-            tunedHk: existingSteg2?.tunedHk ?? stageData?.tunedHk ?? null,
-            tunedNm: existingSteg2?.tunedNm ?? stageData?.tunedNm ?? null,
+            stageName,
+            price: priceSEK,
+            tunedHk: existing?.tunedHk ?? stageData?.tunedHk ?? null,
+            tunedNm: existing?.tunedNm ?? stageData?.tunedNm ?? null,
           });
 
           updatedCount++;
