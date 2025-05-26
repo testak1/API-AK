@@ -23,7 +23,6 @@ export default async function handler(req, res) {
 
   let { brand, model, year, stage1Price, stage2Price } = req.body;
 
-  // Normalize inputs
   brand = brand?.trim();
   model = model?.trim();
   year = year?.trim();
@@ -53,77 +52,63 @@ export default async function handler(req, res) {
 
     type Engine = { label: string };
     type Year = { engines?: Engine[] };
-    type Model = { years?: Year[] };
+    type Model = { name: string; years?: Year[] };
     type Brand = { models?: Model[] };
 
     console.log("Fetching engines for:", { brand, model, year });
 
-    let data: Brand | null = null;
-
-    // === Case 1: brand + model + year
-    if (brand && model && year) {
-      data = await sanity.fetch(
-        `*[_type == "vehicleBrand" && name match $brand][0]{
-          models[name match $model]{
-            years[range == $year]{
-              engines[]{ label }
-            }
+    const data: Brand = await sanity.fetch(
+      `*[_type == "vehicleBrand" && name match $brand][0]{
+        models[]{
+          name,
+          years[]{
+            range,
+            engines[]{ label }
           }
-        }`,
-        { brand, model, year }
-      );
+        }
+      }`,
+      { brand }
+    );
 
-      const engines = data?.models?.[0]?.years?.[0]?.engines || [];
-      engineList = (engines as Engine[]).map((e) => e.label);
+    if (!data?.models?.length) {
+      console.warn("No models found for brand:", brand);
+      return res.status(404).json({ error: "Brand not found" });
     }
 
-    // === Case 2: brand + model only
-    if (!engineList.length && brand && model) {
-      data = await sanity.fetch(
-        `*[_type == "vehicleBrand" && name match $brand][0]{
-          models[name match $model]{
-            years[]{
-              engines[]{ label }
-            }
-          }
-        }`,
-        { brand, model }
+    let matchedModel: Model | undefined;
+
+    if (model) {
+      matchedModel = data.models.find((m) =>
+        m.name.toLowerCase().includes(model.toLowerCase())
       );
 
-      if (data?.models?.length) {
-        engineList = [
-          ...new Set(
-            (data.models[0].years || [])
-              .flatMap((y) => y.engines || [])
-              .map((e) => e.label)
-          ),
-        ];
+      if (!matchedModel) {
+        console.warn("No model matched:", model);
+        return res.status(404).json({ error: "Model not found under brand" });
       }
     }
 
-    // === Case 3: brand only
-    if (!engineList.length && brand && !model) {
-      data = await sanity.fetch(
-        `*[_type == "vehicleBrand" && name match $brand][0]{
-          models[]{
-            years[]{
-              engines[]{ label }
-            }
-          }
-        }`,
-        { brand }
-      );
-
-      if (data?.models?.length) {
-        engineList = [
-          ...new Set(
-            (data.models || [])
-              .flatMap((m) => m.years || [])
-              .flatMap((y) => y.engines || [])
-              .map((e) => e.label)
-          ),
-        ];
-      }
+    if (matchedModel && year) {
+      const matchedYear = matchedModel.years?.find((y) => y.range === year);
+      engineList = matchedYear?.engines?.map((e) => e.label) || [];
+    } else if (matchedModel) {
+      engineList = [
+        ...new Set(
+          (matchedModel.years || [])
+            .flatMap((y) => y.engines || [])
+            .map((e) => e.label)
+        ),
+      ];
+    } else {
+      // No model specified — use all models
+      engineList = [
+        ...new Set(
+          (data.models || [])
+            .flatMap((m) => m.years || [])
+            .flatMap((y) => y.engines || [])
+            .map((e) => e.label)
+        ),
+      ];
     }
 
     if (!engineList.length) {
@@ -135,14 +120,14 @@ export default async function handler(req, res) {
     let didModify = false;
 
     for (const engine of engineList) {
-      // === STEG 1 ===
+      // === STAGE 1 ===
       if (stage1SEK !== null) {
-        const steg1Query = `*[_type == "resellerOverride" && 
-          resellerId == $resellerId && 
-          brand == $brand && 
-          model == $model && 
-          ${year ? "year == $year &&" : ""} 
-          engine == $engine && 
+        const steg1Query = `*[_type == "resellerOverride" &&
+          resellerId == $resellerId &&
+          brand == $brand &&
+          model == $model &&
+          ${year ? "year == $year &&" : ""}
+          engine == $engine &&
           stageName == "Stage 1"][0]`;
 
         const steg1Params = {
@@ -173,14 +158,14 @@ export default async function handler(req, res) {
         updatedCount++;
       }
 
-      // === STEG 2 ===
+      // === STAGE 2 ===
       if (stage2SEK !== null) {
-        const steg2Query = `*[_type == "resellerOverride" && 
-          resellerId == $resellerId && 
-          brand == $brand && 
-          model == $model && 
-          ${year ? "year == $year &&" : ""} 
-          engine == $engine && 
+        const steg2Query = `*[_type == "resellerOverride" &&
+          resellerId == $resellerId &&
+          brand == $brand &&
+          model == $model &&
+          ${year ? "year == $year &&" : ""}
+          engine == $engine &&
           stageName == "Stage 2"][0]`;
 
         const steg2Params = {
