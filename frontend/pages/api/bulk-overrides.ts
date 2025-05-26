@@ -64,8 +64,8 @@ export default async function handler(req, res) {
     if (brand && model && year) {
       data = await sanity.fetch(
         `*[_type == "vehicleBrand" && name match $brand][0]{
-          models[name match $model][0]{
-            years[range == $year][0]{
+          models[name match $model]{
+            years[range == $year]{
               engines[]{ label }
             }
           }
@@ -73,7 +73,7 @@ export default async function handler(req, res) {
         { brand, model, year }
       );
 
-      const engines = data?.models?.years?.engines || [];
+      const engines = data?.models?.[0]?.years?.[0]?.engines || [];
       engineList = (engines as Engine[]).map((e) => e.label);
     }
 
