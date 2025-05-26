@@ -75,18 +75,22 @@ export default async function handler(req, res) {
                 (o) =>
                   o.brand === brand.name &&
                   o.stageName === stage.name &&
-                  // 1. Exact match
-                  ((o.model === model.name &&
-                    o.year === year.range &&
-                    o.engine === engine.label) ||
+                  (
+                    // 1. Engine-level override with or without year
+                    (o.model === model.name &&
+                      (isEmpty(o.year) || o.year === year.range) &&
+                      o.engine === engine.label) ||
+
                     // 2. Model-level override
                     (o.model === model.name &&
                       isEmpty(o.year) &&
                       isEmpty(o.engine)) ||
+
                     // 3. Year-level override
                     (isEmpty(o.model) &&
                       o.year === year.range &&
-                      isEmpty(o.engine))),
+                      isEmpty(o.engine))
+                  )
               );
 
               return matchingOverride
