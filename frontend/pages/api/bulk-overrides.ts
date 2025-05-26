@@ -17,6 +17,8 @@ function generateOverrideId(resellerId, brand, model, year, engine, stageName) {
   return `override-${parts.map((p) => slugify(p || "")).join("-")}`;
 }
 
+
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -32,6 +34,7 @@ export default async function handler(req, res) {
   year = year?.trim();
 
   try {
+    // Currency conversion setup
     const conversionRates = { EUR: 0.1, USD: 0.1, GBP: 0.08, SEK: 1 };
     const settings = await sanity.fetch(
       `*[_type == "resellerConfig" && resellerId == $resellerId][0]{currency}`,
@@ -45,6 +48,7 @@ export default async function handler(req, res) {
     const stage1SEK = !isNaN(parsedStage1) ? Math.round(parsedStage1 / rate) : null;
     const stage2SEK = !isNaN(parsedStage2) ? Math.round(parsedStage2 / rate) : null;
 
+    // Fetch all brands, models, years, engines, stages
     const allBrands = await sanity.fetch(
       `*[_type == "brand"]{
         name,
@@ -114,6 +118,10 @@ export default async function handler(req, res) {
       }
     }
 
+    // Extract actual year (like "2015 -> 2019") if it exists
+    const yearValue = matchedYear?.range || year || null;
+
+    // === Build list of engine labels ===
     let engineList: string[] = [];
     if (matchedYear) {
       engineList = matchedYear.engines?.map((e: { label: string }) => e.label) as string[] || [];
@@ -159,8 +167,6 @@ export default async function handler(req, res) {
           normalizeString(s.name) === normalizeString(name)
         );
 
-      const yearValue = matchedYear?.range || year || null;
-
       // === STEG 1 ===
       if (stage1SEK !== null) {
         const steg1Query = `*[_type == "resellerOverride" &&
@@ -189,7 +195,7 @@ export default async function handler(req, res) {
           resellerId,
           brand: matchedBrand.name,
           model: matchedModel?.name || null,
-          year: yearValue,
+          year: yearValue, // ✅ Store actual year range in override
           engine,
           stageName: "Steg 1",
           price: stage1SEK,
@@ -228,7 +234,7 @@ export default async function handler(req, res) {
           resellerId,
           brand: matchedBrand.name,
           model: matchedModel?.name || null,
-          year: yearValue,
+          year: yearValue, // ✅ Store actual year range in override
           engine,
           stageName: "Steg 2",
           price: stage2SEK,
