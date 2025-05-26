@@ -33,7 +33,7 @@ export default async function handler(req, res) {
   model = model?.trim();
 
   try {
-    const conversionRates = { EUR: 10, USD: 10, GBP: 12.5, SEK: 1 };
+    const conversionRates = { EUR: 0.1, USD: 0.1, GBP: 0.08, SEK: 1 };
     const settings = await sanity.fetch(
       `*[_type == "resellerConfig" && resellerId == $resellerId][0]{currency}`,
       { resellerId }
@@ -41,10 +41,11 @@ export default async function handler(req, res) {
     const currency = settings?.currency || "SEK";
     const rate = conversionRates[currency] || 1;
 
-    const parseToSEK = (val: string | number | null) => {
-      const parsed = parseFloat(String(val).replace(/[^0-9.]/g, ""));
-      return !isNaN(parsed) ? Math.round(parsed * rate) : null;
-    };
+    
+const parseToSEK = (val: string | number | null) => {
+  const parsed = parseFloat(String(val).replace(/[^0-9.]/g, ""));
+  return !isNaN(parsed) ? Math.round(parsed / rate) : null;
+};
 
     const pricesSEK = {
       "Steg 1": parseToSEK(stage1Price),
