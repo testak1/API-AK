@@ -47,8 +47,9 @@ export default async function handler(req, res) {
     const stage1SEK = !isNaN(parsedStage1) ? Math.round(parsedStage1 / rate) : null;
     const stage2SEK = !isNaN(parsedStage2) ? Math.round(parsedStage2 / rate) : null;
 
+    // === Fetch all real brands ===
     const allBrands = await sanity.fetch(
-      `*[_type == "vehicleBrand"]{
+      `*[_type == "brand"]{
         name,
         slug,
         models[]{
@@ -69,7 +70,8 @@ export default async function handler(req, res) {
 
     const matchedBrand = allBrands.find((b) =>
       normalizeString(b.name) === normBrand ||
-      normalizeString(b.slug?.current || "") === normBrand
+      normalizeString(b.slug?.current || "") === normBrand ||
+      normalizeString(b.name).includes(normBrand)
     );
 
     if (!matchedBrand) {
@@ -83,7 +85,8 @@ export default async function handler(req, res) {
         matchedBrand.models?.find(
           (m) =>
             normalizeString(m.name) === normModel ||
-            normalizeString(m.slug?.current || "") === normModel
+            normalizeString(m.slug?.current || "") === normModel ||
+            normalizeString(m.name).includes(normModel)
         ) || null;
 
       if (!matchedModel) {
