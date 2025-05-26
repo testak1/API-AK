@@ -44,6 +44,7 @@ export default async function handler(req, res) {
     const stage2SEK = !isNaN(parsedStage2) ? Math.round(parsedStage2 / rate) : null;
 
     let engineList: string[] = [];
+    let updatedCount = 0;
 
     if (brand && model && year) {
       const data = await sanity.fetch(
@@ -56,7 +57,7 @@ export default async function handler(req, res) {
         }`,
         { brand, model, year }
       );
-      engineList = data?.models?.years?.engines?.map((e) => e.label) || [];
+      engineList = data?.models?.years?.engines?.map((e: { label: string }) => e.label) || [];
 
     } else if (brand && model) {
       const data = await sanity.fetch(
@@ -72,7 +73,7 @@ export default async function handler(req, res) {
       engineList = [
         ...new Set(
           (data?.models?.[0]?.years || [])
-            .flatMap((y) => y.engines || [])
+            .flatMap((y: any) => (y.engines as { label: string }[]) || [])
             .map((e) => e.label)
         ),
       ];
@@ -91,8 +92,8 @@ export default async function handler(req, res) {
       engineList = [
         ...new Set(
           (data?.models || [])
-            .flatMap((m) => m.years || [])
-            .flatMap((y) => y.engines || [])
+            .flatMap((m: any) => m.years || [])
+            .flatMap((y: any) => (y.engines as { label: string }[]) || [])
             .map((e) => e.label)
         ),
       ];
@@ -137,6 +138,7 @@ export default async function handler(req, res) {
         });
 
         didModify = true;
+        updatedCount++;
       }
 
       // === STEG 2 ===
@@ -174,14 +176,16 @@ export default async function handler(req, res) {
         });
 
         didModify = true;
+        updatedCount++;
       }
     }
 
     if (didModify) {
       await createTransaction.commit();
+      console.log("Bulk override completed. Total overrides updated:", updatedCount);
     }
 
-    return res.status(200).json({ success: true });
+    return res.status(200).json({ success: true, updated: updatedCount });
   } catch (err) {
     console.error("Bulk override error:", err);
     return res.status(500).json({ error: "Internal Server Error" });
