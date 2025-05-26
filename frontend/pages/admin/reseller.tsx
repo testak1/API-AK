@@ -278,6 +278,18 @@ export default function ResellerAdmin({ session }) {
     }));
   };
 
+  const conversionRates = {
+    EUR: 0.1,
+    USD: 0.1,
+    GBP: 0.08,
+    SEK: 1,
+  };
+
+  const toCurrency = (sek) =>
+    Math.round(sek * (conversionRates[currency] || 1));
+  const fromCurrency = (val) =>
+    Math.round(val / (conversionRates[currency] || 1));
+
   const currencySymbols = {
     SEK: "kr",
     EUR: "€",
@@ -779,16 +791,31 @@ export default function ResellerAdmin({ session }) {
                     <input
                       type="number"
                       className="w-full border border-gray-300 rounded-md p-2 text-sm"
-                      value={currentInput.price || ""}
-                      onChange={(e) =>
+                      value={
+                        aktPlusInputs[item.id]?.price !== undefined
+                          ? convertCurrency(
+                              aktPlusInputs[item.id].price,
+                              currency
+                            )
+                          : convertCurrency(item.price ?? 0, currency)
+                      }
+                      onChange={(e) => {
+                        const inputCurrencyValue = parseFloat(e.target.value);
+                        const sekValue = isNaN(inputCurrencyValue)
+                          ? 0
+                          : Math.round(
+                              inputCurrencyValue /
+                                (conversionRates[currency] || 1)
+                            );
+
                         setAktPlusInputs((prev) => ({
                           ...prev,
                           [item.id]: {
                             ...prev[item.id],
-                            price: parseFloat(e.target.value),
+                            price: sekValue,
                           },
-                        }))
-                      }
+                        }));
+                      }}
                     />
 
                     <label className="block text-sm font-medium text-gray-700 mt-3">
@@ -1332,12 +1359,19 @@ export default function ResellerAdmin({ session }) {
                                 <div className="bg-gray-50 p-2 rounded text-center">
                                   <p className="text-xs text-gray-500">Price</p>
                                   <p className="font-medium text-sm">
-                                    {stage.price} SEK
-                                    {currency !== "SEK" && (
-                                      <span className="block text-xs text-gray-500">
-                                        ≈{" "}
-                                        {convertCurrency(stage.price, currency)}{" "}
-                                        {currencySymbols[currency]}
+                                    {new Intl.NumberFormat(
+                                      currency === "SEK" ? "sv-SE" : "en-US",
+                                      {
+                                        style: "currency",
+                                        currency,
+                                        maximumFractionDigits: 0, // or use 2 if needed
+                                      }
+                                    ).format(
+                                      convertCurrency(stage.price, currency)
+                                    )}
+                                    {currency === "SEK" && (
+                                      <span className="text-xs text-gray-400 ml-1">
+                                        (SEK)
                                       </span>
                                     )}
                                   </p>
@@ -1372,14 +1406,18 @@ export default function ResellerAdmin({ session }) {
                                     </span>
                                   </div>
                                   <input
-                                    value={price}
-                                    onChange={(e) =>
+                                    value={toCurrency(price)}
+                                    onChange={(e) => {
+                                      const val = parseFloat(e.target.value);
+                                      const sekValue = isNaN(val)
+                                        ? 0
+                                        : fromCurrency(val);
                                       handleInputChange(
                                         stage.name,
                                         "price",
-                                        e.target.value
-                                      )
-                                    }
+                                        sekValue
+                                      );
+                                    }}
                                     type="number"
                                     className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md p-2 border"
                                   />
