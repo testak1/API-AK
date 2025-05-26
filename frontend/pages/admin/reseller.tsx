@@ -732,7 +732,11 @@ export default function ResellerAdmin({ session }) {
                         </h3>
                         {typeof item.price === "number" && (
                           <p className="text-sm text-green-600 font-medium">
-                            Default Price: {item.price.toLocaleString()} SEK
+                            Price:{" "}
+                            {new Intl.NumberFormat("sv-SE", {
+                              style: "currency",
+                              currency: currency,
+                            }).format(item.price)}
                           </p>
                         )}
                         <div className="prose prose-sm text-gray-500">
@@ -750,7 +754,7 @@ export default function ResellerAdmin({ session }) {
                     </div>
 
                     <label className="block text-sm font-medium text-gray-700">
-                      Custom Price (SEK)
+                      Custom Price ({currencySymbols[currency]})
                     </label>
                     <input
                       type="number"
@@ -816,7 +820,7 @@ export default function ResellerAdmin({ session }) {
                           setAktPlusOverrides(json.aktplus || []);
 
                           setSaveStatus({
-                            message: "AKTPLUS override saved successfully!",
+                            message: `AKTPLUS override saved (${currencySymbols[currency]}).`,
                             isError: false,
                           });
 
