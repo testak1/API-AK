@@ -798,6 +798,7 @@ export default function ResellerAdmin({ session }) {
 
                     <button
                       onClick={async () => {
+                        const parsedPrice = parseFloat(currentInput.price);
                         await fetch("/api/aktplus-overrides", {
                           method: "POST",
                           headers: { "Content-Type": "application/json" },
@@ -805,7 +806,7 @@ export default function ResellerAdmin({ session }) {
                             aktPlusId: item.id,
                             title: currentInput.title,
                             description: currentInput.content,
-                            price: currentInput.price,
+                            price: isNaN(parsedPrice) ? 0 : parsedPrice,
                           }),
                         });
 
