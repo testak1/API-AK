@@ -23,6 +23,9 @@ export default function ResellerAdmin({ session }) {
   const [bulkPrices, setBulkPrices] = useState({
     steg1: "",
     steg2: "",
+    steg3: "",
+    steg4: "",
+    dsg: "",
     applyLevel: "model", // 'model' or 'year'
   });
 
@@ -139,6 +142,9 @@ export default function ResellerAdmin({ session }) {
           year: bulkPrices.applyLevel === "year" ? selectedYear : undefined,
           stage1Price: bulkPrices.steg1,
           stage2Price: bulkPrices.steg2,
+          stage3Price: bulkPrices.steg3,
+          stage4Price: bulkPrices.steg4,
+          dsgPrice: bulkPrices.dsg,
         }),
       });
 
@@ -267,6 +273,9 @@ export default function ResellerAdmin({ session }) {
       ...prev,
       steg1: "",
       steg2: "",
+      steg3: "",
+      steg4: "",
+      dsg: "",
     }));
   }, [selectedBrand, selectedModel, selectedYear, bulkPrices.applyLevel]);
 
@@ -660,6 +669,73 @@ export default function ResellerAdmin({ session }) {
                       value={bulkPrices.steg2}
                       onChange={(e) =>
                         handleBulkPriceChange("steg2", e.target.value)
+                      }
+                      className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md p-2 border"
+                      placeholder="Leave empty to keep original"
+                    />
+                  </div>
+                </div>
+
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Stage 3 Price ({currencySymbols[currency]})
+                  </label>
+                  <div className="relative rounded-md shadow-sm">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <span className="text-gray-500 sm:text-sm">
+                        {currencySymbols[currency]}
+                      </span>
+                    </div>
+                    <input
+                      type="number"
+                      value={bulkPrices.steg3}
+                      onChange={(e) =>
+                        handleBulkPriceChange("steg3", e.target.value)
+                      }
+                      className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md p-2 border"
+                      placeholder="Leave empty to keep original"
+                    />
+                  </div>
+                </div>
+
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Stage 4 Price ({currencySymbols[currency]})
+                  </label>
+                  <div className="relative rounded-md shadow-sm">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <span className="text-gray-500 sm:text-sm">
+                        {currencySymbols[currency]}
+                      </span>
+                    </div>
+                    <input
+                      type="number"
+                      value={bulkPrices.steg4}
+                      onChange={(e) =>
+                        handleBulkPriceChange("steg4", e.target.value)
+                      }
+                      className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md p-2 border"
+                      placeholder="Leave empty to keep original"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    DSG Price ({currencySymbols[currency]})
+                  </label>
+                  <div className="relative rounded-md shadow-sm">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <span className="text-gray-500 sm:text-sm">
+                        {currencySymbols[currency]}
+                      </span>
+                    </div>
+                    <input
+                      type="number"
+                      value={bulkPrices.dsg}
+                      onChange={(e) =>
+                        handleBulkPriceChange("dsg", e.target.value)
                       }
                       className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md p-2 border"
                       placeholder="Leave empty to keep original"
