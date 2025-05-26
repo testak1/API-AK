@@ -21,7 +21,12 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
-  const { brand, model, year, stage1Price, stage2Price } = req.body;
+  let { brand, model, year, stage1Price, stage2Price } = req.body;
+
+  // Trim inputs to avoid mismatches
+  brand = brand?.trim();
+  model = model?.trim();
+  year = year?.trim();
 
   try {
     const conversionRates = {
@@ -46,11 +51,12 @@ export default async function handler(req, res) {
     let engineList: string[] = [];
     let updatedCount = 0;
 
-    // === Define shared types for structure ===
     type Engine = { label: string };
     type Year = { engines?: Engine[] };
     type Model = { years?: Year[] };
     type Brand = { models?: Model[] };
+
+    console.log("Fetching engines for:", { brand, model, year });
 
     if (brand && model && year) {
       const data = await sanity.fetch(
@@ -63,7 +69,12 @@ export default async function handler(req, res) {
         }`,
         { brand, model, year }
       );
-      const engines = (data?.models?.years?.engines || []) as Engine[];
+
+      if (!data?.models?.years?.engines) {
+        return res.status(404).json({ error: "Brand/model/year not found or missing engines" });
+      }
+
+      const engines = (data.models.years.engines || []) as Engine[];
       engineList = engines.map((e) => e.label);
 
     } else if (brand && model) {
@@ -77,6 +88,11 @@ export default async function handler(req, res) {
         }`,
         { brand, model }
       );
+
+      if (!data?.models?.length) {
+        return res.status(404).json({ error: "Brand/model not found" });
+      }
+
       const modelData = data as Brand;
       engineList = [
         ...new Set(
@@ -97,6 +113,11 @@ export default async function handler(req, res) {
         }`,
         { brand }
       );
+
+      if (!data?.models?.length) {
+        return res.status(404).json({ error: "Brand not found" });
+      }
+
       const brandData = data as Brand;
       engineList = [
         ...new Set(
