@@ -635,7 +635,7 @@ export default function ResellerAdmin({ session }) {
                     </div>
                     <input
                       type="number"
-                      value={bulkPrices.steg1 || getBulkOverridePrice("Steg 1")}
+                      value={bulkPrices.steg1}
                       onChange={(e) =>
                         handleBulkPriceChange("steg1", e.target.value)
                       }
