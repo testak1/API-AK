@@ -139,7 +139,6 @@ export default function ResellerAdmin({ session }) {
           year: bulkPrices.applyLevel === "year" ? selectedYear : undefined,
           stage1Price: bulkPrices.stage1,
           stage2Price: bulkPrices.stage2,
-          resellerId: session.user.resellerId,
         }),
       });
 

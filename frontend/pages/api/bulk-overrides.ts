@@ -44,19 +44,23 @@ export default async function handler(req, res) {
         `*[_type == "vehicleBrand" && name == $brand][0].models[name == $model][0].years[range == $year][0].engines`,
         { brand, model, year }
       );
-      engineList = data?.map((e) => e.label) || [];
+      engineList = Array.isArray(data) ? data.map((e) => e.label) : [];
     } else if (brand && model) {
       const data = await sanity.fetch(
         `*[_type == "vehicleBrand" && name == $brand][0].models[name == $model][0].years[].engines[]`,
         { brand, model }
       );
-      engineList = [...new Set(data.map((e) => e.label))];
+      engineList = Array.isArray(data)
+        ? [...new Set(data.map((e) => e.label))]
+        : [];
     } else if (brand) {
       const data = await sanity.fetch(
         `*[_type == "vehicleBrand" && name == $brand][0].models[].years[].engines[]`,
         { brand }
       );
-      engineList = [...new Set(data.map((e) => e.label))];
+      engineList = Array.isArray(data)
+        ? [...new Set(data.map((e) => e.label))]
+        : [];
     }
 
     const createTransaction = sanity.transaction();
