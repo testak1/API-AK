@@ -17,8 +17,6 @@ function generateOverrideId(resellerId, brand, model, year, engine, stageName) {
   return `override-${parts.map((p) => slugify(p || "")).join("-")}`;
 }
 
-
-
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -28,13 +26,11 @@ export default async function handler(req, res) {
   const resellerId = session?.user?.resellerId;
   if (!resellerId) return res.status(401).json({ error: "Unauthorized" });
 
-  let { brand, model, year, stage1Price, stage2Price } = req.body;
+  let { brand, model, stage1Price, stage2Price } = req.body;
   brand = brand?.trim();
   model = model?.trim();
-  year = year?.trim();
 
   try {
-    // Currency conversion setup
     const conversionRates = { EUR: 0.1, USD: 0.1, GBP: 0.08, SEK: 1 };
     const settings = await sanity.fetch(
       `*[_type == "resellerConfig" && resellerId == $resellerId][0]{currency}`,
@@ -48,7 +44,7 @@ export default async function handler(req, res) {
     const stage1SEK = !isNaN(parsedStage1) ? Math.round(parsedStage1 / rate) : null;
     const stage2SEK = !isNaN(parsedStage2) ? Math.round(parsedStage2 / rate) : null;
 
-    // Fetch all brands, models, years, engines, stages
+    // === Fetch brands, models, years, engines, stages
     const allBrands = await sanity.fetch(
       `*[_type == "brand"]{
         name,
@@ -74,7 +70,6 @@ export default async function handler(req, res) {
 
     const normBrand = normalizeString(brand || "");
     const normModel = normalizeString(model || "");
-    const normYear = normalizeString(year || "");
 
     const matchedBrand = allBrands.find((b) =>
       normalizeString(b.name) === normBrand ||
@@ -87,162 +82,114 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: "Brand not found" });
     }
 
-    let matchedModel = null;
-    if (model) {
-      matchedModel =
-        matchedBrand.models?.find(
-          (m) =>
-            normalizeString(m.name) === normModel ||
-            normalizeString(m.slug?.current || "") === normModel ||
-            normalizeString(m.name).includes(normModel)
-        ) || null;
+    const matchedModel = matchedBrand.models?.find(
+      (m) =>
+        normalizeString(m.name) === normModel ||
+        normalizeString(m.slug?.current || "") === normModel ||
+        normalizeString(m.name).includes(normModel)
+    );
 
-      if (!matchedModel) {
-        console.warn("Model not found under brand:", model);
-        return res.status(404).json({ error: "Model not found" });
-      }
+    if (!matchedModel) {
+      console.warn("Model not found under brand:", model);
+      return res.status(404).json({ error: "Model not found" });
     }
 
-    let matchedYear = null;
-    if (matchedModel && year) {
-      matchedYear =
-        matchedModel.years?.find(
-          (y) =>
-            normalizeString(y.range) === normYear ||
-            normalizeString(y.slug || "") === normYear
-        ) || null;
-
-      if (!matchedYear) {
-        console.warn("Year not found under model:", year);
-        return res.status(404).json({ error: "Year not found" });
-      }
-    }
-
-    // Extract actual year (like "2015 -> 2019") if it exists
-    const yearValue = matchedYear?.range || year || null;
-
-    // === Build list of engine labels ===
-    let engineList: string[] = [];
-    if (matchedYear) {
-      engineList = matchedYear.engines?.map((e: { label: string }) => e.label) as string[] || [];
-    } else if (matchedModel) {
-      engineList = [
-        ...new Set(
-          (matchedModel.years || [])
-            .flatMap((y) => (y.engines as { label: string }[]) || [])
-            .map((e) => e.label)
-        ),
-      ] as string[];
-    } else {
-      engineList = [
-        ...new Set(
-          (matchedBrand.models || [])
-            .flatMap((m) => m.years || [])
-            .flatMap((y) => (y.engines as { label: string }[]) || [])
-            .map((e) => e.label)
-        ),
-      ] as string[];
-    }
-
-    if (!engineList.length) {
-      console.warn("No engines found for selection:", { brand, model, year });
-      return res.status(404).json({ error: "No engines found" });
+    const yearsToProcess = matchedModel.years || [];
+    if (!yearsToProcess.length) {
+      console.warn("No years found under model:", model);
+      return res.status(404).json({ error: "No years with engines found" });
     }
 
     const createTransaction = sanity.transaction();
     let updatedCount = 0;
 
-    for (const engine of engineList) {
-      const findEngine = (engines: any[]) =>
-        engines?.find((e) => e.label === engine);
+    for (const yearEntry of yearsToProcess) {
+      const yearValue = yearEntry.range;
+      const engines = yearEntry.engines || [];
 
-      const allEngines =
-        matchedYear?.engines ||
-        matchedModel?.years?.flatMap((y) => y.engines || []) ||
-        matchedBrand.models?.flatMap((m) => m.years || []).flatMap((y) => y.engines || []);
+      for (const engine of engines) {
+        const getStageData = (name: string) =>
+          engine.stages?.find(
+            (s) => normalizeString(s.name) === normalizeString(name)
+          );
 
-      const matchingEngine = findEngine(allEngines || []);
-      const getStageData = (name: string) =>
-        matchingEngine?.stages?.find((s) =>
-          normalizeString(s.name) === normalizeString(name)
-        );
+        // === STEG 1 ===
+        if (stage1SEK !== null) {
+          const steg1Query = `*[_type == "resellerOverride" &&
+            resellerId == $resellerId &&
+            brand == $brand &&
+            model == $model &&
+            year == $year &&
+            engine == $engine &&
+            stageName == "Steg 1"][0]`;
 
-      // === STEG 1 ===
-      if (stage1SEK !== null) {
-        const steg1Query = `*[_type == "resellerOverride" &&
-          resellerId == $resellerId &&
-          brand == $brand &&
-          model == $model &&
-          ${yearValue ? "year == $year &&" : ""}
-          engine == $engine &&
-          stageName == "Steg 1"][0]`;
+          const steg1Params = {
+            resellerId,
+            brand: matchedBrand.name,
+            model: matchedModel.name,
+            year: yearValue,
+            engine: engine.label,
+          };
 
-        const steg1Params = {
-          resellerId,
-          brand: matchedBrand.name,
-          model: matchedModel?.name || null,
-          engine,
-          ...(yearValue ? { year: yearValue } : {}),
-        };
+          const existingSteg1 = await sanity.fetch(steg1Query, steg1Params);
+          const stageData = getStageData("Steg 1");
 
-        const existingSteg1 = await sanity.fetch(steg1Query, steg1Params);
-        const stageData = getStageData("Steg 1");
+          createTransaction.createOrReplace({
+            _type: "resellerOverride",
+            _id: existingSteg1?._id ||
+              generateOverrideId(resellerId, matchedBrand.name, matchedModel.name, yearValue, engine.label, "Steg 1"),
+            resellerId,
+            brand: matchedBrand.name,
+            model: matchedModel.name,
+            year: yearValue,
+            engine: engine.label,
+            stageName: "Steg 1",
+            price: stage1SEK,
+            tunedHk: existingSteg1?.tunedHk ?? stageData?.tunedHk ?? null,
+            tunedNm: existingSteg1?.tunedNm ?? stageData?.tunedNm ?? null,
+          });
 
-        createTransaction.createOrReplace({
-          _type: "resellerOverride",
-          _id: existingSteg1?._id ||
-            generateOverrideId(resellerId, matchedBrand.name, matchedModel?.name, yearValue, engine, "Steg 1"),
-          resellerId,
-          brand: matchedBrand.name,
-          model: matchedModel?.name || null,
-          year: yearValue, // ✅ Store actual year range in override
-          engine,
-          stageName: "Steg 1",
-          price: stage1SEK,
-          tunedHk: existingSteg1?.tunedHk ?? stageData?.tunedHk ?? null,
-          tunedNm: existingSteg1?.tunedNm ?? stageData?.tunedNm ?? null,
-        });
+          updatedCount++;
+        }
 
-        updatedCount++;
-      }
+        // === STEG 2 ===
+        if (stage2SEK !== null) {
+          const steg2Query = `*[_type == "resellerOverride" &&
+            resellerId == $resellerId &&
+            brand == $brand &&
+            model == $model &&
+            year == $year &&
+            engine == $engine &&
+            stageName == "Steg 2"][0]`;
 
-      // === STEG 2 ===
-      if (stage2SEK !== null) {
-        const steg2Query = `*[_type == "resellerOverride" &&
-          resellerId == $resellerId &&
-          brand == $brand &&
-          model == $model &&
-          ${yearValue ? "year == $year &&" : ""}
-          engine == $engine &&
-          stageName == "Steg 2"][0]`;
+          const steg2Params = {
+            resellerId,
+            brand: matchedBrand.name,
+            model: matchedModel.name,
+            year: yearValue,
+            engine: engine.label,
+          };
 
-        const steg2Params = {
-          resellerId,
-          brand: matchedBrand.name,
-          model: matchedModel?.name || null,
-          engine,
-          ...(yearValue ? { year: yearValue } : {}),
-        };
+          const existingSteg2 = await sanity.fetch(steg2Query, steg2Params);
+          const stageData = getStageData("Steg 2");
 
-        const existingSteg2 = await sanity.fetch(steg2Query, steg2Params);
-        const stageData = getStageData("Steg 2");
+          createTransaction.createOrReplace({
+            _type: "resellerOverride",
+            _id: existingSteg2?._id ||
+              generateOverrideId(resellerId, matchedBrand.name, matchedModel.name, yearValue, engine.label, "Steg 2"),
+            resellerId,
+            brand: matchedBrand.name,
+            model: matchedModel.name,
+            year: yearValue,
+            engine: engine.label,
+            stageName: "Steg 2",
+            price: stage2SEK,
+            tunedHk: existingSteg2?.tunedHk ?? stageData?.tunedHk ?? null,
+            tunedNm: existingSteg2?.tunedNm ?? stageData?.tunedNm ?? null,
+          });
 
-        createTransaction.createOrReplace({
-          _type: "resellerOverride",
-          _id: existingSteg2?._id ||
-            generateOverrideId(resellerId, matchedBrand.name, matchedModel?.name, yearValue, engine, "Steg 2"),
-          resellerId,
-          brand: matchedBrand.name,
-          model: matchedModel?.name || null,
-          year: yearValue, // ✅ Store actual year range in override
-          engine,
-          stageName: "Steg 2",
-          price: stage2SEK,
-          tunedHk: existingSteg2?.tunedHk ?? stageData?.tunedHk ?? null,
-          tunedNm: existingSteg2?.tunedNm ?? stageData?.tunedNm ?? null,
-        });
-
-        updatedCount++;
+          updatedCount++;
+        }
       }
     }
 
