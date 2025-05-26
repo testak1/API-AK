@@ -709,10 +709,11 @@ export default function ResellerAdmin({ session }) {
             </div>
             <div className="px-6 py-5 space-y-8">
               {(aktPlusOverrides || []).map((item) => {
-                const currentInput = aktPlusInputs[item.id] || {
-                  title: item.title,
-                  content: item.description || [],
-                  price: item.price,
+                const currentInput = {
+                  title: aktPlusInputs[item.id]?.title ?? item.title,
+                  content:
+                    aktPlusInputs[item.id]?.content ?? (item.description || []),
+                  price: aktPlusInputs[item.id]?.price ?? item.price ?? 0,
                 };
 
                 return (
