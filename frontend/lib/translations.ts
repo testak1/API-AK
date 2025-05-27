@@ -113,8 +113,8 @@ export const translations = {
     powerLabel: "PUISSANCE",  
     torqueLabel: "COUPLE",  
     additionsLabel: "OPTIONS",  
-    stageNameWithHP: (stageName: string) => `${stageName} ch`,  
-    powerCurveLabel: (stageName: string) => `Courbe ${stageName}`,  
+    stageNameWithHP: (stageName: string) => `${stageName} ch`,
+    powerCurveLabel: (stageName: string) => `${stageName} Courbe`,  
     translateStageName: (stageName: string) =>  
       stageName.replace("Steg", "Niveau"),  
     stageInfoPrefix: "NIVEAU",  
