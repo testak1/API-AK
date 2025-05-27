@@ -116,7 +116,7 @@ export const translations = {
     stageNameWithHP: (stageName: string) => `${stageName} ch`,  
     powerCurveLabel: (stageName: string) => `Courbe ${stageName}`,  
     translateStageName: (stageName: string) =>  
-      stageName.replace("Niveau", "Niveau"),  
+      stageName.replace("Steg", "Niveau"),  
     stageInfoPrefix: "NIVEAU",  
     stageInfoSuffix: "INFORMATIONS",  
     generalInfoLabel: "INFORMATIONS GÉNÉRALES",  
