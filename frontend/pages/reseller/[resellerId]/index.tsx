@@ -165,7 +165,7 @@ export default function TuningViewer() {
         );
         const json = await res.json();
         if (json.logo?.asset) {
-          setResellerLogo(urlFor(json.logo).width(100).url());
+          setResellerLogo(urlFor(json.logo).width(300).quality(100).url());
         }
       } catch (err) {
         console.error("Failed to load reseller logo", err);
