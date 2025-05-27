@@ -24,6 +24,12 @@ export function urlFor(source: any) {
   return builder.image(source);
 }
 
+export async function uploadImageToSanity(base64Data: string) {
+  const client = sanityClient(config);
+  const result = await client.assets.upload('image', Buffer.from(base64Data, 'base64'));
+  return result;
+}
+
 export async function getAllBrandsWithDetails(): Promise<Brand[]> {
   try {
     const results = await client.fetch<Brand[]>(allBrandsQuery);

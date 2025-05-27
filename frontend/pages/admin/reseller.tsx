@@ -123,6 +123,106 @@ export default function ResellerAdmin({ session }) {
     showDynoChart: true,
   });
 
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [passwordSuccess, setPasswordSuccess] = useState("");
+  const [logoFile, setLogoFile] = useState(null);
+  const [logoPreview, setLogoPreview] = useState("");
+  const [logoLoading, setLogoLoading] = useState(false);
+
+  // Add this useEffect to load the current logo
+  useEffect(() => {
+    if (session?.user?.resellerId) {
+      fetch(`/api/reseller-config?resellerId=${session.user.resellerId}`)
+        .then((res) => res.json())
+        .then((json) => {
+          if (json.logo?.asset?.url) {
+            setLogoPreview(json.logo.asset.url);
+          }
+        });
+    }
+  }, [session]);
+
+  // Add this function to handle logo upload
+  const handleLogoUpload = async () => {
+    if (!logoFile) return;
+
+    try {
+      setLogoLoading(true);
+      const reader = new FileReader();
+      reader.readAsDataURL(logoFile);
+      reader.onload = async () => {
+        const base64Data = reader.result?.toString().split(",")[1] || "";
+
+        const response = await fetch("/api/update-logo", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ imageData: base64Data }),
+        });
+
+        if (!response.ok) throw new Error("Logo upload failed");
+
+        const { logoUrl } = await response.json();
+        setLogoPreview(logoUrl);
+        setLogoLoading(false);
+        setSaveStatus({
+          message: "Logo updated successfully!",
+          isError: false,
+        });
+      };
+      reader.onerror = () => {
+        setLogoLoading(false);
+        throw new Error("File reading failed");
+      };
+    } catch (error) {
+      console.error("Error uploading logo:", error);
+      setLogoLoading(false);
+      setSaveStatus({
+        message: "Failed to update logo",
+        isError: true,
+      });
+    } finally {
+      setTimeout(() => setSaveStatus({ message: "", isError: false }), 3000);
+    }
+  };
+
+  const handlePasswordChange = async () => {
+    if (newPassword !== confirmPassword) {
+      setPasswordError("Passwords don't match");
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const response = await fetch("/api/update-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Password update failed");
+      }
+
+      setPasswordSuccess("Password changed successfully!");
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      setPasswordError("");
+    } catch (error) {
+      setPasswordError(error.message);
+    } finally {
+      setIsLoading(false);
+      setTimeout(() => {
+        setPasswordSuccess("");
+        setPasswordError("");
+      }, 3000);
+    }
+  };
+
   // New function to handle bulk price save
   const handleBulkPriceSave = async () => {
     if (
@@ -1243,7 +1343,7 @@ export default function ResellerAdmin({ session }) {
                 Account Settings
               </h2>
               <p className="mt-1 text-sm text-gray-500">
-                Manage your currency and language preferences
+                Manage your currency, language, logo, and password
               </p>
             </div>
             <div className="px-6 py-5">
@@ -1286,6 +1386,157 @@ export default function ResellerAdmin({ session }) {
                       <option value="ar">Arabic</option>
                     </select>
                   </div>
+                </div>
+              </div>
+
+              {/* Logo Upload Section */}
+              <div className="mt-8 border-t pt-6">
+                <h3 className="text-md font-medium text-gray-900 mb-4">
+                  Company Logo
+                </h3>
+                <div className="flex items-center gap-4">
+                  {logoPreview && (
+                    <img
+                      src={logoPreview}
+                      alt="Current logo"
+                      className="w-16 h-16 object-contain rounded-md border"
+                    />
+                  )}
+                  <div className="flex-1">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setLogoFile(file);
+                          setLogoPreview(URL.createObjectURL(file));
+                        }
+                      }}
+                      className="block w-full text-sm text-gray-500
+                file:mr-4 file:py-2 file:px-4
+                file:rounded-md file:border-0
+                file:text-sm file:font-semibold
+                file:bg-blue-50 file:text-blue-700
+                hover:file:bg-blue-100"
+                    />
+                    <button
+                      onClick={handleLogoUpload}
+                      disabled={!logoFile || logoLoading}
+                      className="mt-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-70 disabled:cursor-not-allowed"
+                    >
+                      {logoLoading ? (
+                        <>
+                          <svg
+                            className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
+                          </svg>
+                          Uploading...
+                        </>
+                      ) : (
+                        "Update Logo"
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Password Change Section */}
+              <div className="mt-8 border-t pt-6">
+                <h3 className="text-md font-medium text-gray-900 mb-4">
+                  Change Password
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Current Password
+                    </label>
+                    <input
+                      type="password"
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      className="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      New Password
+                    </label>
+                    <input
+                      type="password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Confirm New Password
+                    </label>
+                    <input
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    />
+                  </div>
+                  {passwordError && (
+                    <div className="text-red-500 text-sm">{passwordError}</div>
+                  )}
+                  {passwordSuccess && (
+                    <div className="text-green-500 text-sm">
+                      {passwordSuccess}
+                    </div>
+                  )}
+                  <button
+                    onClick={handlePasswordChange}
+                    disabled={isLoading}
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-70 disabled:cursor-not-allowed"
+                  >
+                    {isLoading ? (
+                      <>
+                        <svg
+                          className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          ></path>
+                        </svg>
+                        Changing...
+                      </>
+                    ) : (
+                      "Change Password"
+                    )}
+                  </button>
                 </div>
               </div>
 
