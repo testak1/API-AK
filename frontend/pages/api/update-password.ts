@@ -1,13 +1,12 @@
 // pages/api/update-password.ts
-import type { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./auth/[...nextauth]";
 import sanity from "@/lib/sanity";
 import { hashPassword, verifyPassword } from "@/lib/auth";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req, res) {
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+    return res.status(405).json({ message: "Method not allowed" });
   }
 
   const session = await getServerSession(req, res, authOptions);
@@ -19,34 +18,37 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const { currentPassword, newPassword } = req.body;
 
-  if (!currentPassword || !newPassword) {
-    return res.status(400).json({ error: "Missing fields" });
-  }
-
   try {
-    // Fetch the reseller user by resellerId
+    // Get the full user document with password
     const user = await sanity.fetch(
-      `*[_type == "resellerUser" && resellerId == $resellerId][0]{_id, password}`,
-      { resellerId }
+      `*[_type == "resellerUser" && resellerId == $resellerId][0]{
+        _id,
+        password,
+        email
+      }`,
+      { resellerId },
     );
 
-    if (!user || !user._id) {
-      return res.status(404).json({ error: "Reseller user not found" });
+    if (!user?._id) {
+      return res.status(404).json({ error: "User not found" });
     }
 
-    // Check if the current password is valid
+    // Verify current password
     const isValid = await verifyPassword(currentPassword, user.password);
     if (!isValid) {
-      return res.status(403).json({ error: "Incorrect current password" });
+      return res.status(400).json({ error: "Current password is incorrect" });
     }
 
-    // Hash new password and update it in Sanity
-    const hashed = await hashPassword(newPassword);
-    await sanity.patch(user._id).set({ password: hashed }).commit();
+    // Hash and update new password
+    const hashedPassword = await hashPassword(newPassword);
+    await sanity
+      .patch(user._id) // Use the document ID directly
+      .set({ password: hashedPassword })
+      .commit();
 
-    return res.status(200).json({ message: "Password updated successfully" });
-  } catch (err) {
-    console.error("Error updating password:", err);
-    return res.status(500).json({ error: "Internal Server Error" });
+    return res.status(200).json({ success: true });
+  } catch (error) {
+    console.error("Error updating password:", error);
+    return res.status(500).json({ error: "Failed to update password" });
   }
 }

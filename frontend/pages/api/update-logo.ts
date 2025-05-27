@@ -2,7 +2,6 @@
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./auth/[...nextauth]";
 import sanity from "@/lib/sanity";
-import {uploadImageToSanity} from "@/lib/sanity";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -19,20 +18,23 @@ export default async function handler(req, res) {
   try {
     const { imageData } = req.body;
 
-    // Upload image to Sanity
-    const imageAsset = await uploadImageToSanity(imageData);
-
-    // Get the document ID
+    // First get the user document ID
     const userDoc = await sanity.fetch(
       `*[_type == "resellerUser" && resellerId == $resellerId][0]._id`,
-      { resellerId }
+      { resellerId },
     );
 
     if (!userDoc) {
       return res.status(404).json({ error: "Reseller user not found" });
     }
 
-    // Update logo
+    // Upload image to Sanity
+    const imageAsset = await sanity.assets.upload(
+      "image",
+      Buffer.from(imageData, "base64"),
+    );
+
+    // Update logo reference
     await sanity
       .patch(userDoc)
       .set({
@@ -46,7 +48,10 @@ export default async function handler(req, res) {
       })
       .commit();
 
-    res.status(200).json({ success: true, logoUrl: imageAsset.url });
+    res.status(200).json({
+      success: true,
+      logoUrl: imageAsset.url,
+    });
   } catch (error) {
     console.error("Error updating logo:", error);
     res.status(500).json({ error: "Failed to update logo" });
