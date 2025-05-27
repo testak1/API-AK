@@ -1,8 +1,7 @@
-// pages/api/auth/[...nextauth].ts
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import sanity from "@/lib/sanity";
-import { verifyPassword } from "@/lib/auth";
+
 
 export const authOptions = {
   secret: process.env.NEXTAUTH_SECRET,
@@ -14,20 +13,17 @@ export const authOptions = {
         password: { label: "Password", type: "password" },
       },
       authorize: async (credentials) => {
-        const user = await sanity.fetch(
-          `*[_type == "resellerUser" && email == $email][0]{
-            email,
-            password,
-            resellerId
-          }`,
-          { email: credentials?.email }
+        const users = await sanity.fetch(
+          `*[_type == "resellerUser"]{email, password, resellerId}`,
         );
 
-        if (!user) return null;
+        const user = users.find(
+          (u) =>
+            u.email === credentials?.email &&
+            u.password === credentials?.password,
+        );
 
-        const isValid = await verifyPassword(credentials?.password || "", user.password);
-
-        if (isValid) {
+        if (user) {
           return {
             id: user.email,
             email: user.email,
