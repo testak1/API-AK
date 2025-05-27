@@ -25,7 +25,7 @@ export function urlFor(source: any) {
 }
 
 export async function uploadImageToSanity(base64Data: string) {
-  const client = sanityClient(config);
+
   const result = await client.assets.upload('image', Buffer.from(base64Data, 'base64'));
   return result;
 }
