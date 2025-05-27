@@ -8,6 +8,7 @@ import imageUrlBuilder from "@sanity/image-url";
 import type { Brand } from "@/types/sanity";
 import { allBrandsQuery } from "../src/lib/queries";
 
+
 const config: ClientConfig = {
   projectId: "wensahkh",
   dataset: "production",
@@ -22,12 +23,6 @@ const builder = imageUrlBuilder(client);
 
 export function urlFor(source: any) {
   return builder.image(source);
-}
-
-export async function uploadImageToSanity(base64Data: string) {
-
-  const result = await client.assets.upload('image', Buffer.from(base64Data, 'base64'));
-  return result;
 }
 
 export async function getAllBrandsWithDetails(): Promise<Brand[]> {
