@@ -206,6 +206,10 @@ export default function TuningViewer() {
       sv: `Steg ${stageNum}`,
       en: `Stage ${stageNum}`,
       de: `Stufe ${stageNum}`,
+      fr: `Niveau ${stageNum}`,
+      ae: `مرحلة ${stageNum}`,
+      da: `Stadie ${stageNum}`,
+      no: `Trinn ${stageNum}`,
     };
 
     return translations[lang] || name;
