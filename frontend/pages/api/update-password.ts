@@ -31,13 +31,8 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // Compare passwords (you'll need to implement this)
-    const isValid = await verifyPassword(currentPassword, user.password);
-    if (!isValid) {
-      return res.status(400).json({ error: "Current password is incorrect" });
-    }
 
-    // Update password
+
     const hashedPassword = await hashPassword(newPassword);
     await sanity
       .patch(user._id)

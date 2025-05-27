@@ -2,7 +2,7 @@
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./auth/[...nextauth]";
 import sanity from "@/lib/sanity";
-import { uploadImageToSanity } from "@/lib/sanity"; // You'll need to implement this
+import {uploadImageToSanity} from "@/lib/sanity";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
