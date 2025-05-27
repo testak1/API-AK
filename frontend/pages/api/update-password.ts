@@ -16,7 +16,7 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
-  const { currentPassword, newPassword } = req.body;
+  const {newPassword } = req.body;
 
   try {
     // Verify current password
@@ -33,7 +33,6 @@ export default async function handler(req, res) {
 
 
 
-    // Update password
     const hashedPassword = await hashPassword(newPassword);
     await sanity
       .patch(user._id)
