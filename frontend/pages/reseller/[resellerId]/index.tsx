@@ -50,6 +50,13 @@ interface Slug {
   current: string;
 }
 
+interface DisplaySettings {
+  showAktPlus: boolean;
+  showBrandLogo: boolean;
+  showStageLogo: boolean;
+  showDynoChart: boolean;
+}
+
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const { resellerId } = context.params as { resellerId: string };
 
@@ -87,6 +94,12 @@ export default function TuningViewer() {
     currency: string;
     language: string;
     exchangeRates: Record<string, number>;
+    displaySettings?: {
+      showAktPlus: boolean;
+      showBrandLogo: boolean;
+      showStageLogo: boolean;
+      showDynoChart: boolean;
+    };
   }>({
     currency: "SEK",
     language: "sv",
@@ -195,6 +208,22 @@ export default function TuningViewer() {
       currency: settings.currency,
       maximumFractionDigits: 0,
     });
+  };
+
+  const updateSettings = async (settings: Partial<DisplaySettings>) => {
+    const response = await fetch("/api/update-display-settings", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(settings),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to update settings");
+    }
+
+    return await response.json();
   };
 
   const translateStageName = (lang: string, name: string): string => {
@@ -698,7 +727,7 @@ export default function TuningViewer() {
             <img
               src={resellerLogo}
               alt="Reseller Logo"
-              className="h-auto max-h-16 w-auto max-w-[200px] object-contain"
+              className="h-auto max-h-20 w-auto max-w-[500px] object-contain"
               loading="lazy"
               onClick={() => router.reload()}
             />
@@ -855,18 +884,20 @@ export default function TuningViewer() {
                   >
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                       <div className="flex items-center gap-4">
-                        {data.find((b) => b.name === selected.brand)?.logo
-                          ?.asset && (
-                          <img
-                            src={urlFor(
-                              data.find((b) => b.name === selected.brand)?.logo
-                            )
-                              .width(60)
-                              .url()}
-                            alt={selected.brand}
-                            className="h-8 w-auto object-contain"
-                          />
-                        )}
+                        {settings.displaySettings?.showBrandLogo &&
+                          data.find((b) => b.name === selected.brand)?.logo
+                            ?.asset && (
+                            <img
+                              src={urlFor(
+                                data.find((b) => b.name === selected.brand)
+                                  ?.logo
+                              )
+                                .width(60)
+                                .url()}
+                              alt={selected.brand}
+                              className="h-8 w-auto object-contain"
+                            />
+                          )}
                         <h2 className="text-lg font-semibold text-white">
                           {selected.engine} -{" "}
                           <span
@@ -879,11 +910,13 @@ export default function TuningViewer() {
                       </div>
 
                       <div className="mt-3 md:mt-0 flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-4 text-center">
-                        <img
-                          src={`/badges/${stage.name.toLowerCase().replace(/\s+/g, "")}.png`}
-                          alt={stage.name}
-                          className="h-8 object-contain"
-                        />
+                        {settings.displaySettings?.showStageLogo && (
+                          <img
+                            src={`/badges/${stage.name.toLowerCase().replace(/\s+/g, "")}.png`}
+                            alt={stage.name}
+                            className="h-8 object-contain"
+                          />
+                        )}
                         <span className="inline-block bg-red-600 text-black px-4 py-1 rounded-full text-xl font-semibold shadow-md">
                           <span>{convertPrice(stage.price)}</span>
                         </span>
@@ -1113,235 +1146,239 @@ export default function TuningViewer() {
                           </div>
                         )}
 
-                        {!isDsgStage && (
-                          <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
-                            {/* Split the spec boxes */}
-                            <div className="absolute hidden md:flex flex-row justify-between top-4 left-0 right-0 px-16">
-                              {/* ORG HK / Max HK */}
-                              <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
-                                <p className="text-red-600">- - -</p>
-                                <p className="text-white">
-                                  HK ORG: {stage.origHk} HK
-                                </p>
-                                <p className="text-red-600">_____</p>
-                                <p className="text-white">
-                                  HK{" "}
-                                  {stage.name
-                                    .replace("Steg", "ST")
-                                    .replace(/\s+/g, "")
-                                    .toUpperCase()}
-                                  : {stage.tunedHk} HK
-                                </p>
-                              </div>
+                        {!isDsgStage &&
+                          settings.displaySettings?.showDynoChart && (
+                            <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
+                              {/* Split the spec boxes */}
+                              <div className="absolute hidden md:flex flex-row justify-between top-4 left-0 right-0 px-16">
+                                {/* ORG HK / Max HK */}
+                                <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
+                                  <p className="text-red-600">- - -</p>
+                                  <p className="text-white">
+                                    HK ORG: {stage.origHk} HK
+                                  </p>
+                                  <p className="text-red-600">_____</p>
+                                  <p className="text-white">
+                                    HK{" "}
+                                    {stage.name
+                                      .replace("Steg", "ST")
+                                      .replace(/\s+/g, "")
+                                      .toUpperCase()}
+                                    : {stage.tunedHk} HK
+                                  </p>
+                                </div>
 
-                              {/* ORG NM / Max NM */}
-                              <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
-                                <p className="text-white">- - -</p>
-                                <p className="text-white">
-                                  NM ORG: {stage.origNm} NM
-                                </p>
-                                <p className="text-white">_____</p>
-                                <p className="text-white">
-                                  NM{" "}
-                                  {stage.name
-                                    .replace("Steg", "ST")
-                                    .replace(/\s+/g, "")
-                                    .toUpperCase()}
-                                  : {stage.tunedNm} NM
-                                </p>
+                                {/* ORG NM / Max NM */}
+                                <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
+                                  <p className="text-white">- - -</p>
+                                  <p className="text-white">
+                                    NM ORG: {stage.origNm} NM
+                                  </p>
+                                  <p className="text-white">_____</p>
+                                  <p className="text-white">
+                                    NM{" "}
+                                    {stage.name
+                                      .replace("Steg", "ST")
+                                      .replace(/\s+/g, "")
+                                      .toUpperCase()}
+                                    : {stage.tunedNm} NM
+                                  </p>
+                                </div>
                               </div>
-                            </div>
-                            {/* Dyno graph */}
-                            <Line
-                              data={{
-                                labels: rpmLabels,
-                                datasets: [
-                                  {
-                                    label: "ORG HK",
-                                    data: generateDynoCurve(
-                                      stage.origHk,
-                                      true,
-                                      selectedEngine.fuel
-                                    ),
-                                    borderColor: "#f87171",
-                                    backgroundColor: "transparent",
-                                    borderWidth: 2,
-                                    borderDash: [5, 3],
-                                    tension: 0.5,
-                                    pointRadius: 0,
-                                    yAxisID: "hp",
+                              {/* Dyno graph */}
+                              <Line
+                                data={{
+                                  labels: rpmLabels,
+                                  datasets: [
+                                    {
+                                      label: "ORG HK",
+                                      data: generateDynoCurve(
+                                        stage.origHk,
+                                        true,
+                                        selectedEngine.fuel
+                                      ),
+                                      borderColor: "#f87171",
+                                      backgroundColor: "transparent",
+                                      borderWidth: 2,
+                                      borderDash: [5, 3],
+                                      tension: 0.5,
+                                      pointRadius: 0,
+                                      yAxisID: "hp",
+                                    },
+                                    {
+                                      label: `ST ${stage.name.replace(/\D/g, "")} HK`,
+                                      data: generateDynoCurve(
+                                        stage.tunedHk,
+                                        true,
+                                        selectedEngine.fuel
+                                      ),
+                                      borderColor: "#f87171",
+                                      backgroundColor: "#f87171",
+                                      borderWidth: 3,
+                                      tension: 0.5,
+                                      pointRadius: 0,
+                                      yAxisID: "hp",
+                                    },
+                                    {
+                                      label: "ORG NM",
+                                      data: generateDynoCurve(
+                                        stage.origNm,
+                                        false,
+                                        selectedEngine.fuel
+                                      ),
+                                      borderColor: "#d1d5db",
+                                      backgroundColor: "transparent",
+                                      borderWidth: 2,
+                                      borderDash: [5, 3],
+                                      tension: 0.5,
+                                      pointRadius: 0,
+                                      yAxisID: "nm",
+                                    },
+                                    {
+                                      label: `ST ${stage.name.replace(/\D/g, "")} NM`,
+                                      data: generateDynoCurve(
+                                        stage.tunedNm,
+                                        false,
+                                        selectedEngine.fuel
+                                      ),
+                                      borderColor: "#d1d5db",
+                                      backgroundColor: "transparent",
+                                      borderWidth: 3,
+                                      tension: 0.5,
+                                      pointRadius: 0,
+                                      yAxisID: "nm",
+                                    },
+                                  ],
+                                }}
+                                options={{
+                                  responsive: true,
+                                  maintainAspectRatio: false,
+                                  plugins: {
+                                    legend: {
+                                      display: false,
+                                    },
+                                    tooltip: {
+                                      enabled: true,
+                                      mode: "index",
+                                      intersect: false,
+                                      backgroundColor: "#1f2937",
+                                      titleColor: "#ffffff",
+                                      bodyColor: "#ffffff",
+                                      borderColor: "#6b7280",
+                                      borderWidth: 1,
+                                      padding: 10,
+                                      displayColors: true,
+                                      usePointStyle: true, // ✅ this enables circle style
+                                      callbacks: {
+                                        labelPointStyle: () => ({
+                                          pointStyle: "circle", // ✅ make symbol a circle
+                                          rotation: 0,
+                                        }),
+                                        title: function (tooltipItems) {
+                                          // tooltipItems[0].label will be the RPM (e.g., "4000")
+                                          return `${tooltipItems[0].label} RPM`;
+                                        },
+                                        label: function (context) {
+                                          const label =
+                                            context.dataset.label || "";
+                                          const value = context.parsed.y;
+
+                                          // Guard for undefined value
+                                          if (value === undefined) return label;
+
+                                          const unit =
+                                            context.dataset.yAxisID === "hp"
+                                              ? "hk"
+                                              : "Nm";
+                                          return `${label}: ${Math.round(value)} ${unit}`;
+                                        },
+                                      },
+                                    },
                                   },
-                                  {
-                                    label: `ST ${stage.name.replace(/\D/g, "")} HK`,
-                                    data: generateDynoCurve(
-                                      stage.tunedHk,
-                                      true,
-                                      selectedEngine.fuel
-                                    ),
-                                    borderColor: "#f87171",
-                                    backgroundColor: "#f87171",
-                                    borderWidth: 3,
-                                    tension: 0.5,
-                                    pointRadius: 0,
-                                    yAxisID: "hp",
+                                  scales: {
+                                    hp: {
+                                      type: "linear",
+                                      display: true,
+                                      position: "left",
+                                      title: {
+                                        display: true,
+                                        text: translate(
+                                          settings.language,
+                                          "powerLabel"
+                                        ),
+                                        color: "white",
+                                        font: { size: 14 },
+                                      },
+                                      min: 0,
+                                      max:
+                                        Math.ceil(stage.tunedHk / 100) * 100 +
+                                        100,
+                                      grid: {
+                                        color: "rgba(255, 255, 255, 0.1)",
+                                      },
+                                      ticks: {
+                                        color: "#9CA3AF",
+                                        stepSize: 100,
+                                        callback: (value) => `${value}`,
+                                      },
+                                    },
+                                    nm: {
+                                      type: "linear",
+                                      display: true,
+                                      position: "right",
+                                      title: {
+                                        display: true,
+                                        text: translate(
+                                          settings.language,
+                                          "torqueLabel"
+                                        ),
+                                        color: "white",
+                                        font: { size: 14 },
+                                      },
+                                      min: 0,
+                                      max:
+                                        Math.ceil(stage.tunedNm / 100) * 100 +
+                                        100,
+                                      grid: {
+                                        drawOnChartArea: false,
+                                      },
+                                      ticks: {
+                                        color: "#9CA3AF",
+                                        stepSize: 100,
+                                        callback: (value) => `${value}`,
+                                      },
+                                    },
+                                    x: {
+                                      title: {
+                                        display: true,
+                                        text: "RPM",
+                                        color: "#E5E7EB",
+                                        font: { size: 14 },
+                                      },
+                                      grid: {
+                                        color: "rgba(255, 255, 255, 0.1)",
+                                      },
+                                      ticks: {
+                                        color: "#9CA3AF",
+                                      },
+                                    },
                                   },
-                                  {
-                                    label: "ORG NM",
-                                    data: generateDynoCurve(
-                                      stage.origNm,
-                                      false,
-                                      selectedEngine.fuel
-                                    ),
-                                    borderColor: "#d1d5db",
-                                    backgroundColor: "transparent",
-                                    borderWidth: 2,
-                                    borderDash: [5, 3],
-                                    tension: 0.5,
-                                    pointRadius: 0,
-                                    yAxisID: "nm",
-                                  },
-                                  {
-                                    label: `ST ${stage.name.replace(/\D/g, "")} NM`,
-                                    data: generateDynoCurve(
-                                      stage.tunedNm,
-                                      false,
-                                      selectedEngine.fuel
-                                    ),
-                                    borderColor: "#d1d5db",
-                                    backgroundColor: "transparent",
-                                    borderWidth: 3,
-                                    tension: 0.5,
-                                    pointRadius: 0,
-                                    yAxisID: "nm",
-                                  },
-                                ],
-                              }}
-                              options={{
-                                responsive: true,
-                                maintainAspectRatio: false,
-                                plugins: {
-                                  legend: {
-                                    display: false,
-                                  },
-                                  tooltip: {
-                                    enabled: true,
-                                    mode: "index",
+                                  interaction: {
                                     intersect: false,
-                                    backgroundColor: "#1f2937",
-                                    titleColor: "#ffffff",
-                                    bodyColor: "#ffffff",
-                                    borderColor: "#6b7280",
-                                    borderWidth: 1,
-                                    padding: 10,
-                                    displayColors: true,
-                                    usePointStyle: true, // ✅ this enables circle style
-                                    callbacks: {
-                                      labelPointStyle: () => ({
-                                        pointStyle: "circle", // ✅ make symbol a circle
-                                        rotation: 0,
-                                      }),
-                                      title: function (tooltipItems) {
-                                        // tooltipItems[0].label will be the RPM (e.g., "4000")
-                                        return `${tooltipItems[0].label} RPM`;
-                                      },
-                                      label: function (context) {
-                                        const label =
-                                          context.dataset.label || "";
-                                        const value = context.parsed.y;
+                                    mode: "index",
+                                  },
+                                }}
+                                plugins={[watermarkPlugin, shadowPlugin]}
+                              />
 
-                                        // Guard for undefined value
-                                        if (value === undefined) return label;
-
-                                        const unit =
-                                          context.dataset.yAxisID === "hp"
-                                            ? "hk"
-                                            : "Nm";
-                                        return `${label}: ${Math.round(value)} ${unit}`;
-                                      },
-                                    },
-                                  },
-                                },
-                                scales: {
-                                  hp: {
-                                    type: "linear",
-                                    display: true,
-                                    position: "left",
-                                    title: {
-                                      display: true,
-                                      text: translate(
-                                        settings.language,
-                                        "powerLabel"
-                                      ),
-                                      color: "white",
-                                      font: { size: 14 },
-                                    },
-                                    min: 0,
-                                    max:
-                                      Math.ceil(stage.tunedHk / 100) * 100 +
-                                      100,
-                                    grid: {
-                                      color: "rgba(255, 255, 255, 0.1)",
-                                    },
-                                    ticks: {
-                                      color: "#9CA3AF",
-                                      stepSize: 100,
-                                      callback: (value) => `${value}`,
-                                    },
-                                  },
-                                  nm: {
-                                    type: "linear",
-                                    display: true,
-                                    position: "right",
-                                    title: {
-                                      display: true,
-                                      text: translate(
-                                        settings.language,
-                                        "torqueLabel"
-                                      ),
-                                      color: "white",
-                                      font: { size: 14 },
-                                    },
-                                    min: 0,
-                                    max:
-                                      Math.ceil(stage.tunedNm / 100) * 100 +
-                                      100,
-                                    grid: {
-                                      drawOnChartArea: false,
-                                    },
-                                    ticks: {
-                                      color: "#9CA3AF",
-                                      stepSize: 100,
-                                      callback: (value) => `${value}`,
-                                    },
-                                  },
-                                  x: {
-                                    title: {
-                                      display: true,
-                                      text: "RPM",
-                                      color: "#E5E7EB",
-                                      font: { size: 14 },
-                                    },
-                                    grid: {
-                                      color: "rgba(255, 255, 255, 0.1)",
-                                    },
-                                    ticks: {
-                                      color: "#9CA3AF",
-                                    },
-                                  },
-                                },
-                                interaction: {
-                                  intersect: false,
-                                  mode: "index",
-                                },
-                              }}
-                              plugins={[watermarkPlugin, shadowPlugin]}
-                            />
-
-                            <div className="text-center text-white text-xs mt-4 italic">
-                              {translate(settings.language, "tuningCurveNote")}
+                              <div className="text-center text-white text-xs mt-4 italic">
+                                {translate(
+                                  settings.language,
+                                  "tuningCurveNote"
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        )}
+                          )}
 
                         {/* small tuned specs */}
                         {!isDsgStage && (
@@ -1373,155 +1410,162 @@ export default function TuningViewer() {
                         </div>
                       </div>
 
-                      {!isDsgStage && allOptions.length > 0 && (
-                        <div className="mt-8">
-                          {/* AKT+ Toggle Button */}
-                          <button
-                            onClick={() => toggleAktPlus(stage.name)}
-                            className="flex justify-between items-center w-full px-6 py-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
-                          >
-                            <div className="flex items-center gap-2">
-                              <img
-                                src="/logos/aktplus.png"
-                                alt="AKT+ Logo"
-                                className="h-8 w-auto object-contain"
-                              />
-                              <h3 className="text-md font-semibold text-white">
-                                {translate(settings.language, "additionsLabel")}
-                              </h3>
-                            </div>
-                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-800">
-                              <svg
-                                className={`h-5 w-5 text-orange-500 transform transition-transform duration-300 ${
-                                  expandedAktPlus[stage.name]
-                                    ? "rotate-180"
-                                    : ""
-                                }`}
-                                viewBox="0 0 20 20"
-                                fill="currentColor"
-                              >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-                                  clipRule="evenodd"
+                      {!isDsgStage &&
+                        settings.displaySettings?.showAktPlus &&
+                        allOptions.length > 0 && (
+                          <div className="mt-8">
+                            {/* AKT+ Toggle Button */}
+                            <button
+                              onClick={() => toggleAktPlus(stage.name)}
+                              className="flex justify-between items-center w-full px-6 py-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+                            >
+                              <div className="flex items-center gap-2">
+                                <img
+                                  src="/logos/aktplus.png"
+                                  alt="AKT+ Logo"
+                                  className="h-8 w-auto object-contain"
                                 />
-                              </svg>
-                            </div>
-                          </button>
+                                <h3 className="text-md font-semibold text-white">
+                                  {translate(
+                                    settings.language,
+                                    "additionsLabel"
+                                  )}
+                                </h3>
+                              </div>
+                              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-800">
+                                <svg
+                                  className={`h-5 w-5 text-orange-500 transform transition-transform duration-300 ${
+                                    expandedAktPlus[stage.name]
+                                      ? "rotate-180"
+                                      : ""
+                                  }`}
+                                  viewBox="0 0 20 20"
+                                  fill="currentColor"
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                              </div>
+                            </button>
 
-                          {/* Expandable AKT+ Grid */}
-                          {expandedAktPlus[stage.name] && (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                              {allOptions.map((option) => {
-                                const override = aktPlusOptions.find(
-                                  (o) => o.id === option._id
-                                );
+                            {/* Expandable AKT+ Grid */}
+                            {expandedAktPlus[stage.name] && (
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                {allOptions.map((option) => {
+                                  const override = aktPlusOptions.find(
+                                    (o) => o.id === option._id
+                                  );
 
-                                const title = override?.title || option.title;
-                                const description =
-                                  override?.description || option.description;
-                                const price = override?.price ?? option.price;
+                                  const title = override?.title || option.title;
+                                  const description =
+                                    override?.description || option.description;
+                                  const price = override?.price ?? option.price;
 
-                                return (
-                                  <div
-                                    key={option._id}
-                                    className="border border-gray-600 rounded-lg overflow-hidden bg-gray-700 transition-all duration-300"
-                                  >
-                                    <button
-                                      onClick={() => toggleOption(option._id)}
-                                      className="w-full flex justify-between items-center p-4 hover:bg-gray-600 transition-colors"
+                                  return (
+                                    <div
+                                      key={option._id}
+                                      className="border border-gray-600 rounded-lg overflow-hidden bg-gray-700 transition-all duration-300"
                                     >
-                                      <div className="flex items-center gap-3">
-                                        {option.gallery?.[0]?.asset && (
-                                          <img
-                                            src={urlFor(option.gallery[0])
-                                              .width(80)
-                                              .url()}
-                                            alt={
-                                              option.gallery[0].alt ||
-                                              option.title
-                                            }
-                                            className="h-10 w-10 object-contain"
-                                          />
-                                        )}
-                                        <span className="text-lg font-bold text-orange-600">
-                                          {title}
-                                        </span>
-                                      </div>
-
-                                      <svg
-                                        className={`h-5 w-5 text-orange-600 transition-transform ${
-                                          expandedOptions[option._id]
-                                            ? "rotate-180"
-                                            : ""
-                                        }`}
-                                        viewBox="0 0 20 20"
-                                        fill="currentColor"
+                                      <button
+                                        onClick={() => toggleOption(option._id)}
+                                        className="w-full flex justify-between items-center p-4 hover:bg-gray-600 transition-colors"
                                       >
-                                        <path
-                                          fillRule="evenodd"
-                                          d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-                                          clipRule="evenodd"
-                                        />
-                                      </svg>
-                                    </button>
-
-                                    {expandedOptions[option._id] && (
-                                      <div className="bg-gray-800 border-t border-gray-600 p-4 space-y-4">
-                                        {description && (
-                                          <div className="prose prose-invert max-w-none text-sm">
-                                            <PortableText
-                                              value={description}
-                                              components={
-                                                portableTextComponents
+                                        <div className="flex items-center gap-3">
+                                          {option.gallery?.[0]?.asset && (
+                                            <img
+                                              src={urlFor(option.gallery[0])
+                                                .width(80)
+                                                .url()}
+                                              alt={
+                                                option.gallery[0].alt ||
+                                                option.title
                                               }
+                                              className="h-10 w-10 object-contain"
                                             />
-                                          </div>
-                                        )}
+                                          )}
+                                          <span className="text-lg font-bold text-orange-600">
+                                            {title}
+                                          </span>
+                                        </div>
 
-                                        {title
-                                          .toLowerCase()
-                                          .includes("dtc off") && (
-                                          <div className="mt-4">
-                                            <DtcSearch />
-                                          </div>
-                                        )}
+                                        <svg
+                                          className={`h-5 w-5 text-orange-600 transition-transform ${
+                                            expandedOptions[option._id]
+                                              ? "rotate-180"
+                                              : ""
+                                          }`}
+                                          viewBox="0 0 20 20"
+                                          fill="currentColor"
+                                        >
+                                          <path
+                                            fillRule="evenodd"
+                                            d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                                            clipRule="evenodd"
+                                          />
+                                        </svg>
+                                      </button>
 
-                                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                                          {price !== undefined && (
-                                            <p className="font-bold text-green-400">
-                                              {translate(
-                                                settings.language,
-                                                "priceLabel"
-                                              )}
-                                              :
-                                              <span>
-                                                {" "}
-                                                {convertPrice(price)}
-                                              </span>
-                                            </p>
+                                      {expandedOptions[option._id] && (
+                                        <div className="bg-gray-800 border-t border-gray-600 p-4 space-y-4">
+                                          {description && (
+                                            <div className="prose prose-invert max-w-none text-sm">
+                                              <PortableText
+                                                value={description}
+                                                components={
+                                                  portableTextComponents
+                                                }
+                                              />
+                                            </div>
                                           )}
 
-                                          <button
-                                            onClick={() => handleBookNow(title)}
-                                            className="bg-green-600 hover:bg-green-700 hover:scale-105 transform transition-all text-white px-6 py-3 rounded-lg font-medium shadow-lg"
-                                          >
-                                            <span>📩</span>{" "}
-                                            {translate(
-                                              settings.language,
-                                              "contactvalue"
+                                          {title
+                                            .toLowerCase()
+                                            .includes("dtc off") && (
+                                            <div className="mt-4">
+                                              <DtcSearch />
+                                            </div>
+                                          )}
+
+                                          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                                            {price !== undefined && (
+                                              <p className="font-bold text-green-400">
+                                                {translate(
+                                                  settings.language,
+                                                  "priceLabel"
+                                                )}
+                                                :
+                                                <span>
+                                                  {" "}
+                                                  {convertPrice(price)}
+                                                </span>
+                                              </p>
                                             )}
-                                          </button>
+
+                                            <button
+                                              onClick={() =>
+                                                handleBookNow(title)
+                                              }
+                                              className="bg-green-600 hover:bg-green-700 hover:scale-105 transform transition-all text-white px-6 py-3 rounded-lg font-medium shadow-lg"
+                                            >
+                                              <span>📩</span>{" "}
+                                              {translate(
+                                                settings.language,
+                                                "contactvalue"
+                                              )}
+                                            </button>
+                                          </div>
                                         </div>
-                                      </div>
-                                    )}
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          )}
-                        </div>
-                      )}
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </div>
+                        )}
                     </div>
                   )}
                 </div>

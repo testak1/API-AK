@@ -13,7 +13,7 @@ export default function ResellerAdmin({ session }) {
   const [selectedModel, setSelectedModel] = useState("");
   const [selectedYear, setSelectedYear] = useState("");
   const [selectedEngine, setSelectedEngine] = useState("");
-  
+
   const [stageInputs, setStageInputs] = useState({});
   const [currency, setCurrency] = useState("SEK");
   const [language, setLanguage] = useState("sv");
@@ -115,6 +115,13 @@ export default function ResellerAdmin({ session }) {
       setTimeout(() => setSaveStatus({ message: "", isError: false }), 3000);
     }
   };
+
+  const [displaySettings, setDisplaySettings] = useState({
+    showAktPlus: true,
+    showBrandLogo: true,
+    showStageLogo: true,
+    showDynoChart: true,
+  });
 
   // New function to handle bulk price save
   const handleBulkPriceSave = async () => {
@@ -515,6 +522,16 @@ export default function ResellerAdmin({ session }) {
             >
               SETTINGS
             </button>
+            <button
+              onClick={() => setActiveTab("selections")}
+              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === "selections"
+                  ? "border-blue-500 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              }`}
+            >
+              DISPLAY SETTINGS
+            </button>
           </nav>
         </div>
 
@@ -676,7 +693,6 @@ export default function ResellerAdmin({ session }) {
                   </div>
                 </div>
 
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Stage 3 Price ({currencySymbols[currency]})
@@ -698,7 +714,6 @@ export default function ResellerAdmin({ session }) {
                     />
                   </div>
                 </div>
-
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -1037,6 +1052,183 @@ export default function ResellerAdmin({ session }) {
                   className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
                 >
                   Save
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "selections" && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8">
+            <div className="px-6 py-5 border-b border-gray-200">
+              <h2 className="text-lg font-semibold text-gray-900">
+                Display Settings Configuration
+              </h2>
+              <p className="mt-1 text-sm text-gray-500">
+                Control which elements are visible to your customers
+              </p>
+            </div>
+            <div className="px-6 py-5">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-900">
+                      AKTPLUS Options
+                    </h3>
+                    <p className="text-sm text-gray-500">
+                      Show or hide the additional options section
+                    </p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={displaySettings.showAktPlus}
+                      onChange={() =>
+                        setDisplaySettings((prev) => ({
+                          ...prev,
+                          showAktPlus: !prev.showAktPlus,
+                        }))
+                      }
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                  </label>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-900">
+                      Brand Logo
+                    </h3>
+                    <p className="text-sm text-gray-500">
+                      Show or hide the brand logo in the tuning stages
+                    </p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={displaySettings.showBrandLogo}
+                      onChange={() =>
+                        setDisplaySettings((prev) => ({
+                          ...prev,
+                          showBrandLogo: !prev.showBrandLogo,
+                        }))
+                      }
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                  </label>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-900">
+                      Stage Badges
+                    </h3>
+                    <p className="text-sm text-gray-500">
+                      Show or hide the stage badges (Steg 1, Steg 2, etc.)
+                    </p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={displaySettings.showStageLogo}
+                      onChange={() =>
+                        setDisplaySettings((prev) => ({
+                          ...prev,
+                          showStageLogo: !prev.showStageLogo,
+                        }))
+                      }
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                  </label>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-900">
+                      Dyno Charts
+                    </h3>
+                    <p className="text-sm text-gray-500">
+                      Show or hide the dyno performance charts
+                    </p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={displaySettings.showDynoChart}
+                      onChange={() =>
+                        setDisplaySettings((prev) => ({
+                          ...prev,
+                          showDynoChart: !prev.showDynoChart,
+                        }))
+                      }
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                  </label>
+                </div>
+              </div>
+
+              <div className="mt-6 flex justify-end">
+                <button
+                  onClick={async () => {
+                    try {
+                      setIsLoading(true);
+                      await fetch("/api/update-display-settings", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(displaySettings),
+                      });
+                      setSaveStatus({
+                        message: "Display settings saved successfully!",
+                        isError: false,
+                      });
+                    } catch (err) {
+                      console.error("Error updating display settings", err);
+                      setSaveStatus({
+                        message: "Failed to save settings.",
+                        isError: true,
+                      });
+                    } finally {
+                      setIsLoading(false);
+                      setTimeout(
+                        () => setSaveStatus({ message: "", isError: false }),
+                        3000
+                      );
+                    }
+                  }}
+                  disabled={isLoading}
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? (
+                    <>
+                      <svg
+                        className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      Saving...
+                    </>
+                  ) : (
+                    "Save Display Settings"
+                  )}
                 </button>
               </div>
             </div>

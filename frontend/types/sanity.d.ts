@@ -57,6 +57,26 @@ export interface AktPlusResolved {
   installationTime: number;
 }
 
+export interface DisplaySettings {
+  showAktPlus: boolean;
+  showBrandLogo: boolean;
+  showStageLogo: boolean;
+  showDynoChart: boolean;
+}
+
+export interface ResellerConfig {
+  logo?: any;
+  currency: string;
+  language: string;
+  exchangeRates: Record<string, number>;
+  displaySettings: {
+    showAktPlus: boolean;
+    showBrandLogo: boolean;
+    showStageLogo: boolean;
+    showDynoChart: boolean;
+  };
+}
+
 export type AktPlusOptionReference = Reference | AktPlusOption;
 
 export interface Stage {
