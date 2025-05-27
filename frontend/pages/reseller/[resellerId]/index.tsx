@@ -698,7 +698,8 @@ export default function TuningViewer() {
             <img
               src={resellerLogo}
               alt="Reseller Logo"
-              className="h-12 object-contain"
+              className="h-auto max-h-16 w-auto max-w-[200px] object-contain"
+              loading="lazy"
               onClick={() => router.reload()}
             />
           )}
