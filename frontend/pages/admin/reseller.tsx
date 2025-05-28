@@ -84,6 +84,8 @@ export default function ResellerAdmin({ session }) {
         const json = await res.json();
         if (json.currency) setCurrency(json.currency);
         if (json.language) setLanguage(json.language);
+        if (json.subscription) setSubscription(json.subscription);
+        if (json.logo?.asset?.url) setLogoPreview(json.logo.asset.url);
       } catch (err) {
         console.error("Failed to load reseller settings", err);
         setSaveStatus({ message: "Failed to load settings", isError: true });
@@ -148,6 +150,12 @@ export default function ResellerAdmin({ session }) {
   const sortedStageDescriptions = [...stageDescriptions].sort((a, b) => {
     const order = ["Steg 1", "Steg 2", "Steg 3", "Steg 4", "DSG"];
     return order.indexOf(a.stageName) - order.indexOf(b.stageName);
+  });
+
+  const [subscription, setSubscription] = useState({
+    planType: "month",
+    price: 0,
+    currency: "EUR",
   });
 
   // Add this function to handle logo upload
@@ -1485,6 +1493,48 @@ export default function ResellerAdmin({ session }) {
                       "Save Settings"
                     )}
                   </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="px-6 py-5 border-b border-gray-200">
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Subscription Plan
+                </h2>
+                <p className="mt-1 text-sm text-gray-500">
+                  Your current subscription details
+                </p>
+              </div>
+              <div className="px-6 py-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Plan Type
+                    </label>
+                    <div className="mt-1 text-sm text-gray-900 p-2 bg-gray-50 rounded-md">
+                      {subscription?.planType === "month"
+                        ? "Monthly"
+                        : "Yearly"}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Price
+                    </label>
+                    <div className="mt-1 text-sm text-gray-900 p-2 bg-gray-50 rounded-md">
+                      {subscription?.price?.toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}{" "}
+                      {subscription?.currency}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 text-sm text-gray-500">
+                  Contact support if you need to change your subscription plan.
                 </div>
               </div>
             </div>
