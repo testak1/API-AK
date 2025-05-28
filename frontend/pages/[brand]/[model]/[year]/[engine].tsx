@@ -489,9 +489,7 @@ export default function EnginePage({
 
   const pageUrl = `https://tuning.aktuning.se${router.asPath.split("?")[0]}`;
 
-  const imageUrl = brandData.logo?.asset
-    ? urlFor(brandData.logo).width(600).url()
-    : "https://aktuning.se/img/ak-tuning-custom-engine-tuning-logo-1573781489.jpg";
+  const imageUrl = "https://tuning.aktuning.se/ak-logo.png";
 
   if (!engineData || !brandData || !modelData || !yearData) {
     return (
@@ -511,10 +509,10 @@ export default function EnginePage({
         <title>{pageTitle}</title>
         <meta name="description" content={pageDescription} />
 
-         <link
-    rel="canonical"
-    href={`https://tuning.aktuning.se${router.asPath.split("?")[0]}`}
-  />
+        <link
+          rel="canonical"
+          href={`https://tuning.aktuning.se${router.asPath.split("?")[0]}`}
+        />
 
         {/* Open Graph */}
         <meta property="og:title" content={pageTitle} />
@@ -539,14 +537,8 @@ export default function EnginePage({
               description: pageDescription,
               brand: {
                 "@type": "Brand",
-                name: brandData.name,
-                logo:
-                  typeof brandData.logo === "object" &&
-                  "asset" in brandData.logo &&
-                  brandData.logo.asset &&
-                  "url" in brandData.logo.asset
-                    ? brandData.logo.asset.url
-                    : undefined,
+                name: "AK-TUNING",
+                logo: "https://tuning.aktuning.se/ak-logo.png",
               },
               offers: selectedStage?.price
                 ? {
@@ -570,7 +562,7 @@ export default function EnginePage({
               "@type": "Organization",
               name: "AK-TUNING",
               url: "https://tuning.aktuning.se",
-              logo: "https://tuning.aktuning.se/ak-logo1.png",
+              logo: "https://tuning.aktuning.se/ak-logo.png",
             }),
           }}
         />
@@ -611,8 +603,6 @@ export default function EnginePage({
             }),
           }}
         />
-
-          
       </Head>
 
       <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
@@ -628,9 +618,6 @@ export default function EnginePage({
             onClick={() => (window.location.href = "/")}
           />
         </div>
-       
-
-        
         <div className="mb-8">
           <h1 className="text-xl sm:text-3xl md:text-xl font-bold text-center">
             {"Motoroptimering "}
