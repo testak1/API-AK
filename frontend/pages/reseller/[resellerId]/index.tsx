@@ -1419,7 +1419,7 @@ export default function TuningViewer() {
                         {/* KONTAKT button */}
                         <div className="mt-8 mb-10 flex flex-col items-center">
                           <button
-                            onClick={() => setResellerContactModalOpen(true)}
+                            onClick={() => ResellerContactModal}
                             className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg flex items-center gap-2"
                           >
                             <span>📩</span>{" "}
@@ -1564,9 +1564,7 @@ export default function TuningViewer() {
 
                                             <button
                                               onClick={() =>
-                                                setResellerContactModalOpen(
-                                                  true,
-                                                )
+                                                ResellerContactModal
                                               }
                                               className="bg-green-600 hover:bg-green-700 hover:scale-105 transform transition-all text-white px-6 py-3 rounded-lg font-medium shadow-lg"
                                             >
