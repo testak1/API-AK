@@ -459,13 +459,13 @@ export default function ResellerAdmin({ session }) {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-gradient-to-r from-blue-800 to-blue-600 text-white shadow-lg">
+      <header className="bg-gradient-to-r from-red-800 to-red-600 text-white shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div className="flex items-center space-x-3">
-              <div className="bg-white p-2 rounded-lg">
+              <div className="bg-white p-2 rounded-lg shadow-md">
                 <svg
-                  className="w-8 h-8 text-blue-600"
+                  className="w-8 h-8 text-red-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -480,24 +480,24 @@ export default function ResellerAdmin({ session }) {
                 </svg>
               </div>
               <div>
-                <h1 className="text-2xl md:text-3xl font-bold">
-                  API Dashboard Portal
+                <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+                  Performance Tuning Dashboard
                 </h1>
-                <p className="text-blue-100 text-sm">
+                <p className="text-red-100 text-sm">
                   Customize and manage your tuning configurations
                 </p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <div className="hidden md:flex items-center space-x-2 bg-blue-700/50 px-3 py-1 rounded-full">
-                <span className="h-2 w-2 bg-green-400 rounded-full"></span>
+              <div className="hidden md:flex items-center space-x-2 bg-red-700/50 px-3 py-1 rounded-full">
+                <span className="h-2 w-2 bg-green-400 rounded-full animate-pulse"></span>
                 <span className="text-sm">
                   {session.user.name || session.user.email}
                 </span>
               </div>
               <button
                 onClick={() => signOut()}
-                className="flex items-center space-x-1 bg-white/10 hover:bg-white/20 px-3 py-2 rounded-md transition-colors"
+                className="flex items-center space-x-1 bg-white/10 hover:bg-white/20 px-3 py-2 rounded-md transition-colors duration-200"
               >
                 <svg
                   className="w-5 h-5"
@@ -571,7 +571,7 @@ export default function ResellerAdmin({ session }) {
               onClick={() => setActiveTab("tuning")}
               className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === "tuning"
-                  ? "border-blue-500 text-blue-600"
+                  ? "border-red-500 text-red-600"
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
               }`}
             >
@@ -581,7 +581,7 @@ export default function ResellerAdmin({ session }) {
               onClick={() => setActiveTab("general")}
               className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === "general"
-                  ? "border-blue-500 text-blue-600"
+                  ? "border-red-500 text-red-600"
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
               }`}
             >
@@ -591,17 +591,17 @@ export default function ResellerAdmin({ session }) {
               onClick={() => setActiveTab("descriptions")}
               className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === "descriptions"
-                  ? "border-blue-500 text-blue-600"
+                  ? "border-red-500 text-red-600"
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
               }`}
             >
-              STAGE DESCRIPTIONS & INFO
+              STAGE DESCRIPTIONS
             </button>
             <button
               onClick={() => setActiveTab("aktplus")}
               className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === "aktplus"
-                  ? "border-blue-500 text-blue-600"
+                  ? "border-red-500 text-red-600"
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
               }`}
             >
@@ -611,7 +611,7 @@ export default function ResellerAdmin({ session }) {
               onClick={() => setActiveTab("settings")}
               className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === "settings"
-                  ? "border-blue-500 text-blue-600"
+                  ? "border-red-500 text-red-600"
                   : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
               }`}
             >
@@ -623,7 +623,7 @@ export default function ResellerAdmin({ session }) {
         {/* General Tab */}
         {activeTab === "general" && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8">
-            <div className="px-6 py-5 border-b border-gray-200">
+            <div className="px-6 py-5 border-b border-gray-200 bg-gradient-to-r from-red-50 to-white">
               <h2 className="text-lg font-semibold text-gray-900">
                 Bulk Pricing Configuration
               </h2>
@@ -645,7 +645,7 @@ export default function ResellerAdmin({ session }) {
                       setSelectedModel("");
                       setSelectedYear("");
                     }}
-                    className="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border"
+                    className="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm rounded-md border"
                     disabled={isLoading}
                   >
                     <option value="">Select Brand</option>
@@ -666,7 +666,7 @@ export default function ResellerAdmin({ session }) {
                     <label className="inline-flex items-center">
                       <input
                         type="radio"
-                        className="form-radio h-4 w-4 text-blue-600"
+                        className="form-radio h-4 w-4 text-red-600"
                         checked={bulkPrices.applyLevel === "model"}
                         onChange={() =>
                           handleBulkPriceChange("applyLevel", "model")
@@ -677,7 +677,7 @@ export default function ResellerAdmin({ session }) {
                     <label className="inline-flex items-center">
                       <input
                         type="radio"
-                        className="form-radio h-4 w-4 text-blue-600"
+                        className="form-radio h-4 w-4 text-red-600"
                         checked={bulkPrices.applyLevel === "year"}
                         onChange={() =>
                           handleBulkPriceChange("applyLevel", "year")
@@ -687,8 +687,6 @@ export default function ResellerAdmin({ session }) {
                     </label>
                   </div>
                 </div>
-
-                {/* Model/Year Selection */}
                 {selectedBrand && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -698,7 +696,7 @@ export default function ResellerAdmin({ session }) {
                       <select
                         value={selectedModel}
                         onChange={(e) => setSelectedModel(e.target.value)}
-                        className="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border"
+                        className="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm rounded-md border"
                         disabled={!selectedBrand || isLoading}
                       >
                         <option value="">Select Model</option>
@@ -714,7 +712,7 @@ export default function ResellerAdmin({ session }) {
                       <select
                         value={selectedYear}
                         onChange={(e) => setSelectedYear(e.target.value)}
-                        className="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border"
+                        className="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm rounded-md border"
                         disabled={!selectedModel || isLoading}
                       >
                         <option value="">Select Year</option>
@@ -750,7 +748,7 @@ export default function ResellerAdmin({ session }) {
                       onChange={(e) =>
                         handleBulkPriceChange("steg1", e.target.value)
                       }
-                      className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md p-2 border"
+                      className="focus:ring-red-500 focus:border-red-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md p-2 border"
                       placeholder="Leave empty to keep original"
                     />
                   </div>
@@ -772,7 +770,7 @@ export default function ResellerAdmin({ session }) {
                       onChange={(e) =>
                         handleBulkPriceChange("steg2", e.target.value)
                       }
-                      className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md p-2 border"
+                      className="focus:ring-red-500 focus:border-red-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md p-2 border"
                       placeholder="Leave empty to keep original"
                     />
                   </div>
@@ -794,7 +792,7 @@ export default function ResellerAdmin({ session }) {
                       onChange={(e) =>
                         handleBulkPriceChange("steg3", e.target.value)
                       }
-                      className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md p-2 border"
+                      className="focus:ring-red-500 focus:border-red-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md p-2 border"
                       placeholder="Leave empty to keep original"
                     />
                   </div>
@@ -816,7 +814,7 @@ export default function ResellerAdmin({ session }) {
                       onChange={(e) =>
                         handleBulkPriceChange("steg4", e.target.value)
                       }
-                      className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md p-2 border"
+                      className="focus:ring-red-500 focus:border-red-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md p-2 border"
                       placeholder="Leave empty to keep original"
                     />
                   </div>
@@ -837,7 +835,7 @@ export default function ResellerAdmin({ session }) {
                       onChange={(e) =>
                         handleBulkPriceChange("dsg", e.target.value)
                       }
-                      className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md p-2 border"
+                      className="focus:ring-red-500 focus:border-red-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md p-2 border"
                       placeholder="Leave empty to keep original"
                     />
                   </div>
@@ -853,7 +851,7 @@ export default function ResellerAdmin({ session }) {
                     (bulkPrices.applyLevel === "model" && !selectedModel) ||
                     (bulkPrices.applyLevel === "year" && !selectedYear)
                   }
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-70 disabled:cursor-not-allowed"
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-70 disabled:cursor-not-allowed transition-colors duration-200"
                 >
                   {isLoading ? (
                     <>
@@ -890,7 +888,7 @@ export default function ResellerAdmin({ session }) {
 
         {activeTab === "aktplus" && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8">
-            <div className="px-6 py-5 border-b border-gray-200">
+            <div className="px-6 py-5 border-b border-gray-200 bg-gradient-to-r from-red-50 to-white">
               <h2 className="text-lg font-semibold text-gray-900">
                 AKTPLUS Configuration
               </h2>
@@ -919,7 +917,10 @@ export default function ResellerAdmin({ session }) {
                 };
 
                 return (
-                  <div key={item.id} className="space-y-3 border-b pb-4">
+                  <div
+                    key={item.id}
+                    className="space-y-3 border-b pb-4 last:border-b-0"
+                  >
                     <div className="flex items-start gap-4">
                       {item.imageUrl && (
                         <img
@@ -947,7 +948,7 @@ export default function ResellerAdmin({ session }) {
                         )}
                         <div className="prose prose-sm text-gray-500">
                           {item.isOverride ? (
-                            <p className="text-xs text-blue-500">
+                            <p className="text-xs text-red-500">
                               Custom override applied
                             </p>
                           ) : (
