@@ -65,6 +65,7 @@ export interface DisplaySettings {
 }
 
 export interface ResellerConfig {
+  email: string;
   logo?: any;
   currency: string;
   language: string;

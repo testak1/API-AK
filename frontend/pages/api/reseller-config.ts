@@ -40,6 +40,7 @@ export default async function handler(req, res) {
     );
 
     const response: ResellerConfig = {
+      email: result?.email,
       logo: result?.logo ?? null,
       currency: result?.currency ?? "SEK",
       language: result?.language ?? "sv",
