@@ -68,7 +68,6 @@ export interface ResellerConfig {
   logo?: any;
   currency: string;
   language: string;
-  theme: string;
   exchangeRates: Record<string, number>;
   displaySettings: {
     showAktPlus: boolean;

@@ -29,8 +29,6 @@ export default function ResellerAdmin({ session }) {
     applyLevel: "model", // 'model' or 'year'
   });
 
-  const [theme, setTheme] = useState("dark");
-
   const [stageDescriptions, setStageDescriptions] = useState([]);
 
   useEffect(() => {
@@ -86,7 +84,6 @@ export default function ResellerAdmin({ session }) {
         const json = await res.json();
         if (json.currency) setCurrency(json.currency);
         if (json.language) setLanguage(json.language);
-        if (json.theme) setTheme(json.theme);
       } catch (err) {
         console.error("Failed to load reseller settings", err);
         setSaveStatus({ message: "Failed to load settings", isError: true });
@@ -104,7 +101,7 @@ export default function ResellerAdmin({ session }) {
       await fetch("/api/update-reseller-settings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ currency, language, theme }),
+        body: JSON.stringify({ currency, language }),
       });
       setSaveStatus({
         message: "Settings saved successfully!",
@@ -1297,23 +1294,6 @@ export default function ResellerAdmin({ session }) {
                         <option value="ar">Arabic</option>
                       </select>
                     </div>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Theme
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={theme}
-                      onChange={(e) => setTheme(e.target.value)}
-                      className="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border"
-                    >
-                      <option value="dark">Dark</option>
-                      <option value="light">Light</option>
-                      <option value="professional">Professional</option>
-                    </select>
                   </div>
                 </div>
 

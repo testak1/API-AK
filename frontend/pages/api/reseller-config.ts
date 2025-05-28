@@ -40,7 +40,6 @@ export default async function handler(req, res) {
       logo: result?.logo ?? null,
       currency: result?.currency ?? "SEK",
       language: result?.language ?? "sv",
-      theme: result?.theme ?? "dark",
       displaySettings: result?.displaySettings ?? defaultDisplaySettings,
       exchangeRates,
     };

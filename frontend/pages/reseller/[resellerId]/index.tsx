@@ -93,7 +93,6 @@ export default function TuningViewer() {
     logo?: any;
     currency: string;
     language: string;
-    theme: string;
     exchangeRates: Record<string, number>;
     displaySettings?: {
       showAktPlus: boolean;
@@ -104,7 +103,6 @@ export default function TuningViewer() {
   }>({
     currency: "SEK",
     language: "sv",
-    theme: "dark",
     exchangeRates: { SEK: 1, EUR: 0.1, USD: 0.095 },
   });
 
@@ -606,19 +604,6 @@ export default function TuningViewer() {
     [selectedEngine],
   );
 
-  const getThemeClass = (theme: string) => {
-    switch (theme) {
-      case "dark":
-        return "dark";
-      case "light":
-        return "";
-      case "professional":
-        return "professional";
-      default:
-        return "dark";
-    }
-  };
-
   const generateDynoCurve = (
     peakValue: number,
     isHp: boolean,
@@ -737,9 +722,7 @@ export default function TuningViewer() {
 
   return (
     <>
-      <div
-        className={`w-full max-w-6xl mx-auto px-2 p-4 sm:px-4 ${getThemeClass(settings.theme)}`}
-      >
+      <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
         <div className="flex items-center mb-4">
           {resellerLogo && (
             <img
@@ -879,15 +862,7 @@ export default function TuningViewer() {
 
         {isLoading ? (
           <div className="flex justify-center py-12">
-            <div
-              className={`animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 ${
-                settings.theme === "dark"
-                  ? "border-indigo-500"
-                  : settings.theme === "professional"
-                    ? "border-blue-600"
-                    : "border-indigo-600"
-              }`}
-            ></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
           </div>
         ) : stages.length > 0 ? (
           <div className="space-y-6">
@@ -902,23 +877,11 @@ export default function TuningViewer() {
               return (
                 <div
                   key={stage.name}
-                  className={`rounded-xl shadow-lg overflow-hidden ${
-                    settings.theme === "dark"
-                      ? "bg-gray-800 border-gray-700"
-                      : settings.theme === "professional"
-                        ? "bg-white border-blue-100 shadow-[var(--color-card-shadow)]"
-                        : "bg-gray-100 border-gray-200"
-                  } border`}
+                  className="bg-gray-800 rounded-xl shadow-lg border border-gray-700 overflow-hidden"
                 >
                   <button
                     onClick={() => toggleStage(stage.name)}
-                    className={`w-full p-6 text-left transition-colors duration-200 ${
-                      settings.theme === "dark"
-                        ? "hover:bg-gray-700"
-                        : settings.theme === "professional"
-                          ? "hover:bg-blue-50"
-                          : "hover:bg-gray-200"
-                    }`}
+                    className="w-full p-6 text-left hover:bg-gray-700 transition-colors duration-200"
                   >
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                       <div className="flex items-center gap-4">
@@ -936,15 +899,7 @@ export default function TuningViewer() {
                               className="h-8 w-auto object-contain"
                             />
                           )}
-                        <h2
-                          className={`text-lg font-semibold ${
-                            settings.theme === "dark"
-                              ? "text-white"
-                              : settings.theme === "professional"
-                                ? "text-gray-800"
-                                : "text-gray-900"
-                          }`}
-                        >
+                        <h2 className="text-lg font-semibold text-white">
                           {selected.engine} -{" "}
                           <span
                             className={`uppercase tracking-wide ${getStageColor(stage.name)}`}
@@ -1062,15 +1017,7 @@ export default function TuningViewer() {
                       ) : (
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 mt-6">
                           {/* ORIGINAL & TUNED SPECS - PERFORMANCE */}
-                          <div
-                            className={`rounded-lg p-3 text-center ${
-                              settings.theme === "dark"
-                                ? "border-white text-white"
-                                : settings.theme === "professional"
-                                  ? "border-blue-300 text-gray-800"
-                                  : "border-gray-400 text-gray-900"
-                            } border`}
-                          >
+                          <div className="border border-white rounded-lg p-3 text-center">
                             <p className="text-sm text-white font-bold mb-1">
                               {translate(settings.language, "originalHp")}
                             </p>
@@ -1123,15 +1070,13 @@ export default function TuningViewer() {
                       <div className="flex flex-col sm:flex-row gap-4 mt-4">
                         <button
                           onClick={() =>
-                            setInfoModal({ open: true, type: "stage", stage })
+                            setInfoModal({
+                              open: true,
+                              type: "stage",
+                              stage,
+                            })
                           }
-                          className={`px-4 py-2 rounded-lg shadow ${
-                            settings.theme === "dark"
-                              ? "bg-gray-700 hover:bg-gray-600 text-white"
-                              : settings.theme === "professional"
-                                ? "bg-blue-100 hover:bg-blue-200 text-blue-800"
-                                : "bg-gray-200 hover:bg-gray-300 text-gray-800"
-                          }`}
+                          className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg shadow"
                         >
                           📄{" "}
                           {translate(
@@ -1458,11 +1403,7 @@ export default function TuningViewer() {
                         <div className="mt-8 mb-10 flex flex-col items-center">
                           <button
                             onClick={() => handleBookNow(stage.name)}
-                            className={`px-6 py-3 rounded-lg font-medium shadow-lg flex items-center gap-2 ${
-                              settings.theme === "professional"
-                                ? "bg-gradient-to-r from-blue-600 to-blue-800 text-white"
-                                : "bg-green-600 hover:bg-green-700 text-white"
-                            }`}
+                            className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg flex items-center gap-2"
                           >
                             <span>📩</span>{" "}
                             {translate(settings.language, "contactvalue")}
