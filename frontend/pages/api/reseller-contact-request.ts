@@ -61,8 +61,10 @@ export default async function handler(
             <li><strong>Model:</strong> ${vehicleInfo.model}</li>
             <li><strong>Year:</strong> ${vehicleInfo.year}</li>
             <li><strong>Engine:</strong> ${vehicleInfo.engine}</li>
-            ${stageOrOption ? `<li><strong>Stage/Option:</strong> ${stageOrOption}</li>` : ""}
+            ${stageOrOption ? `<li><strong>Stage/Option:</strong> ${stageOrOption.replace("Steg", "STAGE").toUpperCase()}</li>` : ""}
           </ul>
+
+          
           
           <h3 style="color: #2d3748; margin-top: 20px;">Customer Details</h3>
           <ul style="list-style: none; padding: 0;">
