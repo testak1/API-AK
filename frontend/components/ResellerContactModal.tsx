@@ -182,11 +182,11 @@ export default function ResellerContactModal({
                     as="h3"
                     className="text-lg font-medium leading-6 text-white text-center"
                   >
-                    📞 CONTACT
+                    CONTACT
                   </Dialog.Title>
                   <div className="mt-4 space-y-3">
                     <p className="text-sm text-gray-300 text-center">
-                      📋 SELECT OPTION
+                      SELECT OPTION
                     </p>
 
                     <div className="space-y-2">
@@ -207,7 +207,7 @@ export default function ResellerContactModal({
                             d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                           />
                         </svg>
-                        📨 SEND FORM
+                        SEND FORM
                       </button>
 
                       <button
@@ -246,7 +246,7 @@ export default function ResellerContactModal({
                         htmlFor="name"
                         className="block text-sm font-medium text-gray-300"
                       >
-                        Name
+                        👤 Name
                       </label>
                       <input
                         type="text"
@@ -265,7 +265,7 @@ export default function ResellerContactModal({
                         htmlFor="email"
                         className="block text-sm font-medium text-gray-300"
                       >
-                        Email
+                        ✉️ Email
                       </label>
                       <input
                         type="email"
@@ -284,7 +284,7 @@ export default function ResellerContactModal({
                         htmlFor="phone"
                         className="block text-sm font-medium text-gray-300"
                       >
-                        Phone
+                        📞 Phone
                       </label>
                       <input
                         type="tel"
@@ -303,7 +303,7 @@ export default function ResellerContactModal({
                         htmlFor="message"
                         className="block text-sm font-medium text-gray-300"
                       >
-                        Message
+                        💬 Message
                       </label>
                       <textarea
                         id="message"
