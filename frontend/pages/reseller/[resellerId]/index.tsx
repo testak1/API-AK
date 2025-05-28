@@ -22,7 +22,7 @@ import type {
   AktPlusOption,
   AktPlusOptionReference,
 } from "@/types/sanity";
-import ContactModal from "@/components/ContactModal";
+import ResellerContactModal from "@/components/ResellerContactModal";
 import { link } from "fs";
 import { useRouter } from "next/router";
 import { GetServerSideProps } from "next";
@@ -263,7 +263,7 @@ export default function TuningViewer() {
     Record<string, boolean>
   >({});
   const watermarkImageRef = useRef<HTMLImageElement | null>(null);
-  const [contactModalData, setContactModalData] = useState<{
+  const [ResellerContactModaldata, setResellerContactModalData] = useState<{
     isOpen: boolean;
     stageOrOption: string;
     link: string;
@@ -350,7 +350,7 @@ export default function TuningViewer() {
 
     const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
 
-    setContactModalData({
+    setResellerContactModalData({
       isOpen: true,
       stageOrOption: stageOrOptionName,
       link: finalLink,
@@ -1576,10 +1576,14 @@ export default function TuningViewer() {
         ) : null}
 
         {/* Modal */}
-        <ContactModal
-          isOpen={contactModalData.isOpen}
+        <ResellerContactModal
+          isOpen={ResellerContactModaldata.isOpen}
           onClose={() =>
-            setContactModalData({ isOpen: false, stageOrOption: "", link: "" })
+            setResellerContactModalData({
+              isOpen: false,
+              stageOrOption: "",
+              link: "",
+            })
           }
           selectedVehicle={{
             brand: selected.brand,
@@ -1587,9 +1591,9 @@ export default function TuningViewer() {
             year: selected.year,
             engine: selected.engine,
           }}
-          stageOrOption={contactModalData.stageOrOption}
-          link={contactModalData.link}
-          scrollPosition={contactModalData.scrollPosition}
+          stageOrOption={ResellerContactModaldata.stageOrOption}
+          link={ResellerContactModaldata.link}
+          scrollPosition={ResellerContactModaldata.scrollPosition}
         />
         <InfoModal
           isOpen={infoModal.open}
