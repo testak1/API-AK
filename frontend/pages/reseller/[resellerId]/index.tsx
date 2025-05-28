@@ -274,7 +274,8 @@ export default function TuningViewer() {
     link: "",
   });
 
-  const [ContactModalOpen, setContactModalOpen] = useState(false);
+  const [ResellerContactModalOpen, setResellerContactModalOpen] =
+    useState(false);
   const [resellerContactInfo, setResellerContactInfo] = useState("");
 
   // Fetch contact info on mount (or when needed)
@@ -1418,7 +1419,7 @@ export default function TuningViewer() {
                         {/* KONTAKT button */}
                         <div className="mt-8 mb-10 flex flex-col items-center">
                           <button
-                            onClick={() => setContactModalOpen(true)}
+                            onClick={() => setResellerContactModalOpen(true)}
                             className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg flex items-center gap-2"
                           >
                             <span>📩</span>{" "}
@@ -1563,7 +1564,9 @@ export default function TuningViewer() {
 
                                             <button
                                               onClick={() =>
-                                                setContactModalOpen(true)
+                                                setResellerContactModalOpen(
+                                                  true,
+                                                )
                                               }
                                               className="bg-green-600 hover:bg-green-700 hover:scale-105 transform transition-all text-white px-6 py-3 rounded-lg font-medium shadow-lg"
                                             >
@@ -1595,7 +1598,11 @@ export default function TuningViewer() {
         <ResellerContactModal
           isOpen={ResellerContactModalData.isOpen}
           onClose={() =>
-            setResellerContactModalData({ isOpen: false, stageOrOption: "", link: "" })
+            setResellerContactModalData({
+              isOpen: false,
+              stageOrOption: "",
+              link: "",
+            })
           }
           vehicleInfo={{
             brand: selected.brand,
