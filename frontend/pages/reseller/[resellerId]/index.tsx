@@ -274,9 +274,7 @@ export default function TuningViewer() {
     link: "",
   });
 
-  const [ResellerContactModalOpen, setResellerContactModalOpen] =
-    useState(false);
-  const [resellerContactInfo, setResellerContactInfo] = useState("");
+  const [contactInfo, setContactInfo] = useState("");
 
   // Fetch contact info on mount (or when needed)
   useEffect(() => {
@@ -285,7 +283,7 @@ export default function TuningViewer() {
         "api/reseller-config?resellerId=${session.user.resellerId}",
       );
       const json = await response.json();
-      setResellerContactInfo(json?.contactInfo || "");
+      if (json.contactInfo) setContactInfo(json.contactInfo);
     };
 
     fetchContactInfo();
@@ -367,12 +365,6 @@ export default function TuningViewer() {
 
     const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
 
-    setResellerContactModalData({
-      isOpen: true,
-      stageOrOption: stageOrOptionName,
-      link: finalLink,
-      scrollPosition: isMobile ? undefined : 0,
-    });
     window.parent.postMessage({ scrollToIframe: true }, "*");
   };
 
@@ -1419,7 +1411,13 @@ export default function TuningViewer() {
                         {/* KONTAKT button */}
                         <div className="mt-8 mb-10 flex flex-col items-center">
                           <button
-                            onClick={() => ResellerContactModal}
+                            onClick={() =>
+                              setResellerContactModalData((prev) => ({
+                                ...prev,
+                                isOpen: true,
+                                stageOrOption: stage.name, // or appropriate value
+                              }))
+                            }
                             className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg flex items-center gap-2"
                           >
                             <span>📩</span>{" "}
@@ -1564,7 +1562,13 @@ export default function TuningViewer() {
 
                                             <button
                                               onClick={() =>
-                                                ResellerContactModal
+                                                setResellerContactModalData(
+                                                  (prev) => ({
+                                                    ...prev,
+                                                    isOpen: true,
+                                                    stageOrOption: stage.name, // or appropriate value
+                                                  }),
+                                                )
                                               }
                                               className="bg-green-600 hover:bg-green-700 hover:scale-105 transform transition-all text-white px-6 py-3 rounded-lg font-medium shadow-lg"
                                             >
@@ -1610,6 +1614,7 @@ export default function TuningViewer() {
           }}
           stageOrOption={ResellerContactModalData.stageOrOption}
         />
+
         <InfoModal
           isOpen={infoModal.open}
           onClose={() => setInfoModal({ open: false, type: "stage" })}
