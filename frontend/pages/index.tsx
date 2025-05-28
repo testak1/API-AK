@@ -556,7 +556,8 @@ export default function TuningViewer() {
             fetchPriority="high"
             alt="AK-TUNING"
             style={{ height: "80px", cursor: "pointer" }}
-            className="h-12 object-contain"
+            className="h-auto max-h-20 w-auto max-w-[500px] object-contain"
+            loading="lazy"
             onClick={() => window.location.reload()}
           />
         </div>
