@@ -180,14 +180,13 @@ export default function ResellerContactModal({
                 <>
                   <Dialog.Title
                     as="h3"
-                    className="text-lg font-medium leading-6 text-white"
+                    className="text-lg font-medium leading-6 text-white text-center"
                   >
-                    Contact Reseller
+                    CONTACT
                   </Dialog.Title>
                   <div className="mt-4 space-y-3">
-                    <p className="text-sm text-gray-300">
-                      How would you like to contact the reseller about this
-                      tuning?
+                    <p className="text-sm text-gray-300 text-center">
+                      SELECT OPTION
                     </p>
 
                     <div className="space-y-2">
