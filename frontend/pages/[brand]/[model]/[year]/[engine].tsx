@@ -611,9 +611,9 @@ export default function EnginePage({
           <NextImage
             src="/ak-logo2.png"
             alt="AK-TUNING MOTOROPTIMERING"
-            width={100}
-            height={100}
-            className="h-12 object-contain cursor-pointer"
+            width={110}
+            height={120}
+            className="h-12 object-contain cursor-pointer hover:opacity-90"
             onClick={() => (window.location.href = "/")}
             priority
           />
