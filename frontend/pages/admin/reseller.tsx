@@ -1665,6 +1665,372 @@ export default function ResellerAdmin({ session }) {
             </div>
           </div>
         )}
+        {/* Tuning Tab */}
+        {activeTab === "tuning" && (
+          <>
+            {/* Vehicle Selection Card */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8">
+              <div className="px-6 py-5 border-b border-gray-200">
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Vehicle Selection
+                </h2>
+                <p className="mt-1 text-sm text-gray-500">
+                  Select a vehicle to customize tuning stages
+                </p>
+              </div>
+              <div className="px-6 py-5">
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Brand
+                      </label>
+                      <select
+                        value={selectedBrand}
+                        onChange={(e) => {
+                          setSelectedBrand(e.target.value);
+                          setSelectedModel("");
+                          setSelectedYear("");
+                          setSelectedEngine("");
+                        }}
+                        className="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border"
+                        disabled={isLoading}
+                      >
+                        <option value="">Select Brand</option>
+                        {brands.map((b) => (
+                          <option key={b.name} value={b.name}>
+                            {b.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {selectedBrand && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Model
+                        </label>
+                        <select
+                          value={selectedModel}
+                          onChange={(e) => {
+                            setSelectedModel(e.target.value);
+                            setSelectedYear("");
+                            setSelectedEngine("");
+                          }}
+                          className="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border"
+                          disabled={isLoading}
+                        >
+                          <option value="">Select Model</option>
+                          {brands
+                            .find((b) => b.name === selectedBrand)
+                            ?.models?.map((m) => (
+                              <option key={m.name} value={m.name}>
+                                {m.name}
+                              </option>
+                            ))}
+                        </select>
+                      </div>
+                    )}
+
+                    {selectedModel && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Year
+                        </label>
+                        <select
+                          value={selectedYear}
+                          onChange={(e) => {
+                            setSelectedYear(e.target.value);
+                            setSelectedEngine("");
+                          }}
+                          className="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border"
+                          disabled={isLoading}
+                        >
+                          <option value="">Select Year</option>
+                          {brands
+                            .find((b) => b.name === selectedBrand)
+                            ?.models?.find((m) => m.name === selectedModel)
+                            ?.years?.map((y) => (
+                              <option key={y.range} value={y.range}>
+                                {y.range}
+                              </option>
+                            ))}
+                        </select>
+                      </div>
+                    )}
+
+                    {selectedYear && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Engine
+                        </label>
+                        <select
+                          value={selectedEngine}
+                          onChange={(e) => setSelectedEngine(e.target.value)}
+                          className="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border"
+                          disabled={isLoading}
+                        >
+                          <option value="">Select Engine</option>
+                          {brands
+                            .find((b) => b.name === selectedBrand)
+                            ?.models?.find((m) => m.name === selectedModel)
+                            ?.years?.find((y) => y.range === selectedYear)
+                            ?.engines?.map((e) => (
+                              <option key={e.label} value={e.label}>
+                                {e.label}
+                              </option>
+                            ))}
+                        </select>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Tuning Stages */}
+            {selectedStages.length > 0 && (
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div className="px-6 py-5 border-b border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-lg font-semibold text-gray-900">
+                        Tuning Stages
+                      </h2>
+                      <p className="mt-1 text-sm text-gray-500">
+                        Customize pricing and specifications for each stage
+                      </p>
+                    </div>
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                      {selectedBrand} {selectedModel} {selectedYear}{" "}
+                      {selectedEngine}
+                    </span>
+                  </div>
+                </div>
+                <div className="px-6 py-5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {selectedStages.map((stage) => {
+                      const override = findOverride(
+                        selectedBrand,
+                        selectedModel,
+                        selectedYear,
+                        selectedEngine,
+                        stage.name,
+                      );
+
+                      const currentInputs = stageInputs[stage.name] || {};
+                      const price =
+                        currentInputs.price ?? override?.price ?? stage.price;
+                      const hk =
+                        currentInputs.hk ?? override?.tunedHk ?? stage.tunedHk;
+                      const nm =
+                        currentInputs.nm ?? override?.tunedNm ?? stage.tunedNm;
+
+                      return (
+                        <div
+                          key={stage.name}
+                          className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow"
+                        >
+                          <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                            <div className="flex items-center justify-between">
+                              <h3 className="font-bold text-lg text-gray-900">
+                                {stage.name}
+                              </h3>
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                Stage {stage.name.replace(/\D/g, "")}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="p-4">
+                            {/* Original Specs */}
+                            <div className="mb-4">
+                              <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                                Original Specifications
+                              </h4>
+                              <div className="grid grid-cols-2 gap-4">
+                                <div className="bg-gray-50 p-3 rounded">
+                                  <p className="text-xs text-gray-500">HP</p>
+                                  <p className="font-medium">
+                                    {stage.origHk} HK
+                                  </p>
+                                </div>
+                                <div className="bg-gray-50 p-3 rounded">
+                                  <p className="text-xs text-gray-500">
+                                    Torque
+                                  </p>
+                                  <p className="font-medium">
+                                    {stage.origNm} NM
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Base Configuration */}
+                            <div className="mb-4">
+                              <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                                Base Configuration
+                              </h4>
+                              <div className="grid grid-cols-3 gap-2">
+                                <div className="bg-gray-50 p-2 rounded text-center">
+                                  <p className="text-xs text-gray-500">Price</p>
+                                  <p className="font-medium text-sm">
+                                    {new Intl.NumberFormat(
+                                      currency === "SEK" ? "sv-SE" : "en-US",
+                                      {
+                                        style: "currency",
+                                        currency,
+                                        maximumFractionDigits: 0, // or use 2 if needed
+                                      },
+                                    ).format(
+                                      convertCurrency(stage.price, currency),
+                                    )}
+                                    {currency === "SEK" && (
+                                      <span className="text-xs text-gray-400 ml-1">
+                                        (SEK)
+                                      </span>
+                                    )}
+                                  </p>
+                                </div>
+                                <div className="bg-gray-50 p-2 rounded text-center">
+                                  <p className="text-xs text-gray-500">HP</p>
+                                  <p className="font-medium text-sm">
+                                    {stage.tunedHk} HK
+                                  </p>
+                                </div>
+                                <div className="bg-gray-50 p-2 rounded text-center">
+                                  <p className="text-xs text-gray-500">
+                                    Torque
+                                  </p>
+                                  <p className="font-medium text-sm">
+                                    {stage.tunedNm} NM
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Custom Configuration */}
+                            <div className="space-y-3">
+                              <div>
+                                <label className="block text-xs font-medium text-gray-700 mb-1">
+                                  Custom Price ({currencySymbols[currency]})
+                                </label>
+                                <div className="relative rounded-md shadow-sm">
+                                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span className="text-gray-500 sm:text-sm">
+                                      {currencySymbols[currency]}
+                                    </span>
+                                  </div>
+                                  <input
+                                    value={toCurrency(price)}
+                                    onChange={(e) => {
+                                      const val = parseFloat(e.target.value);
+                                      const sekValue = isNaN(val)
+                                        ? 0
+                                        : fromCurrency(val);
+                                      handleInputChange(
+                                        stage.name,
+                                        "price",
+                                        sekValue,
+                                      );
+                                    }}
+                                    type="number"
+                                    className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md p-2 border"
+                                  />
+                                </div>
+                              </div>
+
+                              <div>
+                                <label className="block text-xs font-medium text-gray-700 mb-1">
+                                  Custom Horsepower (HK)
+                                </label>
+                                <input
+                                  value={hk}
+                                  onChange={(e) =>
+                                    handleInputChange(
+                                      stage.name,
+                                      "hk",
+                                      e.target.value,
+                                    )
+                                  }
+                                  className="focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md p-2 border"
+                                  type="number"
+                                />
+                              </div>
+
+                              <div>
+                                <label className="block text-xs font-medium text-gray-700 mb-1">
+                                  Custom Torque (NM)
+                                </label>
+                                <input
+                                  value={nm}
+                                  onChange={(e) =>
+                                    handleInputChange(
+                                      stage.name,
+                                      "nm",
+                                      e.target.value,
+                                    )
+                                  }
+                                  className="focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md p-2 border"
+                                  type="number"
+                                />
+                              </div>
+                            </div>
+
+                            <button
+                              onClick={() =>
+                                handleSave(
+                                  override?._id || null,
+                                  selectedBrand,
+                                  selectedModel,
+                                  selectedYear,
+                                  selectedEngine,
+                                  stage.name,
+                                  Number(price),
+                                  Number(hk),
+                                  Number(nm),
+                                )
+                              }
+                              disabled={isLoading}
+                              className="mt-4 w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-70 disabled:cursor-not-allowed"
+                            >
+                              {isLoading ? (
+                                <>
+                                  <svg
+                                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <circle
+                                      className="opacity-25"
+                                      cx="12"
+                                      cy="12"
+                                      r="10"
+                                      stroke="currentColor"
+                                      strokeWidth="4"
+                                    ></circle>
+                                    <path
+                                      className="opacity-75"
+                                      fill="currentColor"
+                                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                    ></path>
+                                  </svg>
+                                  Saving...
+                                </>
+                              ) : (
+                                "Save Customization"
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
+        )}
       </main>
     </div>
   );
