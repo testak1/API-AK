@@ -613,7 +613,7 @@ export default function EnginePage({
             alt="AK-TUNING MOTOROPTIMERING"
             width={110}
             height={120}
-            className="h-12 object-contain cursor-pointer hover:opacity-90"
+            className="h-full object-contain cursor-pointer hover:opacity-90"
             onClick={() => (window.location.href = "/")}
             priority
           />
