@@ -1,348 +1,109 @@
+import { Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { Fragment, useEffect, useState } from "react";
+import { XMarkIcon, PhoneIcon } from "@heroicons/react/24/outline";
 
 interface ResellerContactModalProps {
-  isOpen: boolean;
+  open: boolean;
   onClose: () => void;
-  selectedVehicle: {
-    brand: string;
-    model: string;
-    year: string;
-    engine: string;
-  };
-  stageOrOption?: string;
-  link?: string;
-  scrollPosition?: number;
+  contactInfo?: string;
 }
 
 export default function ResellerContactModal({
-  isOpen,
+  open,
   onClose,
-  selectedVehicle,
-  stageOrOption,
-  link,
-  scrollPosition = 200,
+  contactInfo = "",
 }: ResellerContactModalProps) {
-  const [contactInfo, setcontactInfo] = useState<
-    "form" | "phone" | "thankyou" | null
-  >(null);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    tel: "",
-    message: "",
-    branch: "",
-    stage: "-",
-  });
-  const [sending, setSending] = useState(false);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    if (isOpen) setcontactInfo(null);
-  }, [isOpen]);
-
-  useEffect(() => {
-    setFormData((prev) => ({
-      ...prev,
-      stage: stageOrOption || "-",
-    }));
-  }, [stageOrOption]);
-
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
-
-  useEffect(() => {
-    setTimeout(() => {
-      const message = {
-        height: document.body.scrollHeight,
-        scrollToIframe: isOpen, // ✅ Always scroll on modal open, all devices
-      };
-      window.parent.postMessage(message, "*");
-    }, 300);
-  }, [isOpen]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSending(true);
-    setError("");
-
-    try {
-      const response = await fetch("/api/send-contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...formData,
-          vehicle: selectedVehicle,
-          link,
-        }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || "Misslyckades att skicka förfrågan");
-      }
-
-      setFormData({
-        name: "",
-        email: "",
-        tel: "",
-        message: "",
-        branch: "",
-        stage: "-",
-      });
-      setcontactInfo("thankyou");
-    } catch (err: any) {
-      setError(err.message || "Något gick fel");
-    } finally {
-      setSending(false);
-    }
-  };
-
-  const handleClose = () => {
-    setcontactInfo(null);
-    onClose();
-  };
-
-  // ✅ Mobile-aware modal positioning
-  const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
-  const modalTop = isMobile ? "50%" : `${scrollPosition}px`;
-  const modalTransform = isMobile
-    ? "translate(-50%, -50%)"
-    : "translateX(-50%)";
+  const contactLines = contactInfo
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
 
   return (
-    <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="fixed z-50 inset-0" onClose={() => {}} static>
-        <div className="fixed inset-0 bg-black bg-opacity-50" />
-
-        {/* ✅ MODAL POSITIONING FIXED HERE */}
-        <div
-          className="fixed left-1/2 transform -translate-x-1/2 z-50 px-4 w-full max-w-xl md:max-w-2xl lg:max-w-3xl sm:px-6"
-          style={{
-            top: isMobile ? 0 : `${scrollPosition}px`,
-            bottom: isMobile ? 0 : "auto",
-            height: isMobile ? "100vh" : "auto",
-            overflowY: isMobile ? "auto" : "visible",
-          }}
+    <Transition.Root show={open} as={Fragment}>
+      <Dialog as="div" className="relative z-50" onClose={onClose}>
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-200"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-150"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
         >
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0 scale-90"
-            enterTo="opacity-100 scale-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100 scale-100"
-            leaveTo="opacity-0 scale-90"
-          >
-            <Dialog.Panel className="bg-gray-900 rounded-lg text-white w-full max-w-xl md:max-w-2xl lg:max-w-3xl p-6 shadow-xl relative">
-              <button
-                type="button"
-                onClick={handleClose}
-                className="absolute top-4 right-4 text-white text-3xl hover:text-red-400"
-              >
-                &times;
-              </button>
+          <div className="fixed inset-0 bg-gray-500 bg-opacity-40 transition-opacity" />
+        </Transition.Child>
 
-              {contactInfo === "thankyou" ? (
-                <>
-                  <div className="flex justify-center mb-4">
-                    <div className="text-6xl animate-pulse">✅</div>
-                  </div>
-                  <Dialog.Title className="text-green-400 text-2xl font-extrabold mb-2 text-center">
-                    TACK FÖR DIN FÖRFRÅGAN!
-                  </Dialog.Title>
-                  <p className="text-white text-base text-center">
-                    VI BESVARAR SÅ FORT VI KAN 🚀
-                  </p>
-                  <div className="mt-6 text-center">
-                    <button
-                      onClick={handleClose}
-                      className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-semibold transition-all"
-                    >
-                      🔙 Tillbaka
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <Dialog.Title className="text-green-400 text-xl font-bold mb-4 text-center">
-                  VÄLJ METOD
-                </Dialog.Title>
-              )}
-
-              {!contactInfo && (
-                <div className="flex flex-col gap-4">
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-200"
+              enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+              enterTo="opacity-100 translate-y-0 sm:scale-100"
+              leave="ease-in duration-150"
+              leaveFrom="opacity-100 translate-y-0 sm:scale-100"
+              leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+            >
+              <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white px-6 pt-5 pb-6 text-left shadow-xl transition-all w-full max-w-md">
+                <div className="absolute top-0 right-0 pt-4 pr-4">
                   <button
                     type="button"
-                    className="bg-blue-600 hover:bg-blue-700 active:scale-95 transition transform px-4 py-2 rounded-lg shadow-md font-semibold"
-                    onClick={() => setcontactInfo("form")}
+                    className="rounded-md text-gray-400 hover:text-gray-600 focus:outline-none"
+                    onClick={onClose}
                   >
-                    📩 SKICKA FÖRFRÅGAN
-                  </button>
-                  <button
-                    type="button"
-                    className="bg-green-600 hover:bg-green-700 active:scale-95 transition transform px-4 py-2 rounded-lg shadow-md font-semibold"
-                    onClick={() => setcontactInfo("phone")}
-                  >
-                    📞 RING OSS
-                  </button>
-                  {/* STÄNG button */}
-                  <button
-                    type="button"
-                    onClick={handleClose}
-                    className="w-full bg-gray-700 hover:bg-gray-600 text-white hover:text-red-400 py-2 px-4 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
-                  >
-                    <span>❌</span>
-                    STÄNG
+                    <XMarkIcon className="h-6 w-6" aria-hidden="true" />
                   </button>
                 </div>
-              )}
 
-              {contactInfo === "form" && (
-                <form
-                  className="space-y-4 text-white mt-4"
-                  onSubmit={handleSubmit}
+                <Dialog.Title
+                  as="h3"
+                  className="text-lg leading-6 font-medium text-gray-900 mb-4"
                 >
-                  <div className="text-sm text-gray-400 mb-2">
-                    FÖRFRÅGAN FÖR:{" "}
-                    <strong>
-                      {selectedVehicle.brand} {selectedVehicle.model}{" "}
-                      {selectedVehicle.year} – {selectedVehicle.engine}
-                    </strong>
-                    {formData.stage && formData.stage !== "-" && (
-                      <div className="mt-1 text-green-400 text-xs">
-                        <strong>VAL ➔ {formData.stage.toUpperCase()}</strong>
-                      </div>
-                    )}
-                  </div>
+                  Contact Information
+                </Dialog.Title>
 
-                  <input
-                    type="text"
-                    placeholder="🏷️ NAMN"
-                    required
-                    className="w-full p-2 rounded bg-gray-800 border border-gray-600"
-                    value={formData.name}
-                    onChange={(e) =>
-                      setFormData({ ...formData, name: e.target.value })
-                    }
-                  />
-                  <input
-                    type="email"
-                    placeholder="📧 EMAIL"
-                    required
-                    className="w-full p-2 rounded bg-gray-800 border border-gray-600"
-                    value={formData.email}
-                    onChange={(e) =>
-                      setFormData({ ...formData, email: e.target.value })
-                    }
-                  />
-                  <input
-                    type="tel"
-                    placeholder="☎️ TELNR"
-                    required
-                    className="w-full p-2 rounded bg-gray-800 border border-gray-600"
-                    value={formData.tel}
-                    onChange={(e) =>
-                      setFormData({ ...formData, tel: e.target.value })
-                    }
-                  />
-                  <textarea
-                    placeholder="💬 MEDDELANDE"
-                    required
-                    className="w-full p-2 rounded bg-gray-800 border border-gray-600"
-                    rows={3}
-                    value={formData.message}
-                    onChange={(e) =>
-                      setFormData({ ...formData, message: e.target.value })
-                    }
-                  ></textarea>
-                  <select
-                    required
-                    className="w-full p-2 rounded bg-gray-800 border border-gray-600"
-                    value={formData.branch}
-                    onChange={(e) =>
-                      setFormData({ ...formData, branch: e.target.value })
-                    }
-                  >
-                    <option value="">📍 VÄLJ ANLÄGGNING</option>
-                    <option value="goteborg">GÖTEBORG (HQ)</option>
-                    <option value="jonkoping">JÖNKÖPING</option>
-                    <option value="malmo">MALMÖ</option>
-                    <option value="stockholm">STOCKHOLM</option>
-                    <option value="orebro">ÖREBRO</option>
-                    <option value="storvik">STORVIK</option>
-                  </select>
+                <div className="space-y-3">
+                  {contactLines.length === 0 ? (
+                    <p className="text-sm text-gray-500">
+                      No contact information available.
+                    </p>
+                  ) : (
+                    contactLines.map((line, index) => {
+                      const [label, number] = line
+                        .split(":")
+                        .map((s) => s.trim());
+                      const telLink = `tel:${number?.replace(/\s+/g, "")}`;
 
-                  <button
-                    type="submit"
-                    disabled={sending}
-                    className="w-full bg-blue-600 hover:bg-blue-700 active:scale-95 transition transform px-4 py-2 rounded-lg font-semibold"
-                  >
-                    {sending ? "Skickar..." : "📩 SKICKA FÖRFRÅGAN"}
-                  </button>
-                  {/* STÄNG button */}
-                  <button
-                    type="button"
-                    onClick={handleClose}
-                    className="w-full bg-gray-700 hover:bg-gray-600 text-white hover:text-red-400 py-2 px-4 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
-                  >
-                    <span>❌</span>
-                    STÄNG
-                  </button>
-
-                  {error && <p className="text-red-400 text-center">{error}</p>}
-                </form>
-              )}
-
-              {contactInfo === "phone" && (
-                <div className="text-white mt-4 space-y-4 text-left">
-                  {[
-                    { city: "GÖTEBORG (HQ)", number: "0313823300" },
-                    { city: "JÖNKÖPING", number: "0362907887" },
-                    { city: "SKÅNE", number: "041318166" },
-                    { city: "STOCKHOLM", number: "0708265573" },
-                    { city: "ÖREBRO", number: "0708265573" },
-                    { city: "STORVIK", number: "0708265573" },
-                  ].map(({ city, number }) => (
-                    <a
-                      key={city}
-                      href={`tel:${number}`}
-                      target="_top"
-                      rel="noopener"
-                      className="flex items-center gap-3 bg-gray-800 hover:bg-gray-700 p-3 rounded-lg transition-colors"
-                    >
-                      <span className="text-green-400 text-2xl">📞</span>
-                      <div className="flex flex-col">
-                        <span className="font-semibold">{city}</span>
-                        <span className="text-sm text-gray-400">{number}</span>
-                      </div>
-                    </a>
-                  ))}
-
-                  {/* STÄNG Button */}
-                  <div className="pt-4">
-                    <button
-                      type="button"
-                      onClick={handleClose}
-                      className="w-full bg-gray-700 hover:bg-gray-600 text-white hover:text-red-400 py-2 px-4 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
-                    >
-                      <span>❌</span>
-                      STÄNG
-                    </button>
-                  </div>
+                      return (
+                        <div
+                          key={index}
+                          className="flex items-center justify-between border border-gray-200 rounded-md p-3"
+                        >
+                          <div>
+                            <div className="text-sm font-medium text-gray-700">
+                              {label || "Contact"}
+                            </div>
+                            <div className="text-sm text-gray-600">
+                              {number}
+                            </div>
+                          </div>
+                          <a
+                            href={telLink}
+                            className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-800 text-sm font-medium"
+                          >
+                            <PhoneIcon className="h-4 w-4" />
+                            Call
+                          </a>
+                        </div>
+                      );
+                    })
+                  )}
                 </div>
-              )}
-            </Dialog.Panel>
-          </Transition.Child>
+              </Dialog.Panel>
+            </Transition.Child>
+          </div>
         </div>
       </Dialog>
-    </Transition>
+    </Transition.Root>
   );
 }

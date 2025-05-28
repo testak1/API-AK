@@ -274,6 +274,22 @@ export default function TuningViewer() {
     link: "",
   });
 
+  const [contactModalOpen, setContactModalOpen] = useState(false);
+  const [resellerContactInfo, setResellerContactInfo] = useState("");
+
+  // Fetch contact info on mount (or when needed)
+  useEffect(() => {
+    const fetchContactInfo = async () => {
+      const response = await fetch(
+        "api/reseller-config?resellerId=${session.user.resellerId}",
+      );
+      const json = await response.json();
+      setResellerContactInfo(json?.contactInfo || "");
+    };
+
+    fetchContactInfo();
+  }, []);
+
   const [infoModal, setInfoModal] = useState<{
     open: boolean;
     type: "stage" | "general";
@@ -1402,7 +1418,7 @@ export default function TuningViewer() {
                         {/* KONTAKT button */}
                         <div className="mt-8 mb-10 flex flex-col items-center">
                           <button
-                            onClick={() => handleBookNow(stage.name)}
+                            onClick={() => setContactModalOpen(true)}
                             className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg flex items-center gap-2"
                           >
                             <span>📩</span>{" "}
@@ -1547,7 +1563,7 @@ export default function TuningViewer() {
 
                                             <button
                                               onClick={() =>
-                                                handleBookNow(title)
+                                                setContactModalOpen(true)
                                               }
                                               className="bg-green-600 hover:bg-green-700 hover:scale-105 transform transition-all text-white px-6 py-3 rounded-lg font-medium shadow-lg"
                                             >
@@ -1577,23 +1593,9 @@ export default function TuningViewer() {
 
         {/* Modal */}
         <ResellerContactModal
-          isOpen={ResellerContactModaldata.isOpen}
-          onClose={() =>
-            setResellerContactModalData({
-              isOpen: false,
-              stageOrOption: "",
-              link: "",
-            })
-          }
-          selectedVehicle={{
-            brand: selected.brand,
-            model: selected.model,
-            year: selected.year,
-            engine: selected.engine,
-          }}
-          stageOrOption={ResellerContactModaldata.stageOrOption}
-          link={ResellerContactModaldata.link}
-          scrollPosition={ResellerContactModaldata.scrollPosition}
+          open={contactModalOpen}
+          onClose={() => setContactModalOpen(false)}
+          contactInfo={resellerContactInfo}
         />
         <InfoModal
           isOpen={infoModal.open}
