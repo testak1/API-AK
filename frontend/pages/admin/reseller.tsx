@@ -607,67 +607,67 @@ export default function ResellerAdmin({ session }) {
         )}
 
         {/* Tabs */}
-        <div className="mb-6 border-b border-gray-200">
-          <nav className="-mb-px flex overflow-x-auto pb-2 space-x-4 sm:space-x-8">
+        <div className="mb-6 border-b border-gray-300">
+          <nav className="-mb-px flex overflow-x-auto pb-2 space-x-4 sm:space-x-8 scrollbar-hide">
             <button
               onClick={() => setActiveTab("tuning")}
-              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+              className={`whitespace-nowrap py-3 px-3 border-b-2 font-semibold text-sm transition-colors duration-200 ${
                 activeTab === "tuning"
                   ? "border-red-500 text-red-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  : "border-transparent text-gray-500 hover:text-red-500 hover:border-red-300"
               }`}
             >
-              TUNING CONFIG
+              🛠️ Tuning Config
             </button>
             <button
               onClick={() => setActiveTab("general")}
-              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+              className={`whitespace-nowrap py-3 px-3 border-b-2 font-semibold text-sm transition-colors duration-200 ${
                 activeTab === "general"
                   ? "border-red-500 text-red-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  : "border-transparent text-gray-500 hover:text-red-500 hover:border-red-300"
               }`}
             >
-              OVERALL PRICING
+              💰 Overall Pricing
             </button>
             <button
               onClick={() => setActiveTab("descriptions")}
-              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+              className={`whitespace-nowrap py-3 px-3 border-b-2 font-semibold text-sm transition-colors duration-200 ${
                 activeTab === "descriptions"
                   ? "border-red-500 text-red-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  : "border-transparent text-gray-500 hover:text-red-500 hover:border-red-300"
               }`}
             >
-              STAGE DESCRIPTIONS
+              🧾 Stage Descriptions
             </button>
             <button
               onClick={() => setActiveTab("aktplus")}
-              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+              className={`whitespace-nowrap py-3 px-3 border-b-2 font-semibold text-sm transition-colors duration-200 ${
                 activeTab === "aktplus"
                   ? "border-red-500 text-red-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  : "border-transparent text-gray-500 hover:text-red-500 hover:border-red-300"
               }`}
             >
-              ADDITIONAL OPTIONS
+              🧩 AKT+ Options
             </button>
             <button
               onClick={() => setActiveTab("contact")}
-              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+              className={`whitespace-nowrap py-3 px-3 border-b-2 font-semibold text-sm transition-colors duration-200 ${
                 activeTab === "contact"
                   ? "border-red-500 text-red-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  : "border-transparent text-gray-500 hover:text-red-500 hover:border-red-300"
               }`}
             >
-              CONTACT CONFIG
+              📇 Contact Config
             </button>
             <button
               onClick={() => setActiveTab("settings")}
-              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+              className={`whitespace-nowrap py-3 px-3 border-b-2 font-semibold text-sm transition-colors duration-200 ${
                 activeTab === "settings"
                   ? "border-red-500 text-red-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  : "border-transparent text-gray-500 hover:text-red-500 hover:border-red-300"
               }`}
             >
-              SETTINGS & DISPLAY
+              ⚙️ Settings & Display
             </button>
           </nav>
         </div>
