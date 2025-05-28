@@ -31,7 +31,7 @@ export default async function handler(req, res) {
           showBrandLogo,
           showStageLogo,
           showDynoChart
-        }
+        },
         subscription
       }`,
       { resellerId },
