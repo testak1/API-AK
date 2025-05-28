@@ -48,7 +48,7 @@ export default async function handler(
 
     // Send email to reseller
     await resend.emails.send({
-      from: "no-reply@aktuning.se",
+      from: "no-reply@api.com",
       to: resellerData.email,
       subject: `New tuning request for ${vehicleInfo.brand} ${vehicleInfo.model}`,
       html: `
