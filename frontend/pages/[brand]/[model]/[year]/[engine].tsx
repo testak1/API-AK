@@ -1,5 +1,6 @@
 // pages/[brand]/[model]/[year]/[engine].tsx
 import { GetServerSideProps } from "next";
+import NextImage from "next/image";
 import { useRouter } from "next/router";
 import client from "@/lib/sanity";
 import { engineByParamsQuery } from "@/src/lib/queries";
@@ -607,15 +608,14 @@ export default function EnginePage({
 
       <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
         <div className="flex items-center mb-4">
-          <img
-            src="/ak-logo-svart.png"
-            fetchPriority="high"
-            alt="AK-TUNING"
+          <NextImage
+            src="/ak-logo2.png"
+            alt="AK-TUNING MOTOROPTIMERING"
             width={85}
             height={80}
-            style={{ height: "80px", cursor: "pointer" }}
-            className="h-12 object-contain"
+            className="h-12 object-contain cursor-pointer"
             onClick={() => (window.location.href = "/")}
+            priority
           />
         </div>
         <div className="mb-8">
