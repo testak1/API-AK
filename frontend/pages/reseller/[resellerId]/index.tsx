@@ -35,7 +35,7 @@ ChartJS.register(
   LineElement,
   LineController,
   Tooltip,
-  Legend
+  Legend,
 );
 
 interface SelectionState {
@@ -62,7 +62,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   const isValid = await client.fetch(
     `count(*[_type == "resellerUser" && resellerId == $resellerId]) > 0`,
-    { resellerId }
+    { resellerId },
   );
 
   if (!isValid) {
@@ -93,6 +93,7 @@ export default function TuningViewer() {
     logo?: any;
     currency: string;
     language: string;
+    theme: string;
     exchangeRates: Record<string, number>;
     displaySettings?: {
       showAktPlus: boolean;
@@ -103,6 +104,7 @@ export default function TuningViewer() {
   }>({
     currency: "SEK",
     language: "sv",
+    theme: "dark",
     exchangeRates: { SEK: 1, EUR: 0.1, USD: 0.095 },
   });
 
@@ -174,7 +176,7 @@ export default function TuningViewer() {
     const fetchResellerLogo = async () => {
       try {
         const res = await fetch(
-          `/api/reseller-config?resellerId=${resellerId}`
+          `/api/reseller-config?resellerId=${resellerId}`,
         );
         const json = await res.json();
         if (json.logo?.asset) {
@@ -254,7 +256,7 @@ export default function TuningViewer() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [expandedStages, setExpandedStages] = useState<Record<string, boolean>>(
-    {}
+    {},
   );
   const [expandedDescriptions, setExpandedDescriptions] = useState<
     Record<string, boolean>
@@ -305,7 +307,7 @@ export default function TuningViewer() {
 
   const handleBookNow = (
     stageOrOptionName: string,
-    event?: React.MouseEvent
+    event?: React.MouseEvent,
   ) => {
     const selectedBrand = data.find((b) => b.name === selected.brand);
     if (!selectedBrand) return;
@@ -314,7 +316,7 @@ export default function TuningViewer() {
       selectedBrand.slug?.current || slugify(selectedBrand.name);
 
     const selectedModel = selectedBrand.models?.find(
-      (m) => m.name === selected.model
+      (m) => m.name === selected.model,
     );
     if (!selectedModel) return;
 
@@ -324,7 +326,7 @@ export default function TuningViewer() {
         : selectedModel.slug || slugify(selectedModel.name);
 
     const selectedYear = selectedModel.years?.find(
-      (y) => y.range === selected.year
+      (y) => y.range === selected.year,
     );
     if (!selectedYear) return;
 
@@ -333,7 +335,7 @@ export default function TuningViewer() {
       : selectedYear.range;
 
     const selectedEngine = selectedYear.engines?.find(
-      (e) => e.label === selected.engine
+      (e) => e.label === selected.engine,
     );
     if (!selectedEngine) return;
 
@@ -377,7 +379,7 @@ export default function TuningViewer() {
     const fetchBrands = async () => {
       try {
         const res = await fetch(
-          `/api/brands-with-overrides?resellerId=${encodeURIComponent(resellerId.toString())}`
+          `/api/brands-with-overrides?resellerId=${encodeURIComponent(resellerId.toString())}`,
         );
         if (!res.ok) throw new Error("Failed to fetch brands");
         const json = await res.json();
@@ -401,7 +403,7 @@ export default function TuningViewer() {
       setIsLoading(true);
       try {
         const res = await fetch(
-          `/api/years?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}&resellerId=${encodeURIComponent(resellerId.toString())}`
+          `/api/years?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}&resellerId=${encodeURIComponent(resellerId.toString())}`,
         );
         if (!res.ok) throw new Error("Failed to fetch years");
         const years = await res.json();
@@ -415,10 +417,10 @@ export default function TuningViewer() {
                   models: brand.models.map((model) =>
                     model.name !== selected.model
                       ? model
-                      : { ...model, years: years.result }
+                      : { ...model, years: years.result },
                   ),
-                }
-          )
+                },
+          ),
         );
       } catch (error) {
         console.error("Error fetching years:", error);
@@ -439,7 +441,7 @@ export default function TuningViewer() {
       setIsLoading(true);
       try {
         const res = await fetch(
-          `/api/engines?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}&year=${encodeURIComponent(selected.year)}&resellerId=${encodeURIComponent(resellerId.toString())}`
+          `/api/engines?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}&year=${encodeURIComponent(selected.year)}&resellerId=${encodeURIComponent(resellerId.toString())}`,
         );
         if (!res.ok) throw new Error("Failed to fetch engines");
         const engines = await res.json();
@@ -458,12 +460,12 @@ export default function TuningViewer() {
                           years: model.years.map((year) =>
                             year.range !== selected.year
                               ? year
-                              : { ...year, engines: engines.result }
+                              : { ...year, engines: engines.result },
                           ),
-                        }
+                        },
                   ),
-                }
-          )
+                },
+          ),
         );
       } catch (error) {
         console.error("Error fetching engines:", error);
@@ -497,7 +499,7 @@ export default function TuningViewer() {
         acc[fuelType].push(engine);
         return acc;
       },
-      {} as Record<string, typeof engines>
+      {} as Record<string, typeof engines>,
     );
 
     return {
@@ -518,7 +520,7 @@ export default function TuningViewer() {
           acc[stage.name] = stage.name === "Steg 1";
           return acc;
         },
-        {} as Record<string, boolean>
+        {} as Record<string, boolean>,
       );
       setExpandedStages(initialExpandedStates);
     }
@@ -591,7 +593,7 @@ export default function TuningViewer() {
             (opt.isUniversal ||
               opt.applicableFuelTypes?.includes(selectedEngine.fuel) ||
               opt.manualAssignments?.some(
-                (ref) => ref._ref === selectedEngine._id
+                (ref) => ref._ref === selectedEngine._id,
               )) &&
             (!opt.stageCompatibility || opt.stageCompatibility === stage.name)
           ) {
@@ -601,13 +603,26 @@ export default function TuningViewer() {
 
       return Array.from(uniqueOptionsMap.values());
     },
-    [selectedEngine]
+    [selectedEngine],
   );
+
+  const getThemeClass = (theme: string) => {
+    switch (theme) {
+      case "dark":
+        return "dark";
+      case "light":
+        return "";
+      case "professional":
+        return "professional";
+      default:
+        return "dark";
+    }
+  };
 
   const generateDynoCurve = (
     peakValue: number,
     isHp: boolean,
-    fuelType: string
+    fuelType: string,
   ) => {
     const rpmRange = fuelType.toLowerCase().includes("diesel")
       ? [1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000]
@@ -722,7 +737,9 @@ export default function TuningViewer() {
 
   return (
     <>
-      <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
+      <div
+        className={`w-full max-w-6xl mx-auto px-2 p-4 sm:px-4 ${getThemeClass(settings.theme)}`}
+      >
         <div className="flex items-center mb-4">
           {resellerLogo && (
             <img
@@ -764,7 +781,7 @@ export default function TuningViewer() {
                 .concat(
                   brands
                     .filter((b) => b.startsWith("[LASTBIL]"))
-                    .sort((a, b) => a.localeCompare(b))
+                    .sort((a, b) => a.localeCompare(b)),
                 )
                 .map((brand) => (
                   <option key={brand} value={brand}>
@@ -871,7 +888,7 @@ export default function TuningViewer() {
               const allOptions = getAllAktPlusOptions(stage);
               const isExpanded = expandedStages[stage.name] ?? false;
               const stageDesc = stageDescriptions.find(
-                (d) => d.stageName === stage.name
+                (d) => d.stageName === stage.name,
               );
 
               return (
@@ -891,7 +908,7 @@ export default function TuningViewer() {
                             <img
                               src={urlFor(
                                 data.find((b) => b.name === selected.brand)
-                                  ?.logo
+                                  ?.logo,
                               )
                                 .width(60)
                                 .url()}
@@ -929,7 +946,7 @@ export default function TuningViewer() {
                             <br />
                             {translate(
                               settings.language,
-                              "stageContactForHardware"
+                              "stageContactForHardware",
                             )}
                           </p>
                         )}
@@ -1030,7 +1047,7 @@ export default function TuningViewer() {
                               {translate(
                                 settings.language,
                                 "translateStageName",
-                                stage.name
+                                stage.name,
                               )}{" "}
                               HK
                             </p>
@@ -1054,7 +1071,7 @@ export default function TuningViewer() {
                               {translate(
                                 settings.language,
                                 "translateStageName",
-                                stage.name
+                                stage.name,
                               )}{" "}
                               NM
                             </p>
@@ -1082,7 +1099,7 @@ export default function TuningViewer() {
                           {translate(
                             settings.language,
                             "translateStageName",
-                            stage.name
+                            stage.name,
                           ).toUpperCase()}{" "}
                           INFO
                         </button>
@@ -1102,7 +1119,7 @@ export default function TuningViewer() {
                             {translate(
                               settings.language,
                               "translateStageName",
-                              stage.name
+                              stage.name,
                             ).toUpperCase()}
                           </h3>
                         )}
@@ -1120,7 +1137,7 @@ export default function TuningViewer() {
                                 {translate(
                                   settings.language,
                                   "translateStageName",
-                                  stage.name
+                                  stage.name,
                                 )
                                   .replace(/\s+/g, "")
                                   .toUpperCase()}{" "}
@@ -1137,7 +1154,7 @@ export default function TuningViewer() {
                                 {translate(
                                   settings.language,
                                   "translateStageName",
-                                  stage.name
+                                  stage.name,
                                 )
                                   .replace(/\s+/g, "")
                                   .toUpperCase()}{" "}
@@ -1196,7 +1213,7 @@ export default function TuningViewer() {
                                       data: generateDynoCurve(
                                         stage.origHk,
                                         true,
-                                        selectedEngine.fuel
+                                        selectedEngine.fuel,
                                       ),
                                       borderColor: "#f87171",
                                       backgroundColor: "transparent",
@@ -1211,7 +1228,7 @@ export default function TuningViewer() {
                                       data: generateDynoCurve(
                                         stage.tunedHk,
                                         true,
-                                        selectedEngine.fuel
+                                        selectedEngine.fuel,
                                       ),
                                       borderColor: "#f87171",
                                       backgroundColor: "#f87171",
@@ -1225,7 +1242,7 @@ export default function TuningViewer() {
                                       data: generateDynoCurve(
                                         stage.origNm,
                                         false,
-                                        selectedEngine.fuel
+                                        selectedEngine.fuel,
                                       ),
                                       borderColor: "#d1d5db",
                                       backgroundColor: "transparent",
@@ -1240,7 +1257,7 @@ export default function TuningViewer() {
                                       data: generateDynoCurve(
                                         stage.tunedNm,
                                         false,
-                                        selectedEngine.fuel
+                                        selectedEngine.fuel,
                                       ),
                                       borderColor: "#d1d5db",
                                       backgroundColor: "transparent",
@@ -1305,7 +1322,7 @@ export default function TuningViewer() {
                                         display: true,
                                         text: translate(
                                           settings.language,
-                                          "powerLabel"
+                                          "powerLabel",
                                         ),
                                         color: "white",
                                         font: { size: 14 },
@@ -1331,7 +1348,7 @@ export default function TuningViewer() {
                                         display: true,
                                         text: translate(
                                           settings.language,
-                                          "torqueLabel"
+                                          "torqueLabel",
                                         ),
                                         color: "white",
                                         font: { size: 14 },
@@ -1375,7 +1392,7 @@ export default function TuningViewer() {
                               <div className="text-center text-white text-xs mt-4 italic">
                                 {translate(
                                   settings.language,
-                                  "tuningCurveNote"
+                                  "tuningCurveNote",
                                 )}
                               </div>
                             </div>
@@ -1389,7 +1406,7 @@ export default function TuningViewer() {
                               <span className="text-white-400 text-sm ml-1">
                                 {translateStageName(
                                   settings.language,
-                                  stage.name
+                                  stage.name,
                                 ).toUpperCase()}
                               </span>
                               {` - ${stage.tunedHk} HK & ${stage.tunedNm} NM`}
@@ -1429,7 +1446,7 @@ export default function TuningViewer() {
                                 <h3 className="text-md font-semibold text-white">
                                   {translate(
                                     settings.language,
-                                    "additionsLabel"
+                                    "additionsLabel",
                                   )}
                                 </h3>
                               </div>
@@ -1457,7 +1474,7 @@ export default function TuningViewer() {
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                                 {allOptions.map((option) => {
                                   const override = aktPlusOptions.find(
-                                    (o) => o.id === option._id
+                                    (o) => o.id === option._id,
                                   );
 
                                   const title = override?.title || option.title;
@@ -1535,7 +1552,7 @@ export default function TuningViewer() {
                                               <p className="font-bold text-green-400">
                                                 {translate(
                                                   settings.language,
-                                                  "priceLabel"
+                                                  "priceLabel",
                                                 )}
                                                 :
                                                 <span>
@@ -1554,7 +1571,7 @@ export default function TuningViewer() {
                                               <span>📩</span>{" "}
                                               {translate(
                                                 settings.language,
-                                                "contactvalue"
+                                                "contactvalue",
                                               )}
                                             </button>
                                           </div>
@@ -1604,7 +1621,7 @@ export default function TuningViewer() {
               (() => {
                 const description =
                   stageDescriptions.find(
-                    (d) => d.stageName === infoModal.stage?.name
+                    (d) => d.stageName === infoModal.stage?.name,
                   )?.description ||
                   infoModal.stage?.descriptionRef?.description ||
                   infoModal.stage?.description;

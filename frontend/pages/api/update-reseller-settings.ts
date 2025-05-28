@@ -10,7 +10,7 @@ export default async function handler(req, res) {
 
   if (!resellerId) return res.status(401).json({ error: "Unauthorized" });
 
-  const { currency, language } = req.body;
+  const { currency, language, theme } = req.body; // Add theme to destructuring
 
   try {
     const userDoc = await sanity.fetch(
@@ -22,7 +22,7 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: "Reseller user not found" });
     }
 
-    await sanity.patch(userDoc).set({ currency, language }).commit();
+    await sanity.patch(userDoc).set({ currency, language, theme }).commit(); // Add theme here
 
     res.status(200).json({ success: true });
   } catch (err) {

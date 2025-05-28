@@ -6,7 +6,7 @@ const defaultDisplaySettings = {
   showAktPlus: true,
   showBrandLogo: true,
   showStageLogo: true,
-  showDynoChart: true
+  showDynoChart: true,
 };
 
 const exchangeRates = {
@@ -33,15 +33,16 @@ export default async function handler(req, res) {
           showDynoChart
         }
       }`,
-      { resellerId }
+      { resellerId },
     );
 
     const response: ResellerConfig = {
       logo: result?.logo ?? null,
       currency: result?.currency ?? "SEK",
       language: result?.language ?? "sv",
+      theme: result?.theme ?? "dark",
       displaySettings: result?.displaySettings ?? defaultDisplaySettings,
-      exchangeRates
+      exchangeRates,
     };
 
     res.status(200).json(response);

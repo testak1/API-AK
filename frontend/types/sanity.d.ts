@@ -1,9 +1,9 @@
 // types/sanity.d.ts
-import type { PortableTextBlock } from '@portabletext/types';
+import type { PortableTextBlock } from "@portabletext/types";
 
 export interface SanityImage {
   _key?: string;
-  _type?: 'image';
+  _type?: "image";
   asset: {
     _id: string;
     url: string;
@@ -13,27 +13,27 @@ export interface SanityImage {
 }
 
 export interface Reference {
-  _type: 'reference';
+  _type: "reference";
   _ref: string;
   _key?: string;
   _weak?: boolean;
 }
 
 export interface Slug {
-  _type: 'slug';
+  _type: "slug";
   current: string;
 }
 
 export interface StageDescription {
   _id: string;
-  _type: 'stageDescription';
+  _type: "stageDescription";
   stageName: string;
   description: PortableTextBlock[] | string;
 }
 
 export interface AktPlusOption {
   _id: string;
-  _type: 'aktPlus';
+  _type: "aktPlus";
   title: string;
   slug?: Slug;
   isUniversal: boolean;
@@ -68,6 +68,7 @@ export interface ResellerConfig {
   logo?: any;
   currency: string;
   language: string;
+  theme: string;
   exchangeRates: Record<string, number>;
   displaySettings: {
     showAktPlus: boolean;
@@ -111,7 +112,7 @@ export interface Engine {
   _id?: string;
   _key?: string;
   label: string;
-  fuel: 'Diesel' | 'Bensin' | 'Hybrid' | 'Electric';
+  fuel: "Diesel" | "Bensin" | "Hybrid" | "Electric";
   slug: string;
   stages: Stage[];
   globalAktPlusOptions?: AktPlusOptionReference[];
@@ -131,33 +132,36 @@ export interface Model {
 
 export interface Brand {
   _id: string;
-  _type: 'brand';
+  _type: "brand";
   name: string;
   slug: Slug;
   logo?: {
-    _type: 'image';
+    _type: "image";
     asset: Reference;
     alt?: string;
   };
   models: Model[];
 }
 
-
 // Sanity Image URL Builder Support
-declare module '@sanity/image-url' {
+declare module "@sanity/image-url" {
   interface ImageUrlBuilder {
     image(source: SanityImageSource): this;
     width(pixels: number): this;
     height(pixels: number): this;
-    fit(mode: 'clip' | 'crop' | 'fill' | 'fillmax' | 'max' | 'scale' | 'min'): this;
+    fit(
+      mode: "clip" | "crop" | "fill" | "fillmax" | "max" | "scale" | "min",
+    ): this;
     quality(percentage: number): this;
-    format(type: 'jpg' | 'png' | 'webp' | 'avif'): this;
+    format(type: "jpg" | "png" | "webp" | "avif"): this;
     url(): string;
   }
 }
 
-declare module '@/lib/sanity' {
-  export const client: import('@sanity/client').SanityClient;
-  export function urlFor(source: import('sanity').SanityImageSource): import('@sanity/image-url').ImageUrlBuilder;
+declare module "@/lib/sanity" {
+  export const client: import("@sanity/client").SanityClient;
+  export function urlFor(
+    source: import("sanity").SanityImageSource,
+  ): import("@sanity/image-url").ImageUrlBuilder;
   export function getAllBrandsWithDetails(): Promise<Brand[]>;
 }
