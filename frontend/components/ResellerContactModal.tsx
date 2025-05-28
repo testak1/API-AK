@@ -159,11 +159,11 @@ export default function ResellerContactModal({
                     as="h3"
                     className="text-lg font-medium text-green-500"
                   >
-                    REQUEST SENT SUCCESSFULLY!
+                    ✅ REQUEST SENT SUCCESSFULLY!
                   </Dialog.Title>
                   <div className="mt-2">
                     <p className="text-sm text-gray-300">
-                      WE WILL GET BACK TO YOU ASAP!.
+                      📬 We will get back to you ASAP!
                     </p>
                   </div>
                   <div className="mt-4">
@@ -172,7 +172,7 @@ export default function ResellerContactModal({
                       className="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-green-500"
                       onClick={resetModal}
                     >
-                      CLOSE
+                      ✖️ CLOSE
                     </button>
                   </div>
                 </div>
@@ -182,11 +182,11 @@ export default function ResellerContactModal({
                     as="h3"
                     className="text-lg font-medium leading-6 text-white text-center"
                   >
-                    CONTACT
+                    📞 CONTACT
                   </Dialog.Title>
                   <div className="mt-4 space-y-3">
                     <p className="text-sm text-gray-300 text-center">
-                      SELECT OPTION
+                      📋 SELECT OPTION
                     </p>
 
                     <div className="space-y-2">
@@ -207,7 +207,7 @@ export default function ResellerContactModal({
                             d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                           />
                         </svg>
-                        SEND FORM
+                        📨 SEND FORM
                       </button>
 
                       <button
@@ -342,7 +342,7 @@ export default function ResellerContactModal({
                       as="h3"
                       className="text-lg font-medium leading-6 text-white"
                     >
-                      NUMBER
+                      📱 PHONE NUMBER
                     </Dialog.Title>
                     <div className="mt-4 space-y-3">
                       {contactNumbers.length > 0 ? (
@@ -375,7 +375,7 @@ export default function ResellerContactModal({
                         ))
                       ) : (
                         <p className="text-gray-400 text-sm">
-                          No contact numbers available
+                          ❌ No contact numbers available
                         </p>
                       )}
 
