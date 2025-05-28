@@ -1204,15 +1204,7 @@ export default function TuningViewer() {
 
                         {!isDsgStage &&
                           settings.displaySettings?.showDynoChart && (
-                            <div
-                              className={`rounded-lg p-4 relative ${
-                                settings.theme === "dark"
-                                  ? "bg-gray-900"
-                                  : settings.theme === "professional"
-                                    ? "bg-white border border-blue-200"
-                                    : "bg-gray-100"
-                              }`}
-                            >
+                            <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
                               {/* Split the spec boxes */}
                               <div className="absolute hidden md:flex flex-row justify-between top-4 left-0 right-0 px-16">
                                 {/* ORG HK / Max HK */}
