@@ -23,6 +23,7 @@ export default async function handler(req, res) {
   try {
     const result = await sanity.fetch<Partial<ResellerConfig>>(
       `*[_type == "resellerUser" && resellerId == $resellerId][0]{
+        email,
         logo,
         currency,
         language,
