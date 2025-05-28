@@ -159,11 +159,11 @@ export default function ResellerContactModal({
                     as="h3"
                     className="text-lg font-medium text-green-500"
                   >
-                    Request Sent Successfully!
+                    REQUEST SENT SUCCESSFULLY!
                   </Dialog.Title>
                   <div className="mt-2">
                     <p className="text-sm text-gray-300">
-                      The reseller will contact you shortly.
+                      WE WILL GET BACK TO YOU ASAP!.
                     </p>
                   </div>
                   <div className="mt-4">
@@ -172,7 +172,7 @@ export default function ResellerContactModal({
                       className="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-green-500"
                       onClick={resetModal}
                     >
-                      Close
+                      CLOSE
                     </button>
                   </div>
                 </div>
@@ -323,7 +323,7 @@ export default function ResellerContactModal({
                         onClick={() => setMode("options")}
                         className="inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-300 bg-gray-700 border border-transparent rounded-md hover:bg-gray-600"
                       >
-                        Back
+                        BACK
                       </button>
                       <button
                         type="submit"
@@ -342,7 +342,7 @@ export default function ResellerContactModal({
                       as="h3"
                       className="text-lg font-medium leading-6 text-white"
                     >
-                      Contact Numbers
+                      NUMBER
                     </Dialog.Title>
                     <div className="mt-4 space-y-3">
                       {contactNumbers.length > 0 ? (

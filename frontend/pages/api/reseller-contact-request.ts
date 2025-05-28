@@ -77,7 +77,7 @@ export default async function handler(
           </p>
           
           <p style="margin-top: 30px; color: #718096;">
-            This request was sent through your AK Tuning reseller portal.
+            This request was sent through our portal.
           </p>
         </div>
       `,
