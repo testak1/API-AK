@@ -263,7 +263,7 @@ export default function TuningViewer() {
     Record<string, boolean>
   >({});
   const watermarkImageRef = useRef<HTMLImageElement | null>(null);
-  const [ResellerContactModaldata, setResellerContactModalData] = useState<{
+  const [ResellerContactModalData, setResellerContactModalData] = useState<{
     isOpen: boolean;
     stageOrOption: string;
     link: string;
@@ -274,7 +274,7 @@ export default function TuningViewer() {
     link: "",
   });
 
-  const [contactModalOpen, setContactModalOpen] = useState(false);
+  const [ContactModalOpen, setContactModalOpen] = useState(false);
   const [resellerContactInfo, setResellerContactInfo] = useState("");
 
   // Fetch contact info on mount (or when needed)
@@ -1593,9 +1593,17 @@ export default function TuningViewer() {
 
         {/* Modal */}
         <ResellerContactModal
-          open={contactModalOpen}
-          onClose={() => setContactModalOpen(false)}
-          contactInfo={resellerContactInfo}
+          isOpen={ResellerContactModalData.isOpen}
+          onClose={() =>
+            setResellerContactModalData({ isOpen: false, stageOrOption: "", link: "" })
+          }
+          vehicleInfo={{
+            brand: selected.brand,
+            model: selected.model,
+            year: selected.year,
+            engine: selected.engine,
+          }}
+          stageOrOption={ResellerContactModalData.stageOrOption}
         />
         <InfoModal
           isOpen={infoModal.open}
