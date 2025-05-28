@@ -1835,7 +1835,7 @@ export default function ResellerAdmin({ session }) {
                           <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
                             <div className="flex items-center justify-between">
                               <h3 className="font-bold text-lg text-gray-900">
-                                {stage.name}
+                                {stage.name.replace("Steg", "Stage")}{" "}
                               </h3>
                               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                                 Stage {stage.name.replace(/\D/g, "")}
