@@ -154,7 +154,7 @@ export default function ResellerAdmin({ session }) {
 
   const [subscription, setSubscription] = useState({
     planType: "month",
-    price: 0,
+    price: "",
     currency: "EUR",
   });
 
@@ -1524,11 +1524,7 @@ export default function ResellerAdmin({ session }) {
                       Price
                     </label>
                     <div className="mt-1 text-sm text-gray-900 p-2 bg-gray-50 rounded-md">
-                      {subscription?.price?.toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}{" "}
-                      {subscription?.currency}
+                      {subscription?.price} {subscription?.currency}
                     </div>
                   </div>
                 </div>
