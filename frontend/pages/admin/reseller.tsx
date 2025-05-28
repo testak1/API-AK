@@ -1497,61 +1497,46 @@ export default function ResellerAdmin({ session }) {
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Plan Type
-              </label>
-              <select
-                value={subscription.planType}
-                onChange={(e) =>
-                  setSubscription((prev) => ({
-                    ...prev,
-                    planType: e.target.value,
-                  }))
-                }
-                className="block w-full pl-3 pr-10 py-2.5 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border"
-              >
-                <option value="month">Monthly</option>
-                <option value="year">Yearly</option>
-              </select>
-            </div>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="px-6 py-5 border-b border-gray-200">
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Subscription Plan
+                </h2>
+                <p className="mt-1 text-sm text-gray-500">
+                  Your current subscription details
+                </p>
+              </div>
+              <div className="px-6 py-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Plan Type
+                    </label>
+                    <div className="mt-1 text-sm text-gray-900 p-2 bg-gray-50 rounded-md">
+                      {subscription?.planType === "month"
+                        ? "Monthly"
+                        : "Yearly"}
+                    </div>
+                  </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Price
-              </label>
-              <input
-                type="number"
-                value={subscription.price}
-                onChange={(e) =>
-                  setSubscription((prev) => ({
-                    ...prev,
-                    price: parseFloat(e.target.value),
-                  }))
-                }
-                className="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              />
-            </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Price
+                    </label>
+                    <div className="mt-1 text-sm text-gray-900 p-2 bg-gray-50 rounded-md">
+                      {subscription?.price?.toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })}{" "}
+                      {subscription?.currency}
+                    </div>
+                  </div>
+                </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Currency
-              </label>
-              <select
-                value={subscription.currency}
-                onChange={(e) =>
-                  setSubscription((prev) => ({
-                    ...prev,
-                    currency: e.target.value,
-                  }))
-                }
-                className="block w-full pl-3 pr-10 py-2.5 border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border"
-              >
-                <option value="SEK">SEK</option>
-                <option value="EUR">EUR</option>
-                <option value="USD">USD</option>
-                <option value="GBP">GBP</option>
-              </select>
+                <div className="mt-4 text-sm text-gray-500">
+                  Contact support if you need to change your subscription plan.
+                </div>
+              </div>
             </div>
 
             {/* Display Settings Section */}
