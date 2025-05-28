@@ -525,11 +525,9 @@ export default function ResellerAdmin({ session }) {
               </div>
               <div>
                 <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-                  Performance Tuning Dashboard
+                  API Tuning Dashboard
                 </h1>
-                <p className="text-red-100 text-sm">
-                  Customize and manage your tuning configurations
-                </p>
+                <p className="text-red-100 text-sm">ULTIMATE API ALL IN ONE!</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -2161,6 +2159,19 @@ export default function ResellerAdmin({ session }) {
             )}
           </>
         )}
+        <footer className="bg-gray-800 text-gray-300 py-6 px-4">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center">
+              <p className="text-sm">
+                COPYRIGHT © {new Date().getFullYear()} AK-TUNING | Made by
+                ADNAN KADRIC
+              </p>
+              <p className="text-xs mt-2 text-gray-400">
+                All rights reserved | Version 1.0.0
+              </p>
+            </div>
+          </div>
+        </footer>
       </main>
     </div>
   );
