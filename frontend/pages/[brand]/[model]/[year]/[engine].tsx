@@ -668,43 +668,41 @@ export default function EnginePage({
             onClick={() => (window.location.href = "/")}
           />
         </div>
-
         <nav className="text-sm text-gray-400 mb-6" aria-label="breadcrumb">
   <ol className="list-reset flex flex-wrap gap-1 items-center">
-    <li>
+    <li className="flex items-center">
       <a href="/" className="hover:underline text-white">Hem</a>
+      <span className="mx-1">/</span>
     </li>
-    <li>/</li>
-    <li>
-      <a
-        href={`/${brandData.slug?.current}`}
-        className="hover:underline text-white"
-      >
+    <li className="flex items-center">
+      <a href={`/${brandData.slug?.current}`} className="hover:underline text-white">
         {brandData.name}
       </a>
+      <span className="mx-1">/</span>
     </li>
-    <li>/</li>
-    <li>
-      <a
-        href={`/${brandData.slug?.current}/${modelData.slug?.current}`}
+    <li className="flex items-center">
+      <a 
+        href={`/${brandData.slug?.current}/${modelData.slug?.current}`} 
         className="hover:underline text-white"
       >
         {modelData.name}
       </a>
+      <span className="mx-1">/</span>
     </li>
-    <li>/</li>
-    <li>
+    <li className="flex items-center">
       <a
         href={`/${brandData.slug?.current}/${modelData.slug?.current}/${yearData.range}`}
         className="hover:underline text-white"
       >
         {yearData.range}
       </a>
+      <span className="mx-1">/</span>
     </li>
-    <li>/</li>
-    <li className="text-white font-semibold">{engineData.label}</li>
+    <li className="text-green font-semibold">{engineData.label}</li>
   </ol>
 </nav>
+
+        
         <div className="mb-8">
           <h1 className="text-xl sm:text-3xl md:text-xl font-bold text-center">
             {"Motoroptimering "}
