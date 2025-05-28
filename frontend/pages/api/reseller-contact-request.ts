@@ -22,10 +22,15 @@ export default async function handler(
   } = req.body;
 
   try {
-    // First get reseller's email
+    // First get reseller's email - use relative path since we're in the same app
     const resellerResponse = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/reseller-config?resellerId=${resellerId}`,
+      `${getBaseUrl()}/api/reseller-config?resellerId=${resellerId}`,
     );
+
+    if (!resellerResponse.ok) {
+      throw new Error("Failed to fetch reseller data");
+    }
+
     const resellerData = await resellerResponse.json();
 
     if (!resellerData.email) {
@@ -72,6 +77,21 @@ export default async function handler(
     return res.status(200).json({ success: true });
   } catch (error) {
     console.error("Error sending contact request:", error);
-    return res.status(500).json({ error: "Failed to send contact request" });
+    return res.status(500).json({
+      error: "Failed to send contact request",
+      details: error instanceof Error ? error.message : String(error),
+    });
+  }
+}
+
+// Helper function to get base URL
+function getBaseUrl() {
+  if (process.env.NEXT_PUBLIC_BASE_URL) {
+    return process.env.NEXT_PUBLIC_BASE_URL;
+  }
+
+  // Fallback for local development
+  if (process.env.NODE_ENV === "development") {
+    return "http://localhost:3000";
   }
 }
