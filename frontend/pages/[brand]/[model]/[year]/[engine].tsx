@@ -490,7 +490,7 @@ export default function EnginePage({
 
   const pageUrl = `https://tuning.aktuning.se${router.asPath.split("?")[0]}`;
 
-  const imageUrl = "https://tuning.aktuning.se/ak-logo.png";
+  const imageUrl = "https://tuning.aktuning.se/ak-logo2.png";
 
   if (!engineData || !brandData || !modelData || !yearData) {
     return (
@@ -539,7 +539,7 @@ export default function EnginePage({
               brand: {
                 "@type": "Brand",
                 name: "AK-TUNING",
-                logo: "https://tuning.aktuning.se/ak-logo.png",
+                logo: "https://tuning.aktuning.se/ak-logo2.png",
               },
               offers: selectedStage?.price
                 ? {
@@ -563,7 +563,7 @@ export default function EnginePage({
               "@type": "Organization",
               name: "AK-TUNING",
               url: "https://tuning.aktuning.se",
-              logo: "https://tuning.aktuning.se/ak-logo.png",
+              logo: "https://tuning.aktuning.se/ak-logo2.png",
             }),
           }}
         />
@@ -611,8 +611,8 @@ export default function EnginePage({
           <NextImage
             src="/ak-logo2.png"
             alt="AK-TUNING MOTOROPTIMERING"
-            width={85}
-            height={80}
+            width={100}
+            height={100}
             className="h-12 object-contain cursor-pointer"
             onClick={() => (window.location.href = "/")}
             priority
