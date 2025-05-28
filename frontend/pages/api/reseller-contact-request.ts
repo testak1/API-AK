@@ -23,8 +23,17 @@ export default async function handler(
 
   try {
     // First get reseller's email - use relative path since we're in the same app
+    const baseUrl =
+      process.env.NEXT_PUBLIC_BASE_URL ||
+      (process.env.NODE_ENV === "development" ? "http://localhost:3000" : "");
+
     const resellerResponse = await fetch(
-      `${getBaseUrl()}/api/reseller-config?resellerId=${resellerId}`,
+      `${baseUrl}/api/reseller-config?resellerId=${resellerId}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
     );
 
     if (!resellerResponse.ok) {
@@ -81,17 +90,5 @@ export default async function handler(
       error: "Failed to send contact request",
       details: error instanceof Error ? error.message : String(error),
     });
-  }
-}
-
-// Helper function to get base URL
-function getBaseUrl() {
-  if (process.env.NEXT_PUBLIC_BASE_URL) {
-    return process.env.NEXT_PUBLIC_BASE_URL;
-  }
-
-  // Fallback for local development
-  if (process.env.NODE_ENV === "development") {
-    return "http://localhost:3000";
   }
 }
