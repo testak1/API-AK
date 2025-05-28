@@ -612,47 +612,7 @@ export default function EnginePage({
           }}
         />
 
-          <script
-    type="application/ld+json"
-    dangerouslySetInnerHTML={{
-      __html: JSON.stringify({
-        "@context": "https://schema.org",
-        "@type": "BreadcrumbList",
-        itemListElement: [
-          {
-            "@type": "ListItem",
-            position: 1,
-            name: "Hem",
-            item: "https://tuning.aktuning.se",
-          },
-          {
-            "@type": "ListItem",
-            position: 2,
-            name: brandData.name,
-            item: `https://tuning.aktuning.se/${brandData.slug?.current}`,
-          },
-          {
-            "@type": "ListItem",
-            position: 3,
-            name: modelData.name,
-            item: `https://tuning.aktuning.se/${brandData.slug?.current}/${modelData.slug?.current}`,
-          },
-          {
-            "@type": "ListItem",
-            position: 4,
-            name: yearData.range,
-            item: `https://tuning.aktuning.se/${brandData.slug?.current}/${modelData.slug?.current}/${yearData.range}`,
-          },
-          {
-            "@type": "ListItem",
-            position: 5,
-            name: engineData.label,
-            item: `https://tuning.aktuning.se${router.asPath.split("?")[0]}`,
-          },
-        ],
-      }),
-    }}
-  />
+          
       </Head>
 
       <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
@@ -668,39 +628,7 @@ export default function EnginePage({
             onClick={() => (window.location.href = "/")}
           />
         </div>
-        <nav className="text-sm text-gray-400 mb-6" aria-label="breadcrumb">
-  <ol className="list-reset flex flex-wrap gap-1 items-center">
-    <li className="flex items-center">
-      <a href="/" className="hover:underline text-white">Hem</a>
-      <span className="mx-1">/</span>
-    </li>
-    <li className="flex items-center">
-      <a href={`/${brandData.slug?.current}`} className="hover:underline text-white">
-        {brandData.name}
-      </a>
-      <span className="mx-1">/</span>
-    </li>
-    <li className="flex items-center">
-      <a 
-        href={`/${brandData.slug?.current}/${modelData.slug?.current}`} 
-        className="hover:underline text-white"
-      >
-        {modelData.name}
-      </a>
-      <span className="mx-1">/</span>
-    </li>
-    <li className="flex items-center">
-      <a
-        href={`/${brandData.slug?.current}/${modelData.slug?.current}/${yearData.range}`}
-        className="hover:underline text-white"
-      >
-        {yearData.range}
-      </a>
-      <span className="mx-1">/</span>
-    </li>
-    <li className="text-green font-semibold">{engineData.label}</li>
-  </ol>
-</nav>
+       
 
         
         <div className="mb-8">
