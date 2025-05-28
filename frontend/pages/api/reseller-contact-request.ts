@@ -48,7 +48,7 @@ export default async function handler(
 
     // Send email to reseller
     await resend.emails.send({
-      from: "no-reply@api.com",
+      from: "no-reply@api-ak-bmrp.onrender.com",
       to: resellerData.email,
       subject: `New tuning request for ${vehicleInfo.brand} ${vehicleInfo.model}`,
       html: `
