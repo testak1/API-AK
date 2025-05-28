@@ -1561,7 +1561,7 @@ export default function TuningViewer() {
                                             )}
 
                                             <button
-                                              onClick={() =>
+                                              onClick={(onClose) =>
                                                 setResellerContactModalData(
                                                   (prev) => ({
                                                     ...prev,
