@@ -46,6 +46,7 @@ export default async function handler(req, res) {
       language: result?.language ?? "sv",
       displaySettings: result?.displaySettings ?? defaultDisplaySettings,
       exchangeRates,
+      subscription: result?.subscription ?? null,
     };
 
     res.status(200).json(response);

@@ -152,11 +152,7 @@ export default function ResellerAdmin({ session }) {
     return order.indexOf(a.stageName) - order.indexOf(b.stageName);
   });
 
-  const [subscription, setSubscription] = useState({
-    planType: "month",
-    price: 0,
-    currency: "EUR",
-  });
+  const [subscription, setSubscription] = useState(null);
 
   // Add this function to handle logo upload
   const handleLogoUpload = async () => {
@@ -1609,7 +1605,9 @@ export default function ResellerAdmin({ session }) {
                       Price
                     </label>
                     <div className="mt-1 text-sm text-gray-900 p-2 bg-gray-50 rounded-md">
-                      {subscription?.price} {subscription?.currency}
+                      {subscription
+                        ? `${subscription.price} ${subscription.currency}`
+                        : "Not set"}
                     </div>
                   </div>
                 </div>

@@ -68,6 +68,11 @@ export interface ResellerConfig {
   email: string;
   logo?: any;
   currency: string;
+  subscription: {
+    currency: number;
+    planType: string;
+    price: number;
+  };
   language: string;
   exchangeRates: Record<string, number>;
   displaySettings: {
