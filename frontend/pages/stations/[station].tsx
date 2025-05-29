@@ -770,14 +770,14 @@ export default function MotoroptimeringStation({
               </div>
 
               <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
-                {stationData.brands.map((brand, index) => {
-                  const hasLogo = brand.logo?.asset;
-                  return (
+                {stationData.brands
+                  .filter((brand) => !brand.name.includes("[LASTBIL] - VOLVO"))
+                  .map((brand) => (
                     <div
-                      key={brand._id || index}
+                      key={brand._id}
                       className="bg-gray-800 hover:bg-gray-700 p-2 rounded-lg flex items-center justify-center h-20 transition-all hover:-translate-y-1"
                     >
-                      {hasLogo ? (
+                      {brand.logo?.asset?.url ? (
                         <img
                           src={urlFor(brand.logo).width(120).url()}
                           alt={brand.logo?.alt || `${brand.name} logo`}
@@ -791,18 +791,16 @@ export default function MotoroptimeringStation({
                           }}
                         />
                       ) : (
-                        <span className="text-gray-300 text-center">
+                        <span className="text-xs text-gray-300 text-center">
                           {brand.name}
                         </span>
                       )}
                     </div>
-                  );
-                })}
+                  ))}
               </div>
             </section>
           ) : (
             <div className="text-center py-8 text-gray-500">
-              {/* Optional: Display when no brands are available */}
               Brands information coming soon
             </div>
           )}
