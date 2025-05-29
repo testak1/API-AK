@@ -69,7 +69,13 @@ export interface ResellerConfig {
   email: string;
   logo?: any;
   currency: string;
-  aktPlusLogo?: Image;
+  aktPlusLogo: {
+    _type: "image";
+    asset: {
+      _type: "reference";
+      _ref: imageAsset._id;
+    };
+  };
   subscription: {
     currency: number;
     planType: string;
