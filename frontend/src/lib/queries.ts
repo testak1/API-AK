@@ -101,13 +101,13 @@ export const stationPageQuery = groq`
   content,
   elfsightWidgetId,
   brands[]->{
-  name,
-  logo{
-    asset->{
-      url
+    name,
+    logo {
+      alt,
+      asset->{
+        url
+      }
     }
-  }
-}
   },
   "slug": slug.current
 }`;
