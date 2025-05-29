@@ -77,7 +77,8 @@ export const resellerOverrideQuery = groq`
   }
 `;
 
-export const stationPageQuery = groq`*[_type == "station" && slug.current == $station][0]{
+export const stationPageQuery = groq`
+*[_type == "station" && slug.current == $station][0]{
   _id,
   city,
   phone,
