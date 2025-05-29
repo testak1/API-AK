@@ -10,14 +10,6 @@ import { Station } from "@/types/sanity";
 
 import InstagramFeedEmbed from "@/components/InstagramFeedEmbed";
 
-interface InstagramPost {
-  id: string;
-  media_url: string;
-  permalink: string;
-  caption?: string;
-  media_type: "IMAGE" | "VIDEO" | "CAROUSEL_ALBUM";
-}
-
 interface StationPageProps {
   stationData: Station;
 }
@@ -762,8 +754,10 @@ export default function MotoroptimeringStation({
             </div>
           </section>
 
-          {/* Brand Logos Section */}
-          {stationData.brands && stationData.brands.length > 0 && (
+          {/* Brand Logos Section - Robust Version */}
+          {stationData.brands &&
+          Array.isArray(stationData.brands) &&
+          stationData.brands.length > 0 ? (
             <section className="mb-16">
               <div className="text-center mb-12">
                 <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
@@ -774,34 +768,43 @@ export default function MotoroptimeringStation({
                   Professionell optimering oavsett bilmärke eller modell
                 </p>
               </div>
+
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
-                {stationData.brands.map((brand, index) => (
-                  <div
-                    key={index}
-                    className="bg-gray-800 hover:bg-gray-700 p-4 rounded-xl flex items-center justify-center h-24 transition-all hover:-translate-y-1"
-                  >
-                    {brand.logo ? (
-                      <img
-                        src={urlFor(brand.logo).width(200).url()}
-                        alt={brand.logo.alt || brand.name}
-                        className="h-12 w-full object-contain opacity-80 hover:opacity-100 transition-opacity"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = "none";
-                          (
-                            e.target as HTMLImageElement
-                          ).parentElement!.innerHTML =
-                            `<span class="text-gray-300 text-center">${brand.name}</span>`;
-                        }}
-                      />
-                    ) : (
-                      <span className="text-gray-300 text-center">
-                        {brand.name}
-                      </span>
-                    )}
-                  </div>
-                ))}
+                {stationData.brands.map((brand, index) => {
+                  const hasLogo = brand.logo?.asset;
+                  return (
+                    <div
+                      key={brand._id || index}
+                      className="bg-gray-800 hover:bg-gray-700 p-4 rounded-xl flex items-center justify-center h-24 transition-all hover:-translate-y-1"
+                    >
+                      {hasLogo ? (
+                        <img
+                          src={urlFor(brand.logo).width(200).url()}
+                          alt={brand.logo?.alt || `${brand.name} logo`}
+                          className="h-12 w-full object-contain opacity-80 hover:opacity-100 transition-opacity"
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
+                            const fallback = document.createElement("span");
+                            fallback.className = "text-gray-300 text-center";
+                            fallback.textContent = brand.name;
+                            e.currentTarget.parentNode?.appendChild(fallback);
+                          }}
+                        />
+                      ) : (
+                        <span className="text-gray-300 text-center">
+                          {brand.name}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </section>
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              {/* Optional: Display when no brands are available */}
+              Brands information coming soon
+            </div>
           )}
         </div>
       </div>
