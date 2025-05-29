@@ -64,7 +64,6 @@ const portableTextComponents = {
 export default function MotoroptimeringStation({
   stationData,
 }: StationPageProps) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const pageTitle = `Motoroptimering ${stationData.city} | AK-TUNING`;
   const pageDescription = `Professionell Motoroptimering i ${stationData.city} med 2 års garanti. Boka tid för optimering av din bil hos AK-TUNING ${stationData.city} – specialister på skräddarsydd mjukvara.`;
   const pageUrl = `https://tuning.aktuning.se/motoroptimering/${stationData.slug}`;
@@ -119,23 +118,26 @@ export default function MotoroptimeringStation({
                 addressCountry: "SE",
               },
 
-              openingHoursSpecification: stationData.openingHours.map((oh) => ({
-                "@type": "OpeningHoursSpecification",
-                dayOfWeek: oh.days.map((day) => {
-                  const dayMap = {
-                    MÅNDAG: "Monday",
-                    TISDAG: "Tuesday",
-                    ONSDAG: "Wednesday",
-                    TORSDAG: "Thursday",
-                    FREDAG: "Friday",
-                    LÖRDAG: "Saturday",
-                    SÖNDAG: "Sunday",
-                  };
-                  return dayMap[day] || day;
-                }),
-                opens: oh.open,
-                closes: oh.close,
-              })),
+              openingHoursSpecification: [
+                {
+                  "@type": "OpeningHoursSpecification",
+                  dayOfWeek: [
+                    "Måndag",
+                    "Tisdag",
+                    "Onsdag",
+                    "Torsdag",
+                    "Fredag",
+                  ],
+                  opens: "10:00",
+                  closes: "19:00",
+                },
+                {
+                  "@type": "OpeningHoursSpecification",
+                  dayOfWeek: ["Lördag", "Söndag"],
+                  opens: "10:00",
+                  closes: "16:00",
+                },
+              ],
               sameAs: [
                 stationData.facebook
                   ? `https://facebook.com/${stationData.facebook}`
