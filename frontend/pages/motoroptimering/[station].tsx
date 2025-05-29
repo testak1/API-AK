@@ -288,22 +288,6 @@ export default function MotoroptimeringStation({
                 </div>
               </div>
 
-              {/* Vehicle selection tabs - visual placeholder */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 max-w-4xl mx-auto">
-                <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4 text-center">
-                  <p className="text-gray-400 text-sm mb-1">MODELL</p>
-                  <p className="text-white font-medium">VÄLJ MODELL</p>
-                </div>
-                <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4 text-center">
-                  <p className="text-gray-400 text-sm mb-1">ÅRSMODELL</p>
-                  <p className="text-white font-medium">VÄLJ ÅRSMODELL</p>
-                </div>
-                <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4 text-center">
-                  <p className="text-gray-400 text-sm mb-1">MOTOR</p>
-                  <p className="text-white font-medium">VÄLJ MOTOR</p>
-                </div>
-              </div>
-
               {/* Enhanced iframe container */}
               <div className="relative bg-gray-900 rounded-2xl overflow-hidden border border-gray-700 shadow-xl">
                 <div className="absolute inset-0 bg-gradient-to-br from-red-900/10 to-gray-900/50 pointer-events-none" />
@@ -312,8 +296,6 @@ export default function MotoroptimeringStation({
                   src="https://api.aktuning.se/embed"
                   className="w-full border-none"
                   style={{ height: "180px" }}
-                  scrolling="no"
-                  title="Aktuning Services"
                 />
               </div>
             </div>
