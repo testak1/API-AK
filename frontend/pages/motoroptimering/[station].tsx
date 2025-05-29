@@ -423,27 +423,34 @@ export default function MotoroptimeringStation({
 
           {/* Services Section - Improved visibility */}
 
-          <section className="mb-20 relative">
-            <div className="text-center mb-6">
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                Våra <span className="text-red-500">tjänster</span> i{" "}
-                {stationData.city}
+          {/* Enhanced Embed Section */}
+          <section className="my-16 relative">
+            {/* Header with improved styling */}
+            <div className="text-center mb-8 px-4">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 bg-gradient-to-r from-red-500 to-red-700 bg-clip-text text-transparent">
+                Våra tjänster i {stationData.city}
               </h2>
-              <p className="text-gray-400 max-w-2xl mx-auto">
+              <p className="text-gray-300 max-w-2xl mx-auto text-lg">
                 Professionella optimeringstjänster skräddarsydda för din bil
               </p>
             </div>
 
-            {/* Embed container */}
-            <div className="w-screen relative left-1/2 -ml-[50vw]">
-              <iframe
-                id="aktuning-iframe"
-                src="https://api.aktuning.se/embed"
-                className="w-full border-none overflow-hidden"
-                style={{ height: "150px" }}
-                scrolling="no"
-                title="Aktuning Services"
-              />
+            {/* Embed container with visual enhancements */}
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-red-900/20 to-gray-900/50 rounded-2xl -z-10" />
+              <div className="w-screen relative left-1/2 -ml-[50vw] px-4">
+                <div className="max-w-7xl mx-auto">
+                  <div className="rounded-xl overflow-hidden border border-gray-700 shadow-2xl">
+                    <iframe
+                      id="aktuning-iframe"
+                      src="https://api.aktuning.se/embed"
+                      className="w-full border-none overflow-hidden bg-gray-900"
+                      style={{ height: "150px" }}
+                      title="Aktuning Services"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </section>
 
