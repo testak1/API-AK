@@ -321,7 +321,7 @@ export default function MotoroptimeringStation({
           <section className="mb-20">
             <div className="flex flex-col lg:flex-row gap-12 items-center">
               <div className="lg:w-1/2">
-                <h2 className="text-3xl md:text-4xl font-bold text-white mb-8">
+                <h2 className="text-3xl pt-2 md:text-4xl font-bold text-white mb-8">
                   VÅR ANLÄGGNING{" "}
                   <span className="text-red-500">{stationData.city}</span>
                 </h2>
