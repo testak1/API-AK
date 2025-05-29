@@ -626,7 +626,12 @@ export default function MotoroptimeringStation({
             </div>
           </section>
 
-          <section className="bg-gray-900 rounded-xl p-6 shadow-lg">
+          <section className="bg-gray-900 rounded-xl mb-20 p-6 shadow-lg">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold text-white mb-4">
+                Följ oss på <span className="text-orange-500">Instagram</span>
+              </h2>
+            </div>
             {stationData.instagramUrl && <InstagramFeedEmbed />}
           </section>
 
