@@ -778,13 +778,26 @@ export default function MotoroptimeringStation({
                 {stationData.brands.map((brand, index) => (
                   <div
                     key={index}
-                    className="bg-gray-800 hover:bg-gray-700 p-4 rounded-xl flex items-center justify-center h-24 transition-all hover:-translate-y-1"
+                    className="bg-gray-800 hover:bg-gray-700 p-4 rounded-xl flex items-center justify-center h-24 transition-all hover:-translate-y-1 hover:shadow-lg border border-gray-700"
                   >
-                    <img
-                      src={brand.logo?.asset?.url || ""}
-                      alt={brand.name}
-                      className="h-12 w-full object-contain opacity-80 hover:opacity-100 transition-opacity"
-                    />
+                    {brand.logo?.asset?.url ? (
+                      <img
+                        src={urlFor(brand.logo).width(200).url()}
+                        alt={brand.name}
+                        className="h-12 w-full object-contain opacity-80 hover:opacity-100 transition-opacity"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = "none";
+                          (
+                            e.target as HTMLImageElement
+                          ).parentElement!.innerHTML =
+                            `<span class="text-gray-300 text-center">${brand.name}</span>`;
+                        }}
+                      />
+                    ) : (
+                      <span className="text-gray-300 text-center">
+                        {brand.name}
+                      </span>
+                    )}
                   </div>
                 ))}
               </div>
