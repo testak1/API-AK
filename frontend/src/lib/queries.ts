@@ -86,7 +86,8 @@ export const stationPageQuery = groq`
   "slug": slug.current,
   address,
   location,
-  instagramUrl,
+  instagram,
+  facebook,
   openingHours[],
   services[]{
     title,

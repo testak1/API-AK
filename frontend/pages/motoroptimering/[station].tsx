@@ -233,6 +233,13 @@ export default function MotoroptimeringStation({
   const pageTitle = `Motoroptimering ${stationData.city} | AK-TUNING ${stationData.city}`;
   const pageDescription = `Professionell motoroptimering i ${stationData.city} med 2 års garanti. Boka tid för optimering av din bil hos AK-TUNING ${stationData.city} – specialister på ECU tuning och prestandaoptimering.`;
   const pageUrl = `https://tuning.aktuning.se/motoroptimering/${stationData.slug.current}`;
+  const facebook = stationData.facebook
+    ? `https://facebook.com/${stationData.facebook}`
+    : null;
+
+  const instagram = stationData.instagram
+    ? `https://instagram.com/${stationData.instagram}`
+    : null;
 
   return (
     <>
@@ -283,16 +290,31 @@ export default function MotoroptimeringStation({
                 postalCode: stationData.address.postalCode,
                 addressCountry: "SE",
               },
-              
+
               openingHoursSpecification: stationData.openingHours.map((oh) => ({
                 "@type": "OpeningHoursSpecification",
-                dayOfWeek: oh.days,
+                dayOfWeek: oh.days.map((day) => {
+                  const dayMap = {
+                    MÅNDAG: "Monday",
+                    TISDAG: "Tuesday",
+                    ONSDAG: "Wednesday",
+                    TORSDAG: "Thursday",
+                    FREDAG: "Friday",
+                    LÖRDAG: "Saturday",
+                    SÖNDAG: "Sunday",
+                  };
+                  return dayMap[day] || day;
+                }),
                 opens: oh.open,
                 closes: oh.close,
               })),
               sameAs: [
-                "https://www.facebook.com/aktuning",
-                "https://www.instagram.com/aktuning",
+                stationData.facebook
+                  ? `https://facebook.com/${stationData.facebook}`
+                  : null,
+                stationData.instagram
+                  ? `https://instagram.com/${stationData.instagram}`
+                  : null,
               ],
             }),
           }}
