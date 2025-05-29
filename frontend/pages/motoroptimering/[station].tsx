@@ -422,8 +422,8 @@ export default function MotoroptimeringStation({
           </div>
 
           {/* Services Section - Improved visibility */}
-          {/* Services Section - API iframe */}
-          <section className="mb-20">
+
+          <section className="mb-20 relative">
             <div className="text-center mb-6">
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
                 Våra <span className="text-red-500">tjänster</span> i{" "}
@@ -433,15 +433,41 @@ export default function MotoroptimeringStation({
                 Professionella optimeringstjänster skräddarsydda för din bil
               </p>
             </div>
-            <div className="w-full h-[800px] rounded-2xl overflow-hidden">
+
+            {/* Embed container */}
+            <div className="w-screen relative left-1/2 -ml-[50vw]">
               <iframe
-                width="300"
-                height="150"
-                className="w-full border-0 bg-gray-900 overflow-hidden"
+                id="aktuning-iframe"
                 src="https://api.aktuning.se/embed"
+                className="w-full border-none overflow-hidden"
+                style={{ height: "150px" }}
+                scrolling="no"
+                title="Aktuning Services"
               />
             </div>
           </section>
+
+          {/* Add this script effect using useEffect */}
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+    window.addEventListener("message", (event) => {
+      if (!event.data) return;
+      const iframe = document.getElementById("aktuning-iframe");
+      
+      if (typeof event.data.height === "number") {
+        iframe.style.height = event.data.height + "px";
+      }
+
+      if (event.data.scrollToIframe === true) {
+        const rect = iframe.getBoundingClientRect();
+        const top = window.scrollY + rect.top;
+        window.scrollTo({ top, behavior: "smooth" });
+      }
+    });
+  `,
+            }}
+          />
 
           {/* About Section - Better content visibility */}
           <section className="mb-20">
