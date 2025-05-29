@@ -15,7 +15,6 @@ const InstagramFeedEmbed = () => {
         <h2 className="text-3xl font-bold text-white mb-4">
           Följ oss på <span className="text-orange-500">Instagram</span>
         </h2>
-        <p className="text-gray-400">Se våra senaste projekt direkt i flödet</p>
       </div>
 
       <div

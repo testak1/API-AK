@@ -22,3 +22,7 @@
   color: #60a5fa;
   text-decoration: underline;
 }
+
+.elfsight-app [class*="eapps-instagram-feed-watermark"] {
+  display: none !important;
+}

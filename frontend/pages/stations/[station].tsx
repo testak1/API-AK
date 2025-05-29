@@ -58,7 +58,7 @@ const portableTextComponents = {
     link: ({ children, value }: any) => (
       <a
         href={value.href}
-        className="text-orange-500 hover:text-orange-400 underline transition-colors"
+        className="text-red-500 hover:text-red-400 underline transition-colors"
         target="_blank"
         rel="noopener noreferrer"
       >
@@ -134,7 +134,7 @@ const ContactModal = ({
                   type="text"
                   id="name"
                   required
-                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-white"
+                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-white"
                   value={formData.name}
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
@@ -152,7 +152,7 @@ const ContactModal = ({
                   type="email"
                   id="email"
                   required
-                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-white"
+                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-white"
                   value={formData.email}
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
@@ -173,7 +173,7 @@ const ContactModal = ({
                   type="tel"
                   id="phone"
                   required
-                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-white"
+                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-white"
                   value={formData.phone}
                   onChange={(e) =>
                     setFormData({ ...formData, phone: e.target.value })
@@ -191,7 +191,7 @@ const ContactModal = ({
                   type="text"
                   id="vehicle"
                   required
-                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-white"
+                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-white"
                   value={formData.vehicle}
                   onChange={(e) =>
                     setFormData({ ...formData, vehicle: e.target.value })
@@ -210,7 +210,7 @@ const ContactModal = ({
               <textarea
                 id="message"
                 rows={4}
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-white"
+                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-white"
                 value={formData.message}
                 onChange={(e) =>
                   setFormData({ ...formData, message: e.target.value })
@@ -221,7 +221,7 @@ const ContactModal = ({
             <div className="pt-2">
               <button
                 type="submit"
-                className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg transition-colors"
+                className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg transition-colors"
               >
                 Skicka förfrågan
               </button>
@@ -284,7 +284,7 @@ const InstagramFeed = ({ instagramUrl }: { instagramUrl?: string }) => {
     <section className="mb-20">
       <div className="text-center mb-12">
         <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-          Följ oss på <span className="text-orange-500">Instagram</span>
+          Följ oss på <span className="text-red-500">Instagram</span>
         </h2>
         <p className="text-gray-400 max-w-2xl mx-auto">
           Se våra senaste projekt och kundbilar
@@ -293,7 +293,7 @@ const InstagramFeed = ({ instagramUrl }: { instagramUrl?: string }) => {
           href={instagramUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-block mt-4 text-orange-500 hover:text-orange-400 transition-colors"
+          className="inline-block mt-4 text-red-500 hover:text-red-400 transition-colors"
         >
           @aktuning
         </a>
@@ -301,7 +301,7 @@ const InstagramFeed = ({ instagramUrl }: { instagramUrl?: string }) => {
 
       {loading ? (
         <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500"></div>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -437,13 +437,13 @@ export default function MotoroptimeringStation({
                     height={80}
                     className="h-12 w-auto"
                   />
-                  <span className="ml-3 text-xl font-bold text-orange-500">
+                  <span className="ml-3 text-xl font-bold text-red-500">
                     AK-TUNING
                   </span>
                 </div>
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">
                   Motoroptimering i{" "}
-                  <span className="text-orange-500">{stationData.city}</span>
+                  <span className="text-red-500">{stationData.city}</span>
                 </h1>
                 <p className="text-xl text-gray-300 mb-8 max-w-lg">
                   Professionell ECU tuning och prestandaoptimering hos
@@ -452,7 +452,7 @@ export default function MotoroptimeringStation({
                 <div className="flex flex-wrap gap-4">
                   <button
                     onClick={() => setIsModalOpen(true)}
-                    className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-4 rounded-xl font-bold shadow-lg transition-all hover:scale-105"
+                    className="bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-xl font-bold shadow-lg transition-all hover:scale-105"
                   >
                     Boka tid nu
                   </button>
@@ -489,9 +489,9 @@ export default function MotoroptimeringStation({
 
           {/* Benefits Section - Improved layout */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
-            <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-8 rounded-2xl shadow-xl border border-gray-700 hover:border-orange-500 transition-all hover:-translate-y-1">
-              <div className="bg-orange-500/10 p-4 rounded-full w-16 h-16 flex items-center justify-center mb-6">
-                <span className="text-orange-500 text-2xl">🏆</span>
+            <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-8 rounded-2xl shadow-xl border border-gray-700 hover:border-red-500 transition-all hover:-translate-y-1">
+              <div className="bg-red-500/10 p-4 rounded-full w-16 h-16 flex items-center justify-center mb-6">
+                <span className="text-red-500 text-2xl">🏆</span>
               </div>
               <h3 className="text-xl font-bold text-white mb-3">
                 2 års garanti
@@ -501,9 +501,9 @@ export default function MotoroptimeringStation({
                 säkerhet.
               </p>
             </div>
-            <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-8 rounded-2xl shadow-xl border border-gray-700 hover:border-orange-500 transition-all hover:-translate-y-1">
-              <div className="bg-orange-500/10 p-4 rounded-full w-16 h-16 flex items-center justify-center mb-6">
-                <span className="text-orange-500 text-2xl">⚡</span>
+            <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-8 rounded-2xl shadow-xl border border-gray-700 hover:border-red-500 transition-all hover:-translate-y-1">
+              <div className="bg-red-500/10 p-4 rounded-full w-16 h-16 flex items-center justify-center mb-6">
+                <span className="text-red-500 text-2xl">⚡</span>
               </div>
               <h3 className="text-xl font-bold text-white mb-3">+30-100 hk</h3>
               <p className="text-gray-400">
@@ -511,9 +511,9 @@ export default function MotoroptimeringStation({
                 körupplevelse.
               </p>
             </div>
-            <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-8 rounded-2xl shadow-xl border border-gray-700 hover:border-orange-500 transition-all hover:-translate-y-1">
-              <div className="bg-orange-500/10 p-4 rounded-full w-16 h-16 flex items-center justify-center mb-6">
-                <span className="text-orange-500 text-2xl">🔄</span>
+            <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-8 rounded-2xl shadow-xl border border-gray-700 hover:border-red-500 transition-all hover:-translate-y-1">
+              <div className="bg-red-500/10 p-4 rounded-full w-16 h-16 flex items-center justify-center mb-6">
+                <span className="text-red-500 text-2xl">🔄</span>
               </div>
               <h3 className="text-xl font-bold text-white mb-3">
                 30 dagars öppet köp
@@ -530,7 +530,7 @@ export default function MotoroptimeringStation({
               <div className="lg:w-1/2">
                 <h2 className="text-3xl md:text-4xl font-bold text-white mb-8">
                   Vår verkstad i{" "}
-                  <span className="text-orange-500">{stationData.city}</span>
+                  <span className="text-red-500">{stationData.city}</span>
                 </h2>
                 <div className="prose prose-invert max-w-none text-gray-300">
                   {stationData.content && (
@@ -542,7 +542,7 @@ export default function MotoroptimeringStation({
                 </div>
                 <button
                   onClick={() => setIsModalOpen(true)}
-                  className="mt-8 bg-orange-600 hover:bg-orange-700 text-white px-8 py-3 rounded-xl font-bold shadow-lg transition-all hover:scale-105"
+                  className="mt-8 bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-xl font-bold shadow-lg transition-all hover:scale-105"
                 >
                   Boka konsultation
                 </button>
@@ -575,7 +575,7 @@ export default function MotoroptimeringStation({
           <section className="mb-20">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                Våra <span className="text-orange-500">tjänster</span> i{" "}
+                Våra <span className="text-red-500">tjänster</span> i{" "}
                 {stationData.city}
               </h2>
               <p className="text-gray-400 max-w-2xl mx-auto">
@@ -586,10 +586,10 @@ export default function MotoroptimeringStation({
               {stationData.services.map((service, index) => (
                 <div
                   key={index}
-                  className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 shadow-xl border border-gray-700 hover:border-orange-500 transition-all hover:-translate-y-2"
+                  className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 shadow-xl border border-gray-700 hover:border-red-500 transition-all hover:-translate-y-2"
                 >
-                  <div className="bg-orange-500/10 p-3 rounded-lg w-12 h-12 flex items-center justify-center mb-6">
-                    <span className="text-orange-500 text-xl">
+                  <div className="bg-red-500/10 p-3 rounded-lg w-12 h-12 flex items-center justify-center mb-6">
+                    <span className="text-red-500 text-xl">
                       {index % 3 === 0 ? "🚀" : index % 3 === 1 ? "⚙️" : "🔧"}
                     </span>
                   </div>
@@ -604,7 +604,7 @@ export default function MotoroptimeringStation({
                   </div>
                   <button
                     onClick={() => setIsModalOpen(true)}
-                    className="text-orange-500 hover:text-orange-400 font-medium flex items-center gap-2 transition-colors"
+                    className="text-red-500 hover:text-red-400 font-medium flex items-center gap-2 transition-colors"
                   >
                     Boka nu
                     <svg
@@ -636,7 +636,7 @@ export default function MotoroptimeringStation({
               <div className="p-8">
                 <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">
                   Hitta till oss i{" "}
-                  <span className="text-orange-500">{stationData.city}</span>
+                  <span className="text-red-500">{stationData.city}</span>
                 </h2>
                 <p className="text-gray-400 mb-8 max-w-2xl">
                   Besök vår verkstad för en personlig konsultation och
@@ -647,13 +647,13 @@ export default function MotoroptimeringStation({
                   <div className="md:w-1/2">
                     <div className="bg-gray-900 rounded-xl p-6 mb-6">
                       <h3 className="text-xl font-bold text-white mb-4">
-                        <span className="text-orange-500">AK-TUNING</span>{" "}
+                        <span className="text-red-500">AK-TUNING</span>{" "}
                         {stationData.city}
                       </h3>
                       <div className="space-y-4 text-gray-300">
                         <div className="flex items-start gap-3">
                           <svg
-                            className="w-5 h-5 mt-0.5 text-orange-500"
+                            className="w-5 h-5 mt-0.5 text-red-500"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -681,7 +681,7 @@ export default function MotoroptimeringStation({
                         </div>
                         <div className="flex items-center gap-3">
                           <svg
-                            className="w-5 h-5 text-orange-500"
+                            className="w-5 h-5 text-red-500"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -695,14 +695,14 @@ export default function MotoroptimeringStation({
                           </svg>
                           <a
                             href={`tel:${stationData.phone.replace(/\s+/g, "")}`}
-                            className="hover:text-orange-500 transition-colors"
+                            className="hover:text-red-500 transition-colors"
                           >
                             {stationData.phone}
                           </a>
                         </div>
                         <div className="flex items-center gap-3">
                           <svg
-                            className="w-5 h-5 text-orange-500"
+                            className="w-5 h-5 text-red-500"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -716,7 +716,7 @@ export default function MotoroptimeringStation({
                           </svg>
                           <a
                             href="mailto:info@aktuning.se"
-                            className="hover:text-orange-500 transition-colors"
+                            className="hover:text-red-500 transition-colors"
                           >
                             info@aktuning.se
                           </a>
@@ -762,7 +762,7 @@ export default function MotoroptimeringStation({
             <section className="mb-20">
               <div className="text-center mb-12">
                 <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                  Vad våra <span className="text-orange-500">kunder</span> säger
+                  Vad våra <span className="text-red-500">kunder</span> säger
                 </h2>
                 <p className="text-gray-400 max-w-2xl mx-auto">
                   Läs om upplevelserna från andra bilentusiaster
@@ -772,14 +772,14 @@ export default function MotoroptimeringStation({
                 {stationData.testimonials.map((testimonial, index) => (
                   <div
                     key={index}
-                    className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 shadow-xl border border-gray-700 hover:border-orange-500 transition-all hover:-translate-y-2"
+                    className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 shadow-xl border border-gray-700 hover:border-red-500 transition-all hover:-translate-y-2"
                   >
                     <div className="flex items-center mb-6">
                       <div className="flex">
                         {[...Array(5)].map((_, i) => (
                           <svg
                             key={i}
-                            className={`w-5 h-5 ${i < 4 ? "text-orange-500" : "text-gray-700"}`}
+                            className={`w-5 h-5 ${i < 4 ? "text-red-500" : "text-gray-700"}`}
                             fill="currentColor"
                             viewBox="0 0 20 20"
                           >
@@ -792,9 +792,9 @@ export default function MotoroptimeringStation({
                       "{testimonial.quote}"
                     </p>
                     <div className="flex items-center">
-                      <div className="bg-orange-500/10 p-2 rounded-full mr-4">
+                      <div className="bg-red-500/10 p-2 rounded-full mr-4">
                         <svg
-                          className="w-6 h-6 text-orange-500"
+                          className="w-6 h-6 text-red-500"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -824,24 +824,24 @@ export default function MotoroptimeringStation({
 
           {/* CTA Section */}
           <section className="mb-20">
-            <div className="bg-gradient-to-r from-orange-600 to-orange-700 rounded-2xl p-8 md:p-12 text-center shadow-2xl">
+            <div className="bg-gradient-to-r from-red-600 to-red-700 rounded-2xl p-8 md:p-12 text-center shadow-2xl">
               <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
                 Redo att uppgradera din bil?
               </h2>
-              <p className="text-orange-100 mb-8 max-w-2xl mx-auto">
+              <p className="text-red-100 mb-8 max-w-2xl mx-auto">
                 Boka en tid idag och upplev skillnaden med professionell
                 motoroptimering
               </p>
               <div className="flex flex-col sm:flex-row justify-center gap-4">
                 <button
                   onClick={() => setIsModalOpen(true)}
-                  className="bg-white hover:bg-gray-100 text-orange-600 px-8 py-4 rounded-xl font-bold shadow-lg transition-all hover:scale-105"
+                  className="bg-white hover:bg-gray-100 text-red-600 px-8 py-4 rounded-xl font-bold shadow-lg transition-all hover:scale-105"
                 >
                   Boka tid nu
                 </button>
                 <a
                   href={`tel:${stationData.phone.replace(/\s+/g, "")}`}
-                  className="bg-orange-800 hover:bg-orange-900 text-white px-8 py-4 rounded-xl font-bold shadow-lg transition-all hover:scale-105 flex items-center justify-center gap-2"
+                  className="bg-red-800 hover:bg-red-900 text-white px-8 py-4 rounded-xl font-bold shadow-lg transition-all hover:scale-105 flex items-center justify-center gap-2"
                 >
                   <svg
                     className="w-5 h-5"
@@ -867,7 +867,7 @@ export default function MotoroptimeringStation({
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
                 Vi optimerar{" "}
-                <span className="text-orange-500">alla bilmärken</span>
+                <span className="text-red-500">alla bilmärken</span>
               </h2>
               <p className="text-gray-400 max-w-2xl mx-auto">
                 Professionell optimering oavsett bilmärke eller modell
