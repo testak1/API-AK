@@ -84,6 +84,7 @@ export const stationPageQuery = groq`
   phone,
   address,
   location,
+  instagramUrl,
   openingHours[],
   services[]{
     title,

@@ -40,6 +40,7 @@ export interface Station {
     lat: number;
     lng: number;
   };
+  instagramUrl?: string;
   openingHours: {
     days: string[];
     open: string;
