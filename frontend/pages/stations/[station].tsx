@@ -7,6 +7,7 @@ import client from "@/lib/sanity";
 import { urlFor } from "@/lib/sanity";
 import { stationPageQuery } from "@/src/lib/queries";
 import { Station } from "@/types/sanity";
+import InstagramFeedEmbed from "@/components/InstagramFeedEmbed";
 
 interface InstagramPost {
   id: string;
@@ -625,10 +626,9 @@ export default function MotoroptimeringStation({
             </div>
           </section>
 
-          {/* Instagram Feed Section */}
-          {stationData.instagramUrl && (
-            <InstagramFeed instagramUrl={stationData.instagramUrl} />
-          )}
+          <section className="bg-gray-900 rounded-xl p-6 shadow-lg">
+            {stationData.instagramUrl && <InstagramFeedEmbed />}
+          </section>
 
           {/* Map Section - Better layout */}
           <section className="mb-20">
