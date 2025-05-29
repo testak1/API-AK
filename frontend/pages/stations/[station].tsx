@@ -624,21 +624,19 @@ export default function MotoroptimeringStation({
                         ÖPPETTIDER
                       </h4>
                       <ul className="space-y-3 text-gray-300">
-                        {stationData.openingHours.map((hours, index) => (
-                          <li key={index} className="flex justify-between">
-                            <span>
-                              {hours.days.map((day, i) => (
-                                <span key={i}>
-                                  {day}
-                                  {i < hours.days.length - 1 && <br />}
-                                </span>
-                              ))}
-                            </span>
-                            <span className="font-medium">
-                              {hours.open} - {hours.close}
-                            </span>
-                          </li>
-                        ))}
+                        {stationData.openingHours.flatMap((hours, hoursIndex) =>
+                          hours.days.map((day, dayIndex) => (
+                            <li
+                              key={`${hoursIndex}-${dayIndex}`}
+                              className="flex justify-between"
+                            >
+                              <span>{day}</span>
+                              <span className="font-medium">
+                                {hours.open} - {hours.close}
+                              </span>
+                            </li>
+                          )),
+                        )}
                       </ul>
                     </div>
                   </div>
