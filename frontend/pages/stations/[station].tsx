@@ -633,7 +633,9 @@ export default function MotoroptimeringStation({
                 Följ oss på <span className="text-orange-500">Instagram</span>
               </h2>
             </div>
-            {stationData.instagramUrl && <InstagramFeedEmbed />}
+            {stationData.elfsightWidgetId && (
+              <InstagramFeedEmbed widgetId={stationData.elfsightWidgetId} />
+            )}
           </section>
 
           {/* Map Section - Better layout */}
@@ -881,20 +883,6 @@ export default function MotoroptimeringStation({
                 </p>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
-                {[
-                  "Audi",
-                  "BMW",
-                  "Volvo",
-                  "Volkswagen",
-                  "Mercedes",
-                  "Seat",
-                  "Skoda",
-                  "Ford",
-                  "Opel",
-                  "Peugeot",
-                  "Renault",
-                  "Toyota",
-                ]}
                 {stationData.brands.map((brand, index) => (
                   <div
                     key={index}

@@ -68,6 +68,7 @@ export interface Station {
     alt?: string;
   };
   content?: any;
+  elfsightWidgetId?: string;
   brands: Brand[];
 }
 

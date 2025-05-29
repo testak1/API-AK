@@ -1,35 +1,40 @@
 import { useEffect } from "react";
 
-const InstagramFeedEmbed = () => {
+const InstagramFeedEmbed = ({ widgetId }: { widgetId: string }) => {
   useEffect(() => {
+    const scriptId = "elfsight-platform";
+    if (!document.getElementById(scriptId)) {
+      const script = document.createElement("script");
+      script.id = scriptId;
+      script.src = "https://static.elfsight.com/platform/platform.js";
+      script.async = true;
+      document.body.appendChild(script);
+    }
+
     const interval = setInterval(() => {
       const watermark = document.querySelector(
         'a[href*="elfsight.com"][target="_blank"]',
       );
       if (watermark) {
         watermark.remove();
-        clearInterval(interval); // stop checking once removed
+        clearInterval(interval);
       }
-    }, 100); // check every 100ms in case it's added dynamically
+    }, 100);
 
     return () => clearInterval(interval);
   }, []);
 
+  if (!widgetId) return null;
+
   return (
-    <>
-      <script
-        src="https://static.elfsight.com/platform/platform.js"
-        async
-      ></script>
-      <div
-        className="elfsight-app-58551bec-466c-4a56-bab9-47c7f721ae2a"
-        data-elfsight-app-lazy
-      ></div>
-      <div
-        className="elfsight-app-5105a452-7992-495f-85d1-e0b5171c428a"
-        data-elfsight-app-lazy
-      ></div>
-    </>
+    <div className="my-20">
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold text-white mb-4">
+          Följ oss på <span className="text-orange-500">Instagram</span>
+        </h2>
+      </div>
+      <div className={widgetId} data-elfsight-app-lazy></div>
+    </div>
   );
 };
 
