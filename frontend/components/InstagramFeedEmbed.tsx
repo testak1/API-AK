@@ -25,6 +25,10 @@ const InstagramFeedEmbed = () => {
         className="elfsight-app-58551bec-466c-4a56-bab9-47c7f721ae2a"
         data-elfsight-app-lazy
       ></div>
+      <div
+        className="elfsight-app-5105a452-7992-495f-85d1-e0b5171c428a"
+        data-elfsight-app-lazy
+      ></div>
     </>
   );
 };

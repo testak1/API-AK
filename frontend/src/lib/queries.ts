@@ -98,6 +98,10 @@ export const stationPageQuery = groq`
   gallery[],
   featuredImage,
   content,
+  brands[] {
+    name,
+    logo
+  },
   "slug": slug.current
 }`;
 

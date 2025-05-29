@@ -7,6 +7,7 @@ import client from "@/lib/sanity";
 import { urlFor } from "@/lib/sanity";
 import { stationPageQuery } from "@/src/lib/queries";
 import { Station } from "@/types/sanity";
+
 import InstagramFeedEmbed from "@/components/InstagramFeedEmbed";
 
 interface InstagramPost {
@@ -868,44 +869,47 @@ export default function MotoroptimeringStation({
           </section>
 
           {/* Brand Logos */}
-          <section className="mb-16">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                Vi optimerar{" "}
-                <span className="text-red-500">alla bilmärken</span>
-              </h2>
-              <p className="text-gray-400 max-w-2xl mx-auto">
-                Professionell optimering oavsett bilmärke eller modell
-              </p>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
-              {[
-                "Audi",
-                "BMW",
-                "Volvo",
-                "Volkswagen",
-                "Mercedes",
-                "Seat",
-                "Skoda",
-                "Ford",
-                "Opel",
-                "Peugeot",
-                "Renault",
-                "Toyota",
-              ].map((brand) => (
-                <div
-                  key={brand}
-                  className="bg-gray-800 hover:bg-gray-700 p-4 rounded-xl flex items-center justify-center h-24 transition-all hover:-translate-y-1"
-                >
-                  <img
-                    src={`/brands/${brand.toLowerCase()}.svg`}
-                    alt={brand}
-                    className="h-12 w-full object-contain opacity-80 hover:opacity-100 transition-opacity"
-                  />
-                </div>
-              ))}
-            </div>
-          </section>
+          {stationData.brands && stationData.brands.length > 0 && (
+            <section className="mb-16">
+              <div className="text-center mb-12">
+                <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                  Vi optimerar{" "}
+                  <span className="text-red-500">alla bilmärken</span>
+                </h2>
+                <p className="text-gray-400 max-w-2xl mx-auto">
+                  Professionell optimering oavsett bilmärke eller modell
+                </p>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                {[
+                  "Audi",
+                  "BMW",
+                  "Volvo",
+                  "Volkswagen",
+                  "Mercedes",
+                  "Seat",
+                  "Skoda",
+                  "Ford",
+                  "Opel",
+                  "Peugeot",
+                  "Renault",
+                  "Toyota",
+                ]}
+                {stationData.brands.map((brand, index) => (
+                  <div
+                    key={index}
+                    className="bg-gray-800 hover:bg-gray-700 p-4 rounded-xl flex items-center justify-center h-24 transition-all hover:-translate-y-1"
+                  >
+                    <img
+                      src={urlFor(brand.logo).url()}
+                      alt={brand.name}
+                      className="h-12 w-full object-contain opacity-80 hover:opacity-100 transition-opacity"
+                    />
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
         </div>
       </div>
     </>
