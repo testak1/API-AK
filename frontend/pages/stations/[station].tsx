@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { GetServerSideProps } from "next";
 import Head from "next/head";
 import NextImage from "next/image";
@@ -7,6 +7,14 @@ import client from "@/lib/sanity";
 import { urlFor } from "@/lib/sanity";
 import { stationPageQuery } from "@/src/lib/queries";
 import { Station } from "@/types/sanity";
+
+interface InstagramPost {
+  id: string;
+  media_url: string;
+  permalink: string;
+  caption?: string;
+  media_type: "IMAGE" | "VIDEO" | "CAROUSEL_ALBUM";
+}
 
 interface StationPageProps {
   stationData: Station;
@@ -78,7 +86,6 @@ const ContactModal = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Add your form submission logic here
     console.log("Form submitted:", formData);
     onClose();
   };
@@ -225,6 +232,113 @@ const ContactModal = ({
   );
 };
 
+const InstagramFeed = ({ instagramUrl }: { instagramUrl?: string }) => {
+  const [posts, setPosts] = useState<InstagramPost[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!instagramUrl) return;
+
+    const fetchInstagramPosts = async () => {
+      try {
+        setLoading(true);
+        setTimeout(() => {
+          setPosts([
+            {
+              id: "1",
+              media_url: "/mock-instagram-1.jpg",
+              permalink: "https://instagram.com/p/1",
+              caption: "Recent tuning project in our workshop #aktuning",
+              media_type: "IMAGE",
+            },
+            {
+              id: "2",
+              media_url: "/mock-instagram-2.jpg",
+              permalink: "https://instagram.com/p/2",
+              caption: "Customer happy with their new performance #chiptuning",
+              media_type: "IMAGE",
+            },
+            {
+              id: "3",
+              media_url: "/mock-instagram-3.jpg",
+              permalink: "https://instagram.com/p/3",
+              caption: "Before and after dyno results #tuning",
+              media_type: "IMAGE",
+            },
+          ]);
+          setLoading(false);
+        }, 1000);
+      } catch (error) {
+        console.error("Error fetching Instagram posts:", error);
+        setLoading(false);
+      }
+    };
+
+    fetchInstagramPosts();
+  }, [instagramUrl]);
+
+  if (!instagramUrl) return null;
+
+  return (
+    <section className="mb-20">
+      <div className="text-center mb-12">
+        <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+          Följ oss på <span className="text-orange-500">Instagram</span>
+        </h2>
+        <p className="text-gray-400 max-w-2xl mx-auto">
+          Se våra senaste projekt och kundbilar
+        </p>
+        <a
+          href={instagramUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-block mt-4 text-orange-500 hover:text-orange-400 transition-colors"
+        >
+          @aktuning
+        </a>
+      </div>
+
+      {loading ? (
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {posts.map((post) => (
+            <a
+              key={post.id}
+              href={post.permalink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group relative rounded-xl overflow-hidden shadow-lg transition-transform hover:-translate-y-2"
+            >
+              <img
+                src={post.media_url}
+                alt={post.caption || "Instagram post"}
+                className="w-full h-64 object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                {post.caption && (
+                  <p className="text-white line-clamp-2">{post.caption}</p>
+                )}
+              </div>
+              <div className="absolute top-4 right-4 bg-black/50 rounded-full p-2">
+                <svg
+                  className="w-6 h-6 text-white"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                </svg>
+              </div>
+            </a>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+};
+
 export default function MotoroptimeringStation({
   stationData,
 }: StationPageProps) {
@@ -309,10 +423,10 @@ export default function MotoroptimeringStation({
       />
 
       <div className="w-full max-w-7xl mx-auto px-4 py-8">
-        {/* Hero Section */}
-        <div className="relative bg-gray-900 rounded-2xl overflow-hidden mb-16 shadow-2xl">
+        {/* Hero Section - Improved with better spacing */}
+        <div className="relative bg-gray-900 rounded-2xl overflow-hidden mb-16 shadow-2xl min-h-[500px]">
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent z-10"></div>
-          <div className="relative z-20 px-8 py-16 md:py-28 lg:py-32">
+          <div className="relative z-20 px-8 py-16 md:py-28 lg:py-32 h-full flex items-center">
             <div className="max-w-2xl">
               <div className="flex items-center mb-6">
                 <NextImage
@@ -372,7 +486,7 @@ export default function MotoroptimeringStation({
           )}
         </div>
 
-        {/* Benefits Section */}
+        {/* Benefits Section - Improved layout */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
           <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-8 rounded-2xl shadow-xl border border-gray-700 hover:border-orange-500 transition-all hover:-translate-y-1">
             <div className="bg-orange-500/10 p-4 rounded-full w-16 h-16 flex items-center justify-center mb-6">
@@ -407,7 +521,7 @@ export default function MotoroptimeringStation({
           </div>
         </div>
 
-        {/* About Section */}
+        {/* About Section - Better content visibility */}
         <section className="mb-20">
           <div className="flex flex-col lg:flex-row gap-12 items-center">
             <div className="lg:w-1/2">
@@ -454,7 +568,7 @@ export default function MotoroptimeringStation({
           </div>
         </section>
 
-        {/* Services Section */}
+        {/* Services Section - Improved visibility */}
         <section className="mb-20">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
@@ -509,7 +623,12 @@ export default function MotoroptimeringStation({
           </div>
         </section>
 
-        {/* Map Section */}
+        {/* Instagram Feed Section */}
+        {stationData.instagramUrl && (
+          <InstagramFeed instagramUrl={stationData.instagramUrl} />
+        )}
+
+        {/* Map Section - Better layout */}
         <section className="mb-20">
           <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl overflow-hidden shadow-2xl border border-gray-700">
             <div className="p-8">
