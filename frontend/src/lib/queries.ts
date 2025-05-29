@@ -100,10 +100,10 @@ export const stationPageQuery = groq`
   featuredImage,
   content,
   elfsightWidgetId,
-  brands[]->{
+  "brands": *[_type == "brand"]{
+    _id,
     name,
     logo {
-      alt,
       asset->{
         _id,
         url
