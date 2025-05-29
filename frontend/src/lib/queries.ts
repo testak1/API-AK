@@ -83,6 +83,7 @@ export const stationPageQuery = groq`
   city,
   phone,
   email,
+  "slug": slug.current,
   address,
   location,
   instagramUrl,
@@ -110,8 +111,8 @@ export const stationPageQuery = groq`
       },
       alt
     }
-  },
-  "slug": slug.current
+  
+  
 }`;
 
 export const resellerOverridesForEngineQuery = groq`
