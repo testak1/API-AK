@@ -1439,8 +1439,12 @@ export default function TuningViewer() {
                               <div className="flex items-center gap-2">
                                 <img
                                   src={
-                                    settings.aktPlusLogo?.asset?.url ||
-                                    "/logos/aktplus.png"
+                                    settings.aktPlusLogo?.asset
+                                      ? urlFor(settings.aktPlusLogo)
+                                          .width(300)
+                                          .quality(100)
+                                          .url()
+                                      : "/logos/aktplus.png"
                                   }
                                   alt="AKT+ Logo"
                                   className="h-8 w-auto object-contain"
