@@ -38,10 +38,6 @@ export interface Station {
     street: string;
     postalCode: string;
   };
-  location: {
-    lat: number;
-    lng: number;
-  };
   instagramUrl?: string;
   openingHours: {
     days: string[];
