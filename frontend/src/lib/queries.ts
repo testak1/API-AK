@@ -105,8 +105,10 @@ export const stationPageQuery = groq`
     logo {
       alt,
       asset->{
+        _id,
         url
-      }
+      },
+      alt
     }
   },
   "slug": slug.current
