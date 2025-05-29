@@ -178,7 +178,7 @@ export default function MotoroptimeringStation({
                     className="bg-gray-800 hover:bg-gray-700 text-white px-8 py-4 rounded-xl font-bold shadow-lg transition-all hover:scale-105 flex items-center gap-2"
                   >
                     <svg
-                      className="w-5 h-5"
+                      className="w-5 h-5 text-red-500"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -576,12 +576,6 @@ export default function MotoroptimeringStation({
                 motoroptimering
               </p>
               <div className="flex flex-col sm:flex-row justify-center gap-4">
-                <button
-                  onClick={() => setIsModalOpen(true)}
-                  className="bg-white hover:bg-gray-100 text-red-600 px-8 py-4 rounded-xl font-bold shadow-lg transition-all hover:scale-105"
-                >
-                  Boka tid nu
-                </button>
                 <a
                   href={`tel:${stationData.phone.replace(/\s+/g, "")}`}
                   className="bg-red-800 hover:bg-red-900 text-white px-8 py-4 rounded-xl font-bold shadow-lg transition-all hover:scale-105 flex items-center justify-center gap-2"
@@ -600,6 +594,25 @@ export default function MotoroptimeringStation({
                     />
                   </svg>
                   {stationData.phone}
+                </a>
+                <a
+                  href={`mailto:${stationData.email.replace(/\s+/g, "")}`}
+                  className="bg-gray-800 hover:bg-gray-700 text-white px-8 py-4 rounded-xl font-bold shadow-lg transition-all hover:scale-105 flex items-center gap-2 uppercase"
+                >
+                  <svg
+                    className="w-5 h-5 text-red-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    />
+                  </svg>
+                  {stationData.email}
                 </a>
               </div>
             </div>
