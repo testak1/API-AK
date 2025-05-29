@@ -435,10 +435,10 @@ export default function MotoroptimeringStation({
             </div>
             <div className="w-full h-[800px] rounded-2xl overflow-hidden">
               <iframe
-                src="https://api.aktuning.se"
-                className="w-full h-full border-0 bg-gray-900"
-                title="Aktuning Services"
-                loading="lazy"
+                width="300"
+                height="150"
+                className="w-full border-0 bg-gray-900 overflow-hidden"
+                src="https://api.aktuning.se/embed"
               />
             </div>
           </section>
