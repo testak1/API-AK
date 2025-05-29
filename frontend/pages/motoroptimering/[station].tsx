@@ -232,7 +232,7 @@ export default function MotoroptimeringStation({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const pageTitle = `Motoroptimering ${stationData.city} | AK-TUNING ${stationData.city}`;
   const pageDescription = `Professionell motoroptimering i ${stationData.city} med 2 års garanti. Boka tid för optimering av din bil hos AK-TUNING ${stationData.city} – specialister på ECU tuning och prestandaoptimering.`;
-  const pageUrl = `https://tuning.aktuning.se/motoroptimering-${stationData.slug.current}`;
+  const pageUrl = `https://tuning.aktuning.se/motoroptimering/${stationData.slug.current}`;
 
   return (
     <>
@@ -283,11 +283,7 @@ export default function MotoroptimeringStation({
                 postalCode: stationData.address.postalCode,
                 addressCountry: "SE",
               },
-              geo: {
-                "@type": "GeoCoordinates",
-                latitude: stationData.location.lat,
-                longitude: stationData.location.lng,
-              },
+              
               openingHoursSpecification: stationData.openingHours.map((oh) => ({
                 "@type": "OpeningHoursSpecification",
                 dayOfWeek: oh.days,
