@@ -28,9 +28,7 @@ export interface Slug {
 export interface Station {
   _id: string;
   city: string;
-  slug: {
-    current: string;
-  };
+  slug: string;
   phone: string;
   email: string;
   instagram: string;

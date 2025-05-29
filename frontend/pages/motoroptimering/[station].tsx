@@ -230,9 +230,9 @@ export default function MotoroptimeringStation({
   stationData,
 }: StationPageProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const pageTitle = `Motoroptimering ${stationData.city} | AK-TUNING ${stationData.city}`;
-  const pageDescription = `Professionell motoroptimering i ${stationData.city} med 2 års garanti. Boka tid för optimering av din bil hos AK-TUNING ${stationData.city} – specialister på ECU tuning och prestandaoptimering.`;
-  const pageUrl = `https://tuning.aktuning.se/motoroptimering/${stationData.slug.current}`;
+  const pageTitle = `Motoroptimering ${stationData.city} | AK-TUNING`;
+  const pageDescription = `Professionell Motoroptimering i ${stationData.city} med 2 års garanti. Boka tid för optimering av din bil hos AK-TUNING ${stationData.city} – specialister på skräddarsydd mjukvara.`;
+  const pageUrl = `https://tuning.aktuning.se/motoroptimering/${stationData.slug}`;
   const facebook = stationData.facebook
     ? `https://facebook.com/${stationData.facebook}`
     : null;
