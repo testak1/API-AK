@@ -167,7 +167,7 @@ export default function MotoroptimeringStation({
                 <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">
                   Motoroptimering i{" "}
                   <span className="text-red-500">{stationData.city}</span>
-                </h1>
+                </h2>
                 <p className="text-xl text-gray-300 mb-8 max-w-lg">
                   Professionell ECU tuning och prestandaoptimering hos
                   specialisterna på AK-TUNING
