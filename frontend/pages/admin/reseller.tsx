@@ -144,7 +144,10 @@ export default function ResellerAdmin({ session }) {
         const response = await fetch("/api/update-aktplus-logo", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ imageData: base64Data }),
+          body: JSON.stringify({
+            imageData: base64Data,
+            contentType: aktPlusLogoFile.type,
+          }),
         });
 
         if (!response.ok) throw new Error("AKTPLUS logo upload failed");
@@ -1512,9 +1515,9 @@ export default function ResellerAdmin({ session }) {
                   <div className="flex items-center gap-4">
                     {aktPlusLogoPreview ? (
                       <img
-                        src={aktPlusLogoPreview}
-                        alt="Current AKTPLUS logo"
-                        className="w-16 h-16 object-contain rounded-md border"
+                        src={aktPlusLogoPreview || "/logos/aktplus.png"}
+                        alt="AKT+ Logo"
+                        className="h-8 w-auto object-contain"
                       />
                     ) : (
                       <div className="w-16 h-16 flex items-center justify-center bg-gray-100 rounded-md border">

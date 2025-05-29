@@ -2,6 +2,7 @@
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./auth/[...nextauth]";
 import client from "@/lib/sanity";
+import { urlFor } from "@/lib/sanity";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -26,15 +27,30 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: "Reseller not found" });
     }
 
-    // Update the AKTPLUS logo
+    // Create the image asset in Sanity
+    const imageAsset = await client.assets.upload("image", req.body.imageData, {
+      filename: `aktplus-logo-${resellerId}`,
+      contentType: "image/png", // or 'image/jpeg' depending on your needs
+    });
+
+    // Update the document with the image reference
     await client
       .patch(user._id)
       .set({
-        aktPlusLogo: req.body.imageData,
+        aktPlusLogo: {
+          _type: "image",
+          asset: {
+            _type: "reference",
+            _ref: imageAsset._id,
+          },
+        },
       })
       .commit();
 
-    return res.status(200).json({ success: true });
+    return res.status(200).json({
+      success: true,
+      aktPlusLogoUrl: urlFor({ _ref: imageAsset._id }).url(),
+    });
   } catch (error) {
     console.error("Error updating AKTPLUS logo:", error);
     return res.status(500).json({ error: "Failed to update logo" });
