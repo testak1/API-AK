@@ -375,7 +375,7 @@ export default function MotoroptimeringStation({
             {stationData.featuredImage && (
               <img
                 src={urlFor(stationData.featuredImage).width(1800).url()}
-                alt={`AK-TUNING verkstad i ${stationData.city}`}
+                alt={`AK-TUNING i ${stationData.city}`}
                 className="absolute inset-0 w-full h-full object-cover"
               />
             )}
@@ -626,7 +626,7 @@ export default function MotoroptimeringStation({
                       <ul className="space-y-3 text-gray-300">
                         {stationData.openingHours.map((hours, index) => (
                           <li key={index} className="flex justify-between">
-                            <span>{hours.days.join(", ")}</span>
+                            <span>{hours.days.join("\n")}</span>
                             <span className="font-medium">
                               {hours.open} - {hours.close}
                             </span>
