@@ -260,65 +260,36 @@ export default function MotoroptimeringStation({
             </div>
           </div>
 
-          {/* Premium Services Section */}
-          <section className="relative py-20 bg-gradient-to-b from-gray-900 to-gray-950 overflow-hidden">
-            {/* Decorative elements */}
+          <section className="relative py-16 bg-gradient-to-b from-gray-900 to-gray-950">
             <div className="absolute inset-0 overflow-hidden">
-              <div className="absolute top-0 left-0 w-1/3 h-full bg-gradient-to-r from-red-900/20 to-transparent" />
-              <div className="absolute bottom-0 right-0 w-1/3 h-full bg-gradient-to-l from-red-900/20 to-transparent" />
-              <div className="absolute inset-0 bg-[url('/path/to/subtle-pattern.png')] opacity-5" />
+              <div className="absolute top-0 left-0 w-1/3 h-full bg-gradient-to-r from-red-900/10 to-transparent" />
+              <div className="absolute bottom-0 right-0 w-1/3 h-full bg-gradient-to-l from-red-900/10 to-transparent" />
             </div>
 
             <div className="container mx-auto px-4 relative z-10">
-              {/* Enhanced header section */}
-              <div className="text-center mb-12">
-                <div className="inline-flex items-center justify-center mb-4">
-                  <div className="w-16 h-1 bg-gradient-to-r from-transparent via-red-500 to-transparent mx-2" />
-                  <span className="text-red-400 font-medium uppercase tracking-wider text-sm">
-                    Våra tjänster
-                  </span>
-                  <div className="w-16 h-1 bg-gradient-to-r from-transparent via-red-500 to-transparent mx-2" />
-                </div>
-
-                <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">
-                  Professionell biloptimering <br />
+              {/* Header with improved styling */}
+              <div className="text-center mb-10">
+                <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+                  Våra{" "}
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-red-600">
-                    i {stationData.city}
-                  </span>
+                    tjänster
+                  </span>{" "}
+                  i {stationData.city}
                 </h2>
-
-                <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-6">
-                  Skräddarsydda prestandalösningar för exakt din bilmodell
+                <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+                  Professionella optimeringstjänster skräddarsydda för din bil
                 </p>
-
-                <div className="mt-8">
-                  <p className="text-gray-400 italic text-lg">
-                    Välj din bil nedan för att se anpassade
-                    uppgraderingsalternativ
-                  </p>
-                </div>
               </div>
 
-              {/* Prominent iframe container with better visual hierarchy */}
-              <div className="max-w-4xl mx-auto">
-                <div className="relative bg-gray-800/80 rounded-xl overflow-hidden border-2 border-gray-700/50 shadow-2xl transition-all hover:border-red-500/30 hover:shadow-red-900/20">
-                  <div className="absolute inset-0 bg-gradient-to-br from-red-900/10 via-gray-900/30 to-gray-900/50 pointer-events-none" />
-                  <div className="p-1 bg-gradient-to-r from-red-900/40 to-transparent">
-                    <h3 className="text-white font-medium px-4 py-2">
-                      TUNING KONFIGURATOR
-                    </h3>
-                  </div>
-
-                  <div className="p-1">
-                    <iframe
-                      id="aktuning-iframe"
-                      src="https://api.aktuning.se/embed"
-                      className="w-full border-none bg-gray-900"
-                      style={{ height: "220px" }}
-                      title="Biltjänster konfigurator"
-                    />
-                  </div>
-                </div>
+              {/* Enhanced iframe container */}
+              <div className="relative bg-white rounded-2xl overflow-hidden border border-gray-700 shadow-xl">
+                <div className="absolute inset-0 bg-white" />
+                <iframe
+                  id="aktuning-iframe"
+                  src="https://api.aktuning.se/embed"
+                  className="w-full border-none"
+                  style={{ height: "180px" }}
+                />
               </div>
             </div>
           </section>
