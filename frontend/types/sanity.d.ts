@@ -32,6 +32,7 @@ export interface Station {
     current: string;
   };
   phone: string;
+  email: string;
   address: {
     street: string;
     postalCode: string;

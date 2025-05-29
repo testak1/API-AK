@@ -530,7 +530,7 @@ export default function MotoroptimeringStation({
             <div className="flex flex-col lg:flex-row gap-12 items-center">
               <div className="lg:w-1/2">
                 <h2 className="text-3xl md:text-4xl font-bold text-white mb-8">
-                  Vår verkstad i{" "}
+                  VÅR ANLÄGGNING{" "}
                   <span className="text-red-500">{stationData.city}</span>
                 </h2>
                 <div className="prose prose-invert max-w-none text-gray-300">
@@ -541,12 +541,6 @@ export default function MotoroptimeringStation({
                     />
                   )}
                 </div>
-                <button
-                  onClick={() => setIsModalOpen(true)}
-                  className="mt-8 bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-xl font-bold shadow-lg transition-all hover:scale-105"
-                >
-                  Boka konsultation
-                </button>
               </div>
               <div className="lg:w-1/2">
                 {stationData.gallery && stationData.gallery.length > 0 && (
@@ -630,7 +624,7 @@ export default function MotoroptimeringStation({
           <section className="bg-gray-900 rounded-xl mb-20 p-6 shadow-lg">
             <div className="text-center mb-8">
               <h2 className="text-3xl font-bold text-white mb-4">
-                Följ oss på <span className="text-orange-500">Instagram</span>
+                Följ oss på <span className="text-red-500">INSTAGRAM</span>
               </h2>
             </div>
             {stationData.elfsightWidgetId && (
@@ -723,10 +717,10 @@ export default function MotoroptimeringStation({
                             />
                           </svg>
                           <a
-                            href="mailto:info@aktuning.se"
+                            href={`mailto:${stationData.email}`}
                             className="hover:text-red-500 transition-colors"
                           >
-                            info@aktuning.se
+                            {stationData.email}
                           </a>
                         </div>
                       </div>
@@ -734,7 +728,7 @@ export default function MotoroptimeringStation({
 
                     <div className="bg-gray-900 rounded-xl p-6">
                       <h4 className="text-lg font-semibold text-white mb-4">
-                        Öppettider
+                        ÖPPETTIDER
                       </h4>
                       <ul className="space-y-3 text-gray-300">
                         {stationData.openingHours.map((hours, index) => (

@@ -82,6 +82,7 @@ export const stationPageQuery = groq`
   _id,
   city,
   phone,
+  email,
   address,
   location,
   instagramUrl,
