@@ -1515,7 +1515,7 @@ export default function ResellerAdmin({ session }) {
                   <div className="flex items-center gap-4">
                     {aktPlusLogoPreview ? (
                       <img
-                        src={aktPlusLogoPreview || "/logos/aktplus.png"}
+                        src={aktPlusLogoPreview}
                         alt="AKT+ Logo"
                         className="h-8 w-auto object-contain"
                       />
