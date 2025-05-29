@@ -415,7 +415,7 @@ export default function MotoroptimeringStation({
           }}
         />
       </Head>
-
+      <div className="bg-gray-950 text-white min-h-screen"></div>
       <ContactModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
