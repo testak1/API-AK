@@ -34,7 +34,8 @@ export default async function handler(req, res) {
           showDynoChart
         },
         subscription,
-        contactInfo
+        contactInfo,
+        aktPlusLogo
       }`,
       { resellerId },
     );
@@ -47,6 +48,7 @@ export default async function handler(req, res) {
       displaySettings: result?.displaySettings ?? defaultDisplaySettings,
       exchangeRates,
       subscription: result?.subscription ?? null,
+      aktPlusLogo: result?.aktPlusLogo ?? null,
     };
 
     res.status(200).json(response);

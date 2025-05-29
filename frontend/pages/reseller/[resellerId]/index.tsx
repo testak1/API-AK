@@ -93,6 +93,7 @@ export default function TuningViewer() {
     logo?: any;
     currency: string;
     language: string;
+    aktPlusLogo?: any;
     exchangeRates: Record<string, number>;
     displaySettings?: {
       showAktPlus: boolean;
@@ -1437,7 +1438,10 @@ export default function TuningViewer() {
                             >
                               <div className="flex items-center gap-2">
                                 <img
-                                  src="/logos/aktplus.png"
+                                  src={
+                                    settings.aktPlusLogo?.asset?.url ||
+                                    "/logos/aktplus.png"
+                                  }
                                   alt="AKT+ Logo"
                                   className="h-8 w-auto object-contain"
                                 />
