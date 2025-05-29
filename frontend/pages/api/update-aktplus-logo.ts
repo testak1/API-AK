@@ -1,8 +1,15 @@
-// pages/api/update-aktplus-logo.ts
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./auth/[...nextauth]";
 import client from "@/lib/sanity";
 import { urlFor } from "@/lib/sanity";
+
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: "5mb", // för större bilder
+    },
+  },
+};
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -17,7 +24,16 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Fetch the document ID
+    const { imageData, contentType } = req.body;
+
+    // Konvertera base64 till buffer
+    const buffer = Buffer.from(imageData, "base64");
+
+    const imageAsset = await client.assets.upload("image", buffer, {
+      filename: `aktplus-logo-${resellerId}`,
+      contentType: contentType || "image/png",
+    });
+
     const user = await client.fetch(
       `*[_type == "resellerUser" && resellerId == $resellerId][0]{ _id }`,
       { resellerId },
@@ -27,22 +43,12 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: "Reseller not found" });
     }
 
-    // Create the image asset in Sanity
-    const imageAsset = await client.assets.upload("image", req.body.imageData, {
-      filename: `aktplus-logo-${resellerId}`,
-      contentType: "image/png", // or 'image/jpeg' depending on your needs
-    });
-
-    // Update the document with the image reference
     await client
       .patch(user._id)
       .set({
         aktPlusLogo: {
           _type: "image",
-          asset: {
-            _type: "reference",
-            _ref: imageAsset._id,
-          },
+          asset: { _type: "reference", _ref: imageAsset._id },
         },
       })
       .commit();
