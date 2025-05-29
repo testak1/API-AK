@@ -1,5 +1,6 @@
 // types/sanity.d.ts
 import type { PortableTextBlock } from "@portabletext/types";
+import { Image } from "@sanity/types";
 
 export interface SanityImage {
   _key?: string;
@@ -68,7 +69,7 @@ export interface ResellerConfig {
   email: string;
   logo?: any;
   currency: string;
-  aktPlusLogo?: any;
+  aktPlusLogo?: Image;
   subscription: {
     currency: number;
     planType: string;
