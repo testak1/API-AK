@@ -97,10 +97,7 @@ export default function MotoroptimeringGoteborg() {
         <h2 className="text-2xl font-semibold mb-4">
           Besök vår anläggning i Göteborg
         </h2>
-        <p className="mb-6 text-gray-700">
-          Du hittar oss på Maskingatan 1, 417 64 Göteborg. Boka tid via telefon
-          eller kontaktformuläret.
-        </p>
+        <p className="mb-6 text-gray-700">Du hittar oss på</p>
 
         <iframe
           src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2133.174934449659!2d11.9746!3d57.7089!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNTfCsDQyJzMzLjAiTiAxMcKwNTgnMjcuNiJF!5e0!3m2!1ssv!2sse!4v1683712340000!5m2!1ssv!2sse"
