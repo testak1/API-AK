@@ -421,6 +421,28 @@ export default function MotoroptimeringStation({
             </div>
           </div>
 
+          {/* Services Section - Improved visibility */}
+          {/* Services Section - API iframe */}
+          <section className="mb-20">
+            <div className="text-center mb-6">
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                Våra <span className="text-red-500">tjänster</span> i{" "}
+                {stationData.city}
+              </h2>
+              <p className="text-gray-400 max-w-2xl mx-auto">
+                Professionella optimeringstjänster skräddarsydda för din bil
+              </p>
+            </div>
+            <div className="w-full h-[800px] rounded-2xl overflow-hidden">
+              <iframe
+                src="https://api.aktuning.se"
+                className="w-full h-full border-0 bg-gray-900"
+                title="Aktuning Services"
+                loading="lazy"
+              />
+            </div>
+          </section>
+
           {/* About Section - Better content visibility */}
           <section className="mb-20">
             <div className="flex flex-col lg:flex-row gap-12 items-center">
@@ -459,61 +481,6 @@ export default function MotoroptimeringStation({
                   </div>
                 )}
               </div>
-            </div>
-          </section>
-
-          {/* Services Section - Improved visibility */}
-          <section className="mb-20">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                Våra <span className="text-red-500">tjänster</span> i{" "}
-                {stationData.city}
-              </h2>
-              <p className="text-gray-400 max-w-2xl mx-auto">
-                Professionella optimeringstjänster skräddarsydda för din bil
-              </p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {stationData.services.map((service, index) => (
-                <div
-                  key={index}
-                  className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 shadow-xl border border-gray-700 hover:border-red-500 transition-all hover:-translate-y-2"
-                >
-                  <div className="bg-red-500/10 p-3 rounded-lg w-12 h-12 flex items-center justify-center mb-6">
-                    <span className="text-red-500 text-xl">
-                      {index % 3 === 0 ? "🚀" : index % 3 === 1 ? "⚙️" : "🔧"}
-                    </span>
-                  </div>
-                  <h3 className="text-xl font-bold text-white mb-4">
-                    {service.title}
-                  </h3>
-                  <div className="prose prose-invert max-w-none text-gray-400 mb-6">
-                    <PortableText
-                      value={service.description}
-                      components={portableTextComponents}
-                    />
-                  </div>
-                  <button
-                    onClick={() => setIsModalOpen(true)}
-                    className="text-red-500 hover:text-red-400 font-medium flex items-center gap-2 transition-colors"
-                  >
-                    Boka nu
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M14 5l7 7m0 0l-7 7m7-7H3"
-                      />
-                    </svg>
-                  </button>
-                </div>
-              ))}
             </div>
           </section>
 
