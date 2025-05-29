@@ -77,6 +77,28 @@ export const resellerOverrideQuery = groq`
   }
 `;
 
+export const stationPageQuery = groq`*[_type == "station" && slug.current == $station][0]{
+  _id,
+  city,
+  phone,
+  address,
+  location,
+  openingHours[],
+  services[]{
+    title,
+    description
+  },
+  testimonials[]{
+    name,
+    vehicle,
+    quote
+  },
+  gallery[],
+  featuredImage,
+  content,
+  "slug": slug.current
+}`;
+
 export const resellerOverridesForEngineQuery = groq`
   *[_type == "resellerOverride" &&
     resellerId == $resellerId &&

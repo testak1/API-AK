@@ -25,6 +25,50 @@ export interface Slug {
   current: string;
 }
 
+export interface Station {
+  _id: string;
+  city: string;
+  slug: {
+    current: string;
+  };
+  phone: string;
+  address: {
+    street: string;
+    postalCode: string;
+  };
+  location: {
+    lat: number;
+    lng: number;
+  };
+  openingHours: {
+    days: string[];
+    open: string;
+    close: string;
+  }[];
+  services: {
+    title: string;
+    description: any;
+  }[];
+  testimonials: {
+    name: string;
+    vehicle: string;
+    quote: string;
+  }[];
+  gallery: {
+    asset: {
+      _ref: string;
+    };
+    alt?: string;
+  }[];
+  featuredImage?: {
+    asset: {
+      _ref: string;
+    };
+    alt?: string;
+  };
+  content?: any;
+}
+
 export interface StageDescription {
   _id: string;
   _type: "stageDescription";
