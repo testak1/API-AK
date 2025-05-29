@@ -27,7 +27,7 @@ const InstagramFeedEmbed = ({ widgetId }: { widgetId: string }) => {
   if (!widgetId) return null;
 
   return (
-    <div className="my-20">
+    <div className="my-2">
       <div className={widgetId} data-elfsight-app-lazy></div>
     </div>
   );
