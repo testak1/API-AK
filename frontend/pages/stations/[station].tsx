@@ -362,7 +362,7 @@ export default function MotoroptimeringStation({
         <meta property="og:url" content={pageUrl} />
         <meta
           property="og:image"
-          content="https://tuning.aktuning.se/ak-logo2.png"
+          content="https://tuning.aktuning.se/ak-logo.png"
         />
         <meta
           property="og:site_name"
@@ -375,7 +375,7 @@ export default function MotoroptimeringStation({
         <meta name="twitter:description" content={pageDescription} />
         <meta
           name="twitter:image"
-          content="https://tuning.aktuning.se/ak-logo2.png"
+          content="https://tuning.aktuning.se/ak-logo.png"
         />
 
         {/* LocalBusiness Structured Data */}
@@ -386,7 +386,7 @@ export default function MotoroptimeringStation({
               "@context": "https://schema.org",
               "@type": "LocalBusiness",
               name: `AK-TUNING ${stationData.city}`,
-              image: "https://tuning.aktuning.se/ak-logo2.png",
+              image: "https://tuning.aktuning.se/ak-logo.png",
               "@id": pageUrl,
               url: pageUrl,
               telephone: stationData.phone,
@@ -431,7 +431,7 @@ export default function MotoroptimeringStation({
               <div className="max-w-2xl">
                 <div className="flex items-center mb-6">
                   <NextImage
-                    src="/ak-logo2.png"
+                    src="/ak-logo.png"
                     alt="AK-TUNING"
                     width={80}
                     height={80}
