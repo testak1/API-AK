@@ -272,11 +272,10 @@ export default function MotoroptimeringStation({
               {/* Header with improved styling */}
               <div className="text-center mb-10">
                 <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                  Våra{" "}
+                  MOTOROPTIMERING i{" "}
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-red-600">
-                    tjänster
-                  </span>{" "}
-                  i {stationData.city}
+                    {stationData.city}
+                  </span>
                 </h2>
                 <p className="text-xl text-gray-300 max-w-3xl mx-auto">
                   Professionella optimeringstjänster skräddarsydda för din bil
@@ -285,7 +284,7 @@ export default function MotoroptimeringStation({
 
               {/* Enhanced iframe container */}
               <div className="relative bg-white rounded-2xl overflow-hidden">
-                <div className="absolute inset-0 bg-white" />
+                <div className="absolute pointer-events-none" />
                 <iframe
                   id="aktuning-iframe"
                   src="https://api.aktuning.se/embed"
