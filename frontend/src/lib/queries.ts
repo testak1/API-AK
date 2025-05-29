@@ -111,8 +111,7 @@ export const stationPageQuery = groq`
       },
       alt
     }
-  
-  
+  },
 }`;
 
 export const resellerOverridesForEngineQuery = groq`

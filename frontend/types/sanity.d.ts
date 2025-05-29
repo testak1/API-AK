@@ -33,6 +33,8 @@ export interface Station {
   };
   phone: string;
   email: string;
+  instagram: string;
+  facebook: string;
   address: {
     street: string;
     postalCode: string;
