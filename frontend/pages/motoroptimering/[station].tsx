@@ -166,7 +166,7 @@ export default function MotoroptimeringStation({
                     className="h-12 w-auto"
                   />
                 </div>
-                <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">
+                <h2 className="text-2xl md:text-5xl lg:text-6xl font-bold text-white mb-4 leading-tight">
                   Motoroptimering i{" "}
                   <span className="text-red-500">{stationData.city}</span>
                 </h2>
