@@ -769,19 +769,19 @@ export default function MotoroptimeringStation({
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
                 {stationData.brands.map((brand, index) => {
                   const hasLogo = brand.logo?.asset;
                   return (
                     <div
                       key={brand._id || index}
-                      className="bg-gray-800 hover:bg-gray-700 p-4 rounded-xl flex items-center justify-center h-24 transition-all hover:-translate-y-1"
+                      className="bg-gray-800 hover:bg-gray-700 p-2 rounded-lg flex items-center justify-center h-20 transition-all hover:-translate-y-1"
                     >
                       {hasLogo ? (
                         <img
-                          src={urlFor(brand.logo).width(200).url()}
+                          src={urlFor(brand.logo).width(120).url()}
                           alt={brand.logo?.alt || `${brand.name} logo`}
-                          className="h-12 w-full object-contain opacity-80 hover:opacity-100 transition-opacity"
+                          className="h-8 w-full object-contain opacity-80 hover:opacity-100 transition-opacity"
                           onError={(e) => {
                             e.currentTarget.style.display = "none";
                             const fallback = document.createElement("span");
