@@ -272,10 +272,8 @@ export default function MotoroptimeringStation({
               {/* Header with improved styling */}
               <div className="text-center mb-10">
                 <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                  MOTOROPTIMERING i GÖTEBORG {stationData.city}
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-red-600">
-                    {stationData.city}
-                  </span>
+                  MOTOROPTIMERING i{" "}
+                  <span className="text-red-500">{stationData.city}</span>
                 </h2>
                 <p className="text-xl text-gray-300 max-w-3xl mx-auto">
                   Professionella optimeringstjänster skräddarsydda för din bil
