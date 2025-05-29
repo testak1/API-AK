@@ -783,8 +783,8 @@ export default function MotoroptimeringStation({
                     className="bg-gray-800 hover:bg-gray-700 p-4 rounded-xl flex items-center justify-center h-24 transition-all hover:-translate-y-1"
                   >
                     <img
-                      src={urlFor(brand.logo).url()}
-                      alt={brand.name}
+                      src={brand.logo?.asset?.url || ""}
+                      alt={brand.logo?.alt || brand.name}
                       className="h-12 w-full object-contain opacity-80 hover:opacity-100 transition-opacity"
                     />
                   </div>

@@ -199,8 +199,11 @@ export interface Brand {
   slug: Slug;
   logo?: {
     _type: "image";
-    asset: Reference;
     alt?: string;
+    asset: {
+      _id: string;
+      url: string;
+    };
   };
   models: Model[];
 }
