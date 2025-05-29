@@ -239,35 +239,61 @@ export default function MotoroptimeringStation({
           </div>
         </div>
 
-        {/* Services Section - Improved visibility */}
-
-        {/* Enhanced Embed Section */}
-        <section className="my-16 relative">
-          {/* Header with improved styling */}
-          <div className="text-center mb-8 px-4">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 bg-gradient-to-r from-red-500 to-red-700 bg-clip-text text-transparent">
-              Våra tjänster i {stationData.city}
-            </h2>
-            <p className="text-gray-300 max-w-2xl mx-auto text-lg">
-              Professionella optimeringstjänster skräddarsydda för din bil
-            </p>
+        {/* Premium Services Section */}
+        <section className="relative py-16 bg-gradient-to-b from-gray-900 to-gray-950">
+          {/* Decorative elements */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute top-0 left-0 w-1/3 h-full bg-gradient-to-r from-red-900/10 to-transparent" />
+            <div className="absolute bottom-0 right-0 w-1/3 h-full bg-gradient-to-l from-red-900/10 to-transparent" />
           </div>
 
-          {/* Embed container with visual enhancements */}
-          <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-red-900/20 to-gray-900/50 rounded-2xl -z-10" />
-            <div className="w-screen relative left-1/2 -ml-[50vw] px-4">
-              <div className="max-w-7xl mx-auto">
-                <div className="rounded-xl overflow-hidden border border-gray-700 shadow-2xl">
-                  <iframe
-                    id="aktuning-iframe"
-                    src="https://api.aktuning.se/embed"
-                    className="w-full border-none overflow-hidden bg-gray-900"
-                    style={{ height: "150px" }}
-                    title="Aktuning Services"
-                  />
-                </div>
+          <div className="container mx-auto px-4 relative z-10">
+            {/* Header with improved styling */}
+            <div className="text-center mb-10">
+              <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+                Våra{" "}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-red-600">
+                  tjänster
+                </span>{" "}
+                i {stationData.city}
+              </h2>
+              <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+                Professionella optimeringstjänster skräddarsydda för din bil
+              </p>
+              <div className="mt-6">
+                <p className="text-gray-400 italic">
+                  Välj din bil nedan för att se vad vi kan erbjuda
+                </p>
               </div>
+            </div>
+
+            {/* Vehicle selection tabs - visual placeholder */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 max-w-4xl mx-auto">
+              <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4 text-center">
+                <p className="text-gray-400 text-sm mb-1">MODELL</p>
+                <p className="text-white font-medium">VÄLJ MODELL</p>
+              </div>
+              <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4 text-center">
+                <p className="text-gray-400 text-sm mb-1">ÅRSMODELL</p>
+                <p className="text-white font-medium">VÄLJ ÅRSMODELL</p>
+              </div>
+              <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4 text-center">
+                <p className="text-gray-400 text-sm mb-1">MOTOR</p>
+                <p className="text-white font-medium">VÄLJ MOTOR</p>
+              </div>
+            </div>
+
+            {/* Enhanced iframe container */}
+            <div className="relative bg-gray-900 rounded-2xl overflow-hidden border border-gray-700 shadow-xl">
+              <div className="absolute inset-0 bg-gradient-to-br from-red-900/10 to-gray-900/50 pointer-events-none" />
+              <iframe
+                id="aktuning-iframe"
+                src="https://api.aktuning.se/embed"
+                className="w-full border-none"
+                style={{ height: "180px" }}
+                scrolling="no"
+                title="Aktuning Services"
+              />
             </div>
           </div>
         </section>
