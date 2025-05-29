@@ -260,7 +260,9 @@ export default function MotoroptimeringStation({
             </div>
           </div>
 
+          {/* Premium Services Section */}
           <section className="relative py-16 bg-gradient-to-b from-gray-900 to-gray-950">
+            {/* Decorative elements */}
             <div className="absolute inset-0 overflow-hidden">
               <div className="absolute top-0 left-0 w-1/3 h-full bg-gradient-to-r from-red-900/10 to-transparent" />
               <div className="absolute bottom-0 right-0 w-1/3 h-full bg-gradient-to-l from-red-900/10 to-transparent" />
@@ -282,7 +284,7 @@ export default function MotoroptimeringStation({
               </div>
 
               {/* Enhanced iframe container */}
-              <div className="relative bg-white rounded-2xl overflow-hidden border border-gray-700 shadow-xl">
+              <div className="relative bg-white rounded-2xl overflow-hidden">
                 <div className="absolute inset-0 bg-white" />
                 <iframe
                   id="aktuning-iframe"
