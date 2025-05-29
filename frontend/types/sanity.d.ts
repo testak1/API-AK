@@ -31,6 +31,7 @@ export interface Station {
   slug: string;
   phone: string;
   email: string;
+  google: string;
   instagram: string;
   facebook: string;
   address: {

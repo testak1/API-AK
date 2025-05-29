@@ -105,7 +105,7 @@ export default function MotoroptimeringStation({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "LocalBusiness",
-              name: `AK-TUNING ${stationData.city}`,
+              name: `AK-TUNING Motoroptimering ${stationData.city}`,
               image: "https://tuning.aktuning.se/ak-logo.png",
               "@id": pageUrl,
               url: pageUrl,
@@ -485,10 +485,11 @@ export default function MotoroptimeringStation({
                       </ul>
                     </div>
                   </div>
+
                   <div className="md:w-1/2">
                     <div className="h-full rounded-xl overflow-hidden shadow-lg">
                       <iframe
-                        src={`https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d0!2d${stationData.location.lng}!3d${stationData.location.lat}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2z${Math.floor(stationData.location.lat)}°${Math.floor((stationData.location.lat % 1) * 60)}′${Math.floor((((stationData.location.lat % 1) * 60) % 1) * 60)}″N ${Math.floor(stationData.location.lng)}°${Math.floor((stationData.location.lng % 1) * 60)}′${Math.floor((((stationData.location.lng % 1) * 60) % 1) * 60)}″E!5e0!3m2!1ssv!2sse!4v1683712340000!5m2!1ssv!2sse`}
+                        src={stationData.google}
                         width="100%"
                         height="100%"
                         style={{ minHeight: "400px", border: 0 }}

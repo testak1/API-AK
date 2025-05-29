@@ -85,6 +85,7 @@ export const stationPageQuery = groq`
   email,
   "slug": slug.current,
   address,
+  google,
   location,
   instagram,
   facebook,
