@@ -762,7 +762,7 @@ export default function MotoroptimeringStation({
             </div>
           </section>
 
-          {/* Brand Logos */}
+          {/* Brand Logos Section */}
           {stationData.brands && stationData.brands.length > 0 && (
             <section className="mb-16">
               <div className="text-center mb-12">
@@ -778,12 +778,12 @@ export default function MotoroptimeringStation({
                 {stationData.brands.map((brand, index) => (
                   <div
                     key={index}
-                    className="bg-gray-800 hover:bg-gray-700 p-4 rounded-xl flex items-center justify-center h-24 transition-all hover:-translate-y-1 hover:shadow-lg border border-gray-700"
+                    className="bg-gray-800 hover:bg-gray-700 p-4 rounded-xl flex items-center justify-center h-24 transition-all hover:-translate-y-1"
                   >
-                    {brand.logo?.asset?.url ? (
+                    {brand.logo ? (
                       <img
                         src={urlFor(brand.logo).width(200).url()}
-                        alt={brand.name}
+                        alt={brand.logo.alt || brand.name}
                         className="h-12 w-full object-contain opacity-80 hover:opacity-100 transition-opacity"
                         onError={(e) => {
                           (e.target as HTMLImageElement).style.display = "none";
