@@ -272,7 +272,7 @@ export default function MotoroptimeringStation({
               {/* Header with improved styling */}
               <div className="text-center mb-10">
                 <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                  MOTOROPTIMERING i{" "}
+                  MOTOROPTIMERING i GÖTEBORG {stationData.city}
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-red-600">
                     {stationData.city}
                   </span>
