@@ -57,6 +57,11 @@ export const getServerSideProps: GetServerSideProps<EnginePageProps> = async (
   const model = decodeURIComponent((context.params?.model as string) || "");
   const year = decodeURIComponent((context.params?.year as string) || "");
   const engine = decodeURIComponent((context.params?.engine as string) || "");
+  const suggestedRes = await fetch(
+  `https://tuning.aktuning.se/api/suggested-products?term=${encodeURIComponent(engineData.label)}`
+);
+const suggestedData = await suggestedRes.json();
+const suggestedProducts = suggestedData.products || [];
 
   try {
     const brandData = await client.fetch(engineByParamsQuery, {
@@ -699,6 +704,30 @@ export default function EnginePage({
                       </div>
                     </div>
                   </button>
+
+
+                  {suggestedProducts.length > 0 && (
+  <section className="mt-12">
+    <h3 className="text-2xl text-white mb-4 text-center">Rekommenderade produkter</h3>
+    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {suggestedProducts.map((product: any) => (
+        <a
+          key={product.id}
+          href={`https://aktuning.se/index.php?id_product=${product.id}&controller=product`}
+          target="_blank"
+          className="bg-gray-800 hover:bg-gray-700 p-4 rounded-lg text-white shadow-md transition"
+        >
+          <h4 className="font-semibold mb-2">
+            {product.name?.[1]?.value || "Produkt"}
+          </h4>
+          <p className="text-sm text-gray-400">
+            {product.description_short?.[1]?.value?.slice(0, 100)}...
+          </p>
+        </a>
+      ))}
+    </div>
+  </section>
+)}
 
                   {isExpanded && (
                     <div className="px-6 pb-6">
