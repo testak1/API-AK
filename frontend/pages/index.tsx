@@ -1166,8 +1166,7 @@ export default function TuningViewer() {
                         {/* NOW start new block for the contact button */}
 
                         {/* KONTAKT button */}
-                        <div className="flex flex-col gap-4 max-w-2xl mx-auto">
-                          {/* Contact Button (Primary) - Now Green */}
+                        <div className="mt-8 mb-10 flex flex-col items-center">
                           <button
                             onClick={() => handleBookNow(stage.name)}
                             className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-4 py-3 rounded-lg font-medium shadow-lg flex items-center justify-center gap-2 transition-all"
@@ -1187,8 +1186,6 @@ export default function TuningViewer() {
                             </svg>
                             KONTAKTA OSS
                           </button>
-
-                          {/* Social Media Links - Now centered underneath */}
                           <div className="flex items-center justify-center space-x-2">
                             <a
                               href="https://www.facebook.com/aktuned"
