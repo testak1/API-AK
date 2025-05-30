@@ -45,7 +45,6 @@ interface EnginePageProps {
   modelData: Model | null;
   yearData: Year | null;
   engineData: Engine | null;
-  suggestedProducts: any[];
 }
 
 const normalizeString = (str: string) =>
@@ -96,19 +95,12 @@ export const getServerSideProps: GetServerSideProps<EnginePageProps> = async (
 
     if (!engineData) return { notFound: true };
 
-    const suggestedRes = await fetch(
-      `https://tuning.aktuning.se/api/suggested-products?engine=${encodeURIComponent(engineData.label)}&model=${encodeURIComponent(modelData.name)}`
-    );
-    const suggestedData = await suggestedRes.json();
-    const suggestedProducts = suggestedData.products || [];
-
     return {
       props: {
         brandData,
         modelData,
         yearData,
         engineData,
-        suggestedProducts,
       },
     };
   } catch (err) {
@@ -198,7 +190,6 @@ export default function EnginePage({
   modelData,
   yearData,
   engineData,
-  suggestedProducts,
 }: EnginePageProps) {
   const router = useRouter();
   const stageParam = router.query.stage;
@@ -834,45 +825,6 @@ export default function EnginePage({
                         </button>
                       </div>
 
-                      {suggestedProducts.length > 0 && (
-                        <section className="mt-12">
-                          <h3 className="text-2xl text-white mb-4 text-center">
-                            Rekommenderade produkter för {engineData.label}
-                          </h3>
-                          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {suggestedProducts.map((product: any) => (
-                              <div
-                                key={product.id}
-                                className="bg-gray-800 hover:bg-gray-700 p-4 rounded-lg text-white shadow-md transition transform hover:scale-105"
-                              >
-                                <a
-                                  href={`https://aktuning.se/index.php?id_product=${product.id}&controller=product`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="block"
-                                >
-                                  <h4 className="font-semibold mb-2">
-                                    {product.name?.[1]?.value ||
-                                      product.name?.[0]?.value ||
-                                      "Produkt"}
-                                  </h4>
-                                  <p className="text-orange-400 font-bold mb-2">
-                                    {product.price
-                                      ? `${Math.round(product.price)} kr`
-                                      : "Pris saknas"}
-                                  </p>
-                                  <p className="text-sm text-gray-400 line-clamp-2">
-                                    {product.description_short?.[1]?.value ||
-                                      product.description_short?.[0]?.value ||
-                                      "Ingen beskrivning tillgänglig"}
-                                  </p>
-                                </a>
-                              </div>
-                            ))}
-                          </div>
-                        </section>
-                      )}
-
                       <div className="mt-6">
                         {!isDsgStage && (
                           <h3 className="text-lg font-medium text-gray-300 mb-2 uppercase">
@@ -1161,11 +1113,11 @@ export default function EnginePage({
                             </div>
 
                             {/* Action Buttons Grid */}
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
-                              {/* Contact Button (Primary) */}
+                            <div className="flex flex-col gap-4 max-w-2xl mx-auto">
+                              {/* Contact Button (Primary) - Now Green */}
                               <button
                                 onClick={() => handleBookNow(stage.name)}
-                                className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white px-4 py-3 rounded-lg font-medium shadow-lg flex items-center justify-center gap-2 transition-all"
+                                className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-4 py-3 rounded-lg font-medium shadow-lg flex items-center justify-center gap-2 transition-all"
                               >
                                 <svg
                                   className="w-5 h-5"
@@ -1183,7 +1135,7 @@ export default function EnginePage({
                                 KONTAKTA OSS
                               </button>
 
-                              {/* Social Media Links */}
+                              {/* Social Media Links - Now centered underneath */}
                               <div className="flex items-center justify-center space-x-2">
                                 <a
                                   href="https://www.facebook.com/aktuned"
