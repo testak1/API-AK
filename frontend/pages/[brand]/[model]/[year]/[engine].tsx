@@ -1148,12 +1148,10 @@ export default function EnginePage({
                             <div className="text-center mb-6">
                               <p className="text-lg font-semibold text-white">
                                 Motoroptimering{" "}
-                                <span className="text-orange-400">
-                                  {getStageColor(
-                                    stage.name
-                                      .replace("Steg", "STEG")
-                                      .toUpperCase()
-                                  )}
+                                <span className={getStageColor(stage.name)}>
+                                  {stage.name
+                                    .replace("Steg", "STEG")
+                                    .toUpperCase()}
                                 </span>
                               </p>
                               <p className="text-gray-300 mt-1">
