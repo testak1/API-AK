@@ -37,7 +37,7 @@ ChartJS.register(
   LineElement,
   LineController,
   Tooltip,
-  Legend,
+  Legend
 );
 
 interface EnginePageProps {
@@ -45,23 +45,19 @@ interface EnginePageProps {
   modelData: Model | null;
   yearData: Year | null;
   engineData: Engine | null;
+  suggestedProducts: any[];
 }
 
 const normalizeString = (str: string) =>
   str.toLowerCase().replace(/[^a-z0-9]/g, "");
 
 export const getServerSideProps: GetServerSideProps<EnginePageProps> = async (
-  context,
+  context
 ) => {
   const brand = decodeURIComponent((context.params?.brand as string) || "");
   const model = decodeURIComponent((context.params?.model as string) || "");
   const year = decodeURIComponent((context.params?.year as string) || "");
   const engine = decodeURIComponent((context.params?.engine as string) || "");
-  const suggestedRes = await fetch(
-  `https://tuning.aktuning.se/api/suggested-products?term=${encodeURIComponent(engineData.label)}`
-);
-const suggestedData = await suggestedRes.json();
-const suggestedProducts = suggestedData.products || [];
 
   try {
     const brandData = await client.fetch(engineByParamsQuery, {
@@ -76,8 +72,8 @@ const suggestedProducts = suggestedData.products || [];
           normalizeString(m.name) === normalizeString(model) ||
           (m.slug &&
             normalizeString(
-              typeof m.slug === "string" ? m.slug : m.slug.current,
-            ) === normalizeString(model)),
+              typeof m.slug === "string" ? m.slug : m.slug.current
+            ) === normalizeString(model))
       ) || null;
 
     if (!modelData) return { notFound: true };
@@ -86,7 +82,7 @@ const suggestedProducts = suggestedData.products || [];
       modelData.years?.find(
         (y: Year) =>
           normalizeString(y.range) === normalizeString(year) ||
-          (y.slug && normalizeString(y.slug) === normalizeString(year)),
+          (y.slug && normalizeString(y.slug) === normalizeString(year))
       ) || null;
 
     if (!yearData) return { notFound: true };
@@ -95,10 +91,16 @@ const suggestedProducts = suggestedData.products || [];
       yearData.engines?.find(
         (e: Engine) =>
           normalizeString(e.label) === normalizeString(engine) ||
-          (e.slug && normalizeString(e.slug) === normalizeString(engine)),
+          (e.slug && normalizeString(e.slug) === normalizeString(engine))
       ) || null;
 
     if (!engineData) return { notFound: true };
+
+    const suggestedRes = await fetch(
+      `https://tuning.aktuning.se/api/suggested-products?term=${encodeURIComponent(engineData.label)}`
+    );
+    const suggestedData = await suggestedRes.json();
+    const suggestedProducts = suggestedData.products || [];
 
     return {
       props: {
@@ -106,6 +108,7 @@ const suggestedProducts = suggestedData.products || [];
         modelData,
         yearData,
         engineData,
+        suggestedProducts,
       },
     };
   } catch (err) {
@@ -153,7 +156,7 @@ const portableTextComponents = {
 const generateDynoCurve = (
   peakValue: number,
   isHp: boolean,
-  fuelType: string,
+  fuelType: string
 ) => {
   // Välj RPM range beroende på motor
   const rpmRange = fuelType.toLowerCase().includes("diesel")
@@ -195,12 +198,13 @@ export default function EnginePage({
   modelData,
   yearData,
   engineData,
+  suggestedProducts,
 }: EnginePageProps) {
   const router = useRouter();
   const stageParam = router.query.stage;
   const stage = typeof stageParam === "string" ? stageParam : "";
   const [expandedStages, setExpandedStages] = useState<Record<string, boolean>>(
-    {},
+    {}
   );
   const [expandedDescriptions, setExpandedDescriptions] = useState<
     Record<string, boolean>
@@ -241,7 +245,7 @@ export default function EnginePage({
 
   const handleBookNow = (
     stageOrOptionName: string,
-    event?: React.MouseEvent,
+    event?: React.MouseEvent
   ) => {
     if (!brandData || !modelData || !yearData || !engineData) return;
 
@@ -291,7 +295,7 @@ export default function EnginePage({
           acc[stageObj.name] = stage ? isMatch : stageObj.name === "Steg 1";
           return acc;
         },
-        {} as Record<string, boolean>,
+        {} as Record<string, boolean>
       );
       setExpandedStages(initialExpanded);
     }
@@ -306,7 +310,7 @@ export default function EnginePage({
           opt.isUniversal || opt.applicableFuelTypes?.includes(engineData.fuel);
 
         const isManualMatch = opt.manualAssignments?.some(
-          (ref) => ref._ref === engineData._id,
+          (ref) => ref._ref === engineData._id
         );
 
         const isStageMatch =
@@ -320,7 +324,7 @@ export default function EnginePage({
 
       return Array.from(unique.values());
     },
-    [engineData, allAktOptions],
+    [engineData, allAktOptions]
   );
 
   const mergedAktPlusOptions = useMemo(() => {
@@ -421,7 +425,7 @@ export default function EnginePage({
     if (!engineData || !engineData.stages?.length) return [];
 
     const allOptions = engineData.stages.flatMap((stage) =>
-      getAllAktPlusOptions(stage),
+      getAllAktPlusOptions(stage)
     );
 
     const uniqueMap = new Map<string, AktPlusOption>();
@@ -589,7 +593,7 @@ export default function EnginePage({
                   name: opt.title,
                   ...(opt.description && {
                     description: extractPlainTextFromDescription(
-                      opt.description,
+                      opt.description
                     ),
                   }),
                   ...(opt.gallery?.[0]?.asset?.url && {
@@ -705,29 +709,34 @@ export default function EnginePage({
                     </div>
                   </button>
 
-
                   {suggestedProducts.length > 0 && (
-  <section className="mt-12">
-    <h3 className="text-2xl text-white mb-4 text-center">Rekommenderade produkter</h3>
-    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {suggestedProducts.map((product: any) => (
-        <a
-          key={product.id}
-          href={`https://aktuning.se/index.php?id_product=${product.id}&controller=product`}
-          target="_blank"
-          className="bg-gray-800 hover:bg-gray-700 p-4 rounded-lg text-white shadow-md transition"
-        >
-          <h4 className="font-semibold mb-2">
-            {product.name?.[1]?.value || "Produkt"}
-          </h4>
-          <p className="text-sm text-gray-400">
-            {product.description_short?.[1]?.value?.slice(0, 100)}...
-          </p>
-        </a>
-      ))}
-    </div>
-  </section>
-)}
+                    <section className="mt-12">
+                      <h3 className="text-2xl text-white mb-4 text-center">
+                        Rekommenderade produkter
+                      </h3>
+                      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {suggestedProducts.map((product: any) => (
+                          <a
+                            key={product.id}
+                            href={`https://aktuning.se/index.php?id_product=${product.id}&controller=product`}
+                            target="_blank"
+                            className="bg-gray-800 hover:bg-gray-700 p-4 rounded-lg text-white shadow-md transition"
+                          >
+                            <h4 className="font-semibold mb-2">
+                              {product.name?.[1]?.value || "Produkt"}
+                            </h4>
+                            <p className="text-sm text-gray-400">
+                              {product.description_short?.[1]?.value?.slice(
+                                0,
+                                100
+                              )}
+                              ...
+                            </p>
+                          </a>
+                        ))}
+                      </div>
+                    </section>
+                  )}
 
                   {isExpanded && (
                     <div className="px-6 pb-6">
@@ -946,7 +955,7 @@ export default function EnginePage({
                                     data: generateDynoCurve(
                                       stage.origHk,
                                       true,
-                                      engineData.fuel,
+                                      engineData.fuel
                                     ),
                                     borderColor: "#f87171",
                                     backgroundColor: "transparent",
@@ -961,7 +970,7 @@ export default function EnginePage({
                                     data: generateDynoCurve(
                                       stage.tunedHk,
                                       true,
-                                      engineData.fuel,
+                                      engineData.fuel
                                     ),
                                     borderColor: "#f87171",
                                     backgroundColor: "#f87171",
@@ -975,7 +984,7 @@ export default function EnginePage({
                                     data: generateDynoCurve(
                                       stage.origNm,
                                       false,
-                                      engineData.fuel,
+                                      engineData.fuel
                                     ),
                                     borderColor: "#d1d5db",
                                     backgroundColor: "transparent",
@@ -990,7 +999,7 @@ export default function EnginePage({
                                     data: generateDynoCurve(
                                       stage.tunedNm,
                                       false,
-                                      engineData.fuel,
+                                      engineData.fuel
                                     ),
                                     borderColor: "#d1d5db",
                                     backgroundColor: "transparent",
