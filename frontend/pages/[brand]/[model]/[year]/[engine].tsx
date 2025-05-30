@@ -1142,7 +1142,7 @@ export default function EnginePage({
                         )}
 
                         {/* small tuned specs */}
-                        {!isDsgStage && getStageColor && (
+                        {!isDsgStage && (
                           <div className="mt-8 mb-10">
                             {/* Performance Summary */}
                             <div className="text-center mb-6">
