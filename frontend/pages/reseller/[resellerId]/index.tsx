@@ -252,7 +252,7 @@ export default function TuningViewer() {
       tr: `Aşama ${stageNum}`,
       hu: `Szint ${stageNum}`,
       cs: `Stupeň ${stageNum}`,
-      uk: `Етап ${stageNum}`
+      uk: `Етап ${stageNum}`,
     };
 
     return translations[lang] || name;
