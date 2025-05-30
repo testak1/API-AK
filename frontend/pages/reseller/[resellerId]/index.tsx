@@ -240,6 +240,7 @@ export default function TuningViewer() {
       da: `Stadie ${stageNum}`,
       no: `Trinn ${stageNum}`,
       nl: `Stage ${stageNum}`,
+      fi: `Vaihe ${stageNum}`,
     };
 
     return translations[lang] || name;
