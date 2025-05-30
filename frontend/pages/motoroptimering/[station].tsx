@@ -275,11 +275,11 @@ export default function MotoroptimeringStation({
               {/* Header with improved styling */}
               <div className="text-center mb-10">
                 <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                  MOTOROPTIMERING i{" "}
+                  MOTOROPTIMERING
                   <span className="text-red-500">{stationData.city}</span>
                 </h2>
                 <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-                  Professionella optimeringstjänster skräddarsydda för din bil
+                  {" "}Professionella optimeringstjänster skräddarsydda för din bil
                 </p>
               </div>
 
