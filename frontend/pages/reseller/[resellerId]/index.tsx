@@ -241,6 +241,18 @@ export default function TuningViewer() {
       no: `Trinn ${stageNum}`,
       nl: `Stage ${stageNum}`,
       fi: `Vaihe ${stageNum}`,
+      es: `Etapa ${stageNum}`,
+      it: `Stadio ${stageNum}`,
+      pt: `Estágio ${stageNum}`,
+      ru: `Этап ${stageNum}`,
+      zh: `阶段 ${stageNum}`,
+      ja: `ステージ ${stageNum}`,
+      ko: `단계 ${stageNum}`,
+      pl: `Etap ${stageNum}`,
+      tr: `Aşama ${stageNum}`,
+      hu: `Szint ${stageNum}`,
+      cs: `Stupeň ${stageNum}`,
+      uk: `Етап ${stageNum}`
     };
 
     return translations[lang] || name;
