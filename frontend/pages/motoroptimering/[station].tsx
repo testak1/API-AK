@@ -161,9 +161,9 @@ export default function MotoroptimeringStation({
                   <NextImage
                     src="/ak-logo.png"
                     alt="AK-TUNING"
-                    width={80}
-                    height={80}
-                    className="h-12 w-auto"
+                    width={160}
+                    height={160}
+                    className="w-auto"
                   />
                 </div>
                 <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white mb-4 leading-tight">
