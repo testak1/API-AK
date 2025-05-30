@@ -14,7 +14,6 @@ import {
 import { Line } from "react-chartjs-2";
 import { PortableText } from "@portabletext/react";
 import { urlFor } from "@/lib/sanity";
-import DtcSearch from "@/components/DtcSearch";
 import { t as translate } from "@/lib/translations";
 import type {
   Brand,

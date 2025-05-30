@@ -18,6 +18,7 @@ import { PortableText } from "@portabletext/react";
 import Head from "next/head";
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import ContactModal from "@/components/ContactModal";
+import DtcSearch from "@/components/DtcSearch";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -1267,6 +1268,13 @@ export default function EnginePage({
                                             value={option.description}
                                             components={portableTextComponents}
                                           />
+                                        </div>
+                                      )}
+                                      {option.title
+                                        .toLowerCase()
+                                        .includes("dtc off") && (
+                                        <div className="mt-4">
+                                          <DtcSearch />
                                         </div>
                                       )}
                                       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
