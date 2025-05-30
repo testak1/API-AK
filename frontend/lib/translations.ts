@@ -163,7 +163,7 @@ export const translations = {
     stageInfoSuffix: "TIEDOT",
     generalInfoLabel: "YLEISTÄ TIETOA",
     horsepowerUnit: "hv",
-    horsepowerDisplay: (value: number) => `${value} hv",
+    horsepowerDisplay: (value: number) => `${value} hv`,
   },
   de: {
     BrandValue: "MARKE",
