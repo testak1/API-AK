@@ -515,12 +515,12 @@ export default function TuningViewer() {
     <>
       <Head>
         <title>
-          AK-TUNING | Skräddarsydd motoroptimering beprövat på vår dyno |
+          AK-TUNING | Skräddarsydd Motoroptimering beprövat på vår dyno |
           Göteborg - Stockholm - Skåne - Jönköping - Örebro
         </title>
         <meta
           name="description"
-          content="Skräddarsydd motoroptimering – Effektökning, bränslebesparing & trygg mjukvara. AK-TUNING finns i Göteborg - Stockholm - Skåne - Jönköping - Örebro"
+          content="Skräddarsydd Motoroptimering – Effektökning, bränslebesparing & trygg mjukvara. AK-TUNING finns i Göteborg - Stockholm - Skåne - Jönköping - Örebro"
         />
         <meta
           property="og:title"
@@ -528,7 +528,7 @@ export default function TuningViewer() {
         />
         <meta
           property="og:description"
-          content="Skräddarsydd motoroptimering – Effektökning, bränslebesparing & trygg mjukvara. AK-TUNING finns i Göteborg - Stockholm - Skåne - Jönköping - Örebro"
+          content="Skräddarsydd Motoroptimering – Effektökning, bränslebesparing & trygg mjukvara. AK-TUNING finns i Göteborg - Stockholm - Skåne - Jönköping - Örebro"
         />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://tuning.aktuning.se" />
@@ -544,7 +544,7 @@ export default function TuningViewer() {
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "Organization",
-              name: "AK-TUNING – Marknadsledande på motoroptimering",
+              name: "AK-TUNING – Marknadsledande på Motoroptimering",
               url: "https://tuning.aktuning.se",
               logo: "https://tuning.aktuning.se/ak-logo1.png",
             }),
