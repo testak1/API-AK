@@ -1162,7 +1162,7 @@ export default function TuningViewer() {
                                 </span>
                               </p>
                               <p className="text-gray-300 mt-1">
-                                {` - ${stage.tunedHk} HK & ${stage.tunedNm} NM`}
+                                {`${stage.tunedHk} HK & ${stage.tunedNm} NM`}
                               </p>
                             </div>
 
