@@ -158,7 +158,7 @@ export const translations = {
     stageNameWithHP: (stageName: string) => `${stageName} HV`,
     powerCurveLabel: (stageName: string) => `${stageName} tehtokäyrä`,
     translateStageName: (stageName: string) =>
-      stageName.replace("steg", "Vaihe"),
+      stageName.replace("Steg", "Vaihe"),
     stageInfoPrefix: "VAIHE",
     stageInfoSuffix: "TIEDOT",
     generalInfoLabel: "YLEISTÄ TIETOA",
