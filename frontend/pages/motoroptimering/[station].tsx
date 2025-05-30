@@ -278,7 +278,6 @@ export default function MotoroptimeringStation({
     MOTOROPTIMERING
     <span className="text-red-500"> {stationData.city}</span>
   </h3>
-</div>
                 <p className="text-xl text-gray-300 max-w-3xl mx-auto">
                   Professionella optimeringstjänster skräddarsydda för din bil
                 </p>
