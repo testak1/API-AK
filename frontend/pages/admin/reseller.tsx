@@ -1436,6 +1436,7 @@ export default function ResellerAdmin({ session }) {
                         <option value="no">Norway</option>
                         <option value="ar">Arabic</option>
                         <option value="fi">Finland</option>
+                        </select>
                     </div>
                   </div>
                 </div>
