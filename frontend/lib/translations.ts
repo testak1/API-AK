@@ -164,7 +164,7 @@ export const translations = {
     generalInfoLabel: "YLEISTÄ TIETOA",
     horsepowerUnit: "hv",
     horsepowerDisplay: (value: number) => `${value} hv",
-},
+  },
   de: {
     BrandValue: "MARKE",
     ModelValue: "MODELL",
