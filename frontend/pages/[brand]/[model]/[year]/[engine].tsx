@@ -815,6 +815,13 @@ export default function EnginePage({
                         >
                           📄 {stage.name.toUpperCase()} INFORMATION{" "}
                         </button>
+                        {/* Hidden SEO content for stage info */}
+                        <div className="sr-only" aria-hidden="false">
+                          <h2>{stage.name.toUpperCase()} INFORMATION</h2>
+                          {stage.description && (
+                            <PortableText value={stage.description} />
+                          )}
+                        </div>
                         <button
                           onClick={() =>
                             setInfoModal({ open: true, type: "general" })
@@ -823,6 +830,40 @@ export default function EnginePage({
                         >
                           💡 GENERELL INFORMATION
                         </button>
+                      </div>
+                      {/* Hidden SEO content for general info */}
+                      <div className="sr-only" aria-hidden="false">
+                        <h2>GENERELL INFORMATION</h2>
+                        <div>
+                          <ul className="space-y-2">
+                            <li>✅ All mjukvara är skräddarsydd för din bil</li>
+                            <li>✅ Felsökning inann samt efter optimering</li>
+                            <li>
+                              ✅ Loggning för att anpassa en individuell
+                              mjukvara
+                            </li>
+                            <li>
+                              ✅ Optimerad för både prestanda och bränsleekonomi
+                            </li>
+                          </ul>
+                          <div className="mt-6 text-sm text-gray-400 leading-relaxed">
+                            <p>
+                              AK-TUNING är specialister på skräddarsydd
+                              motoroptimering, chiptuning och ECU-programmering
+                              för alla bilmärken.
+                            </p>
+                            <p className="mt-2">
+                              Vi erbjuder effektökning, bättre bränsleekonomi
+                              och optimerade köregenskaper. Tjänster i Göteborg,
+                              Stockholm, Malmö, Jönköping, Örebro och Storvik.
+                            </p>
+                            <p className="mt-2">
+                              All mjukvara utvecklas in-house med fokus på
+                              kvalitet, säkerhet och lång livslängd. Välkommen
+                              till en ny nivå av bilprestanda med AK-TUNING.
+                            </p>
+                          </div>
+                        </div>
                       </div>
 
                       <div className="mt-6">
