@@ -164,11 +164,11 @@ export default function ResellerContactModal({
                     as="h3"
                     className="text-lg font-medium text-green-500"
                   >
-                    ✅ REQUEST SENT SUCCESSFULLY!
+                    {t(lang, "requestSent")}
                   </Dialog.Title>
                   <div className="mt-2">
                     <p className="text-sm text-gray-300">
-                      📬 We will get back to you ASAP!
+                      {t(lang, "requestNote")}
                     </p>
                   </div>
                   <div className="mt-4">
@@ -177,7 +177,7 @@ export default function ResellerContactModal({
                       className="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-green-500"
                       onClick={resetModal}
                     >
-                      ✖️ CLOSE
+                      {t(lang, "close")}
                     </button>
                   </div>
                 </div>
@@ -187,11 +187,11 @@ export default function ResellerContactModal({
                     as="h3"
                     className="text-lg font-medium leading-6 text-white text-center"
                   >
-                    CONTACT
+                    {t(lang, "contactModalTitle")}
                   </Dialog.Title>
                   <div className="mt-4 space-y-3">
                     <p className="text-sm text-gray-300 text-center">
-                      SELECT OPTION
+                      {t(lang, "selectContactOption")}
                     </p>
 
                     <div className="space-y-2">
@@ -212,7 +212,7 @@ export default function ResellerContactModal({
                             d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                           />
                         </svg>
-                        SEND FORM
+                        {t(lang, "sendForm")}
                       </button>
 
                       <button
@@ -232,7 +232,7 @@ export default function ResellerContactModal({
                             d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
                           />
                         </svg>
-                        CALL
+                        {t(lang, "call")}
                       </button>
                     </div>
                   </div>
@@ -243,7 +243,7 @@ export default function ResellerContactModal({
                     as="h3"
                     className="text-lg font-medium leading-6 text-white"
                   >
-                    Contact Form
+                    {t(lang, "contactFormTitle")}
                   </Dialog.Title>
                   <div className="mt-4 space-y-4">
                     <div>
@@ -251,7 +251,7 @@ export default function ResellerContactModal({
                         htmlFor="name"
                         className="block text-sm font-medium text-gray-300"
                       >
-                        👤 Name
+                        {t(lang, "nameLabel")}
                       </label>
                       <input
                         type="text"
@@ -270,7 +270,7 @@ export default function ResellerContactModal({
                         htmlFor="email"
                         className="block text-sm font-medium text-gray-300"
                       >
-                        ✉️ Email
+                        {t(lang, "emailLabel")}
                       </label>
                       <input
                         type="email"
@@ -289,7 +289,7 @@ export default function ResellerContactModal({
                         htmlFor="phone"
                         className="block text-sm font-medium text-gray-300"
                       >
-                        📞 Phone
+                        {t(lang, "phoneLabel")}
                       </label>
                       <input
                         type="tel"
@@ -308,7 +308,7 @@ export default function ResellerContactModal({
                         htmlFor="message"
                         className="block text-sm font-medium text-gray-300"
                       >
-                        💬 Message
+                        {t(lang, "messageLabel")}
                       </label>
                       <textarea
                         id="message"
@@ -328,7 +328,7 @@ export default function ResellerContactModal({
                         onClick={() => setMode("options")}
                         className="inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-300 bg-gray-700 border border-transparent rounded-md hover:bg-gray-600"
                       >
-                        BACK
+                        {t(lang, "back")}
                       </button>
                       <button
                         type="submit"
@@ -347,7 +347,7 @@ export default function ResellerContactModal({
                       as="h3"
                       className="text-lg font-medium leading-6 text-white"
                     >
-                      📱 PHONE NUMBER
+                      {t(lang, "phoneTitle")}
                     </Dialog.Title>
                     <div className="mt-4 space-y-3">
                       {contactNumbers.length > 0 ? (
@@ -380,7 +380,7 @@ export default function ResellerContactModal({
                         ))
                       ) : (
                         <p className="text-gray-400 text-sm">
-                          ❌ No contact numbers available
+                          {t(lang, "noPhoneNumbers")}
                         </p>
                       )}
 
@@ -390,7 +390,7 @@ export default function ResellerContactModal({
                           onClick={() => setMode("options")}
                           className="w-full inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-300 bg-gray-700 border border-transparent rounded-md hover:bg-gray-600"
                         >
-                          Back
+                          {t(lang, "back")}
                         </button>
                       </div>
                     </div>
