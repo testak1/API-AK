@@ -2,6 +2,7 @@
 import sanity from "@/lib/sanity";
 import { ResellerConfig } from "@/types/sanity";
 
+// fallback UI settings if not defined
 const defaultDisplaySettings = {
   showAktPlus: true,
   showBrandLogo: true,
@@ -9,12 +10,32 @@ const defaultDisplaySettings = {
   showDynoChart: true,
 };
 
-const exchangeRates = {
-  SEK: 1,
-  EUR: 0.1,
-  USD: 0.1,
-  GBP: 0.08,
-};
+// fetch live exchange rates from exchangerate.host
+async function fetchExchangeRates(base: string = "SEK") {
+  try {
+    const response = await fetch(`https://api.exchangerate.host/latest?base=${base}`);
+    const data = await response.json();
+
+    const supportedCurrencies = [
+      "SEK", "EUR", "USD", "GBP", "THB", "JPY", "CNY", "RUB", "TRY", "PLN", "CZK",
+      "HUF", "AED", "KRW", "NOK", "DKK", "CHF", "AUD", "CAD", "INR", "SGD", "NZD",
+      "ZAR", "BRL", "MXN",
+    ];
+
+    const filteredRates: Record<string, number> = {};
+    for (const currency of supportedCurrencies) {
+      if (data.rates[currency]) {
+        filteredRates[currency] = data.rates[currency];
+      }
+    }
+
+    filteredRates["SEK"] = 1; // ensure SEK is always included
+    return filteredRates;
+  } catch (err) {
+    console.error("Failed to fetch exchange rates:", err);
+    return { SEK: 1, EUR: 0.1, USD: 0.1, GBP: 0.08 }; // fallback if API fails
+  }
+}
 
 export default async function handler(req, res) {
   const { resellerId } = req.query;
@@ -40,8 +61,10 @@ export default async function handler(req, res) {
       { resellerId },
     );
 
+    const exchangeRates = await fetchExchangeRates("SEK");
+
     const response: ResellerConfig = {
-      email: result?.email,
+      email: result?.email ?? "",
       logo: result?.logo ?? null,
       currency: result?.currency ?? "SEK",
       language: result?.language ?? "sv",
