@@ -28,7 +28,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { Line } from "react-chartjs-2";
+import dynamic from "next/dynamic";
 
 ChartJS.register(
   CategoryScale,
@@ -46,6 +46,11 @@ interface EnginePageProps {
   yearData: Year | null;
   engineData: Engine | null;
 }
+
+const Line = dynamic(() => import("react-chartjs-2").then((mod) => mod.Line), {
+  ssr: false, // Disable server-side rendering for this component
+  loading: () => <p className="text-white">Loading chart...</p>, // Show this while loading
+});
 
 const normalizeString = (str: string) =>
   str.toLowerCase().replace(/[^a-z0-9]/g, "");
