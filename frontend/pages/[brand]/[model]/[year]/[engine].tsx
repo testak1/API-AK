@@ -811,28 +811,44 @@ export default function EnginePage({
                           onClick={() =>
                             setInfoModal({ open: true, type: "stage", stage })
                           }
+                          aria-expanded={
+                            infoModal.open && infoModal.type === "stage"
+                          }
+                          aria-controls={`${slugify(stage.name)}-modal`}
                           className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg shadow"
                         >
                           📄 {stage.name.toUpperCase()} INFORMATION{" "}
                         </button>
-                        {/* Hidden SEO content for stage info */}
-                        <div className="sr-only" aria-hidden="false">
-                          <h2>{stage.name.toUpperCase()} INFORMATION</h2>
-                          {stage.description && (
-                            <PortableText value={stage.description} />
-                          )}
-                        </div>
                         <button
                           onClick={() =>
                             setInfoModal({ open: true, type: "general" })
                           }
+                          aria-expanded={
+                            infoModal.open && infoModal.type === "general"
+                          }
+                          aria-controls="general-info-modal"
                           className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg shadow"
                         >
                           💡 GENERELL INFORMATION
                         </button>
                       </div>
+                      {/* Hidden SEO content for stage info */}
+                      <div
+                        id={`${slugify(stage.name)}-seo-content`}
+                        className="sr-only"
+                        aria-hidden="false"
+                      >
+                        <h2>{stage.name.toUpperCase()} INFORMATION</h2>
+                        {stage.description && (
+                          <PortableText value={stage.description} />
+                        )}
+                      </div>
                       {/* Hidden SEO content for general info */}
-                      <div className="sr-only" aria-hidden="false">
+                      <div
+                        id="general-seo-content"
+                        className="sr-only"
+                        aria-hidden="false"
+                      >
                         <h2>GENERELL INFORMATION</h2>
                         <div>
                           <ul className="space-y-2">
@@ -1365,11 +1381,16 @@ export default function EnginePage({
         />
         <InfoModal
           isOpen={infoModal.open}
-          onClose={() => setInfoModal({ open: false, type: "stage" })}
+          onClose={() => setInfoModal({ open: false, type: infoModal.type })}
           title={
             infoModal.type === "stage"
               ? `STEG ${infoModal.stage?.name.replace(/\D/g, "")} INFORMATION`
               : "GENERELL INFORMATION"
+          }
+          id={
+            infoModal.type === "stage"
+              ? `${slugify(infoModal.stage?.name || "")}-modal`
+              : "general-info-modal"
           }
           content={
             infoModal.type === "stage" ? (
@@ -1386,11 +1407,10 @@ export default function EnginePage({
                     />
                   );
                 }
-
                 return <p>{description}</p>;
               })()
             ) : (
-              <div>
+              <div id="general-info-content">
                 <ul className="space-y-2">
                   <li>✅ All mjukvara är skräddarsydd för din bil</li>
                   <li>✅ Felsökning inann samt efter optimering</li>
@@ -1428,32 +1448,67 @@ const InfoModal = ({
   onClose,
   title,
   content,
+  id,
 }: {
   isOpen: boolean;
   onClose: () => void;
   title: string;
   content: React.ReactNode;
+  id: string;
 }) => {
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  // Handle escape key press
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+
+    if (isOpen) {
+      document.addEventListener("keydown", handleKeyDown);
+      // Focus the modal when opened
+      modalRef.current?.focus();
+    }
+
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
-      <div className="bg-gray-900 p-6 rounded-lg shadow-lg max-w-2xl w-full">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        ref={modalRef}
+        id={id}
+        className="bg-gray-900 p-6 rounded-lg shadow-lg max-w-2xl w-full outline-none"
+        tabIndex={-1}
+      >
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-white text-lg font-semibold">{title}</h2>
-          <button onClick={onClose} className="text-white text-xl">
+          <h2 id={`${id}-title`} className="text-white text-lg font-semibold">
+            {title}
+          </h2>
+          <button
+            onClick={onClose}
+            aria-label="Close modal"
+            className="text-white text-xl hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
+          >
             &times;
           </button>
         </div>
-        <div className="text-gray-300 text-sm max-h-[70vh] overflow-y-auto">
+        <div
+          id={`${id}-content`}
+          className="text-gray-300 text-sm max-h-[70vh] overflow-y-auto"
+        >
           {content}
         </div>
-
-        {/* ✅ STÄNG-KNAPP LÄNGST NER */}
         <div className="mt-6 text-right">
           <button
             onClick={onClose}
-            className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition"
+            className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-orange-500"
           >
             ❌ STÄNG
           </button>
