@@ -285,12 +285,36 @@ export default function TuningViewer() {
     return translations[lang] || name;
   };
 
+  const currencySymbols: Record<string, string> = {
+    SEK: "kr",
+    EUR: "€",
+    USD: "$",
+    GBP: "£",
+    THB: "฿",
+    JPY: "¥",
+    CNY: "¥",
+    RUB: "₽",
+    TRY: "₺",
+    PLN: "zł",
+    CZK: "Kč",
+    HUF: "Ft",
+    AED: "د.إ",
+    KRW: "₩",
+    NOK: "kr",
+    DKK: "kr",
+    CHF: "CHF",
+    AUD: "A$",
+    CAD: "C$",
+    INR: "₹",
+    SGD: "S$",
+    NZD: "NZ$",
+    ZAR: "R",
+    BRL: "R$",
+    MXN: "MX$",
+  };
+
   const currencySymbol =
-    settings.currency === "EUR"
-      ? "€"
-      : settings.currency === "USD"
-        ? "$"
-        : "kr";
+    currencySymbols[settings.currency] || settings.currency;
 
   const [isLoading, setIsLoading] = useState(true);
   const [expandedStages, setExpandedStages] = useState<Record<string, boolean>>(
