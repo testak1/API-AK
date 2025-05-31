@@ -9,33 +9,27 @@ const defaultDisplaySettings = {
   showDynoChart: true,
 };
 
-const exchangeRates = {
-  SEK: 1,
-      EUR: 0.1,
-      USD: 0.1,
-      GBP: 0.08,
-      THB: 3.5,
-      JPY: 14.0,
-      CNY: 0.68,
-      RUB: 8.5,
-      TRY: 3.1,
-      PLN: 0.42,
-      CZK: 2.3,
-      HUF: 35.0,
-      AED: 0.35,
-      KRW: 125.0,
-      NOK: 1.0,
-      DKK: 0.7,
-      CHF: 0.085,
-      AUD: 0.14,
-      CAD: 0.13,
-      INR: 7.8,
-      SGD: 0.13,
-      NZD: 0.15,
-      ZAR: 1.7,
-      BRL: 0.5,
-      MXN: 1.8,
-};
+
+async function fetchExchangeRates(base: string = "SEK") {
+  const response = await fetch(`https://api.exchangerate.host/latest?base=${base}`);
+  const data = await response.json();
+
+  const supportedCurrencies = [
+    "SEK", "EUR", "USD", "GBP", "THB", "JPY", "CNY", "RUB", "TRY", "PLN", "CZK",
+    "HUF", "AED", "KRW", "NOK", "DKK", "CHF", "AUD", "CAD", "INR", "SGD", "NZD",
+    "ZAR", "BRL", "MXN",
+  ];
+
+  const filteredRates: Record<string, number> = {};
+  for (const currency of supportedCurrencies) {
+    if (data.rates[currency]) {
+      filteredRates[currency] = data.rates[currency];
+    }
+  }
+
+  filteredRates["SEK"] = 1; 
+  return filteredRates;
+}
 
 export default async function handler(req, res) {
   const { resellerId } = req.query;
@@ -60,6 +54,8 @@ export default async function handler(req, res) {
       }`,
       { resellerId },
     );
+
+    const exchangeRates = await fetchExchangeRates("SEK");
 
     const response: ResellerConfig = {
       email: result?.email,
