@@ -1,3 +1,4 @@
+// pages/api/update-reseller-settings.ts
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./auth/[...nextauth]";
 import sanity from "@/lib/sanity";

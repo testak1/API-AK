@@ -16,7 +16,7 @@ async function fetchExchangeRates(base: string = "SEK") {
     const response = await fetch(`https://api.exchangerate.host/latest?base=${base}`);
     const data = await response.json();
 
-    if (!data || !data.rates) {
+    if (!data || !data.rates || typeof data.rates !== "object") {
       throw new Error("Invalid exchange rate response");
     }
 
@@ -28,23 +28,23 @@ async function fetchExchangeRates(base: string = "SEK") {
 
     const filteredRates: Record<string, number> = {};
     for (const currency of supportedCurrencies) {
-      if (data.rates[currency] !== undefined) {
+      if (data.rates[currency]) {
         filteredRates[currency] = data.rates[currency];
       }
     }
 
-    filteredRates["SEK"] = 1; // Ensure SEK is always included
+    // Always include SEK at rate 1
+    filteredRates["SEK"] = 1;
 
     return filteredRates;
   } catch (err) {
     console.error("Failed to fetch exchange rates:", err);
-    // Fallback exchange rates
     return {
       SEK: 1,
       EUR: 0.1,
       USD: 0.1,
       GBP: 0.08,
-    };
+    }; // fallback
   }
 }
 
