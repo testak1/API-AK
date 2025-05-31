@@ -253,6 +253,7 @@ export default function TuningViewer() {
       hu: `Szint ${stageNum}`,
       cs: `Stupeň ${stageNum}`,
       uk: `Етап ${stageNum}`,
+      th: `ขั้นตอน ${stageNum}`,
     };
 
     return translations[lang] || name;
