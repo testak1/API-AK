@@ -231,7 +231,6 @@ export default function TuningViewer() {
     const rate = settings.exchangeRates[settings.currency] || 1;
     const converted = priceInSek * rate;
 
-    // Special handling for currencies that don't have native symbols
     if (
       settings.currency === "SEK" ||
       settings.currency === "NOK" ||
