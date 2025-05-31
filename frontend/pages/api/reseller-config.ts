@@ -2,7 +2,7 @@
 import sanity from "@/lib/sanity";
 import { ResellerConfig } from "@/types/sanity";
 
-// fallback UI settings if not defined
+// Fallback UI settings if not defined
 const defaultDisplaySettings = {
   showAktPlus: true,
   showBrandLogo: true,
@@ -10,11 +10,15 @@ const defaultDisplaySettings = {
   showDynoChart: true,
 };
 
-// fetch live exchange rates from exchangerate.host
+// Fetch live exchange rates from exchangerate.host with safety check
 async function fetchExchangeRates(base: string = "SEK") {
   try {
     const response = await fetch(`https://api.exchangerate.host/latest?base=${base}`);
     const data = await response.json();
+
+    if (!data || !data.rates) {
+      throw new Error("Invalid exchange rate response");
+    }
 
     const supportedCurrencies = [
       "SEK", "EUR", "USD", "GBP", "THB", "JPY", "CNY", "RUB", "TRY", "PLN", "CZK",
@@ -24,22 +28,32 @@ async function fetchExchangeRates(base: string = "SEK") {
 
     const filteredRates: Record<string, number> = {};
     for (const currency of supportedCurrencies) {
-      if (data.rates[currency]) {
+      if (data.rates[currency] !== undefined) {
         filteredRates[currency] = data.rates[currency];
       }
     }
 
-    filteredRates["SEK"] = 1; // ensure SEK is always included
+    filteredRates["SEK"] = 1; // Ensure SEK is always included
+
     return filteredRates;
   } catch (err) {
     console.error("Failed to fetch exchange rates:", err);
-    return { SEK: 1, EUR: 0.1, USD: 0.1, GBP: 0.08 }; // fallback if API fails
+    // Fallback exchange rates
+    return {
+      SEK: 1,
+      EUR: 0.1,
+      USD: 0.1,
+      GBP: 0.08,
+    };
   }
 }
 
 export default async function handler(req, res) {
   const { resellerId } = req.query;
-  if (!resellerId) return res.status(400).json({ error: "Missing resellerId" });
+
+  if (!resellerId) {
+    return res.status(400).json({ error: "Missing resellerId" });
+  }
 
   try {
     const result = await sanity.fetch<Partial<ResellerConfig>>(
@@ -58,7 +72,7 @@ export default async function handler(req, res) {
         contactInfo,
         aktPlusLogo
       }`,
-      { resellerId },
+      { resellerId }
     );
 
     const exchangeRates = await fetchExchangeRates("SEK");
@@ -74,9 +88,9 @@ export default async function handler(req, res) {
       aktPlusLogo: result?.aktPlusLogo ?? null,
     };
 
-    res.status(200).json(response);
+    return res.status(200).json(response);
   } catch (error) {
     console.error("Error fetching reseller config:", error);
-    res.status(500).json({ error: "Failed to fetch reseller config" });
+    return res.status(500).json({ error: "Failed to fetch reseller config" });
   }
 }
