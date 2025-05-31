@@ -11,7 +11,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { Line } from "react-chartjs-2";
+import dynamic from "next/dynamic";
 import { PortableText } from "@portabletext/react";
 import { urlFor } from "@/lib/sanity";
 import DtcSearch from "@/components/DtcSearch";
@@ -75,6 +75,18 @@ export default function TuningViewer() {
     stageOrOption: "",
     link: "",
   });
+
+  const Line = dynamic(
+    () => import("react-chartjs-2").then((mod) => mod.Line),
+    {
+      ssr: false, // Disable server-side rendering for this component
+      loading: () => (
+        <div className="h-96 bg-gray-800 rounded-lg animate-pulse flex items-center justify-center">
+          <p className="text-gray-400">Laddar dynobild...</p>
+        </div>
+      ),
+    }
+  );
 
   const [infoModal, setInfoModal] = useState<{
     open: boolean;

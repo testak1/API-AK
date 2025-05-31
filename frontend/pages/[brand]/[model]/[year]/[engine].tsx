@@ -49,7 +49,11 @@ interface EnginePageProps {
 
 const Line = dynamic(() => import("react-chartjs-2").then((mod) => mod.Line), {
   ssr: false, // Disable server-side rendering for this component
-  loading: () => <p className="text-white">Loading chart...</p>, // Show this while loading
+  loading: () => (
+    <div className="h-96 bg-gray-800 rounded-lg animate-pulse flex items-center justify-center">
+      <p className="text-gray-400">Laddar dynobild...</p>
+    </div>
+  ),
 });
 
 const normalizeString = (str: string) =>
