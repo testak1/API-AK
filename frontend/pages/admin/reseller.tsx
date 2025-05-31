@@ -79,7 +79,7 @@ export default function ResellerAdmin({ session }) {
     const fetchSettings = async () => {
       try {
         const res = await fetch(
-          `/api/reseller-config?resellerId=${session.user.resellerId}`,
+          `/api/reseller-config?resellerId=${session.user.resellerId}`
         );
         const json = await res.json();
         if (json.currency) setCurrency(json.currency);
@@ -388,7 +388,7 @@ export default function ResellerAdmin({ session }) {
         o.model === model &&
         o.year === year &&
         o.engine === engine &&
-        o.stageName === stageName,
+        o.stageName === stageName
     );
 
   const handleSave = async (
@@ -400,7 +400,7 @@ export default function ResellerAdmin({ session }) {
     stageName,
     price,
     hk,
-    nm,
+    nm
   ) => {
     try {
       setIsLoading(true);
@@ -427,7 +427,7 @@ export default function ResellerAdmin({ session }) {
         const existing = prev.find((o) => o._id === updatedOverride._id);
         if (existing) {
           return prev.map((o) =>
-            o._id === updatedOverride._id ? updatedOverride : o,
+            o._id === updatedOverride._id ? updatedOverride : o
           );
         }
         return [...prev, updatedOverride];
@@ -498,10 +498,31 @@ export default function ResellerAdmin({ session }) {
   };
 
   const conversionRates = {
+    SEK: 1,
     EUR: 0.1,
     USD: 0.1,
     GBP: 0.08,
-    SEK: 1,
+    THB: 3.5,
+    JPY: 14.0,
+    CNY: 0.68,
+    RUB: 8.5,
+    TRY: 3.1,
+    PLN: 0.42,
+    CZK: 2.3,
+    HUF: 35.0,
+    AED: 0.35,
+    KRW: 125.0,
+    NOK: 1.0,
+    DKK: 0.7,
+    CHF: 0.085,
+    AUD: 0.14,
+    CAD: 0.13,
+    INR: 7.8,
+    SGD: 0.13,
+    NZD: 0.15,
+    ZAR: 1.7,
+    BRL: 0.5,
+    MXN: 1.8,
   };
 
   const toCurrency = (sek) =>
@@ -514,6 +535,27 @@ export default function ResellerAdmin({ session }) {
     EUR: "€",
     USD: "$",
     GBP: "£",
+    THB: "฿",
+    JPY: "¥",
+    CNY: "¥",
+    RUB: "₽",
+    TRY: "₺",
+    PLN: "zł",
+    CZK: "Kč",
+    HUF: "Ft",
+    AED: "د.إ",
+    KRW: "₩",
+    NOK: "kr",
+    DKK: "kr",
+    CHF: "CHF",
+    AUD: "A$",
+    CAD: "C$",
+    INR: "₹",
+    SGD: "S$",
+    NZD: "NZ$",
+    ZAR: "R",
+    BRL: "R$",
+    MXN: "MX$",
   };
 
   const convertCurrency = (price: number, currency: string) => {
@@ -522,6 +564,27 @@ export default function ResellerAdmin({ session }) {
       USD: 0.1,
       GBP: 0.08,
       SEK: 1,
+      THB: 3.5,
+      JPY: 14.0,
+      CNY: 0.68,
+      RUB: 8.5,
+      TRY: 3.1,
+      PLN: 0.42,
+      CZK: 2.3,
+      HUF: 35.0,
+      AED: 0.35,
+      KRW: 125.0,
+      NOK: 1.0,
+      DKK: 0.7,
+      CHF: 0.085,
+      AUD: 0.14,
+      CAD: 0.13,
+      INR: 7.8,
+      SGD: 0.13,
+      NZD: 0.15,
+      ZAR: 1.7,
+      BRL: 0.5,
+      MXN: 1.8,
     };
     return Math.round(price * (rates[currency] || 1));
   };
@@ -534,7 +597,7 @@ export default function ResellerAdmin({ session }) {
           ? o.model === selectedModel
           : o.year === selectedYear) &&
         o.stageName === stageName &&
-        !o.engine,
+        !o.engine
     );
     return match?.price || "";
   };
@@ -547,7 +610,7 @@ export default function ResellerAdmin({ session }) {
       ?.engines?.find((e) => e.label === selectedEngine)?.stages || [];
 
   const descriptionEntry = stageDescriptions.find(
-    (d) => d.stageName === selectedStages[0]?.name,
+    (d) => d.stageName === selectedStages[0]?.name
   );
 
   const [generalInfo, setGeneralInfo] = useState({
@@ -1045,6 +1108,27 @@ export default function ResellerAdmin({ session }) {
                   USD: 0.1,
                   GBP: 0.08,
                   SEK: 1,
+                  THB: 3.5,
+                  JPY: 14.0,
+                  CNY: 0.68,
+                  RUB: 8.5,
+                  TRY: 3.1,
+                  PLN: 0.42,
+                  CZK: 2.3,
+                  HUF: 35.0,
+                  AED: 0.35,
+                  KRW: 125.0,
+                  NOK: 1.0,
+                  DKK: 0.7,
+                  CHF: 0.085,
+                  AUD: 0.14,
+                  CAD: 0.13,
+                  INR: 7.8,
+                  SGD: 0.13,
+                  NZD: 0.15,
+                  ZAR: 1.7,
+                  BRL: 0.5,
+                  MXN: 1.8,
                 };
 
                 const currentInput = {
@@ -1054,7 +1138,7 @@ export default function ResellerAdmin({ session }) {
                   price:
                     aktPlusInputs[item.id]?.price ??
                     Math.round(
-                      (item.price ?? 0) * (conversionRates[currency] || 1),
+                      (item.price ?? 0) * (conversionRates[currency] || 1)
                     ),
                 };
 
@@ -1084,7 +1168,7 @@ export default function ResellerAdmin({ session }) {
                                 style: "currency",
                                 currency: currency,
                                 maximumFractionDigits: 0,
-                              },
+                              }
                             ).format(convertCurrency(item.price, currency))}
                           </p>
                         )}
@@ -1112,7 +1196,7 @@ export default function ResellerAdmin({ session }) {
                         aktPlusInputs[item.id]?.price !== undefined
                           ? convertCurrency(
                               aktPlusInputs[item.id].price,
-                              currency,
+                              currency
                             )
                           : convertCurrency(item.price ?? 0, currency)
                       }
@@ -1122,7 +1206,7 @@ export default function ResellerAdmin({ session }) {
                           ? 0
                           : Math.round(
                               inputCurrencyValue /
-                                (conversionRates[currency] || 1),
+                                (conversionRates[currency] || 1)
                             );
 
                         setAktPlusInputs((prev) => ({
@@ -1172,13 +1256,34 @@ export default function ResellerAdmin({ session }) {
                             USD: 0.1,
                             GBP: 0.08,
                             SEK: 1,
+                            THB: 3.5,
+                            JPY: 14.0,
+                            CNY: 0.68,
+                            RUB: 8.5,
+                            TRY: 3.1,
+                            PLN: 0.42,
+                            CZK: 2.3,
+                            HUF: 35.0,
+                            AED: 0.35,
+                            KRW: 125.0,
+                            NOK: 1.0,
+                            DKK: 0.7,
+                            CHF: 0.085,
+                            AUD: 0.14,
+                            CAD: 0.13,
+                            INR: 7.8,
+                            SGD: 0.13,
+                            NZD: 0.15,
+                            ZAR: 1.7,
+                            BRL: 0.5,
+                            MXN: 1.8,
                           };
 
                           const parsedPrice = parseFloat(currentInput.price);
                           const priceInSek = isNaN(parsedPrice)
                             ? 0
                             : Math.round(
-                                parsedPrice / (conversionRates[currency] || 1),
+                                parsedPrice / (conversionRates[currency] || 1)
                               );
 
                           await fetch("/api/aktplus-overrides", {
@@ -1207,7 +1312,7 @@ export default function ResellerAdmin({ session }) {
                         } catch (error) {
                           console.error(
                             "Failed to save AKTPLUS override",
-                            error,
+                            error
                           );
                           setSaveStatus({
                             message: "Failed to save AKTPLUS override.",
@@ -1255,7 +1360,7 @@ export default function ResellerAdmin({ session }) {
                         desc.description
                           .map(
                             (block) =>
-                              block.children?.map((c) => c.text).join("") || "",
+                              block.children?.map((c) => c.text).join("") || ""
                           )
                           .join("\n\n") || ""
                       }
@@ -1306,7 +1411,7 @@ export default function ResellerAdmin({ session }) {
                             setTimeout(
                               () =>
                                 setSaveStatus({ message: "", isError: false }),
-                              3000,
+                              3000
                             );
                           }
                         }}
@@ -1339,7 +1444,7 @@ export default function ResellerAdmin({ session }) {
                   value={
                     generalInfo.content
                       ?.map(
-                        (b) => b.children?.map((c) => c.text).join("") || "",
+                        (b) => b.children?.map((c) => c.text).join("") || ""
                       )
                       .join("\n\n") || ""
                   }
@@ -1371,7 +1476,7 @@ export default function ResellerAdmin({ session }) {
                       });
                       setTimeout(
                         () => setSaveStatus({ message: "", isError: false }),
-                        3000,
+                        3000
                       );
                     }}
                     className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
@@ -1413,6 +1518,27 @@ export default function ResellerAdmin({ session }) {
                         <option value="EUR">EUR (€)</option>
                         <option value="USD">USD ($)</option>
                         <option value="GBP">GBP (£)</option>
+                        <option value="THB">THB (฿)</option>
+                        <option value="JPY">JPY (¥)</option>
+                        <option value="CNY">CNY (¥)</option>
+                        <option value="RUB">RUB (₽)</option>
+                        <option value="TRY">TRY (₺)</option>
+                        <option value="PLN">PLN (zł)</option>
+                        <option value="CZK">CZK (Kč)</option>
+                        <option value="HUF">HUF (Ft)</option>
+                        <option value="AED">AED (د.إ)</option>
+                        <option value="KRW">KRW (W)</option>
+                        <option value="NOK">NOK (kr)</option>
+                        <option value="DKK">DKK (kr)</option>
+                        <option value="CHF">CHF (CHF)</option>
+                        <option value="AUD">AUD (A$)</option>
+                        <option value="CAD">CAD (C$)</option>
+                        <option value="INR">INR (₹)</option>
+                        <option value="SGD">SGD (S$)</option>
+                        <option value="NZD">NZD (NZ$)</option>
+                        <option value="ZAR">ZAR (R)</option>
+                        <option value="BRL">BRL (R$)</option>
+                        <option value="MXN">MXN (MX$)</option>
                       </select>
                     </div>
                   </div>
@@ -1427,30 +1553,29 @@ export default function ResellerAdmin({ session }) {
                         onChange={(e) => setLanguage(e.target.value)}
                         className="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border"
                       >
-                          <option value="sv">Swedish</option>
-                          <option value="en">English</option>
-                          <option value="de">German</option>
-                          <option value="fr">French</option>
-                          <option value="nl">Dutch</option>
-                          <option value="da">Danish</option>
-                          <option value="no">Norwegian</option>
-                          <option value="ar">Arabic</option>
-                          <option value="fi">Finnish</option> 
-                          <option value="es">Spanish</option>
-                          <option value="it">Italian</option>
-                          <option value="pt">Portuguese</option>
-                          <option value="ru">Russian</option>
-                          <option value="zh">Chinese</option>
-                          <option value="ja">Japanese</option>
-                          <option value="ko">Korean</option>
-                          <option value="pl">Polish</option>
-                          <option value="tr">Turkish</option>
-                          <option value="hu">Hungarian</option>
-                          <option value="cs">Czech</option>
-                          <option value="uk">Ukrainian</option>
-                          <option value="th">ไทย (Thai)</option>
-
-                        </select>
+                        <option value="sv">Swedish</option>
+                        <option value="en">English</option>
+                        <option value="de">German</option>
+                        <option value="fr">French</option>
+                        <option value="nl">Dutch</option>
+                        <option value="da">Danish</option>
+                        <option value="no">Norwegian</option>
+                        <option value="ar">Arabic</option>
+                        <option value="fi">Finnish</option>
+                        <option value="es">Spanish</option>
+                        <option value="it">Italian</option>
+                        <option value="pt">Portuguese</option>
+                        <option value="ru">Russian</option>
+                        <option value="zh">Chinese</option>
+                        <option value="ja">Japanese</option>
+                        <option value="ko">Korean</option>
+                        <option value="pl">Polish</option>
+                        <option value="tr">Turkish</option>
+                        <option value="hu">Hungarian</option>
+                        <option value="cs">Czech</option>
+                        <option value="uk">Ukrainian</option>
+                        <option value="th">ไทย (Thai)</option>
+                      </select>
                     </div>
                   </div>
                 </div>
@@ -1868,7 +1993,7 @@ export default function ResellerAdmin({ session }) {
                         setIsLoading(false);
                         setTimeout(
                           () => setSaveStatus({ message: "", isError: false }),
-                          3000,
+                          3000
                         );
                       }
                     }}
@@ -2058,7 +2183,7 @@ export default function ResellerAdmin({ session }) {
                         selectedModel,
                         selectedYear,
                         selectedEngine,
-                        stage.name,
+                        stage.name
                       );
 
                       const currentInputs = stageInputs[stage.name] || {};
@@ -2123,9 +2248,9 @@ export default function ResellerAdmin({ session }) {
                                         style: "currency",
                                         currency,
                                         maximumFractionDigits: 0, // or use 2 if needed
-                                      },
+                                      }
                                     ).format(
-                                      convertCurrency(stage.price, currency),
+                                      convertCurrency(stage.price, currency)
                                     )}
                                     {currency === "SEK" && (
                                       <span className="text-xs text-gray-400 ml-1">
@@ -2173,7 +2298,7 @@ export default function ResellerAdmin({ session }) {
                                       handleInputChange(
                                         stage.name,
                                         "price",
-                                        sekValue,
+                                        sekValue
                                       );
                                     }}
                                     type="number"
@@ -2192,7 +2317,7 @@ export default function ResellerAdmin({ session }) {
                                     handleInputChange(
                                       stage.name,
                                       "hk",
-                                      e.target.value,
+                                      e.target.value
                                     )
                                   }
                                   className="focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md p-2 border"
@@ -2210,7 +2335,7 @@ export default function ResellerAdmin({ session }) {
                                     handleInputChange(
                                       stage.name,
                                       "nm",
-                                      e.target.value,
+                                      e.target.value
                                     )
                                   }
                                   className="focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md p-2 border"
@@ -2230,7 +2355,7 @@ export default function ResellerAdmin({ session }) {
                                   stage.name,
                                   Number(price),
                                   Number(hk),
-                                  Number(nm),
+                                  Number(nm)
                                 )
                               }
                               disabled={isLoading}

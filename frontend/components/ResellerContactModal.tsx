@@ -25,7 +25,7 @@ export default function ResellerContactModal({
   stageOrOption,
 }: ResellerContactModalProps) {
   const [mode, setMode] = useState<"options" | "form" | "phone" | "thankyou">(
-    "options",
+    "options"
   );
   const [contactNumbers, setContactNumbers] = useState<ContactNumber[]>([]);
   const [loading, setLoading] = useState(false);
@@ -47,7 +47,7 @@ export default function ResellerContactModal({
     try {
       const resellerId = window.location.pathname.split("/")[2];
       const response = await fetch(
-        `/api/reseller-contact-info?resellerId=${resellerId}`,
+        `/api/reseller-contact-info?resellerId=${resellerId}`
       );
       const data = await response.json();
 
