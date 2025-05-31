@@ -230,18 +230,22 @@ export default function TuningViewer() {
     const rate = settings.exchangeRates[settings.currency] || 1;
     const converted = priceInSek * rate;
 
+    // Round to nearest 100
+    const rounded = Math.round(converted / 100) * 100;
+
     if (
       settings.currency === "SEK" ||
       settings.currency === "NOK" ||
       settings.currency === "DKK"
     ) {
-      return `${Math.round(converted)} ${settings.currency}`;
+      return `${rounded} ${settings.currency}`;
     }
 
-    return converted.toLocaleString(settings.language, {
+    return rounded.toLocaleString(settings.language, {
       style: "currency",
       currency: settings.currency,
       maximumFractionDigits: 0,
+      minimumFractionDigits: 0,
     });
   };
 
