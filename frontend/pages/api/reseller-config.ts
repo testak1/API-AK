@@ -9,29 +9,6 @@ const defaultDisplaySettings = {
   showDynoChart: true,
 };
 
-async function fetchExchangeRates(base: string = "SEK") {
-  const response = await fetch(`https://api.exchangerate.host/latest?base=${base}`);
-  const data = await response.json();
-
-  const supportedCurrencies = [
-    "SEK", "EUR", "USD", "GBP", "THB", "JPY", "CNY", "RUB", "TRY", "PLN", "CZK",
-    "HUF", "AED", "KRW", "NOK", "DKK", "CHF", "AUD", "CAD", "INR", "SGD", "NZD",
-    "ZAR", "BRL", "MXN",
-  ];
-
-  const filteredRates: Record<string, number> = {};
-  for (const currency of supportedCurrencies) {
-    if (data.rates[currency]) {
-      filteredRates[currency] = data.rates[currency];
-    }
-  }
-
-  filteredRates["SEK"] = 1; // ensure SEK is always included as base
-  return filteredRates;
-}
-
-const exchangeRates = await fetchExchangeRates("SEK");
-
 export default async function handler(req, res) {
   const { resellerId } = req.query;
   if (!resellerId) return res.status(400).json({ error: "Missing resellerId" });
@@ -53,8 +30,55 @@ export default async function handler(req, res) {
         contactInfo,
         aktPlusLogo
       }`,
-      { resellerId },
+      { resellerId }
     );
+
+    const exchangeRates = await fetchExchangeRates("SEK");
+
+    async function fetchExchangeRates(base: string = "SEK") {
+      const response = await fetch(
+        `https://api.exchangerate.host/latest?base=${base}`
+      );
+      const data = await response.json();
+
+      const supportedCurrencies = [
+        "SEK",
+        "EUR",
+        "USD",
+        "GBP",
+        "THB",
+        "JPY",
+        "CNY",
+        "RUB",
+        "TRY",
+        "PLN",
+        "CZK",
+        "HUF",
+        "AED",
+        "KRW",
+        "NOK",
+        "DKK",
+        "CHF",
+        "AUD",
+        "CAD",
+        "INR",
+        "SGD",
+        "NZD",
+        "ZAR",
+        "BRL",
+        "MXN",
+      ];
+
+      const filteredRates: Record<string, number> = {};
+      for (const currency of supportedCurrencies) {
+        if (data.rates[currency]) {
+          filteredRates[currency] = data.rates[currency];
+        }
+      }
+
+      filteredRates["SEK"] = 1; // ensure SEK is always included as base
+      return filteredRates;
+    }
 
     const response: ResellerConfig = {
       email: result?.email,
