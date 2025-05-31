@@ -1,4 +1,6 @@
 # .gitignore
+.env.local
+.env*.local
 
 # Ignore the build output of Next.js
 .next/
