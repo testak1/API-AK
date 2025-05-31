@@ -8,6 +8,7 @@ node_modules/
 
 # Ignore the Sanity Studio build folder (if any)
 studio/.next/
+studio/
 
 # Ignore IDE settings (optional)
 .vscode/
