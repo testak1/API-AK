@@ -1,5 +1,6 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useState, useEffect } from "react";
+import { t } from "@/lib/translations";
 
 interface ResellerContactModalProps {
   isOpen: boolean;
@@ -11,6 +12,8 @@ interface ResellerContactModalProps {
     engine: string;
   };
   stageOrOption?: string;
+  lang: string;
+  link?: string;
 }
 
 interface ContactNumber {
@@ -23,6 +26,8 @@ export default function ResellerContactModal({
   onClose,
   vehicleInfo,
   stageOrOption,
+  lang,
+  link,
 }: ResellerContactModalProps) {
   const [mode, setMode] = useState<"options" | "form" | "phone" | "thankyou">(
     "options"
