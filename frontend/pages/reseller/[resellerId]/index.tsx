@@ -230,7 +230,17 @@ export default function TuningViewer() {
   const convertPrice = (priceInSek: number): string => {
     const rate = settings.exchangeRates[settings.currency] || 1;
     const converted = priceInSek * rate;
-    return converted.toLocaleString(undefined, {
+
+    // Special handling for currencies that don't have native symbols
+    if (
+      settings.currency === "SEK" ||
+      settings.currency === "NOK" ||
+      settings.currency === "DKK"
+    ) {
+      return `${Math.round(converted)} ${settings.currency}`;
+    }
+
+    return converted.toLocaleString(settings.language, {
       style: "currency",
       currency: settings.currency,
       maximumFractionDigits: 0,
@@ -1702,7 +1712,7 @@ export default function TuningViewer() {
             engine: selected.engine,
           }}
           stageOrOption={ResellerContactModalData.stageOrOption}
-          lang=""
+          lang={settings.language}
         />
 
         <InfoModal
