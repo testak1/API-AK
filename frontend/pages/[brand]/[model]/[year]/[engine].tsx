@@ -820,44 +820,28 @@ export default function EnginePage({
                           onClick={() =>
                             setInfoModal({ open: true, type: "stage", stage })
                           }
-                          aria-expanded={
-                            infoModal.open && infoModal.type === "stage"
-                          }
-                          aria-controls={`${slugify(stage.name)}-modal`}
                           className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg shadow"
                         >
                           📄 {stage.name.toUpperCase()} INFORMATION{" "}
                         </button>
+                        {/* Hidden SEO content for stage info */}
+                        <div className="sr-only" aria-hidden="false">
+                          <h2>{stage.name.toUpperCase()} INFORMATION</h2>
+                          {stage.description && (
+                            <PortableText value={stage.description} />
+                          )}
+                        </div>
                         <button
                           onClick={() =>
                             setInfoModal({ open: true, type: "general" })
                           }
-                          aria-expanded={
-                            infoModal.open && infoModal.type === "general"
-                          }
-                          aria-controls="general-info-modal"
                           className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg shadow"
                         >
                           💡 GENERELL INFORMATION
                         </button>
                       </div>
-                      {/* Hidden SEO content for stage info */}
-                      <div
-                        id={`${slugify(stage.name)}-seo-content`}
-                        className="sr-only"
-                        aria-hidden="false"
-                      >
-                        <h2>{stage.name.toUpperCase()} INFORMATION</h2>
-                        {stage.description && (
-                          <PortableText value={stage.description} />
-                        )}
-                      </div>
                       {/* Hidden SEO content for general info */}
-                      <div
-                        id="general-seo-content"
-                        className="sr-only"
-                        aria-hidden="false"
-                      >
+                      <div className="sr-only" aria-hidden="false">
                         <h2>GENERELL INFORMATION</h2>
                         <div>
                           <ul className="space-y-2">
