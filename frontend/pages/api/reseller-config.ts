@@ -10,10 +10,14 @@ const defaultDisplaySettings = {
 
 async function fetchExchangeRates(base: string = "SEK") {
   try {
-    const response = await fetch(`https://api.exchangerate.host/latest?base=${base}`);
+    const response = await fetch(`https://api.frankfurter.app/latest?from=${base}`);
+    if (!response.ok) {
+      throw new Error(`Exchange rate API error: ${response.status}`);
+    }
+
     const data = await response.json();
 
-    if (!data || typeof data !== "object" || !data.rates || typeof data.rates !== "object") {
+    if (!data?.rates || typeof data.rates !== "object") {
       throw new Error("Invalid exchange rate response");
     }
 
@@ -25,12 +29,13 @@ async function fetchExchangeRates(base: string = "SEK") {
 
     const filteredRates: Record<string, number> = {};
     for (const currency of supportedCurrencies) {
-      if (data.rates[currency]) {
+      if (currency === base) {
+        filteredRates[currency] = 1;
+      } else if (data.rates[currency]) {
         filteredRates[currency] = data.rates[currency];
       }
     }
 
-    filteredRates["SEK"] = 1;
     return filteredRates;
   } catch (err) {
     console.error("Failed to fetch exchange rates:", err);
