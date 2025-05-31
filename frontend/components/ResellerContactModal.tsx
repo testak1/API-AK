@@ -19,6 +19,7 @@ interface ResellerContactModalProps {
 interface ContactNumber {
   location: string;
   number: string;
+  lang: string;
 }
 
 export default function ResellerContactModal({
@@ -335,7 +336,7 @@ export default function ResellerContactModal({
                         disabled={loading}
                         className="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 disabled:opacity-70"
                       >
-                        {loading ? "Sending..." : "Send Message"}
+                        {loading ? t(lang, "sending") : t(lang, "sendMessage")}
                       </button>
                     </div>
                   </div>

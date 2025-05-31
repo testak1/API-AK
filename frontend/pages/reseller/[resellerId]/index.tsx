@@ -15,6 +15,7 @@ import { Line } from "react-chartjs-2";
 import { PortableText } from "@portabletext/react";
 import { urlFor } from "@/lib/sanity";
 import { t as translate } from "@/lib/translations";
+import { t } from "@/lib/translations";
 import type {
   Brand,
   Stage,
@@ -1701,8 +1702,7 @@ export default function TuningViewer() {
             engine: selected.engine,
           }}
           stageOrOption={ResellerContactModalData.stageOrOption}
-          lang="en"
-          link={ResellerContactModalData.link}
+          lang=""
         />
 
         <InfoModal
