@@ -1448,6 +1448,7 @@ export default function ResellerAdmin({ session }) {
                           <option value="hu">Hungarian</option>
                           <option value="cs">Czech</option>
                           <option value="uk">Ukrainian</option>
+                          <option value="th">ไทย (Thai)</option>
 
                         </select>
                     </div>
