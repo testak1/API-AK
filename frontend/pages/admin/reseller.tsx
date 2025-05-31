@@ -321,7 +321,6 @@ export default function ResellerAdmin({ session }) {
 
       if (!response.ok) throw new Error("Failed to save bulk prices");
 
-      // ✅ Refetch updated data after save
       const refreshed = await fetch("/api/brands-with-overrides");
       const { brands: refreshedBrands, overrides: refreshedOverrides } =
         await refreshed.json();

@@ -9,7 +9,6 @@ const defaultDisplaySettings = {
   showDynoChart: true,
 };
 
-
 async function fetchExchangeRates(base: string = "SEK") {
   const response = await fetch(`https://api.exchangerate.host/latest?base=${base}`);
   const data = await response.json();
@@ -27,9 +26,11 @@ async function fetchExchangeRates(base: string = "SEK") {
     }
   }
 
-  filteredRates["SEK"] = 1; 
+  filteredRates["SEK"] = 1; // ensure SEK is always included as base
   return filteredRates;
 }
+
+const exchangeRates = await fetchExchangeRates("SEK");
 
 export default async function handler(req, res) {
   const { resellerId } = req.query;
@@ -54,8 +55,6 @@ export default async function handler(req, res) {
       }`,
       { resellerId },
     );
-
-    const exchangeRates = await fetchExchangeRates("SEK");
 
     const response: ResellerConfig = {
       email: result?.email,
