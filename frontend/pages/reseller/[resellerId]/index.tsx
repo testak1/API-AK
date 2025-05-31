@@ -879,6 +879,22 @@ export default function TuningViewer() {
                   ))}
                 </optgroup>
               ))}
+              {Object.entries(groupedEngines).map(([fuelType, engines]) => (
+                <optgroup
+                  label={
+                    fuelType.toLowerCase() === "diesel"
+                      ? translate(settings.language, "fuelDiesel")
+                      : fuelType.charAt(0).toUpperCase() + fuelType.slice(1)
+                  }
+                  key={fuelType}
+                >
+                  {engines.map((engine) => (
+                    <option key={engine.label} value={engine.label}>
+                      {engine.label}
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
             </select>
           </div>
         </div>
