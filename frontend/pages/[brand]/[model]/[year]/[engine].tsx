@@ -215,7 +215,7 @@ export default function EnginePage({
     Record<string, boolean>
   >({});
   const watermarkImageRef = useRef<HTMLImageElement | null>(null);
-  const [currentLanguage, setCurrentLanguage] = useState("en");
+  const [currentLanguage, setCurrentLanguage] = useState("sv");
   const [contactModalData, setContactModalData] = useState<{
     isOpen: boolean;
     stageOrOption: string;
