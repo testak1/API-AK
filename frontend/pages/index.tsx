@@ -56,6 +56,40 @@ export default function TuningViewer() {
     year: "",
     engine: "",
   });
+
+  const translateStageName = (lang: string, name: string): string => {
+    const match = name.match(/Steg\s?(\d+)/i);
+    if (!match) return name;
+
+    const stageNum = match[1];
+    const translations: Record<string, string> = {
+      sv: `Steg ${stageNum}`,
+      en: `Stage ${stageNum}`,
+      de: `Stufe ${stageNum}`,
+      fr: `Niveau ${stageNum}`,
+      ar: `مرحلة ${stageNum}`,
+      da: `Stadie ${stageNum}`,
+      no: `Trinn ${stageNum}`,
+      nl: `Stage ${stageNum}`,
+      fi: `Vaihe ${stageNum}`,
+      es: `Etapa ${stageNum}`,
+      it: `Stadio ${stageNum}`,
+      pt: `Estágio ${stageNum}`,
+      ru: `Этап ${stageNum}`,
+      zh: `阶段 ${stageNum}`,
+      ja: `ステージ ${stageNum}`,
+      ko: `단계 ${stageNum}`,
+      pl: `Etap ${stageNum}`,
+      tr: `Aşama ${stageNum}`,
+      hu: `Szint ${stageNum}`,
+      cs: `Stupeň ${stageNum}`,
+      uk: `Етап ${stageNum}`,
+      th: `ขั้นตอน ${stageNum}`,
+    };
+
+    return translations[lang] || name;
+  };
+
   const [isLoading, setIsLoading] = useState(true);
   const [expandedStages, setExpandedStages] = useState<Record<string, boolean>>(
     {}
@@ -597,13 +631,13 @@ export default function TuningViewer() {
 
         <div className="mb-4">
           <p className="text-black text-center text-lg font-semibold">
-            Välj din bil nedan för att se vad vi kan erbjuda
+            {translate(currentLanguage, "headline")}
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-8">
           <div>
             <label className="block text-sm font-bold text-black mb-1">
-              MÄRKE
+              {translate(currentLanguage, "BrandValue")}
             </label>
             <select
               className={`w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
@@ -615,7 +649,9 @@ export default function TuningViewer() {
               onChange={handleBrandChange}
               disabled={isLoading}
             >
-              <option value="">VÄLJ MÄRKE</option>
+              <option value="">
+                {translate(currentLanguage, "selectBrand")}
+              </option>
               {[...brands]
                 .filter(b => !b.startsWith("[LASTBIL]"))
                 .sort((a, b) => a.localeCompare(b))
@@ -634,7 +670,7 @@ export default function TuningViewer() {
 
           <div>
             <label className="block text-sm font-bold text-black mb-1">
-              MODELL
+              {translate(currentLanguage, "ModelValue")}
             </label>
             <select
               className={`w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
@@ -646,7 +682,9 @@ export default function TuningViewer() {
               onChange={handleModelChange}
               disabled={!selected.brand}
             >
-              <option value="">VÄLJ MODELL</option>
+              <option value="">
+                {translate(currentLanguage, "selectModel")}
+              </option>
               {models.map(m => (
                 <option key={m.name} value={m.name}>
                   {m.name}
@@ -657,7 +695,7 @@ export default function TuningViewer() {
 
           <div>
             <label className="block text-sm font-bold text-black mb-1">
-              ÅRSMODELL
+              {translate(currentLanguage, "YearValue")}
             </label>
             <select
               className={`w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
@@ -669,7 +707,9 @@ export default function TuningViewer() {
               onChange={handleYearChange}
               disabled={!selected.model}
             >
-              <option value="">VÄLJ ÅRSMODELL</option>
+              <option value="">
+                {translate(currentLanguage, "selectYear")}
+              </option>
               {years.map(y => (
                 <option key={y.range} value={y.range}>
                   {y.range}
@@ -679,7 +719,7 @@ export default function TuningViewer() {
           </div>
           <div>
             <label className="block text-sm font-bold text-black mb-1">
-              MOTOR
+              {translate(currentLanguage, "EngineValue")}
             </label>
             <select
               className={`w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
@@ -691,10 +731,18 @@ export default function TuningViewer() {
               onChange={handleEngineChange}
               disabled={!selected.year}
             >
-              <option value="">VÄLJ MOTOR</option>
+              <option value="">
+                {translate(currentLanguage, "selectEngine")}
+              </option>
               {Object.entries(groupedEngines).map(([fuelType, engines]) => (
                 <optgroup
-                  label={fuelType.charAt(0).toUpperCase() + fuelType.slice(1)}
+                  label={
+                    fuelType.toLowerCase() === "bensin"
+                      ? translate(currentLanguage, "fuelPetrol")
+                      : fuelType.toLowerCase() === "diesel"
+                        ? translate(currentLanguage, "fuelDiesel")
+                        : fuelType.charAt(0).toUpperCase() + fuelType.slice(1)
+                  }
                   key={fuelType}
                 >
                   {engines.map(engine => (
@@ -747,7 +795,7 @@ export default function TuningViewer() {
                           <span
                             className={`uppercase tracking-wide ${getStageColor(stage.name)}`}
                           >
-                            [{stage.name}]
+                            [{translateStageName(currentLanguage, stage.name)}]
                           </span>
                         </h2>
                       </div>
@@ -765,9 +813,12 @@ export default function TuningViewer() {
                           stage.name.includes("Steg 3") ||
                           stage.name.includes("Steg 4")) && (
                           <p className="text-xs text-gray-400 mt-2 italic">
-                            Priset omfattar enbart mjukvaran.
+                            {translate(currentLanguage, "stageSoftwareOnly")}
                             <br />
-                            Kontakta oss för offert inkl hårdvara!
+                            {translate(
+                              currentLanguage,
+                              "stageContactForHardware"
+                            )}
                           </p>
                         )}
                         <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-700 hover:bg-gray-600 hover:scale-110 transform transition-all duration-300">
@@ -856,7 +907,7 @@ export default function TuningViewer() {
                           {/* ORIGINAL & TUNED SPECS - PERFORMANCE */}
                           <div className="border border-white rounded-lg p-3 text-center">
                             <p className="text-sm text-white font-bold mb-1">
-                              ORIGINAL HK
+                              {translate(currentLanguage, "originalHp")}
                             </p>
                             <p className="text-xl text-white font-bold">
                               {stage.origHk} hk
@@ -864,7 +915,12 @@ export default function TuningViewer() {
                           </div>
                           <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
                             <p className="text-xl text-white font-bold mb-1 uppercase">
-                              {stage.name} HK
+                              {translate(
+                                currentLanguage,
+                                "translateStageName",
+                                stage.name
+                              )}{" "}
+                              HK
                             </p>
                             <p className="text-xl font-bold">
                               {stage.tunedHk} hk
@@ -875,7 +931,7 @@ export default function TuningViewer() {
                           </div>
                           <div className="border border-white rounded-lg p-3 text-center">
                             <p className="text-sm text-white font-bold mb-1">
-                              ORIGINAL NM
+                              {translate(currentLanguage, "originalNm")}
                             </p>
                             <p className="text-xl text-white font-bold">
                               {stage.origNm} Nm
@@ -883,7 +939,12 @@ export default function TuningViewer() {
                           </div>
                           <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
                             <p className="text-xl text-white font-bold mb-1 uppercase">
-                              {stage.name} NM
+                              {translate(
+                                currentLanguage,
+                                "translateStageName",
+                                stage.name
+                              )}{" "}
+                              NM
                             </p>
                             <p className="text-xl font-bold">
                               {stage.tunedNm} Nm
@@ -902,7 +963,13 @@ export default function TuningViewer() {
                           }
                           className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg shadow"
                         >
-                          📄 {stage.name.toUpperCase()} INFORMATION{" "}
+                          📄{" "}
+                          {translate(
+                            currentLanguage,
+                            "translateStageName",
+                            stage.name
+                          ).toUpperCase()}{" "}
+                          INFO
                         </button>
                         {/* Hidden SEO content for stage info */}
                         <div className="sr-only" aria-hidden="false">
@@ -917,7 +984,7 @@ export default function TuningViewer() {
                           }
                           className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg shadow"
                         >
-                          💡 GENERELL INFORMATION
+                          💡 {translate(currentLanguage, "infoGeneral")}
                         </button>
                       </div>
                       {/* Hidden SEO content for general info */}
@@ -958,7 +1025,8 @@ export default function TuningViewer() {
                       <div className="mt-6">
                         {!isDsgStage && (
                           <h3 className="text-lg font-medium text-gray-300 mb-2 uppercase">
-                            {stage.name} effektkurva
+                            {stage.name}{" "}
+                            {translate(currentLanguage, "tuningCurveNote")}
                           </h3>
                         )}
 
@@ -1217,7 +1285,7 @@ export default function TuningViewer() {
                             />
 
                             <div className="text-center text-white text-xs mt-4 italic">
-                              (Simulerad effektkurva)
+                              {translate(currentLanguage, "tuningCurveNote")}
                             </div>
                           </div>
                         )}
@@ -1228,11 +1296,12 @@ export default function TuningViewer() {
                             {/* Performance Summary */}
                             <div className="text-center mb-6">
                               <p className="text-lg font-semibold text-white">
-                                {translate(currentLanguage, "tuningIntro")}{" "}
-                                <span className={getStageColor(stage.name)}>
-                                  {stage.name
-                                    .replace("Steg", "STEG")
-                                    .toUpperCase()}
+                                {translate(currentLanguage, "tuningIntro")}
+                                <span className="text-white-400 text-sm ml-1">
+                                  {translateStageName(
+                                    currentLanguage,
+                                    stage.name
+                                  ).toUpperCase()}
                                 </span>
                               </p>
                               <p className="text-gray-300 mt-1">
@@ -1260,7 +1329,7 @@ export default function TuningViewer() {
                                     d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                                   />
                                 </svg>
-                                KONTAKTA OSS
+                                {translate(currentLanguage, "contactvalue")}
                               </button>
 
                               {/* Social Media Links */}
@@ -1315,7 +1384,7 @@ export default function TuningViewer() {
                                 className="h-8 w-auto object-contain"
                               />
                               <h3 className="text-md font-semibold text-white">
-                                TILLÄGG
+                                {translate(currentLanguage, "additionsLabel")}
                               </h3>
                             </div>
 
@@ -1407,7 +1476,10 @@ export default function TuningViewer() {
                                       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                                         {option.price && (
                                           <p className="font-bold text-green-400">
-                                            Pris:{" "}
+                                            {translate(
+                                              currentLanguage,
+                                              "priceLabel"
+                                            )}
                                             {option.price.toLocaleString()} kr
                                           </p>
                                         )}
@@ -1418,7 +1490,11 @@ export default function TuningViewer() {
                                           }
                                           className="bg-green-600 hover:bg-green-700 hover:scale-105 transform transition-all text-white px-6 py-3 rounded-lg font-medium shadow-lg"
                                         >
-                                          📩 KONTAKT
+                                          📩{" "}
+                                          {translate(
+                                            currentLanguage,
+                                            "contactvalue"
+                                          )}
                                         </button>
                                       </div>
                                     </div>

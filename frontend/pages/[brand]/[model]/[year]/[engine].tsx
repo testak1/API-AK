@@ -460,6 +460,39 @@ export default function EnginePage({
     });
   };
 
+  const translateStageName = (lang: string, name: string): string => {
+    const match = name.match(/Steg\s?(\d+)/i);
+    if (!match) return name;
+
+    const stageNum = match[1];
+    const translations: Record<string, string> = {
+      sv: `Steg ${stageNum}`,
+      en: `Stage ${stageNum}`,
+      de: `Stufe ${stageNum}`,
+      fr: `Niveau ${stageNum}`,
+      ar: `مرحلة ${stageNum}`,
+      da: `Stadie ${stageNum}`,
+      no: `Trinn ${stageNum}`,
+      nl: `Stage ${stageNum}`,
+      fi: `Vaihe ${stageNum}`,
+      es: `Etapa ${stageNum}`,
+      it: `Stadio ${stageNum}`,
+      pt: `Estágio ${stageNum}`,
+      ru: `Этап ${stageNum}`,
+      zh: `阶段 ${stageNum}`,
+      ja: `ステージ ${stageNum}`,
+      ko: `단계 ${stageNum}`,
+      pl: `Etap ${stageNum}`,
+      tr: `Aşama ${stageNum}`,
+      hu: `Szint ${stageNum}`,
+      cs: `Stupeň ${stageNum}`,
+      uk: `Етап ${stageNum}`,
+      th: `ขั้นตอน ${stageNum}`,
+    };
+
+    return translations[lang] || name;
+  };
+
   const [expandedAktPlus, setExpandedAktPlus] = useState<
     Record<string, boolean>
   >({});
@@ -684,7 +717,7 @@ export default function EnginePage({
                           <span
                             className={`uppercase tracking-wide ${getStageColor(stage.name)}`}
                           >
-                            [{stage.name}]
+                            [{translateStageName(currentLanguage, stage.name)}]
                           </span>
                         </h2>
                       </div>
@@ -806,7 +839,12 @@ export default function EnginePage({
                           </div>
                           <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
                             <p className="text-xl text-white font-bold mb-1 uppercase">
-                              {stage.name} HK
+                              {translate(
+                                currentLanguage,
+                                "translateStageName",
+                                stage.name
+                              )}{" "}
+                              HK
                             </p>
                             <p className="text-xl font-bold">
                               {stage.tunedHk} hk
@@ -825,7 +863,12 @@ export default function EnginePage({
                           </div>
                           <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
                             <p className="text-xl text-white font-bold mb-1 uppercase">
-                              {stage.name} NM
+                              {translate(
+                                currentLanguage,
+                                "translateStageName",
+                                stage.name
+                              )}{" "}
+                              NM
                             </p>
                             <p className="text-xl font-bold">
                               {stage.tunedNm} Nm
@@ -915,9 +958,11 @@ export default function EnginePage({
                             <div className="flex items-center gap-1">
                               <span className="w-3 h-3 rounded-full bg-red-400"></span>
                               <span>
-                                {" "}
-                                {stage.name
-                                  .replace("Steg", "ST")
+                                {translate(
+                                  currentLanguage,
+                                  "translateStageName",
+                                  stage.name
+                                )
                                   .replace(/\s+/g, "")
                                   .toUpperCase()}{" "}
                                 HK
@@ -930,9 +975,11 @@ export default function EnginePage({
                             <div className="flex items-center gap-1">
                               <span className="w-3 h-3 rounded-full bg-white"></span>
                               <span>
-                                {" "}
-                                {stage.name
-                                  .replace("Steg", "ST")
+                                {translate(
+                                  currentLanguage,
+                                  "translateStageName",
+                                  stage.name
+                                )
                                   .replace(/\s+/g, "")
                                   .toUpperCase()}{" "}
                                 NM
@@ -1355,7 +1402,10 @@ export default function EnginePage({
                                       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                                         {option.price && (
                                           <p className="font-bold text-green-400">
-                                            Pris:{" "}
+                                            {translate(
+                                              currentLanguage,
+                                              "priceLabel"
+                                            )}
                                             {option.price.toLocaleString()} kr
                                           </p>
                                         )}
