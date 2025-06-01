@@ -855,16 +855,19 @@ export default function TuningViewer() {
   return (
     <>
       <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
-        <div className="flex items-center mb-4">
-          {resellerLogo && (
-            <img
-              src={resellerLogo}
-              alt="Reseller Logo"
-              className="h-auto max-h-20 w-auto max-w-[500px] object-contain"
-              loading="lazy"
-              onClick={() => router.reload()}
-            />
-          )}
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            {resellerLogo && (
+              <img
+                src={resellerLogo}
+                alt="Reseller Logo"
+                className="h-auto max-h-20 w-auto max-w-[500px] object-contain"
+                loading="lazy"
+                onClick={() => router.reload()}
+              />
+            )}
+          </div>
+
           <LanguageSwitcher
             settings={settings}
             currentLanguage={currentLanguage}
@@ -1838,16 +1841,50 @@ const LanguageSwitcher = ({
       ? settings.secondaryLanguage
       : settings.language;
 
+  const langNames: Record<string, string> = {
+    sv: "Svenska",
+    en: "English",
+    de: "Deutsch",
+    fr: "Français",
+    nl: "Nederlands",
+    da: "Dansk",
+    it: "Italiano",
+    es: "Español",
+    no: "Norsk",
+    pl: "Polski",
+    ro: "Română",
+    fi: "Suomi",
+    tr: "Türkçe",
+    ru: "Русский",
+  };
+
+  const langFlags: Record<string, string> = {
+    sv: "🇸🇪",
+    en: "🇬🇧",
+    de: "🇩🇪",
+    fr: "🇫🇷",
+    nl: "🇳🇱",
+    da: "🇩🇰",
+    it: "🇮🇹",
+    es: "🇪🇸",
+    no: "🇳🇴",
+    pl: "🇵🇱",
+    ro: "🇷🇴",
+    fi: "🇫🇮",
+    tr: "🇹🇷",
+    ru: "🇷🇺",
+  };
+
   return (
-    <div className="fixed top-4 right-4 z-50">
-      <button
-        onClick={() => setCurrentLanguage(nextLang)}
-        className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-white rounded-full shadow-lg hover:bg-gray-700 transition"
-        title={`Byt språk till ${nextLang.toUpperCase()}`}
-      >
-        <GlobeAltIcon className="h-5 w-5" />
-        <span className="font-medium">{nextLang.toUpperCase()}</span>
-      </button>
-    </div>
+    <button
+      onClick={() => setCurrentLanguage(nextLang)}
+      className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-white rounded-md shadow-sm hover:bg-gray-700 transition"
+      title={`Byt språk till ${langNames[nextLang] || nextLang.toUpperCase()}`}
+    >
+      <span className="text-xl">{langFlags[nextLang] || "🌐"}</span>
+      <span className="font-medium">
+        {`Byt till ${langNames[nextLang] || nextLang.toUpperCase()}`}
+      </span>
+    </button>
   );
 };
