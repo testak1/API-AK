@@ -136,7 +136,7 @@ export const allBrandsQuery = `
   _id,
   name,
   slug,
-"slugCurrent": slug.current,
+  "slugCurrent": slug.current,
   "models": models[]{
     name,
     "years": years[]{
@@ -159,60 +159,11 @@ export const allBrandsQuery = `
             stageName,
             description
           },
-          "aktPlusOptions": *[_type == "aktPlus" && (
-            isUniversal == true || 
-            ^.^.fuel in applicableFuelTypes
-          ) && (
-            !defined(stageCompatibility) || 
-            stageCompatibility == ^.name
-          )]{
-            _id,
-            title,
-            price,
-            isUniversal,
-            applicableFuelTypes,
-            stageCompatibility,
-            description,
-            "gallery": gallery[]{
-              _key,
-              alt,
-              caption,
-              "asset": asset->{
-                _id,
-                url
-              }
-            },
-            installationTime,
-            compatibilityNotes
-          },
           tcuFields {
             launchControl { original, optimized },
             rpmLimit { original, optimized },
             shiftTime { original, optimized }
           }
-        },
-        "globalAktPlusOptions": *[_type == "aktPlus" && (
-          isUniversal == true || 
-          ^.fuel in applicableFuelTypes
-        ) && !defined(stageCompatibility)]{
-          _id,
-          title,
-          price,
-          isUniversal,
-          applicableFuelTypes,
-          stageCompatibility,
-          description,
-          "gallery": gallery[]{
-            _key,
-            alt,
-            caption,
-            "asset": asset->{
-              _id,
-              url
-            }
-          },
-          installationTime,
-          compatibilityNotes
         }
       }
     }
