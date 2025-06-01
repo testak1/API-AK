@@ -386,6 +386,7 @@ export default function TuningViewer() {
     Record<string, boolean>
   >({});
   const watermarkImageRef = useRef<HTMLImageElement | null>(null);
+
   const [ResellerContactModalData, setResellerContactModalData] = useState<{
     isOpen: boolean;
     stageOrOption: string;

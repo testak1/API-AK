@@ -1,6 +1,6 @@
 // pages/index.tsx
 import Head from "next/head";
-import React, { useEffect, useState, useRef, useMemo } from "react";
+import React, {useEffect, useState, useRef, useMemo} from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -12,8 +12,10 @@ import {
   Legend,
 } from "chart.js";
 import dynamic from "next/dynamic";
-import { PortableText } from "@portabletext/react";
-import { urlFor } from "@/lib/sanity";
+import {PortableText} from "@portabletext/react";
+import {urlFor} from "@/lib/sanity";
+import PublicLanguageDropdown from "@/components/PublicLanguageSwitcher";
+import {t as translate} from "@/lib/translations";
 import DtcSearch from "@/components/DtcSearch";
 import type {
   Brand,
@@ -22,7 +24,7 @@ import type {
   AktPlusOptionReference,
 } from "@/types/sanity";
 import ContactModal from "@/components/ContactModal";
-import { link } from "fs";
+import {link} from "fs";
 
 ChartJS.register(
   CategoryScale,
@@ -65,6 +67,8 @@ export default function TuningViewer() {
     Record<string, boolean>
   >({});
   const watermarkImageRef = useRef<HTMLImageElement | null>(null);
+  const [currentLanguage, setCurrentLanguage] = useState("sv");
+
   const [contactModalData, setContactModalData] = useState<{
     isOpen: boolean;
     stageOrOption: string;
@@ -76,23 +80,20 @@ export default function TuningViewer() {
     link: "",
   });
 
-  const Line = dynamic(
-    () => import("react-chartjs-2").then((mod) => mod.Line),
-    {
-      ssr: false, // Disable server-side rendering for this component
-      loading: () => (
-        <div className="h-96 bg-gray-800 rounded-lg animate-pulse flex items-center justify-center">
-          <p className="text-gray-400">Laddar dynobild...</p>
-        </div>
-      ),
-    }
-  );
+  const Line = dynamic(() => import("react-chartjs-2").then(mod => mod.Line), {
+    ssr: false, // Disable server-side rendering for this component
+    loading: () => (
+      <div className="h-96 bg-gray-800 rounded-lg animate-pulse flex items-center justify-center">
+        <p className="text-gray-400">Laddar dynobild...</p>
+      </div>
+    ),
+  });
 
   const [infoModal, setInfoModal] = useState<{
     open: boolean;
     type: "stage" | "general";
     stage?: Stage;
-  }>({ open: false, type: "stage" });
+  }>({open: false, type: "stage"});
 
   const getStageColor = (stageName: string) => {
     const name = stageName.toLowerCase();
@@ -121,14 +122,14 @@ export default function TuningViewer() {
     stageOrOptionName: string,
     event?: React.MouseEvent
   ) => {
-    const selectedBrand = data.find((b) => b.name === selected.brand);
+    const selectedBrand = data.find(b => b.name === selected.brand);
     if (!selectedBrand) return;
 
     const brandSlug =
       selectedBrand.slug?.current || slugify(selectedBrand.name);
 
     const selectedModel = selectedBrand.models?.find(
-      (m) => m.name === selected.model
+      m => m.name === selected.model
     );
     if (!selectedModel) return;
 
@@ -138,7 +139,7 @@ export default function TuningViewer() {
         : selectedModel.slug || slugify(selectedModel.name);
 
     const selectedYear = selectedModel.years?.find(
-      (y) => y.range === selected.year
+      y => y.range === selected.year
     );
     if (!selectedYear) return;
 
@@ -147,7 +148,7 @@ export default function TuningViewer() {
       : selectedYear.range;
 
     const selectedEngine = selectedYear.engines?.find(
-      (e) => e.label === selected.engine
+      e => e.label === selected.engine
     );
     if (!selectedEngine) return;
 
@@ -170,8 +171,21 @@ export default function TuningViewer() {
       link: finalLink,
       scrollPosition: isMobile ? undefined : 0,
     });
-    window.parent.postMessage({ scrollToIframe: true }, "*");
+    window.parent.postMessage({scrollToIframe: true}, "*");
   };
+
+  // Hämta språk från localStorage om det finns
+  useEffect(() => {
+    const storedLang = localStorage.getItem("lang");
+    if (storedLang) {
+      setCurrentLanguage(storedLang);
+    }
+  }, []);
+
+  // Spara språk till localStorage när det ändras
+  useEffect(() => {
+    localStorage.setItem("lang", currentLanguage);
+  }, [currentLanguage]);
 
   // Load watermark image
   useEffect(() => {
@@ -211,16 +225,16 @@ export default function TuningViewer() {
           if (!res.ok) throw new Error("Failed to fetch years");
           const years = await res.json();
 
-          setData((prev) =>
-            prev.map((brand) =>
+          setData(prev =>
+            prev.map(brand =>
               brand.name !== selected.brand
                 ? brand
                 : {
                     ...brand,
-                    models: brand.models.map((model) =>
+                    models: brand.models.map(model =>
                       model.name !== selected.model
                         ? model
-                        : { ...model, years: years.result }
+                        : {...model, years: years.result}
                     ),
                   }
             )
@@ -247,21 +261,21 @@ export default function TuningViewer() {
           if (!res.ok) throw new Error("Failed to fetch engines");
           const engines = await res.json();
 
-          setData((prev) =>
-            prev.map((brand) =>
+          setData(prev =>
+            prev.map(brand =>
               brand.name !== selected.brand
                 ? brand
                 : {
                     ...brand,
-                    models: brand.models.map((model) =>
+                    models: brand.models.map(model =>
                       model.name !== selected.model
                         ? model
                         : {
                             ...model,
-                            years: model.years.map((year) =>
+                            years: model.years.map(year =>
                               year.range !== selected.year
                                 ? year
-                                : { ...year, engines: engines.result }
+                                : {...year, engines: engines.result}
                             ),
                           }
                     ),
@@ -286,11 +300,11 @@ export default function TuningViewer() {
     stages,
     groupedEngines,
   } = useMemo(() => {
-    const brands = data.map((b) => b.name);
-    const models = data.find((b) => b.name === selected.brand)?.models || [];
-    const years = models.find((m) => m.name === selected.model)?.years || [];
-    const engines = years.find((y) => y.range === selected.year)?.engines || [];
-    const selectedEngine = engines.find((e) => e.label === selected.engine);
+    const brands = data.map(b => b.name);
+    const models = data.find(b => b.name === selected.brand)?.models || [];
+    const years = models.find(m => m.name === selected.model)?.years || [];
+    const engines = years.find(y => y.range === selected.year)?.engines || [];
+    const selectedEngine = engines.find(e => e.label === selected.engine);
     const stages = selectedEngine?.stages || [];
 
     const groupedEngines = engines.reduce(
@@ -332,7 +346,7 @@ export default function TuningViewer() {
     beforeDraw: (chart: ChartJS) => {
       const ctx = chart.ctx;
       const {
-        chartArea: { top, left, width, height },
+        chartArea: {top, left, width, height},
       } = chart;
 
       if (watermarkImageRef.current?.complete) {
@@ -358,7 +372,7 @@ export default function TuningViewer() {
   const shadowPlugin = {
     id: "shadowPlugin",
     beforeDatasetDraw(chart: ChartJS, args: any, options: any) {
-      const { ctx } = chart;
+      const {ctx} = chart;
       const dataset = chart.data.datasets[args.index];
 
       ctx.save();
@@ -389,12 +403,12 @@ export default function TuningViewer() {
 
       (combinedOptions as AktPlusOptionReference[])
         .filter(isExpandedAktPlusOption)
-        .forEach((opt) => {
+        .forEach(opt => {
           if (
             (opt.isUniversal ||
               opt.applicableFuelTypes?.includes(selectedEngine.fuel) ||
               opt.manualAssignments?.some(
-                (ref) => ref._ref === selectedEngine._id
+                ref => ref._ref === selectedEngine._id
               )) &&
             (!opt.stageCompatibility || opt.stageCompatibility === stage.name)
           ) {
@@ -421,7 +435,7 @@ export default function TuningViewer() {
       : Math.floor(rpmRange.length * 0.4);
     const startIndex = 0;
 
-    return rpmRange.map((rpm) => {
+    return rpmRange.map(rpm => {
       const startRpm = rpmRange[startIndex];
       const peakRpm = rpmRange[peakIndex];
       const endRpm = rpmRange[rpmRange.length - 1];
@@ -453,9 +467,9 @@ export default function TuningViewer() {
       ];
 
   const toggleStage = (stageName: string) => {
-    setExpandedStages((prev) => {
+    setExpandedStages(prev => {
       const newState: Record<string, boolean> = {};
-      Object.keys(prev).forEach((key) => {
+      Object.keys(prev).forEach(key => {
         newState[key] = key === stageName ? !prev[key] : false;
       });
       return newState;
@@ -463,18 +477,18 @@ export default function TuningViewer() {
   };
 
   const toggleOption = (optionId: string) => {
-    setExpandedOptions((prev) => {
+    setExpandedOptions(prev => {
       const newState: Record<string, boolean> = {};
       newState[optionId] = !prev[optionId];
       return newState;
     });
   };
   const handleBrandChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelected({ brand: e.target.value, model: "", year: "", engine: "" });
+    setSelected({brand: e.target.value, model: "", year: "", engine: ""});
   };
 
   const handleModelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelected((prev) => ({
+    setSelected(prev => ({
       ...prev,
       model: e.target.value,
       year: "",
@@ -483,16 +497,16 @@ export default function TuningViewer() {
   };
 
   const handleYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelected((prev) => ({ ...prev, year: e.target.value, engine: "" }));
+    setSelected(prev => ({...prev, year: e.target.value, engine: ""}));
   };
 
   const handleEngineChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelected((prev) => ({ ...prev, engine: e.target.value }));
+    setSelected(prev => ({...prev, engine: e.target.value}));
   };
 
   const portableTextComponents = {
     types: {
-      image: ({ value }: any) => (
+      image: ({value}: any) => (
         <img
           src={urlFor(value).width(100).url()}
           alt={value.alt || ""}
@@ -501,7 +515,7 @@ export default function TuningViewer() {
       ),
     },
     marks: {
-      link: ({ children, value }: any) => (
+      link: ({children, value}: any) => (
         <a
           href={value.href}
           className="text-blue-400 hover:text-blue-300 underline"
@@ -517,7 +531,7 @@ export default function TuningViewer() {
   >({});
 
   const toggleAktPlus = (stageName: string) => {
-    setExpandedAktPlus((prev) => ({
+    setExpandedAktPlus(prev => ({
       ...prev,
       [stageName]: !prev[stageName],
     }));
@@ -565,15 +579,19 @@ export default function TuningViewer() {
       </Head>
 
       <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
-        <div className="flex items-center mb-4">
+        <div className="flex items-center justify-between mb-4">
           <img
             src="/ak-logo-svart.png"
             fetchPriority="high"
             alt="AK-TUNING"
-            style={{ height: "80px", cursor: "pointer" }}
+            style={{height: "80px", cursor: "pointer"}}
             className="h-auto max-h-20 w-auto max-w-[500px] object-contain"
             loading="lazy"
             onClick={() => window.location.reload()}
+          />
+          <PublicLanguageDropdown
+            currentLanguage={currentLanguage}
+            setCurrentLanguage={setCurrentLanguage}
           />
         </div>
 
@@ -599,14 +617,14 @@ export default function TuningViewer() {
             >
               <option value="">VÄLJ MÄRKE</option>
               {[...brands]
-                .filter((b) => !b.startsWith("[LASTBIL]"))
+                .filter(b => !b.startsWith("[LASTBIL]"))
                 .sort((a, b) => a.localeCompare(b))
                 .concat(
                   brands
-                    .filter((b) => b.startsWith("[LASTBIL]"))
+                    .filter(b => b.startsWith("[LASTBIL]"))
                     .sort((a, b) => a.localeCompare(b))
                 )
-                .map((brand) => (
+                .map(brand => (
                   <option key={brand} value={brand}>
                     {brand}
                   </option>
@@ -629,7 +647,7 @@ export default function TuningViewer() {
               disabled={!selected.brand}
             >
               <option value="">VÄLJ MODELL</option>
-              {models.map((m) => (
+              {models.map(m => (
                 <option key={m.name} value={m.name}>
                   {m.name}
                 </option>
@@ -652,7 +670,7 @@ export default function TuningViewer() {
               disabled={!selected.model}
             >
               <option value="">VÄLJ ÅRSMODELL</option>
-              {years.map((y) => (
+              {years.map(y => (
                 <option key={y.range} value={y.range}>
                   {y.range}
                 </option>
@@ -679,7 +697,7 @@ export default function TuningViewer() {
                   label={fuelType.charAt(0).toUpperCase() + fuelType.slice(1)}
                   key={fuelType}
                 >
-                  {engines.map((engine) => (
+                  {engines.map(engine => (
                     <option key={engine.label} value={engine.label}>
                       {engine.label}
                     </option>
@@ -696,7 +714,7 @@ export default function TuningViewer() {
           </div>
         ) : stages.length > 0 ? (
           <div className="space-y-6">
-            {stages.map((stage) => {
+            {stages.map(stage => {
               const isDsgStage = stage.name.toLowerCase().includes("dsg");
               const allOptions = getAllAktPlusOptions(stage);
               const isExpanded = expandedStages[stage.name] ?? false;
@@ -712,11 +730,11 @@ export default function TuningViewer() {
                   >
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                       <div className="flex items-center gap-4">
-                        {data.find((b) => b.name === selected.brand)?.logo
+                        {data.find(b => b.name === selected.brand)?.logo
                           ?.asset && (
                           <img
                             src={urlFor(
-                              data.find((b) => b.name === selected.brand)?.logo
+                              data.find(b => b.name === selected.brand)?.logo
                             )
                               .width(60)
                               .url()}
@@ -880,7 +898,7 @@ export default function TuningViewer() {
                       <div className="flex flex-col sm:flex-row gap-4 mt-4">
                         <button
                           onClick={() =>
-                            setInfoModal({ open: true, type: "stage", stage })
+                            setInfoModal({open: true, type: "stage", stage})
                           }
                           className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg shadow"
                         >
@@ -895,7 +913,7 @@ export default function TuningViewer() {
                         </div>
                         <button
                           onClick={() =>
-                            setInfoModal({ open: true, type: "general" })
+                            setInfoModal({open: true, type: "general"})
                           }
                           className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg shadow"
                         >
@@ -1137,7 +1155,7 @@ export default function TuningViewer() {
                                       display: true,
                                       text: "EFFEKT",
                                       color: "white",
-                                      font: { size: 14 },
+                                      font: {size: 14},
                                     },
                                     min: 0,
                                     max:
@@ -1149,7 +1167,7 @@ export default function TuningViewer() {
                                     ticks: {
                                       color: "#9CA3AF",
                                       stepSize: 100,
-                                      callback: (value) => `${value}`,
+                                      callback: value => `${value}`,
                                     },
                                   },
                                   nm: {
@@ -1160,7 +1178,7 @@ export default function TuningViewer() {
                                       display: true,
                                       text: "VRIDMOMENT",
                                       color: "white",
-                                      font: { size: 14 },
+                                      font: {size: 14},
                                     },
                                     min: 0,
                                     max:
@@ -1172,7 +1190,7 @@ export default function TuningViewer() {
                                     ticks: {
                                       color: "#9CA3AF",
                                       stepSize: 100,
-                                      callback: (value) => `${value}`,
+                                      callback: value => `${value}`,
                                     },
                                   },
                                   x: {
@@ -1180,7 +1198,7 @@ export default function TuningViewer() {
                                       display: true,
                                       text: "RPM",
                                       color: "#E5E7EB",
-                                      font: { size: 14 },
+                                      font: {size: 14},
                                     },
                                     grid: {
                                       color: "rgba(255, 255, 255, 0.1)",
@@ -1210,7 +1228,7 @@ export default function TuningViewer() {
                             {/* Performance Summary */}
                             <div className="text-center mb-6">
                               <p className="text-lg font-semibold text-white">
-                                Motoroptimering{" "}
+                                {translate(currentLanguage, "tuningIntro")}{" "}
                                 <span className={getStageColor(stage.name)}>
                                   {stage.name
                                     .replace("Steg", "STEG")
@@ -1323,7 +1341,7 @@ export default function TuningViewer() {
                           {/* Expandable AKT+ Grid */}
                           {expandedAktPlus[stage.name] && (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                              {allOptions.map((option) => (
+                              {allOptions.map(option => (
                                 <div
                                   key={option._id}
                                   className="border border-gray-600 rounded-lg overflow-hidden bg-gray-700 transition-all duration-300"
@@ -1423,7 +1441,7 @@ export default function TuningViewer() {
         <ContactModal
           isOpen={contactModalData.isOpen}
           onClose={() =>
-            setContactModalData({ isOpen: false, stageOrOption: "", link: "" })
+            setContactModalData({isOpen: false, stageOrOption: "", link: ""})
           }
           selectedVehicle={{
             brand: selected.brand,
@@ -1437,7 +1455,7 @@ export default function TuningViewer() {
         />
         <InfoModal
           isOpen={infoModal.open}
-          onClose={() => setInfoModal({ open: false, type: infoModal.type })}
+          onClose={() => setInfoModal({open: false, type: infoModal.type})}
           title={
             infoModal.type === "stage"
               ? `STEG ${infoModal.stage?.name.replace(/\D/g, "")} INFORMATION`
