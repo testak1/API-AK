@@ -56,7 +56,7 @@ export default async function handler(
                 applicableFuelTypes,
                 stageCompatibility,
                 compatibilityNotes,
-                "description": description[$lang],
+                description,
                 gallery[]{
                   _key,
                   alt,
@@ -83,7 +83,7 @@ export default async function handler(
               applicableFuelTypes,
               stageCompatibility,
               compatibilityNotes,
-              "description": description[$lang],
+              description,
               gallery[]{
                 _key,
                 alt,
