@@ -18,7 +18,7 @@ export default async function handler(
         stageCompatibility,
         manualAssignments[] { _ref },
         compatibilityNotes,
-        "description": description[$lang],
+        description,
         "gallery": gallery[]{
           _key,
           alt,
