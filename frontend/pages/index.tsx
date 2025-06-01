@@ -16,7 +16,6 @@ import {PortableText} from "@portabletext/react";
 import {urlFor} from "@/lib/sanity";
 import PublicLanguageDropdown from "@/components/PublicLanguageSwitcher";
 import {t as translate} from "@/lib/translations";
-import DtcSearch from "@/components/DtcSearch";
 import type {
   Brand,
   Stage,
@@ -67,24 +66,9 @@ export default function TuningViewer() {
       en: `Stage ${stageNum}`,
       de: `Stufe ${stageNum}`,
       fr: `Niveau ${stageNum}`,
-      ar: `مرحلة ${stageNum}`,
+      it: `Fase ${stageNum}`,
       da: `Stadie ${stageNum}`,
       no: `Trinn ${stageNum}`,
-      nl: `Stage ${stageNum}`,
-      fi: `Vaihe ${stageNum}`,
-      es: `Etapa ${stageNum}`,
-      it: `Stadio ${stageNum}`,
-      pt: `Estágio ${stageNum}`,
-      ru: `Этап ${stageNum}`,
-      zh: `阶段 ${stageNum}`,
-      ja: `ステージ ${stageNum}`,
-      ko: `단계 ${stageNum}`,
-      pl: `Etap ${stageNum}`,
-      tr: `Aşama ${stageNum}`,
-      hu: `Szint ${stageNum}`,
-      cs: `Stupeň ${stageNum}`,
-      uk: `Етап ${stageNum}`,
-      th: `ขั้นตอน ${stageNum}`,
     };
 
     return translations[lang] || name;
@@ -290,7 +274,7 @@ export default function TuningViewer() {
         setIsLoading(true);
         try {
           const res = await fetch(
-            `/api/engines?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}&year=${encodeURIComponent(selected.year)}`
+            `/api/engines?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}&year=${encodeURIComponent(selected.year)}&lang=${currentLanguage}`
           );
           if (!res.ok) throw new Error("Failed to fetch engines");
           const engines = await res.json();

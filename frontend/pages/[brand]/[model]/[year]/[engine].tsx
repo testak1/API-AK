@@ -468,26 +468,11 @@ export default function EnginePage({
     const translations: Record<string, string> = {
       sv: `Steg ${stageNum}`,
       en: `Stage ${stageNum}`,
+      it: `Fase ${stageNum}`,
       de: `Stufe ${stageNum}`,
       fr: `Niveau ${stageNum}`,
-      ar: `مرحلة ${stageNum}`,
       da: `Stadie ${stageNum}`,
       no: `Trinn ${stageNum}`,
-      nl: `Stage ${stageNum}`,
-      fi: `Vaihe ${stageNum}`,
-      es: `Etapa ${stageNum}`,
-      it: `Stadio ${stageNum}`,
-      pt: `Estágio ${stageNum}`,
-      ru: `Этап ${stageNum}`,
-      zh: `阶段 ${stageNum}`,
-      ja: `ステージ ${stageNum}`,
-      ko: `단계 ${stageNum}`,
-      pl: `Etap ${stageNum}`,
-      tr: `Aşama ${stageNum}`,
-      hu: `Szint ${stageNum}`,
-      cs: `Stupeň ${stageNum}`,
-      uk: `Етап ${stageNum}`,
-      th: `ขั้นตอน ${stageNum}`,
     };
 
     return translations[lang] || name;

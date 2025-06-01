@@ -47,9 +47,9 @@ export const engineByParamsQuery = `
             origNm,
             tunedNm,
             price,
-            description,
-            descriptionRef->{
-              description
+            "description": description[$lang],
+            "descriptionRef": descriptionRef->{
+              "description": description[$lang]
             },
             tcuFields {
               launchControl { original, optimized },

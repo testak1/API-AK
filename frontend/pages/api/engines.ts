@@ -1,14 +1,15 @@
-import { NextApiRequest, NextApiResponse } from "next";
+import {NextApiRequest, NextApiResponse} from "next";
 import client from "@/lib/sanity";
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse,
+  res: NextApiResponse
 ) {
-  const { brand, model, year, resellerId } = req.query;
+  const lang = (req.query.lang as string) || "sv";
+  const {brand, model, year, resellerId} = req.query;
 
   if (!brand || !model || !year) {
-    return res.status(400).json({ error: "Missing parameters" });
+    return res.status(400).json({error: "Missing parameters"});
   }
 
   const query = `
@@ -31,11 +32,11 @@ export default async function handler(
               origNm,
               tunedNm,
               price,
-              description,
+              "description": description[$lang],
               descriptionRef->{
                 _id,
                 stageName,
-                description
+                "description": description[$lang]
               },
               // Dynamic scoped aktPlusOptions
               "aktPlusOptions": *[_type == "aktPlus" &&
@@ -100,16 +101,16 @@ export default async function handler(
   `;
 
   try {
-    const result = await client.fetch(query, { brand, model, year });
+    const result = await client.fetch(query, {brand, model, year, lang});
 
     if (!Array.isArray(result)) {
-      return res.status(200).json({ result: [] });
+      return res.status(200).json({result: []});
     }
 
     if (resellerId) {
       const overrides = await client.fetch(
         `*[_type == "resellerOverride" && resellerId == $resellerId]`,
-        { resellerId },
+        {resellerId}
       );
 
       const overrideMap = new Map();
@@ -118,8 +119,8 @@ export default async function handler(
         overrideMap.set(key, o);
       }
 
-      result.forEach((engine) => {
-        engine.stages = engine.stages.map((stage) => {
+      result.forEach(engine => {
+        engine.stages = engine.stages.map(stage => {
           const key = `${brand}|${model}|${year}|${engine.label}|${stage.name}`;
           const override = overrideMap.get(key);
           return override
@@ -134,9 +135,9 @@ export default async function handler(
       });
     }
 
-    res.status(200).json({ result });
+    res.status(200).json({result});
   } catch (error) {
     console.error("Error fetching engines with overrides:", error);
-    res.status(500).json({ error: "Failed to load engines" });
+    res.status(500).json({error: "Failed to load engines"});
   }
 }
