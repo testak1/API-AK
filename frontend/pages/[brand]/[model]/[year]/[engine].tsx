@@ -704,9 +704,12 @@ export default function EnginePage({
                           stage.name.includes("Steg 3") ||
                           stage.name.includes("Steg 4")) && (
                           <p className="text-xs text-gray-400 mt-2 italic">
-                            Priset omfattar enbart mjukvaran.
+                            {translate(currentLanguage, "stageSoftwareOnly")}
                             <br />
-                            Kontakta oss för offert inkl hårdvara!
+                            {translate(
+                              currentLanguage,
+                              "stageContactForHardware"
+                            )}
                           </p>
                         )}
                         <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-700 hover:bg-gray-600 hover:scale-110 transform transition-all duration-300">
@@ -736,7 +739,7 @@ export default function EnginePage({
                           {stage.tcuFields?.launchControl && (
                             <div className="border border-blue-400 rounded-lg p-3 text-white">
                               <p className="text-sm font-bold text-blue-300 mb-1">
-                                LAUNCH CONTROL
+                                {translate(currentLanguage, "launchControl")}
                               </p>
                               <p>
                                 Original:{" "}
@@ -756,7 +759,7 @@ export default function EnginePage({
                           {stage.tcuFields?.rpmLimit && (
                             <div className="border border-blue-400 rounded-lg p-3 text-white">
                               <p className="text-sm font-bold text-blue-300 mb-1">
-                                VARVSTOPP
+                                {translate(currentLanguage, "rpmLimit")}
                               </p>
                               <p>
                                 Original:{" "}
@@ -774,7 +777,7 @@ export default function EnginePage({
                           {stage.tcuFields?.shiftTime && (
                             <div className="border border-blue-400 rounded-lg p-3 text-white">
                               <p className="text-sm font-bold text-blue-300 mb-1">
-                                VÄXLINGSTID
+                                {translate(currentLanguage, "shiftTime")}
                               </p>
                               <p>
                                 Original:{" "}
@@ -795,7 +798,7 @@ export default function EnginePage({
                           {/* ORIGINAL & TUNED SPECS - PERFORMANCE */}
                           <div className="border border-white rounded-lg p-3 text-center">
                             <p className="text-sm text-white font-bold mb-1">
-                              ORIGINAL HK
+                              {translate(currentLanguage, "originalHp")}
                             </p>
                             <p className="text-xl text-white font-bold">
                               {stage.origHk} hk
@@ -814,7 +817,7 @@ export default function EnginePage({
                           </div>
                           <div className="border border-white rounded-lg p-3 text-center">
                             <p className="text-sm text-white font-bold mb-1">
-                              ORIGINAL NM
+                              {translate(currentLanguage, "originalNm")}
                             </p>
                             <p className="text-xl text-white font-bold">
                               {stage.origNm} Nm
@@ -841,7 +844,8 @@ export default function EnginePage({
                           }
                           className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg shadow"
                         >
-                          📄 {stage.name.toUpperCase()} INFORMATION{" "}
+                          📄 {stage.name.toUpperCase()}{" "}
+                          {translate(currentLanguage, "infoStage")}
                         </button>
                         {/* Hidden SEO content for stage info */}
                         <div className="sr-only" aria-hidden="false">
@@ -856,7 +860,7 @@ export default function EnginePage({
                           }
                           className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg shadow"
                         >
-                          💡 GENERELL INFORMATION
+                          💡 {translate(currentLanguage, "infoGeneral")}
                         </button>
                       </div>
                       {/* Hidden SEO content for general info */}
@@ -1093,7 +1097,10 @@ export default function EnginePage({
                                     position: "left",
                                     title: {
                                       display: true,
-                                      text: "EFFEKT",
+                                      text: translate(
+                                        currentLanguage,
+                                        "powerLabel"
+                                      ),
                                       color: "white",
                                       font: {size: 14},
                                     },
@@ -1116,7 +1123,10 @@ export default function EnginePage({
                                     position: "right",
                                     title: {
                                       display: true,
-                                      text: "VRIDMOMENT",
+                                      text: translate(
+                                        currentLanguage,
+                                        "torqueLabel"
+                                      ),
                                       color: "white",
                                       font: {size: 14},
                                     },
@@ -1157,7 +1167,7 @@ export default function EnginePage({
                             />
 
                             <div className="text-center text-white text-xs mt-4 italic">
-                              (Simulerad effektkurva)
+                              {translate(currentLanguage, "tuningCurveNote")}
                             </div>
                           </div>
                         )}
@@ -1168,10 +1178,13 @@ export default function EnginePage({
                             {/* Performance Summary */}
                             <div className="text-center mb-6">
                               <p className="text-lg font-semibold text-white">
-                                Motoroptimering{" "}
+                                {translate(currentLanguage, "tuningIntro")}{" "}
                                 <span className={getStageColor(stage.name)}>
                                   {stage.name
-                                    .replace("Steg", "STEG")
+                                    .replace(
+                                      "Steg",
+                                      translate(currentLanguage, "stageLabel")
+                                    )
                                     .toUpperCase()}
                                 </span>
                               </p>
@@ -1201,7 +1214,7 @@ export default function EnginePage({
                                     d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                                   />
                                 </svg>
-                                KONTAKTA OSS
+                                {translate(currentLanguage, "contactvalue")}
                               </button>
 
                               {/* Social Media Links - Now centered underneath */}
@@ -1258,7 +1271,7 @@ export default function EnginePage({
                                 className="h-8 w-auto object-contain"
                               />
                               <h3 className="text-md font-semibold text-white">
-                                TILLÄGG
+                                {translate(currentLanguage, "additionsLabel")}
                               </h3>
                             </div>
 
@@ -1352,7 +1365,11 @@ export default function EnginePage({
                                           }
                                           className="bg-green-600 hover:bg-green-700 hover:scale-105 transform transition-all text-white px-6 py-3 rounded-lg font-medium shadow-lg"
                                         >
-                                          📩 KONTAKT
+                                          📩{" "}
+                                          {translate(
+                                            currentLanguage,
+                                            "contactvalue"
+                                          )}
                                         </button>
                                       </div>
                                     </div>
@@ -1449,6 +1466,7 @@ export default function EnginePage({
               </div>
             )
           }
+          currentLanguage={currentLanguage}
         />
       </div>
     </>
@@ -1460,6 +1478,7 @@ const InfoModal = ({
   onClose,
   title,
   content,
+  currentLanguage,
   id,
 }: {
   isOpen: boolean;
@@ -1467,6 +1486,7 @@ const InfoModal = ({
   title: string;
   content: React.ReactNode;
   id: string;
+  currentLanguage: string;
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -1522,7 +1542,7 @@ const InfoModal = ({
             onClick={onClose}
             className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-orange-500"
           >
-            ❌ STÄNG
+            ❌ {translate(currentLanguage, "closeButton")}
           </button>
         </div>
       </div>
