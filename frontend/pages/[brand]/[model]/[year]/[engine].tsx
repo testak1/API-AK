@@ -362,18 +362,18 @@ export default function EnginePage({
   }, [engineData, getAllAktPlusOptions]);
 
   useEffect(() => {
-    const fetchAktPlus = async () => {
+    const fetchAktPlusOptions = async () => {
       try {
-        const res = await fetch("/api/aktplus-options");
-        const data = await res.json();
-        setAllAktOptions(data.options || []);
+        const res = await fetch(`/api/aktplus-options?lang=${currentLanguage}`);
+        const json = await res.json();
+        setAllAktOptions(json.options || []);
       } catch (err) {
-        console.error("AKT+ load fail", err);
+        console.error("Kunde inte hämta AKT+ alternativ", err);
       }
     };
 
-    fetchAktPlus();
-  }, []);
+    fetchAktPlusOptions();
+  }, [currentLanguage]);
 
   useEffect(() => {
     if (stage) {

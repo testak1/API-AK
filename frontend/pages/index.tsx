@@ -551,7 +551,7 @@ export default function TuningViewer() {
   useEffect(() => {
     const fetchAktPlusOptions = async () => {
       try {
-        const res = await fetch("/api/aktplus-options");
+        const res = await fetch(`/api/aktplus-options?lang=${currentLanguage}`);
         const json = await res.json();
         setAllAktPlusOptions(json.options || []);
       } catch (err) {
@@ -560,7 +560,7 @@ export default function TuningViewer() {
     };
 
     fetchAktPlusOptions();
-  }, []);
+  }, [currentLanguage]);
 
   const [expandedAktPlus, setExpandedAktPlus] = useState<
     Record<string, boolean>
