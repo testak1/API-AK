@@ -361,16 +361,12 @@ export default function EnginePage({
     return Array.from(optionMap.values());
   }, [engineData, getAllAktPlusOptions]);
 
-  const [allAktPlusOptions, setAllAktPlusOptions] = useState<AktPlusOption[]>(
-    []
-  );
-
   useEffect(() => {
     const fetchAktPlusOptions = async () => {
       try {
         const res = await fetch(`/api/aktplus-options?lang=${currentLanguage}`);
         const json = await res.json();
-        setAllAktPlusOptions(json.options || []);
+        setAllAktOptions(json.options || []);
       } catch (err) {
         console.error("Kunde inte hämta AKT+ alternativ", err);
       }
