@@ -521,7 +521,7 @@ export default function EnginePage({
 
         <link
           rel="canonical"
-          href={`https://tuning.aktuning.se${router.asPath.split("?")[0]}`}
+          href={`https://tuning.aktuning.se${router.asPath}`}
         />
 
         {/* Open Graph */}
