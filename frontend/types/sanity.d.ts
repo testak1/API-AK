@@ -80,12 +80,16 @@ export interface StageDescription {
 export interface AktPlusOption {
   _id: string;
   _type: "aktPlus";
-  title: string;
+  title: {
+    [lang: string]: string;
+  };
   slug?: Slug;
   isUniversal: boolean;
   applicableFuelTypes?: string[];
   stageCompatibility?: string;
-  description?: PortableTextBlock[];
+  description: {
+    [lang: string]: PortableTextBlock[];
+  };
   gallery?: SanityImage[];
   price: number;
   installationTime?: number;

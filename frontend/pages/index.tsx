@@ -1029,7 +1029,7 @@ export default function TuningViewer() {
                               currentLanguage,
                               "translateStageName",
                               stage.name
-                            ).toUpperCase()}
+                            ).toUpperCase()}{" "}
                             {translate(currentLanguage, "tuningCurveNote")}
                           </h3>
                         )}
@@ -1413,33 +1413,36 @@ export default function TuningViewer() {
 
                           {/* Expandable AKT+ Grid */}
                           {expandedAktPlus[stage.name] && (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                              {allOptions.map(option => (
-                                <div
-                                  key={option._id}
-                                  className="border border-gray-600 rounded-lg overflow-hidden bg-gray-700 transition-all duration-300"
-                                >
-                                  <button
-                                    onClick={() => toggleOption(option._id)}
-                                    className="w-full flex justify-between items-center p-4 hover:bg-gray-600 transition-colors"
-                                  >
-                                    <div className="flex items-center gap-3">
-                                      {option.gallery?.[0]?.asset && (
-                                        <img
-                                          src={urlFor(option.gallery[0].asset)
-                                            .width(80)
-                                            .url()}
-                                          alt={
-                                            option.gallery[0].alt ||
-                                            option.title
-                                          }
-                                          className="h-10 w-10 object-contain"
-                                        />
-                                      )}
-                                      <span className="text-lg font-bold text-orange-600">
-                                        {option.title}
-                                      </span>
-                                    </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+        {allOptions.map(option => {
+          const translatedTitle =
+            option.title?.[currentLanguage] || option.title?.sv || "";
+          const translatedDescription =
+            option.description?.[currentLanguage] || option.description?.sv;
+
+          return (
+            <div
+              key={option._id}
+              className="border border-gray-600 rounded-lg overflow-hidden bg-gray-700 transition-all duration-300"
+            >
+              <button
+                onClick={() => toggleOption(option._id)}
+                className="w-full flex justify-between items-center p-4 hover:bg-gray-600 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  {option.gallery?.[0]?.asset && (
+                    <img
+                      src={urlFor(option.gallery[0].asset).width(80).url()}
+                      alt={
+                        option.gallery[0].alt || translatedTitle || "AKT+"
+                      }
+                      className="h-10 w-10 object-contain"
+                    />
+                  )}
+                  <span className="text-lg font-bold text-orange-600">
+                    {translatedTitle}
+                  </span>
+                </div>
 
                                     <svg
                                       className={`h-5 w-5 text-orange-600 transition-transform ${
@@ -1460,17 +1463,19 @@ export default function TuningViewer() {
 
                                   {expandedOptions[option._id] && (
                                     <div className="bg-gray-800 border-t border-gray-600 p-4 space-y-4">
-                                      {option.description && (
+                                      {option.description?.[
+                                        currentLanguage || "sv"
+                                      ] && (
                                         <div className="prose prose-invert max-w-none text-sm">
                                           <PortableText
-                                            value={option.description}
+                                            value={translatedDescription}
                                             components={portableTextComponents}
                                           />
                                         </div>
                                       )}
 
-                                      {option.title
-                                        .toLowerCase()
+                                      {option.title?.[currentLanguage || "sv"]
+                                        ?.toLowerCase()
                                         .includes("dtc off") && (
                                         <div className="mt-4">
                                           <DtcSearch />
@@ -1484,7 +1489,8 @@ export default function TuningViewer() {
                                               currentLanguage,
                                               "priceLabel"
                                             )}
-                                            {option.price.toLocaleString()} kr
+                                            : : {option.price.toLocaleString()}{" "}
+                                            kr
                                           </p>
                                         )}
 
@@ -1498,17 +1504,17 @@ export default function TuningViewer() {
                                           {translate(
                                             currentLanguage,
                                             "contactvalue"
-                                          )}
-                                        </button>
+                                            </button>
+                                            </div>
+                                          </div>
+                                        )}
                                       </div>
-                                    </div>
-                                  )}
+                                    );
+                                  })}
                                 </div>
-                              ))}
+                              )}
                             </div>
                           )}
-                        </div>
-                      )}
                     </div>
                   )}
                 </div>
@@ -1566,26 +1572,25 @@ export default function TuningViewer() {
             ) : (
               <div id="general-info-content">
                 <ul className="space-y-2">
-                  <li>✅ All mjukvara är skräddarsydd för din bil</li>
-                  <li>✅ Felsökning inann samt efter optimering</li>
-                  <li>✅ Loggning för att anpassa en individuell mjukvara</li>
-                  <li>✅ Optimerad för både prestanda och bränsleekonomi</li>
+                  <li>✅ {translate(currentLanguage, "customSoftware")}</li>
+                  <li>✅ {translate(currentLanguage, "prePostDiagnostics")}</li>
+                  <li>
+                    ✅ {translate(currentLanguage, "loggingForCustomization")}
+                  </li>
+                  <li>
+                    ✅ {translate(currentLanguage, "performanceAndEconomy")}
+                  </li>
                 </ul>
 
                 <div className="mt-6 text-sm text-gray-400 leading-relaxed">
                   <p>
-                    AK-TUNING är specialister på skräddarsydd motoroptimering,
-                    chiptuning och ECU-programmering för alla bilmärken.
+                    <p>{translate(currentLanguage, "aboutUs1")}</p>
                   </p>
                   <p className="mt-2">
-                    Vi erbjuder effektökning, bättre bränsleekonomi och
-                    optimerade köregenskaper. Tjänster i Göteborg, Stockholm,
-                    Malmö, Jönköping, Örebro och Storvik.
+                    {translate(currentLanguage, "aboutUs2")}
                   </p>
                   <p className="mt-2">
-                    All mjukvara utvecklas in-house med fokus på kvalitet,
-                    säkerhet och lång livslängd. Välkommen till en ny nivå av
-                    bilprestanda med AK-TUNING.
+                    {translate(currentLanguage, "aboutUs3")}
                   </p>
                 </div>
               </div>

@@ -59,6 +59,16 @@ export const translations = {
     sendMessage: "Send Message",
     phoneTitle: "📱 PHONE NUMBER",
     noPhoneNumbers: "❌ No contact numbers available",
+    customSoftware: "All mjukvara är skräddarsydd för din bil",
+    prePostDiagnostics: "Felsökning innan samt efter optimering",
+    loggingForCustomization: "Loggning för att anpassa en individuell mjukvara",
+    performanceAndEconomy: "Optimerad för både prestanda och bränsleekonomi",
+    aboutUs1:
+      "AK-TUNING är specialister på skräddarsydd motoroptimering, chiptuning och ECU-programmering för alla bilmärken.",
+    aboutUs2:
+      "Vi erbjuder effektökning, bättre bränsleekonomi och optimerade köregenskaper. Tjänster i Göteborg, Stockholm, Malmö, Jönköping, Örebro och Storvik.",
+    aboutUs3:
+      "All mjukvara utvecklas in-house med fokus på kvalitet, säkerhet och lång livslängd. Välkommen till en ny nivå av bilprestanda med AK-TUNING.",
   },
   en: {
     switchLanguage: "Switch to",
@@ -118,6 +128,16 @@ export const translations = {
     sendMessage: "Send Message",
     phoneTitle: "📱 PHONE NUMBER",
     noPhoneNumbers: "❌ No contact numbers available",
+    customSoftware: "All software is customized for your vehicle",
+    prePostDiagnostics: "Diagnostics before and after optimization",
+    loggingForCustomization: "Logging to tailor individual software",
+    performanceAndEconomy: "Optimized for both performance and fuel economy",
+    aboutUs1:
+      "AK-TUNING specializes in custom engine optimization, chiptuning and ECU programming for all car brands.",
+    aboutUs2:
+      "We offer power increases, better fuel economy and optimized driving characteristics. Services in Gothenburg, Stockholm, Malmö, Jönköping, Örebro and Storvik.",
+    aboutUs3:
+      "All software is developed in-house with focus on quality, safety and long lifespan. Welcome to a new level of car performance with AK-TUNING.",
   },
   th: {
     switchLanguage: "เปลี่ยนเป็น",
@@ -964,6 +984,18 @@ export const translations = {
     sendMessage: "Envoyer le message",
     phoneTitle: "📱 NUMÉRO DE TÉLÉPHONE",
     noPhoneNumbers: "❌ Aucun numéro disponible",
+    ustomSoftware: "Tous les logiciels sont personnalisés pour votre véhicule",
+    prePostDiagnostics: "Diagnostic avant et après optimisation",
+    loggingForCustomization:
+      "Journalisation pour personnaliser le logiciel individuel",
+    performanceAndEconomy:
+      "Optimisé pour les performances et l'économie de carburant",
+    aboutUs1:
+      "AK-TUNING est spécialisé dans l'optimisation moteur sur mesure, le chiptuning et la programmation ECU pour toutes les marques automobiles.",
+    aboutUs2:
+      "Nous proposons des augmentations de puissance, une meilleure économie de carburant et des caractéristiques de conduite optimisées. Services à Göteborg, Stockholm, Malmö, Jönköping, Örebro et Storvik.",
+    aboutUs3:
+      "Tous les logiciels sont développés en interne avec un accent sur la qualité, la sécurité et la longévité. Bienvenue à un nouveau niveau de performance automobile avec AK-TUNING.",
   },
 
   fi: {
@@ -1027,6 +1059,18 @@ export const translations = {
     sendMessage: "Lähetä viesti",
     phoneTitle: "📱 PUHELINNUMERO",
     noPhoneNumbers: "❌ Ei puhelinnumeroita saatavilla",
+    customSoftware: "Tutto il software è personalizzato per il tuo veicolo",
+    prePostDiagnostics: "Diagnostica prima e dopo l'ottimizzazione",
+    loggingForCustomization:
+      "Registrazione per personalizzare il software individuale",
+    performanceAndEconomy:
+      "Ottimizzato per prestazioni ed economia di carburante",
+    aboutUs1:
+      "AK-TUNING è specializzata in ottimizzazione motore personalizzata, chiptuning e programmazione ECU per tutti i marchi automobilistici.",
+    aboutUs2:
+      "Offriamo aumenti di potenza, migliore economia di carburante e caratteristiche di guida ottimizzate. Servizi a Göteborg, Stoccolma, Malmö, Jönköping, Örebro e Storvik.",
+    aboutUs3:
+      "Tutto il software è sviluppato internamente con attenzione alla qualità, sicurezza e longevità. Benvenuti a un nuovo livello di prestazioni automobilistiche con AK-TUNING.",
   },
   de: {
     switchLanguage: "Wechseln zu",
@@ -1087,6 +1131,17 @@ export const translations = {
     sendMessage: "Nachricht senden",
     phoneTitle: "📱 TELEFONNUMMER",
     noPhoneNumbers: "❌ Keine Telefonnummern verfügbar",
+    customSoftware: "Alle Software ist auf Ihr Fahrzeug zugeschnitten",
+    prePostDiagnostics: "Diagnose vor und nach der Optimierung",
+    loggingForCustomization:
+      "Protokollierung zur Anpassung individueller Software",
+    performanceAndEconomy: "Optimiert für Leistung und Kraftstoffeffizienz",
+    aboutUs1:
+      "AK-TUNING ist spezialisiert auf individuelle Motoroptimierung, Chiptuning und ECU-Programmierung für alle Automarken.",
+    aboutUs2:
+      "Wir bieten Leistungssteigerung, besseren Kraftstoffverbrauch und optimierte Fahreigenschaften. Dienstleistungen in Göteborg, Stockholm, Malmö, Jönköping, Örebro und Storvik.",
+    aboutUs3:
+      "Alle Software wird intern entwickelt mit Fokus auf Qualität, Sicherheit und lange Lebensdauer. Willkommen zu einem neuen Level der Fahrzeugleistung mit AK-TUNING.",
   },
   nl: {
     switchLanguage: "Schakel over naar",
@@ -1266,6 +1321,17 @@ export const translations = {
     sendMessage: "Send besked",
     phoneTitle: "📱 TELEFONNUMMER",
     noPhoneNumbers: "❌ Ingen tilgængelige numre",
+    customSoftware: "Alt software er skræddersyet til din bil",
+    prePostDiagnostics: "Fejlfinding før og efter optimering",
+    loggingForCustomization: "Logning for at tilpasse individuel software",
+    performanceAndEconomy:
+      "Optimaliseret til både præstationer og brændstoføkonomi",
+    aboutUs1:
+      "AK-TUNING specialiserer sig i skræddersyet motoroptimering, chiptuning og ECU-programmering til alle bilmærker.",
+    aboutUs2:
+      "Vi tilbyder effektforøgelse, bedre brændstoføkonomi og optimerede køreegenskaber. Tjenester i Göteborg, Stockholm, Malmö, Jönköping, Örebro og Storvik.",
+    aboutUs3:
+      "Alt software udvikles in-house med fokus på kvalitet, sikkerhed og lang levetid. Velkommen til et nyt niveau af bilpræstationer med AK-TUNING.",
   },
   no: {
     switchLanguage: "Bytt til",
@@ -1325,6 +1391,16 @@ export const translations = {
     sendMessage: "Send melding",
     phoneTitle: "📱 TELEFONNUMMER",
     noPhoneNumbers: "❌ Ingen tilgjengelige numre",
+    customSoftware: "All programvare er tilpasset din bil",
+    prePostDiagnostics: "Feilsøking før og etter optimalisering",
+    loggingForCustomization: "Logging for å tilpasse individuell programvare",
+    performanceAndEconomy: "Optimalisert for både ytelse og drivstofføkonomi",
+    aboutUs1:
+      "AK-TUNING spesialiserer seg på tilpasset motoroptimalisering, chiptuning og ECU-programmering for alle bilmerker.",
+    aboutUs2:
+      "Vi tilbyr effektøkning, bedre drivstofføkonomi og optimerte kjøreegenskaper. Tjenester i Göteborg, Stockholm, Malmö, Jönköping, Örebro og Storvik.",
+    aboutUs3:
+      "All programvare utvikles in-house med fokus på kvalitet, sikkerhet og lang levetid. Velkommen til et nytt nivå av bilytelse med AK-TUNING.",
   },
 };
 
