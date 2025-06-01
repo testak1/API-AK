@@ -544,6 +544,24 @@ export default function TuningViewer() {
     },
   };
 
+  const [allAktPlusOptions, setAllAktPlusOptions] = useState<AktPlusOption[]>(
+    []
+  );
+
+  useEffect(() => {
+    const fetchAktPlusOptions = async () => {
+      try {
+        const res = await fetch("/api/aktplus-options");
+        const json = await res.json();
+        setAllAktPlusOptions(json.options || []);
+      } catch (err) {
+        console.error("Kunde inte hämta AKT+ alternativ", err);
+      }
+    };
+
+    fetchAktPlusOptions();
+  }, []);
+
   const [expandedAktPlus, setExpandedAktPlus] = useState<
     Record<string, boolean>
   >({});

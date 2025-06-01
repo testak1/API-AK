@@ -72,6 +72,7 @@ export const getServerSideProps: GetServerSideProps<
   try {
     const brandData = await client.fetch(engineByParamsQuery, {
       brand: brand.toLowerCase(),
+      lang: context.locale || "sv",
     });
 
     if (!brandData) return {notFound: true};
