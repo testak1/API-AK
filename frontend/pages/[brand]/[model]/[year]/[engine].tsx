@@ -879,7 +879,10 @@ export default function EnginePage({
                         <div className="sr-only" aria-hidden="false">
                           <h2>{stage.name.toUpperCase()} INFORMATION</h2>
                           {stage.description && (
-                            <PortableText value={stage.description} />
+                            <PortableText
+                              value={stage.description}
+                              components={portableTextComponents}
+                            />
                           )}
                         </div>
                         <button
