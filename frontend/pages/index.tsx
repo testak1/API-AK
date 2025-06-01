@@ -976,17 +976,12 @@ export default function TuningViewer() {
                         {/* Hidden SEO content for stage info */}
                         <div className="sr-only" aria-hidden="false">
                           <h2>{stage.name.toUpperCase()} INFORMATION</h2>
-                          {stage.description &&
-                            typeof stage.description === "object" && (
-                              <PortableText
-                                value={
-                                  stage.description[currentLanguage] ??
-                                  stage.description["sv"] ?? // fallback till svenska
-                                  []
-                                }
-                                components={portableTextComponents}
-                              />
-                            )}
+                          {stage.description?.[currentLanguage] && (
+                            <PortableText
+                              value={stage.description[currentLanguage]}
+                              components={portableTextComponents}
+                            />
+                          )}
                         </div>
 
                         <button

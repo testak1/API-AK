@@ -879,9 +879,9 @@ export default function EnginePage({
                         {/* Hidden SEO content for stage info */}
                         <div className="sr-only" aria-hidden="false">
                           <h2>{stage.name.toUpperCase()} INFORMATION</h2>
-                          {stage.description && (
+                          {stage.description?.[currentLanguage] && (
                             <PortableText
-                              value={stage.description}
+                              value={stage.description[currentLanguage]}
                               components={portableTextComponents}
                             />
                           )}
