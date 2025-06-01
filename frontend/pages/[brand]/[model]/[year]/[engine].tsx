@@ -615,7 +615,6 @@ export default function EnginePage({
           }}
         />
 
-        {/* ✅ Structured Data: AKT+ options — merged across all stages */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -628,7 +627,10 @@ export default function EnginePage({
                 position: index + 1,
                 item: {
                   "@type": "Product",
-                  name: opt.title,
+                  name:
+                    typeof opt.title === "string"
+                      ? opt.title
+                      : opt.title[currentLanguage] || opt.title["sv"] || "",
                   ...(opt.description && {
                     description: extractPlainTextFromDescription(
                       opt.description
