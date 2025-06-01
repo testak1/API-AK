@@ -2,13 +2,13 @@ import React from "react";
 import {t} from "@/lib/translations";
 
 const langNames: Record<string, string> = {
-  sv: "Svenska",
-  en: "English",
-  no: "Norsk",
-  da: "Dansk",
-  de: "Deutsch",
-  fr: "Français",
-  it: "Italiano",
+  sv: "SVENSKA",
+  en: "ENGLISH",
+  no: "NORSK",
+  da: "DANSK",
+  de: "DEUTSCH",
+  fr: "FRANÇAIS",
+  it: "ITALIANO",
 };
 
 const langFlags: Record<string, string> = {
@@ -39,8 +39,7 @@ export default function PublicLanguageDropdown({
       >
         {Object.keys(langNames).map(lang => (
           <option key={lang} value={lang}>
-            {langFlags[lang] || "🌐"} {t(currentLanguage, "switchLanguage")}{" "}
-            {langNames[lang]}
+            {langFlags[lang] || "🌐"} {langNames[lang]}
           </option>
         ))}
       </select>
