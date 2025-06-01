@@ -876,7 +876,12 @@ export default function EnginePage({
                           }
                           className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg shadow"
                         >
-                          📄 {stage.name.toUpperCase()}{" "}
+                          📄{" "}
+                          {translate(
+                            currentLanguage,
+                            "translateStageName",
+                            stage.name
+                          ).toUpperCase()}{" "}
                           {translate(currentLanguage, "infoStage")}
                         </button>
                         {/* Hidden SEO content for stage info */}

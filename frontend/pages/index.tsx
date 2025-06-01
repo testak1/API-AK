@@ -971,7 +971,7 @@ export default function TuningViewer() {
                             "translateStageName",
                             stage.name
                           ).toUpperCase()}{" "}
-                          INFO
+                          {translate(currentLanguage, "infoStage")}
                         </button>
                         {/* Hidden SEO content for stage info */}
                         <div className="sr-only" aria-hidden="false">
