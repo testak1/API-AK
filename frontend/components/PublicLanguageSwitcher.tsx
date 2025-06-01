@@ -1,55 +1,49 @@
 import React from "react";
-import {t as translate} from "@/lib/translations";
+import {t} from "@/lib/translations";
 
 const langNames: Record<string, string> = {
   sv: "Svenska",
   en: "English",
+  no: "Norsk",
+  da: "Dansk",
   de: "Deutsch",
   fr: "Français",
-  da: "Dansk",
   it: "Italiano",
-  no: "Norsk",
 };
 
 const langFlags: Record<string, string> = {
   sv: "🇸🇪",
   en: "🇬🇧",
+  no: "🇳🇴",
+  da: "🇩🇰",
   de: "🇩🇪",
   fr: "🇫🇷",
-  da: "🇩🇰",
   it: "🇮🇹",
-  no: "🇳🇴",
 };
-
-const availableLanguages = ["sv", "en", "fr", "da", "no", "de", "it"];
 
 type Props = {
   currentLanguage: string;
   setCurrentLanguage: (lang: string) => void;
 };
 
-export default function PublicLanguageSwitcher({
+export default function PublicLanguageDropdown({
   currentLanguage,
   setCurrentLanguage,
 }: Props) {
-  const nextLangs = availableLanguages.filter(l => l !== currentLanguage);
-
   return (
-    <div className="flex gap-2">
-      {nextLangs.map(nextLang => (
-        <button
-          key={nextLang}
-          onClick={() => setCurrentLanguage(nextLang)}
-          className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-white rounded-md shadow-sm hover:bg-gray-700 transition"
-          title={`Byt språk till ${langNames[nextLang] || nextLang.toUpperCase()}`}
-        >
-          <span className="text-xl">{langFlags[nextLang] || "🌐"}</span>
-          <span className="font-medium">
-            {translate(currentLanguage, "switchLanguage")}{" "}
-            {langNames[nextLang] || nextLang.toUpperCase()}
-          </span>
-        </button>
-      ))}
+    <div className="relative">
+      <select
+        value={currentLanguage}
+        onChange={e => setCurrentLanguage(e.target.value)}
+        className="appearance-none bg-gray-800 text-white border border-gray-600 rounded-md px-4 py-2 pr-8 shadow-sm text-sm focus:outline-none hover:bg-gray-700 transition"
+      >
+        {Object.keys(langNames).map(lang => (
+          <option key={lang} value={lang}>
+            {langFlags[lang] || "🌐"} {t(currentLanguage, "switchLanguage")}{" "}
+            {langNames[lang]}
+          </option>
+        ))}
+      </select>
     </div>
   );
 }
