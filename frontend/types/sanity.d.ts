@@ -1,6 +1,6 @@
 // types/sanity.d.ts
-import type { PortableTextBlock } from "@portabletext/types";
-import { Image } from "@sanity/types";
+import type {PortableTextBlock} from "@portabletext/types";
+import {Image} from "@sanity/types";
 
 export interface SanityImage {
   _key?: string;
@@ -114,6 +114,8 @@ export interface ResellerConfig {
   email: string;
   logo?: any;
   currency: string;
+  enableLanguageSwitcher?: boolean;
+  secondaryLanguage?: string | null;
   aktPlusLogo: {
     _type: "image";
     asset: {
@@ -126,7 +128,6 @@ export interface ResellerConfig {
     planType: string;
     price: number;
   };
-
   language: string;
   exchangeRates: Record<string, number>;
   displaySettings: {
@@ -212,7 +213,7 @@ declare module "@sanity/image-url" {
     width(pixels: number): this;
     height(pixels: number): this;
     fit(
-      mode: "clip" | "crop" | "fill" | "fillmax" | "max" | "scale" | "min",
+      mode: "clip" | "crop" | "fill" | "fillmax" | "max" | "scale" | "min"
     ): this;
     quality(percentage: number): this;
     format(type: "jpg" | "png" | "webp" | "avif"): this;
@@ -223,7 +224,7 @@ declare module "@sanity/image-url" {
 declare module "@/lib/sanity" {
   export const client: import("@sanity/client").SanityClient;
   export function urlFor(
-    source: import("sanity").SanityImageSource,
+    source: import("sanity").SanityImageSource
   ): import("@sanity/image-url").ImageUrlBuilder;
   export function getAllBrandsWithDetails(): Promise<Brand[]>;
 }

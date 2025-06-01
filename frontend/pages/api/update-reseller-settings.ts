@@ -1,6 +1,6 @@
 // pages/api/update-reseller-settings.ts
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "./auth/[...nextauth]";
+import {getServerSession} from "next-auth/next";
+import {authOptions} from "./auth/[...nextauth]";
 import sanity from "@/lib/sanity";
 
 export default async function handler(req, res) {
@@ -9,18 +9,24 @@ export default async function handler(req, res) {
   const session = await getServerSession(req, res, authOptions);
   const resellerId = session?.user?.resellerId;
 
-  if (!resellerId) return res.status(401).json({ error: "Unauthorized" });
+  if (!resellerId) return res.status(401).json({error: "Unauthorized"});
 
-  const { currency, language, subscription } = req.body;
+  const {
+    currency,
+    language,
+    subscription,
+    enableLanguageSwitcher,
+    secondaryLanguage,
+  } = req.body;
 
   try {
     const userDoc = await sanity.fetch(
       `*[_type == "resellerUser" && resellerId == $resellerId][0]._id`,
-      { resellerId },
+      {resellerId}
     );
 
     if (!userDoc) {
-      return res.status(404).json({ error: "Reseller user not found" });
+      return res.status(404).json({error: "Reseller user not found"});
     }
 
     await sanity
@@ -28,6 +34,8 @@ export default async function handler(req, res) {
       .set({
         currency,
         language,
+        secondaryLanguage,
+        enableLanguageSwitcher,
         ...(subscription && {
           subscription: {
             planType: subscription.planType,
@@ -38,9 +46,9 @@ export default async function handler(req, res) {
       })
       .commit();
 
-    res.status(200).json({ success: true });
+    res.status(200).json({success: true});
   } catch (err) {
     console.error("Update failed:", err);
-    res.status(500).json({ error: "Failed to update settings" });
+    res.status(500).json({error: "Failed to update settings"});
   }
 }

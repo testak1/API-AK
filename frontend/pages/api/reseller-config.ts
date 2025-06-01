@@ -1,5 +1,5 @@
 import sanity from "@/lib/sanity";
-import { ResellerConfig } from "@/types/sanity";
+import {ResellerConfig} from "@/types/sanity";
 
 const defaultDisplaySettings = {
   showAktPlus: true,
@@ -10,7 +10,9 @@ const defaultDisplaySettings = {
 
 async function fetchExchangeRates(base: string = "SEK") {
   try {
-    const response = await fetch(`https://api.frankfurter.app/latest?from=${base}`);
+    const response = await fetch(
+      `https://api.frankfurter.app/latest?from=${base}`
+    );
     if (!response.ok) {
       throw new Error(`Exchange rate API error: ${response.status}`);
     }
@@ -22,9 +24,31 @@ async function fetchExchangeRates(base: string = "SEK") {
     }
 
     const supportedCurrencies = [
-      "SEK", "EUR", "USD", "GBP", "THB", "JPY", "CNY", "RUB", "TRY", "PLN", "CZK",
-      "HUF", "AED", "KRW", "NOK", "DKK", "CHF", "AUD", "CAD", "INR", "SGD", "NZD",
-      "ZAR", "BRL", "MXN"
+      "SEK",
+      "EUR",
+      "USD",
+      "GBP",
+      "THB",
+      "JPY",
+      "CNY",
+      "RUB",
+      "TRY",
+      "PLN",
+      "CZK",
+      "HUF",
+      "AED",
+      "KRW",
+      "NOK",
+      "DKK",
+      "CHF",
+      "AUD",
+      "CAD",
+      "INR",
+      "SGD",
+      "NZD",
+      "ZAR",
+      "BRL",
+      "MXN",
     ];
 
     const filteredRates: Record<string, number> = {};
@@ -49,8 +73,8 @@ async function fetchExchangeRates(base: string = "SEK") {
 }
 
 export default async function handler(req, res) {
-  const { resellerId } = req.query;
-  if (!resellerId) return res.status(400).json({ error: "Missing resellerId" });
+  const {resellerId} = req.query;
+  if (!resellerId) return res.status(400).json({error: "Missing resellerId"});
 
   try {
     const result = await sanity.fetch<Partial<ResellerConfig>>(
@@ -59,6 +83,8 @@ export default async function handler(req, res) {
         logo,
         currency,
         language,
+        enableLanguageSwitcher,
+        secondaryLanguage,
         displaySettings {
           showAktPlus,
           showBrandLogo,
@@ -69,7 +95,7 @@ export default async function handler(req, res) {
         contactInfo,
         aktPlusLogo
       }`,
-      { resellerId }
+      {resellerId}
     );
 
     const exchangeRates = await fetchExchangeRates("SEK");
@@ -83,11 +109,13 @@ export default async function handler(req, res) {
       exchangeRates,
       subscription: result?.subscription ?? null,
       aktPlusLogo: result?.aktPlusLogo ?? null,
+      enableLanguageSwitcher: result?.enableLanguageSwitcher ?? false,
+      secondaryLanguage: result?.secondaryLanguage ?? null,
     };
 
     res.status(200).json(response);
   } catch (error) {
     console.error("Error fetching reseller config:", error);
-    res.status(500).json({ error: "Failed to fetch reseller config" });
+    res.status(500).json({error: "Failed to fetch reseller config"});
   }
 }

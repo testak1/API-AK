@@ -1,13 +1,13 @@
-import { useEffect, useState } from "react";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "../api/auth/[...nextauth]";
-import { signOut } from "next-auth/react";
+import {useEffect, useState} from "react";
+import {getServerSession} from "next-auth/next";
+import {authOptions} from "../api/auth/[...nextauth]";
+import {signOut} from "next-auth/react";
 
-export default function ResellerAdmin({ session }) {
+export default function ResellerAdmin({session}) {
   const [brands, setBrands] = useState([]);
   const [overrides, setOverrides] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [saveStatus, setSaveStatus] = useState({ message: "", isError: false });
+  const [saveStatus, setSaveStatus] = useState({message: "", isError: false});
 
   const [selectedBrand, setSelectedBrand] = useState("");
   const [selectedModel, setSelectedModel] = useState("");
@@ -18,6 +18,8 @@ export default function ResellerAdmin({ session }) {
   const [currency, setCurrency] = useState("SEK");
   const [language, setLanguage] = useState("sv");
   const [activeTab, setActiveTab] = useState("tuning");
+  const [enableLanguageSwitcher, setEnableLanguageSwitcher] = useState(false);
+  const [secondaryLanguage, setSecondaryLanguage] = useState("");
 
   // New state for General tab
   const [bulkPrices, setBulkPrices] = useState({
@@ -35,7 +37,7 @@ export default function ResellerAdmin({ session }) {
     const fetchDescriptions = async () => {
       try {
         const res = await fetch("/api/stage-descriptions");
-        const { descriptions } = await res.json();
+        const {descriptions} = await res.json();
         setStageDescriptions(descriptions || []);
       } catch (err) {
         console.error("Failed to load stage descriptions", err);
@@ -52,7 +54,7 @@ export default function ResellerAdmin({ session }) {
       try {
         setIsLoading(true);
         const res = await fetch("/api/brands-with-overrides");
-        const { brands, overrides } = await res.json();
+        const {brands, overrides} = await res.json();
         setBrands(brands || []);
         setOverrides(overrides || []);
       } catch (err) {
@@ -71,8 +73,8 @@ export default function ResellerAdmin({ session }) {
   useEffect(() => {
     if (!session?.user?.resellerId) return;
     fetch("/api/general-info")
-      .then((res) => res.json())
-      .then((json) => setGeneralInfo(json.generalInfo || {}));
+      .then(res => res.json())
+      .then(json => setGeneralInfo(json.generalInfo || {}));
   }, [session]);
 
   useEffect(() => {
@@ -86,9 +88,13 @@ export default function ResellerAdmin({ session }) {
         if (json.language) setLanguage(json.language);
         if (json.subscription) setSubscription(json.subscription);
         if (json.logo?.asset?.url) setLogoPreview(json.logo.asset.url);
+        if (json.enableLanguageSwitcher)
+          setEnableLanguageSwitcher(json.enableLanguageSwitcher);
+        if (json.secondaryLanguage)
+          setSecondaryLanguage(json.secondaryLanguage);
       } catch (err) {
         console.error("Failed to load reseller settings", err);
-        setSaveStatus({ message: "Failed to load settings", isError: true });
+        setSaveStatus({message: "Failed to load settings", isError: true});
       }
     };
 
@@ -102,8 +108,14 @@ export default function ResellerAdmin({ session }) {
       setIsLoading(true);
       await fetch("/api/update-reseller-settings", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ currency, language, subscription }),
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+          currency,
+          language,
+          subscription,
+          enableLanguageSwitcher,
+          secondaryLanguage,
+        }),
       });
       setSaveStatus({
         message: "Settings saved successfully!",
@@ -111,10 +123,10 @@ export default function ResellerAdmin({ session }) {
       });
     } catch (err) {
       console.error("Error updating settings", err);
-      setSaveStatus({ message: "Failed to save settings.", isError: true });
+      setSaveStatus({message: "Failed to save settings.", isError: true});
     } finally {
       setIsLoading(false);
-      setTimeout(() => setSaveStatus({ message: "", isError: false }), 3000);
+      setTimeout(() => setSaveStatus({message: "", isError: false}), 3000);
     }
   };
 
@@ -124,8 +136,8 @@ export default function ResellerAdmin({ session }) {
   useEffect(() => {
     if (session?.user?.resellerId) {
       fetch(`/api/reseller-config?resellerId=${session.user.resellerId}`)
-        .then((res) => res.json())
-        .then((json) => {
+        .then(res => res.json())
+        .then(json => {
           if (json.aktPlusLogo?.asset?.url) {
             setAktPlusLogoPreview(json.aktPlusLogo.asset.url);
           }
@@ -143,7 +155,7 @@ export default function ResellerAdmin({ session }) {
 
         const response = await fetch("/api/update-aktplus-logo", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {"Content-Type": "application/json"},
           body: JSON.stringify({
             imageData: base64Data,
             contentType: aktPlusLogoFile.type,
@@ -152,7 +164,7 @@ export default function ResellerAdmin({ session }) {
 
         if (!response.ok) throw new Error("AKTPLUS logo upload failed");
 
-        const { aktPlusLogoUrl } = await response.json();
+        const {aktPlusLogoUrl} = await response.json();
         setAktPlusLogoPreview(aktPlusLogoUrl);
         setSaveStatus({
           message: "AKTPLUS logo updated successfully!",
@@ -169,7 +181,7 @@ export default function ResellerAdmin({ session }) {
         isError: true,
       });
     } finally {
-      setTimeout(() => setSaveStatus({ message: "", isError: false }), 3000);
+      setTimeout(() => setSaveStatus({message: "", isError: false}), 3000);
     }
   };
 
@@ -193,8 +205,8 @@ export default function ResellerAdmin({ session }) {
   useEffect(() => {
     if (session?.user?.resellerId) {
       fetch(`/api/reseller-config?resellerId=${session.user.resellerId}`)
-        .then((res) => res.json())
-        .then((json) => {
+        .then(res => res.json())
+        .then(json => {
           if (json.logo?.asset?.url) {
             setLogoPreview(json.logo.asset.url);
           }
@@ -222,13 +234,13 @@ export default function ResellerAdmin({ session }) {
 
         const response = await fetch("/api/update-logo", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ imageData: base64Data }),
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({imageData: base64Data}),
         });
 
         if (!response.ok) throw new Error("Logo upload failed");
 
-        const { logoUrl } = await response.json();
+        const {logoUrl} = await response.json();
         setLogoPreview(logoUrl);
         setLogoLoading(false);
         setSaveStatus({
@@ -248,7 +260,7 @@ export default function ResellerAdmin({ session }) {
         isError: true,
       });
     } finally {
-      setTimeout(() => setSaveStatus({ message: "", isError: false }), 3000);
+      setTimeout(() => setSaveStatus({message: "", isError: false}), 3000);
     }
   };
 
@@ -262,8 +274,8 @@ export default function ResellerAdmin({ session }) {
       setIsLoading(true);
       const response = await fetch("/api/update-password", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ currentPassword, newPassword }),
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({currentPassword, newPassword}),
       });
 
       if (!response.ok) {
@@ -298,7 +310,7 @@ export default function ResellerAdmin({ session }) {
         message: "Please select brand and model/year",
         isError: true,
       });
-      setTimeout(() => setSaveStatus({ message: "", isError: false }), 3000);
+      setTimeout(() => setSaveStatus({message: "", isError: false}), 3000);
       return;
     }
 
@@ -306,7 +318,7 @@ export default function ResellerAdmin({ session }) {
       setIsLoading(true);
       const response = await fetch("/api/bulk-overrides", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
           brand: selectedBrand,
           model: bulkPrices.applyLevel === "model" ? selectedModel : undefined,
@@ -322,7 +334,7 @@ export default function ResellerAdmin({ session }) {
       if (!response.ok) throw new Error("Failed to save bulk prices");
 
       const refreshed = await fetch("/api/brands-with-overrides");
-      const { brands: refreshedBrands, overrides: refreshedOverrides } =
+      const {brands: refreshedBrands, overrides: refreshedOverrides} =
         await refreshed.json();
       setBrands(refreshedBrands);
       setOverrides(refreshedOverrides);
@@ -333,10 +345,10 @@ export default function ResellerAdmin({ session }) {
       });
     } catch (error) {
       console.error("Failed to save bulk prices:", error);
-      setSaveStatus({ message: "Error saving bulk prices", isError: true });
+      setSaveStatus({message: "Error saving bulk prices", isError: true});
     } finally {
       setIsLoading(false);
-      setTimeout(() => setSaveStatus({ message: "", isError: false }), 3000);
+      setTimeout(() => setSaveStatus({message: "", isError: false}), 3000);
     }
   };
 
@@ -345,8 +357,8 @@ export default function ResellerAdmin({ session }) {
   useEffect(() => {
     if (session?.user?.resellerId) {
       fetch(`/api/reseller-config?resellerId=${session.user.resellerId}`)
-        .then((res) => res.json())
-        .then((json) => {
+        .then(res => res.json())
+        .then(json => {
           if (json.contactInfo) {
             setResellerContactInfo(json.contactInfo);
           }
@@ -358,7 +370,7 @@ export default function ResellerAdmin({ session }) {
     try {
       const response = await fetch("/api/update-reseller-contact", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
           contactInfo: resellerContactInfo,
         }),
@@ -376,13 +388,13 @@ export default function ResellerAdmin({ session }) {
         isError: true,
       });
     } finally {
-      setTimeout(() => setSaveStatus({ message: "", isError: false }), 3000);
+      setTimeout(() => setSaveStatus({message: "", isError: false}), 3000);
     }
   };
 
   const findOverride = (brand, model, year, engine, stageName) =>
     overrides.find(
-      (o) =>
+      o =>
         o.brand === brand &&
         o.model === model &&
         o.year === year &&
@@ -405,7 +417,7 @@ export default function ResellerAdmin({ session }) {
       setIsLoading(true);
       const response = await fetch("/api/overrides", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
           overrideId,
           brand,
@@ -422,10 +434,10 @@ export default function ResellerAdmin({ session }) {
       if (!response.ok) throw new Error("Failed to save");
 
       const updatedOverride = await response.json();
-      setOverrides((prev) => {
-        const existing = prev.find((o) => o._id === updatedOverride._id);
+      setOverrides(prev => {
+        const existing = prev.find(o => o._id === updatedOverride._id);
         if (existing) {
-          return prev.map((o) =>
+          return prev.map(o =>
             o._id === updatedOverride._id ? updatedOverride : o
           );
         }
@@ -438,10 +450,10 @@ export default function ResellerAdmin({ session }) {
       });
     } catch (error) {
       console.error("Failed to save override:", error);
-      setSaveStatus({ message: "Error saving override", isError: true });
+      setSaveStatus({message: "Error saving override", isError: true});
     } finally {
       setIsLoading(false);
-      setTimeout(() => setSaveStatus({ message: "", isError: false }), 3000);
+      setTimeout(() => setSaveStatus({message: "", isError: false}), 3000);
     }
   };
 
@@ -450,7 +462,7 @@ export default function ResellerAdmin({ session }) {
   }, [selectedEngine]);
 
   const handleInputChange = (stageName, field, value) => {
-    setStageInputs((prev) => ({
+    setStageInputs(prev => ({
       ...prev,
       [stageName]: {
         ...prev[stageName],
@@ -479,7 +491,7 @@ export default function ResellerAdmin({ session }) {
   }, [session]);
 
   useEffect(() => {
-    setBulkPrices((prev) => ({
+    setBulkPrices(prev => ({
       ...prev,
       steg1: "",
       steg2: "",
@@ -490,7 +502,7 @@ export default function ResellerAdmin({ session }) {
   }, [selectedBrand, selectedModel, selectedYear, bulkPrices.applyLevel]);
 
   const handleBulkPriceChange = (field, value) => {
-    setBulkPrices((prev) => ({
+    setBulkPrices(prev => ({
       ...prev,
       [field]: value,
     }));
@@ -524,9 +536,8 @@ export default function ResellerAdmin({ session }) {
     MXN: 1.8,
   };
 
-  const toCurrency = (sek) =>
-    Math.round(sek * (conversionRates[currency] || 1));
-  const fromCurrency = (val) =>
+  const toCurrency = sek => Math.round(sek * (conversionRates[currency] || 1));
+  const fromCurrency = val =>
     Math.round(val / (conversionRates[currency] || 1));
 
   const currencySymbols = {
@@ -588,9 +599,9 @@ export default function ResellerAdmin({ session }) {
     return Math.round(price * (rates[currency] || 1));
   };
 
-  const getBulkOverridePrice = (stageName) => {
+  const getBulkOverridePrice = stageName => {
     const match = overrides.find(
-      (o) =>
+      o =>
         o.brand === selectedBrand &&
         (bulkPrices.applyLevel === "model"
           ? o.model === selectedModel
@@ -603,13 +614,13 @@ export default function ResellerAdmin({ session }) {
 
   const selectedStages =
     brands
-      .find((b) => b.name === selectedBrand)
-      ?.models?.find((m) => m.name === selectedModel)
-      ?.years?.find((y) => y.range === selectedYear)
-      ?.engines?.find((e) => e.label === selectedEngine)?.stages || [];
+      .find(b => b.name === selectedBrand)
+      ?.models?.find(m => m.name === selectedModel)
+      ?.years?.find(y => y.range === selectedYear)
+      ?.engines?.find(e => e.label === selectedEngine)?.stages || [];
 
   const descriptionEntry = stageDescriptions.find(
-    (d) => d.stageName === selectedStages[0]?.name
+    d => d.stageName === selectedStages[0]?.name
   );
 
   const [generalInfo, setGeneralInfo] = useState({
@@ -809,7 +820,7 @@ export default function ResellerAdmin({ session }) {
                   </label>
                   <select
                     value={selectedBrand}
-                    onChange={(e) => {
+                    onChange={e => {
                       setSelectedBrand(e.target.value);
                       setSelectedModel("");
                       setSelectedYear("");
@@ -818,7 +829,7 @@ export default function ResellerAdmin({ session }) {
                     disabled={isLoading}
                   >
                     <option value="">Select Brand</option>
-                    {brands.map((b) => (
+                    {brands.map(b => (
                       <option key={b.name} value={b.name}>
                         {b.name}
                       </option>
@@ -864,14 +875,14 @@ export default function ResellerAdmin({ session }) {
                     {bulkPrices.applyLevel === "model" ? (
                       <select
                         value={selectedModel}
-                        onChange={(e) => setSelectedModel(e.target.value)}
+                        onChange={e => setSelectedModel(e.target.value)}
                         className="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm rounded-md border"
                         disabled={!selectedBrand || isLoading}
                       >
                         <option value="">Select Model</option>
                         {brands
-                          .find((b) => b.name === selectedBrand)
-                          ?.models?.map((m) => (
+                          .find(b => b.name === selectedBrand)
+                          ?.models?.map(m => (
                             <option key={m.name} value={m.name}>
                               {m.name}
                             </option>
@@ -880,16 +891,16 @@ export default function ResellerAdmin({ session }) {
                     ) : (
                       <select
                         value={selectedYear}
-                        onChange={(e) => setSelectedYear(e.target.value)}
+                        onChange={e => setSelectedYear(e.target.value)}
                         className="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm rounded-md border"
                         disabled={!selectedModel || isLoading}
                       >
                         <option value="">Select Year</option>
                         {selectedModel &&
                           brands
-                            .find((b) => b.name === selectedBrand)
-                            ?.models?.find((m) => m.name === selectedModel)
-                            ?.years?.map((y) => (
+                            .find(b => b.name === selectedBrand)
+                            ?.models?.find(m => m.name === selectedModel)
+                            ?.years?.map(y => (
                               <option key={y.range} value={y.range}>
                                 {y.range}
                               </option>
@@ -914,7 +925,7 @@ export default function ResellerAdmin({ session }) {
                     <input
                       type="number"
                       value={bulkPrices.steg1}
-                      onChange={(e) =>
+                      onChange={e =>
                         handleBulkPriceChange("steg1", e.target.value)
                       }
                       className="focus:ring-red-500 focus:border-red-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md p-2 border"
@@ -936,7 +947,7 @@ export default function ResellerAdmin({ session }) {
                     <input
                       type="number"
                       value={bulkPrices.steg2}
-                      onChange={(e) =>
+                      onChange={e =>
                         handleBulkPriceChange("steg2", e.target.value)
                       }
                       className="focus:ring-red-500 focus:border-red-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md p-2 border"
@@ -958,7 +969,7 @@ export default function ResellerAdmin({ session }) {
                     <input
                       type="number"
                       value={bulkPrices.steg3}
-                      onChange={(e) =>
+                      onChange={e =>
                         handleBulkPriceChange("steg3", e.target.value)
                       }
                       className="focus:ring-red-500 focus:border-red-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md p-2 border"
@@ -980,7 +991,7 @@ export default function ResellerAdmin({ session }) {
                     <input
                       type="number"
                       value={bulkPrices.steg4}
-                      onChange={(e) =>
+                      onChange={e =>
                         handleBulkPriceChange("steg4", e.target.value)
                       }
                       className="focus:ring-red-500 focus:border-red-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md p-2 border"
@@ -1001,7 +1012,7 @@ export default function ResellerAdmin({ session }) {
                     <input
                       type="number"
                       value={bulkPrices.dsg}
-                      onChange={(e) =>
+                      onChange={e =>
                         handleBulkPriceChange("dsg", e.target.value)
                       }
                       className="focus:ring-red-500 focus:border-red-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md p-2 border"
@@ -1075,7 +1086,7 @@ export default function ResellerAdmin({ session }) {
                   className="w-full border border-gray-300 rounded-md p-3 text-sm"
                   placeholder={`Example:\nGöteborg: 031-123456\nStockholm: 08-123456`}
                   value={resellerContactInfo}
-                  onChange={(e) => setResellerContactInfo(e.target.value)}
+                  onChange={e => setResellerContactInfo(e.target.value)}
                 />
               </div>
               <div className="flex justify-end">
@@ -1101,7 +1112,7 @@ export default function ResellerAdmin({ session }) {
               </p>
             </div>
             <div className="px-6 py-5 space-y-8">
-              {(aktPlusOverrides || []).map((item) => {
+              {(aktPlusOverrides || []).map(item => {
                 const conversionRates = {
                   EUR: 0.1,
                   USD: 0.1,
@@ -1199,7 +1210,7 @@ export default function ResellerAdmin({ session }) {
                             )
                           : convertCurrency(item.price ?? 0, currency)
                       }
-                      onChange={(e) => {
+                      onChange={e => {
                         const inputCurrencyValue = parseFloat(e.target.value);
                         const sekValue = isNaN(inputCurrencyValue)
                           ? 0
@@ -1208,7 +1219,7 @@ export default function ResellerAdmin({ session }) {
                                 (conversionRates[currency] || 1)
                             );
 
-                        setAktPlusInputs((prev) => ({
+                        setAktPlusInputs(prev => ({
                           ...prev,
                           [item.id]: {
                             ...prev[item.id],
@@ -1223,10 +1234,10 @@ export default function ResellerAdmin({ session }) {
                     </label>
                     <textarea
                       value={currentInput.content
-                        .map((b) => b.children?.map((c) => c.text).join(""))
+                        .map(b => b.children?.map(c => c.text).join(""))
                         .join("\n")}
-                      onChange={(e) =>
-                        setAktPlusInputs((prev) => ({
+                      onChange={e =>
+                        setAktPlusInputs(prev => ({
                           ...prev,
                           [item.id]: {
                             ...prev[item.id],
@@ -1235,7 +1246,7 @@ export default function ResellerAdmin({ session }) {
                               {
                                 _type: "block",
                                 children: [
-                                  { _type: "span", text: e.target.value },
+                                  {_type: "span", text: e.target.value},
                                 ],
                               },
                             ],
@@ -1287,7 +1298,7 @@ export default function ResellerAdmin({ session }) {
 
                           await fetch("/api/aktplus-overrides", {
                             method: "POST",
-                            headers: { "Content-Type": "application/json" },
+                            headers: {"Content-Type": "application/json"},
                             body: JSON.stringify({
                               aktPlusId: item.id,
                               title: currentInput.title,
@@ -1306,7 +1317,7 @@ export default function ResellerAdmin({ session }) {
                           });
 
                           setTimeout(() => {
-                            setSaveStatus({ message: "", isError: false });
+                            setSaveStatus({message: "", isError: false});
                           }, 3000);
                         } catch (error) {
                           console.error(
@@ -1358,12 +1369,12 @@ export default function ResellerAdmin({ session }) {
                       value={
                         desc.description
                           .map(
-                            (block) =>
-                              block.children?.map((c) => c.text).join("") || ""
+                            block =>
+                              block.children?.map(c => c.text).join("") || ""
                           )
                           .join("\n\n") || ""
                       }
-                      onChange={(e) => {
+                      onChange={e => {
                         const updated = [...stageDescriptions];
                         updated[index] = {
                           ...desc,
@@ -1371,9 +1382,7 @@ export default function ResellerAdmin({ session }) {
                             {
                               _type: "block",
                               style: "normal",
-                              children: [
-                                { _type: "span", text: e.target.value },
-                              ],
+                              children: [{_type: "span", text: e.target.value}],
                             },
                           ],
                         };
@@ -1387,7 +1396,7 @@ export default function ResellerAdmin({ session }) {
                           try {
                             const res = await fetch("/api/stage-descriptions", {
                               method: "POST",
-                              headers: { "Content-Type": "application/json" },
+                              headers: {"Content-Type": "application/json"},
                               body: JSON.stringify({
                                 stageName: desc.stageName,
                                 description: desc.description,
@@ -1409,7 +1418,7 @@ export default function ResellerAdmin({ session }) {
                           } finally {
                             setTimeout(
                               () =>
-                                setSaveStatus({ message: "", isError: false }),
+                                setSaveStatus({message: "", isError: false}),
                               3000
                             );
                           }
@@ -1442,19 +1451,17 @@ export default function ResellerAdmin({ session }) {
                   rows={8}
                   value={
                     generalInfo.content
-                      ?.map(
-                        (b) => b.children?.map((c) => c.text).join("") || ""
-                      )
+                      ?.map(b => b.children?.map(c => c.text).join("") || "")
                       .join("\n\n") || ""
                   }
-                  onChange={(e) => {
+                  onChange={e => {
                     setGeneralInfo({
                       ...generalInfo,
                       content: [
                         {
                           _type: "block",
                           style: "normal",
-                          children: [{ _type: "span", text: e.target.value }],
+                          children: [{_type: "span", text: e.target.value}],
                         },
                       ],
                     });
@@ -1466,15 +1473,15 @@ export default function ResellerAdmin({ session }) {
                     onClick={async () => {
                       await fetch("/api/general-info", {
                         method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ content: generalInfo.content }),
+                        headers: {"Content-Type": "application/json"},
+                        body: JSON.stringify({content: generalInfo.content}),
                       });
                       setSaveStatus({
                         message: "General Info saved",
                         isError: false,
                       });
                       setTimeout(
-                        () => setSaveStatus({ message: "", isError: false }),
+                        () => setSaveStatus({message: "", isError: false}),
                         3000
                       );
                     }}
@@ -1510,7 +1517,7 @@ export default function ResellerAdmin({ session }) {
                     <div className="relative">
                       <select
                         value={currency}
-                        onChange={(e) => setCurrency(e.target.value)}
+                        onChange={e => setCurrency(e.target.value)}
                         className="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border"
                       >
                         <option value="SEK">SEK (kr)</option>
@@ -1549,7 +1556,7 @@ export default function ResellerAdmin({ session }) {
                     <div className="relative">
                       <select
                         value={language}
-                        onChange={(e) => setLanguage(e.target.value)}
+                        onChange={e => setLanguage(e.target.value)}
                         className="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border"
                       >
                         <option value="sv">Swedish</option>
@@ -1579,6 +1586,77 @@ export default function ResellerAdmin({ session }) {
                   </div>
                 </div>
 
+                {/* Language Switcher Settings */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                  <div className="px-6 py-5 border-b border-gray-200">
+                    <h2 className="text-lg font-semibold text-gray-900">
+                      Language Switcher Configuration
+                    </h2>
+                    <p className="mt-1 text-sm text-gray-500">
+                      Configure language switcher options for your customers
+                    </p>
+                  </div>
+                  <div className="px-6 py-5 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-sm font-medium text-gray-900">
+                          Enable Language Switcher
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                          Allow customers to switch between languages
+                        </p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={enableLanguageSwitcher}
+                          onChange={() =>
+                            setEnableLanguageSwitcher(!enableLanguageSwitcher)
+                          }
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                      </label>
+                    </div>
+
+                    {enableLanguageSwitcher && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Secondary Language
+                        </label>
+                        <select
+                          value={secondaryLanguage}
+                          onChange={e => setSecondaryLanguage(e.target.value)}
+                          className="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border"
+                        >
+                          <option value="">Select Secondary Language</option>
+                          <option value="en">English</option>
+                          <option value="de">German</option>
+                          <option value="fr">French</option>
+                          <option value="nl">Dutch</option>
+                          <option value="da">Danish</option>
+                          <option value="no">Norwegian</option>
+                          <option value="ar">Arabic</option>
+                          <option value="fi">Finnish</option>
+                          <option value="es">Spanish</option>
+                          <option value="it">Italian</option>
+                          <option value="pt">Portuguese</option>
+                          <option value="ru">Russian</option>
+                          <option value="zh">Chinese</option>
+                          <option value="ja">Japanese</option>
+                          <option value="ko">Korean</option>
+                          <option value="pl">Polish</option>
+                          <option value="tr">Turkish</option>
+                          <option value="hu">Hungarian</option>
+                          <option value="cs">Czech</option>
+                          <option value="uk">Ukrainian</option>
+                          <option value="th">ไทย (Thai)</option>
+                        </select>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
                 {/* Logo Upload Section */}
                 <div className="mt-8 border-t pt-6">
                   <h3 className="text-md font-medium text-gray-900 mb-4">
@@ -1596,7 +1674,7 @@ export default function ResellerAdmin({ session }) {
                       <input
                         type="file"
                         accept="image/*"
-                        onChange={(e) => {
+                        onChange={e => {
                           const file = e.target.files?.[0];
                           if (file) {
                             setLogoFile(file);
@@ -1667,7 +1745,7 @@ export default function ResellerAdmin({ session }) {
                       <input
                         type="file"
                         accept="image/*"
-                        onChange={(e) => {
+                        onChange={e => {
                           const file = e.target.files?.[0];
                           if (file) {
                             setAktPlusLogoFile(file);
@@ -1705,7 +1783,7 @@ export default function ResellerAdmin({ session }) {
                       <input
                         type="password"
                         value={currentPassword}
-                        onChange={(e) => setCurrentPassword(e.target.value)}
+                        onChange={e => setCurrentPassword(e.target.value)}
                         className="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                       />
                     </div>
@@ -1716,7 +1794,7 @@ export default function ResellerAdmin({ session }) {
                       <input
                         type="password"
                         value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
+                        onChange={e => setNewPassword(e.target.value)}
                         className="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                       />
                     </div>
@@ -1727,7 +1805,7 @@ export default function ResellerAdmin({ session }) {
                       <input
                         type="password"
                         value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        onChange={e => setConfirmPassword(e.target.value)}
                         className="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                       />
                     </div>
@@ -1881,7 +1959,7 @@ export default function ResellerAdmin({ session }) {
                         type="checkbox"
                         checked={displaySettings.showAktPlus}
                         onChange={() =>
-                          setDisplaySettings((prev) => ({
+                          setDisplaySettings(prev => ({
                             ...prev,
                             showAktPlus: !prev.showAktPlus,
                           }))
@@ -1906,7 +1984,7 @@ export default function ResellerAdmin({ session }) {
                         type="checkbox"
                         checked={displaySettings.showBrandLogo}
                         onChange={() =>
-                          setDisplaySettings((prev) => ({
+                          setDisplaySettings(prev => ({
                             ...prev,
                             showBrandLogo: !prev.showBrandLogo,
                           }))
@@ -1931,7 +2009,7 @@ export default function ResellerAdmin({ session }) {
                         type="checkbox"
                         checked={displaySettings.showStageLogo}
                         onChange={() =>
-                          setDisplaySettings((prev) => ({
+                          setDisplaySettings(prev => ({
                             ...prev,
                             showStageLogo: !prev.showStageLogo,
                           }))
@@ -1956,7 +2034,7 @@ export default function ResellerAdmin({ session }) {
                         type="checkbox"
                         checked={displaySettings.showDynoChart}
                         onChange={() =>
-                          setDisplaySettings((prev) => ({
+                          setDisplaySettings(prev => ({
                             ...prev,
                             showDynoChart: !prev.showDynoChart,
                           }))
@@ -1975,7 +2053,7 @@ export default function ResellerAdmin({ session }) {
                         setIsLoading(true);
                         await fetch("/api/update-display-settings", {
                           method: "POST",
-                          headers: { "Content-Type": "application/json" },
+                          headers: {"Content-Type": "application/json"},
                           body: JSON.stringify(displaySettings),
                         });
                         setSaveStatus({
@@ -1991,7 +2069,7 @@ export default function ResellerAdmin({ session }) {
                       } finally {
                         setIsLoading(false);
                         setTimeout(
-                          () => setSaveStatus({ message: "", isError: false }),
+                          () => setSaveStatus({message: "", isError: false}),
                           3000
                         );
                       }
@@ -2054,7 +2132,7 @@ export default function ResellerAdmin({ session }) {
                       </label>
                       <select
                         value={selectedBrand}
-                        onChange={(e) => {
+                        onChange={e => {
                           setSelectedBrand(e.target.value);
                           setSelectedModel("");
                           setSelectedYear("");
@@ -2064,7 +2142,7 @@ export default function ResellerAdmin({ session }) {
                         disabled={isLoading}
                       >
                         <option value="">Select Brand</option>
-                        {brands.map((b) => (
+                        {brands.map(b => (
                           <option key={b.name} value={b.name}>
                             {b.name}
                           </option>
@@ -2079,7 +2157,7 @@ export default function ResellerAdmin({ session }) {
                         </label>
                         <select
                           value={selectedModel}
-                          onChange={(e) => {
+                          onChange={e => {
                             setSelectedModel(e.target.value);
                             setSelectedYear("");
                             setSelectedEngine("");
@@ -2089,8 +2167,8 @@ export default function ResellerAdmin({ session }) {
                         >
                           <option value="">Select Model</option>
                           {brands
-                            .find((b) => b.name === selectedBrand)
-                            ?.models?.map((m) => (
+                            .find(b => b.name === selectedBrand)
+                            ?.models?.map(m => (
                               <option key={m.name} value={m.name}>
                                 {m.name}
                               </option>
@@ -2106,7 +2184,7 @@ export default function ResellerAdmin({ session }) {
                         </label>
                         <select
                           value={selectedYear}
-                          onChange={(e) => {
+                          onChange={e => {
                             setSelectedYear(e.target.value);
                             setSelectedEngine("");
                           }}
@@ -2115,9 +2193,9 @@ export default function ResellerAdmin({ session }) {
                         >
                           <option value="">Select Year</option>
                           {brands
-                            .find((b) => b.name === selectedBrand)
-                            ?.models?.find((m) => m.name === selectedModel)
-                            ?.years?.map((y) => (
+                            .find(b => b.name === selectedBrand)
+                            ?.models?.find(m => m.name === selectedModel)
+                            ?.years?.map(y => (
                               <option key={y.range} value={y.range}>
                                 {y.range}
                               </option>
@@ -2133,16 +2211,16 @@ export default function ResellerAdmin({ session }) {
                         </label>
                         <select
                           value={selectedEngine}
-                          onChange={(e) => setSelectedEngine(e.target.value)}
+                          onChange={e => setSelectedEngine(e.target.value)}
                           className="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border"
                           disabled={isLoading}
                         >
                           <option value="">Select Engine</option>
                           {brands
-                            .find((b) => b.name === selectedBrand)
-                            ?.models?.find((m) => m.name === selectedModel)
-                            ?.years?.find((y) => y.range === selectedYear)
-                            ?.engines?.map((e) => (
+                            .find(b => b.name === selectedBrand)
+                            ?.models?.find(m => m.name === selectedModel)
+                            ?.years?.find(y => y.range === selectedYear)
+                            ?.engines?.map(e => (
                               <option key={e.label} value={e.label}>
                                 {e.label}
                               </option>
@@ -2176,7 +2254,7 @@ export default function ResellerAdmin({ session }) {
                 </div>
                 <div className="px-6 py-5">
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                    {selectedStages.map((stage) => {
+                    {selectedStages.map(stage => {
                       const override = findOverride(
                         selectedBrand,
                         selectedModel,
@@ -2289,7 +2367,7 @@ export default function ResellerAdmin({ session }) {
                                   </div>
                                   <input
                                     value={toCurrency(price)}
-                                    onChange={(e) => {
+                                    onChange={e => {
                                       const val = parseFloat(e.target.value);
                                       const sekValue = isNaN(val)
                                         ? 0
@@ -2312,7 +2390,7 @@ export default function ResellerAdmin({ session }) {
                                 </label>
                                 <input
                                   value={hk}
-                                  onChange={(e) =>
+                                  onChange={e =>
                                     handleInputChange(
                                       stage.name,
                                       "hk",
@@ -2330,7 +2408,7 @@ export default function ResellerAdmin({ session }) {
                                 </label>
                                 <input
                                   value={nm}
-                                  onChange={(e) =>
+                                  onChange={e =>
                                     handleInputChange(
                                       stage.name,
                                       "nm",
@@ -2429,6 +2507,6 @@ export async function getServerSideProps(context) {
   }
 
   return {
-    props: { session },
+    props: {session},
   };
 }
