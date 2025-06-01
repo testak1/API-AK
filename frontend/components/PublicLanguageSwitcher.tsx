@@ -1,5 +1,5 @@
 import React from "react";
-import {translate} from "@/lib/translations";
+import {t as translate} from "@/lib/translations";
 
 const langNames: Record<string, string> = {
   sv: "Svenska",
