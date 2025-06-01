@@ -1391,7 +1391,6 @@ export default function TuningViewer() {
                                 {translate(currentLanguage, "additionsLabel")}
                               </h3>
                             </div>
-
                             <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-800">
                               <svg
                                 className={`h-5 w-5 text-orange-500 transform transition-transform duration-300 ${
@@ -1413,108 +1412,108 @@ export default function TuningViewer() {
 
                           {/* Expandable AKT+ Grid */}
                           {expandedAktPlus[stage.name] && (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-        {allOptions.map(option => {
-          const translatedTitle =
-            option.title?.[currentLanguage] || option.title?.sv || "";
-          const translatedDescription =
-            option.description?.[currentLanguage] || option.description?.sv;
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                              {allOptions.map(option => {
+                                const translatedTitle =
+                                  option.title?.[currentLanguage] ||
+                                  option.title?.sv ||
+                                  "";
+                                const translatedDescription =
+                                  option.description?.[currentLanguage] ||
+                                  option.description?.sv;
 
-          return (
-            <div
-              key={option._id}
-              className="border border-gray-600 rounded-lg overflow-hidden bg-gray-700 transition-all duration-300"
-            >
-              <button
-                onClick={() => toggleOption(option._id)}
-                className="w-full flex justify-between items-center p-4 hover:bg-gray-600 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  {option.gallery?.[0]?.asset && (
-                    <img
-                      src={urlFor(option.gallery[0].asset).width(80).url()}
-                      alt={
-                        option.gallery[0].alt || translatedTitle || "AKT+"
-                      }
-                      className="h-10 w-10 object-contain"
-                    />
-                  )}
-                  <span className="text-lg font-bold text-orange-600">
-                    {translatedTitle}
-                  </span>
-                </div>
-
-                                    <svg
-                                      className={`h-5 w-5 text-orange-600 transition-transform ${
-                                        expandedOptions[option._id]
-                                          ? "rotate-180"
-                                          : ""
-                                      }`}
-                                      viewBox="0 0 20 20"
-                                      fill="currentColor"
+                                return (
+                                  <div
+                                    key={option._id}
+                                    className="border border-gray-600 rounded-lg overflow-hidden bg-gray-700 transition-all duration-300"
+                                  >
+                                    <button
+                                      onClick={() => toggleOption(option._id)}
+                                      className="w-full flex justify-between items-center p-4 hover:bg-gray-600 transition-colors"
                                     >
-                                      <path
-                                        fillRule="evenodd"
-                                        d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-                                        clipRule="evenodd"
-                                      />
-                                    </svg>
-                                  </button>
-
-                                  {expandedOptions[option._id] && (
-                                    <div className="bg-gray-800 border-t border-gray-600 p-4 space-y-4">
-                                      {option.description?.[
-                                        currentLanguage || "sv"
-                                      ] && (
-                                        <div className="prose prose-invert max-w-none text-sm">
-                                          <PortableText
-                                            value={translatedDescription}
-                                            components={portableTextComponents}
+                                      <div className="flex items-center gap-3">
+                                        {option.gallery?.[0]?.asset && (
+                                          <img
+                                            src={urlFor(option.gallery[0].asset)
+                                              .width(80)
+                                              .url()}
+                                            alt={
+                                              option.gallery[0].alt ||
+                                              translatedTitle ||
+                                              "AKT+"
+                                            }
+                                            className="h-10 w-10 object-contain"
                                           />
-                                        </div>
-                                      )}
-
-                                      {option.title?.[currentLanguage || "sv"]
-                                        ?.toLowerCase()
-                                        .includes("dtc off") && (
-                                        <div className="mt-4">
-                                          <DtcSearch />
-                                        </div>
-                                      )}
-
-                                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                                        {option.price && (
-                                          <p className="font-bold text-green-400">
-                                            {translate(
-                                              currentLanguage,
-                                              "priceLabel"
-                                            )}
-                                            : : {option.price.toLocaleString()}{" "}
-                                            kr
-                                          </p>
                                         )}
+                                        <span className="text-lg font-bold text-orange-600">
+                                          {translatedTitle}
+                                        </span>
+                                      </div>
 
-                                        <button
-                                          onClick={() =>
-                                            handleBookNow(option.title)
-                                          }
-                                          className="bg-green-600 hover:bg-green-700 hover:scale-105 transform transition-all text-white px-6 py-3 rounded-lg font-medium shadow-lg"
-                                        >
-                                          📩{" "}
-                                          {translate(
-                                            currentLanguage,
-                                            "contactvalue"
-                                            </button>
-                                            </div>
+                                      <svg
+                                        className={`h-5 w-5 text-orange-600 transition-transform ${
+                                          expandedOptions[option._id]
+                                            ? "rotate-180"
+                                            : ""
+                                        }`}
+                                        viewBox="0 0 20 20"
+                                        fill="currentColor"
+                                      >
+                                        <path
+                                          fillRule="evenodd"
+                                          d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                                          clipRule="evenodd"
+                                        />
+                                      </svg>
+                                    </button>
+
+                                    {expandedOptions[option._id] && (
+                                      <div className="bg-gray-800 border-t border-gray-600 p-4 space-y-4">
+                                        {translatedDescription && (
+                                          <div className="prose prose-invert max-w-none text-sm">
+                                            <PortableText
+                                              value={translatedDescription}
+                                              components={
+                                                portableTextComponents
+                                              }
+                                            />
                                           </div>
                                         )}
+
+                                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                                          {option.price && (
+                                            <p className="font-bold text-green-400">
+                                              {translate(
+                                                currentLanguage,
+                                                "priceLabel"
+                                              )}
+                                              : {option.price.toLocaleString()}{" "}
+                                              kr
+                                            </p>
+                                          )}
+
+                                          <button
+                                            onClick={() =>
+                                              handleBookNow(translatedTitle)
+                                            }
+                                            className="bg-green-600 hover:bg-green-700 hover:scale-105 transform transition-all text-white px-6 py-3 rounded-lg font-medium shadow-lg"
+                                          >
+                                            📩{" "}
+                                            {translate(
+                                              currentLanguage,
+                                              "contactvalue"
+                                            )}
+                                          </button>
+                                        </div>
                                       </div>
-                                    );
-                                  })}
-                                </div>
-                              )}
+                                    )}
+                                  </div>
+                                );
+                              })}
                             </div>
                           )}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
