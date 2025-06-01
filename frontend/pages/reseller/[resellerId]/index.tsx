@@ -1846,13 +1846,15 @@ const LanguageSwitcher = ({
       : settings.language;
 
   return (
-    <button
-      onClick={() => setCurrentLanguage(nextLang)}
-      className="flex items-center gap-2 p-2 rounded-full hover:bg-gray-700 transition-colors"
-      title={`Byt språk till ${nextLang.toUpperCase()}`}
-    >
-      <GlobeAltIcon className="h-6 w-6 text-white" />
-      <span className="text-white font-medium">{nextLang.toUpperCase()}</span>
-    </button>
+    <div className="fixed top-4 right-4 z-50">
+      <button
+        onClick={() => setCurrentLanguage(nextLang)}
+        className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-white rounded-full shadow-lg hover:bg-gray-700 transition"
+        title={`Byt språk till ${nextLang.toUpperCase()}`}
+      >
+        <GlobeAltIcon className="h-5 w-5" />
+        <span className="font-medium">{nextLang.toUpperCase()}</span>
+      </button>
+    </div>
   );
 };
