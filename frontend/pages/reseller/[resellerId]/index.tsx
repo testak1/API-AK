@@ -1625,19 +1625,18 @@ export default function TuningViewer() {
                                         <div className="flex items-center gap-3">
                                           {option.gallery?.[0]?.asset && (
                                             <img
-                                              src={urlFor(option.gallery[0])
+                                              src={urlFor(
+                                                option.gallery[0].asset
+                                              )
                                                 .width(80)
                                                 .url()}
                                               alt={
-                                                option.gallery[0].alt ||
-                                                option.title
+                                                option.gallery[0].alt || "AKT+"
                                               }
                                               className="h-10 w-10 object-contain"
                                             />
                                           )}
-                                          <span className="text-lg font-bold text-orange-600">
-                                            {title}
-                                          </span>
+                                          <span className="text-lg font-bold text-orange-600"></span>
                                         </div>
 
                                         <svg
