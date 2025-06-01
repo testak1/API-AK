@@ -70,9 +70,12 @@ export const getServerSideProps: GetServerSideProps<
   const engine = decodeURIComponent((context.params?.engine as string) || "");
 
   try {
+    const lang =
+      (typeof context.query.lang === "string" ? context.query.lang : null) ||
+      "sv";
     const brandData = await client.fetch(engineByParamsQuery, {
       brand: brand.toLowerCase(),
-      lang: context.locale || "sv",
+      lang,
     });
 
     if (!brandData) return {notFound: true};
