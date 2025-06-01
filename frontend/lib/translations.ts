@@ -1,6 +1,7 @@
 // lib/translations.ts
 export const translations = {
   sv: {
+    switchLanguage: "Byt till",
     BrandValue: "MÄRKE",
     ModelValue: "MODELL",
     YearValue: "ÅRSMODELL",
@@ -60,6 +61,7 @@ export const translations = {
     noPhoneNumbers: "❌ No contact numbers available",
   },
   en: {
+    switchLanguage: "Switch to",
     BrandValue: "MAKE",
     ModelValue: "MODEL",
     YearValue: "YEAR",
@@ -118,6 +120,7 @@ export const translations = {
     noPhoneNumbers: "❌ No contact numbers available",
   },
   th: {
+    switchLanguage: "เปลี่ยนเป็น",
     BrandValue: "ยี่ห้อ",
     ModelValue: "รุ่น",
     YearValue: "ปี",
@@ -177,6 +180,7 @@ export const translations = {
     noPhoneNumbers: "❌ ไม่มีหมายเลขโทรศัพท์ที่ใช้ได้",
   },
   es: {
+    switchLanguage: "Cambiar a",
     BrandValue: "MARCA",
     ModelValue: "MODELO",
     YearValue: "AÑO",
@@ -237,7 +241,7 @@ export const translations = {
     noPhoneNumbers: "❌ No hay números disponibles",
   },
   it: {
-    // Italian
+    switchLanguage: "Passa a",
     BrandValue: "MARCA",
     ModelValue: "MODELLO",
     YearValue: "ANNO",
@@ -297,7 +301,7 @@ export const translations = {
     noPhoneNumbers: "❌ Nessun numero disponibile",
   },
   pt: {
-    // Portuguese
+    switchLanguage: "Mudar para",
     BrandValue: "MARCA",
     ModelValue: "MODELO",
     YearValue: "ANO",
@@ -357,7 +361,7 @@ export const translations = {
     noPhoneNumbers: "❌ Nenhum número disponível",
   },
   ru: {
-    // Russian
+    switchLanguage: "Переключиться на",
     BrandValue: "МАРКА",
     ModelValue: "МОДЕЛЬ",
     YearValue: "ГОД",
@@ -418,7 +422,7 @@ export const translations = {
     noPhoneNumbers: "❌ Нет доступных номеров",
   },
   zh: {
-    // Chinese (Simplified)
+    switchLanguage: "切换为",
     BrandValue: "品牌",
     ModelValue: "型号",
     YearValue: "年份",
@@ -478,6 +482,7 @@ export const translations = {
     noPhoneNumbers: "❌ 没有可用的电话号码",
   },
   ja: {
+    switchLanguage: "に切り替え",
     BrandValue: "ブランド",
     ModelValue: "モデル",
     YearValue: "年式",
@@ -538,7 +543,7 @@ export const translations = {
     noPhoneNumbers: "❌ 利用可能な電話番号がありません",
   },
   ko: {
-    // Korean
+    switchLanguage: "다음으로 전환",
     BrandValue: "브랜드",
     ModelValue: "모델",
     YearValue: "연식",
@@ -598,7 +603,7 @@ export const translations = {
     noPhoneNumbers: "❌ 사용 가능한 전화번호가 없습니다",
   },
   pl: {
-    // Polish
+    switchLanguage: "Przełącz na",
     BrandValue: "MARKA",
     ModelValue: "MODEL",
     YearValue: "ROCZNIK",
@@ -658,7 +663,7 @@ export const translations = {
     noPhoneNumbers: "❌ Brak dostępnych numerów",
   },
   tr: {
-    // Turkish
+    switchLanguage: "Şuna geç",
     BrandValue: "MARKA",
     ModelValue: "MODEL",
     YearValue: "YIL",
@@ -718,7 +723,7 @@ export const translations = {
     noPhoneNumbers: "❌ Uygun telefon numarası yok",
   },
   hu: {
-    // Hungarian
+    switchLanguage: "Váltás erre",
     BrandValue: "MÁRKA",
     ModelValue: "MODEL",
     YearValue: "ÉVJÁRAT",
@@ -779,6 +784,7 @@ export const translations = {
     noPhoneNumbers: "❌ Nincs elérhető telefonszám",
   },
   cs: {
+    switchLanguage: "Přepnout na",
     BrandValue: "ZNAČKA",
     ModelValue: "MODEL",
     YearValue: "ROČNÍK",
@@ -838,6 +844,7 @@ export const translations = {
     noPhoneNumbers: "❌ Nejsou k dispozici žádná telefonní čísla",
   },
   uk: {
+    switchLanguage: "Переключити на",
     BrandValue: "МАРКА",
     ModelValue: "МОДЕЛЬ",
     YearValue: "РІК",
@@ -899,6 +906,7 @@ export const translations = {
   },
 
   fr: {
+    switchLanguage: "Passer à",
     BrandValue: "MARQUE",
     ModelValue: "MODÈLE",
     YearValue: "ANNÉE-MODÈLE",
@@ -959,6 +967,7 @@ export const translations = {
   },
 
   fi: {
+    switchLanguage: "Vaihda kieleen",
     BrandValue: "MERKKI",
     ModelValue: "MALLI",
     YearValue: "VUOSIMALLI",
@@ -1020,6 +1029,7 @@ export const translations = {
     noPhoneNumbers: "❌ Ei puhelinnumeroita saatavilla",
   },
   de: {
+    switchLanguage: "Wechseln zu",
     BrandValue: "MARKE",
     ModelValue: "MODELL",
     YearValue: "BAUJAHR",
@@ -1079,6 +1089,7 @@ export const translations = {
     noPhoneNumbers: "❌ Keine Telefonnummern verfügbar",
   },
   nl: {
+    switchLanguage: "Schakel over naar",
     BrandValue: "MERK",
     ModelValue: "MODEL",
     YearValue: "JAAR",
@@ -1138,6 +1149,7 @@ export const translations = {
     noPhoneNumbers: "❌ Geen telefoonnummers beschikbaar",
   },
   ar: {
+    switchLanguage: "تبديل إلى",
     BrandValue: "العلامة التجارية",
     ModelValue: "الموديل",
     YearValue: "السنة",
@@ -1197,6 +1209,7 @@ export const translations = {
     noPhoneNumbers: "❌ لا توجد أرقام متاحة",
   },
   da: {
+    switchLanguage: "Skift til",
     BrandValue: "MÆRKE",
     ModelValue: "MODEL",
     YearValue: "ÅRSGANG",
@@ -1255,6 +1268,7 @@ export const translations = {
     noPhoneNumbers: "❌ Ingen tilgængelige numre",
   },
   no: {
+    switchLanguage: "Bytt til",
     BrandValue: "MERKE",
     ModelValue: "MODELL",
     YearValue: "ÅRSMOD",
