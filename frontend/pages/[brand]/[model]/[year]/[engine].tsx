@@ -15,7 +15,7 @@ import type {
 } from "@/types/sanity";
 import {urlFor} from "@/lib/sanity";
 import {PortableText} from "@portabletext/react";
-import PublicLanguageSwitcher from "@/components/PublicLanguageSwitcher";
+import PublicLanguageDropdown from "@/components/PublicLanguageSwitcher";
 import {t as translate} from "@/lib/translations";
 import Head from "next/head";
 import React, {useEffect, useState, useRef, useMemo} from "react";
@@ -642,7 +642,7 @@ export default function EnginePage({
             onClick={() => (window.location.href = "/")}
             priority
           />
-          <PublicLanguageSwitcher
+          <PublicLanguageDropdown
             currentLanguage={currentLanguage}
             setCurrentLanguage={setCurrentLanguage}
           />
