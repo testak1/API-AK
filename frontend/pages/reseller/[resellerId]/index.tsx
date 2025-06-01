@@ -1883,7 +1883,7 @@ const LanguageSwitcher = ({
     >
       <span className="text-xl">{langFlags[nextLang] || "🌐"}</span>
       <span className="font-medium">
-        {`Byt till ${langNames[nextLang] || nextLang.toUpperCase()}`}
+        {`${translate(currentLanguage, "switchLanguage")} ${langNames[nextLang] || nextLang.toUpperCase()}`}
       </span>
     </button>
   );
