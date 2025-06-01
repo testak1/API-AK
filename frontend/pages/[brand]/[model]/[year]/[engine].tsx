@@ -1495,6 +1495,9 @@ export default function EnginePage({
                   infoModal.stage?.descriptionRef?.description ||
                   infoModal.stage?.description;
 
+                if (!description) return null;
+
+                // Om det är en array ⇒ gammalt format
                 if (Array.isArray(description)) {
                   return (
                     <PortableText
@@ -1503,7 +1506,22 @@ export default function EnginePage({
                     />
                   );
                 }
-                return <p>{description}</p>;
+
+                // Om det är ett objekt ⇒ försök hämta språkbaserat innehåll
+                if (typeof description === "object") {
+                  const langDesc =
+                    description[currentLanguage] || description["sv"] || [];
+
+                  return (
+                    <PortableText
+                      value={langDesc}
+                      components={portableTextComponents}
+                    />
+                  );
+                }
+
+                // fallback ifall det är ren text eller okänt
+                return <p>{String(description)}</p>;
               })()
             ) : (
               <div id="general-info-content">

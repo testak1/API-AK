@@ -974,10 +974,19 @@ export default function TuningViewer() {
                         {/* Hidden SEO content for stage info */}
                         <div className="sr-only" aria-hidden="false">
                           <h2>{stage.name.toUpperCase()} INFORMATION</h2>
-                          {stage.description && (
-                            <PortableText value={stage.description} />
-                          )}
+                          {stage.description &&
+                            typeof stage.description === "object" && (
+                              <PortableText
+                                value={
+                                  stage.description[currentLanguage] ??
+                                  stage.description["sv"] ?? // fallback till svenska
+                                  []
+                                }
+                                components={portableTextComponents}
+                              />
+                            )}
                         </div>
+
                         <button
                           onClick={() =>
                             setInfoModal({open: true, type: "general"})
@@ -1558,6 +1567,9 @@ export default function TuningViewer() {
                   infoModal.stage?.descriptionRef?.description ||
                   infoModal.stage?.description;
 
+                if (!description) return null;
+
+                // Om det är en array ⇒ gammalt format
                 if (Array.isArray(description)) {
                   return (
                     <PortableText
@@ -1566,7 +1578,22 @@ export default function TuningViewer() {
                     />
                   );
                 }
-                return <p>{description}</p>;
+
+                // Om det är ett objekt ⇒ försök hämta språkbaserat innehåll
+                if (typeof description === "object") {
+                  const langDesc =
+                    description[currentLanguage] || description["sv"] || [];
+
+                  return (
+                    <PortableText
+                      value={langDesc}
+                      components={portableTextComponents}
+                    />
+                  );
+                }
+
+                // fallback ifall det är ren text eller okänt
+                return <p>{String(description)}</p>;
               })()
             ) : (
               <div id="general-info-content">
