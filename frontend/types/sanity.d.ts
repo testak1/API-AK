@@ -74,7 +74,9 @@ export interface StageDescription {
   _id: string;
   _type: "stageDescription";
   stageName: string;
-  description: PortableTextBlock[] | string;
+  description: {
+    [lang: string]: PortableTextBlock[];
+  };
 }
 
 export interface AktPlusOption {
