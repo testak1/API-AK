@@ -139,7 +139,7 @@ export default function ResellerAdmin({ session }) {
       fetch(`/api/reseller-config?resellerId=${session.user.resellerId}`)
         .then((res) => res.json())
         .then((json) => {
-          if (json.aktPlusLogo?.asset?.url) {
+          if (json.aktPlusLogo) {
             setAktPlusLogoPreview(urlFor(json.aktPlusLogo).url());
           }
         });
@@ -1113,7 +1113,55 @@ export default function ResellerAdmin({ session }) {
                 View and override default AKTPLUS option descriptions and prices
               </p>
             </div>
+
             <div className="px-6 py-5 space-y-8">
+              {/* 🔴 AKTPLUS LOGO UPLOADER — Global logo for reseller */}
+              <div>
+                <h3 className="text-md font-medium text-gray-900 mb-2">
+                  AKTPLUS Logo
+                </h3>
+                <div className="flex items-center gap-4">
+                  {aktPlusLogoPreview ? (
+                    <img
+                      src={aktPlusLogoPreview}
+                      alt="AKT+ Logo"
+                      className="h-8 w-auto object-contain"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 flex items-center justify-center bg-gray-100 rounded-md border">
+                      <span className="text-xs text-gray-400">No logo</span>
+                    </div>
+                  )}
+                  <div className="flex-1">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setAktPlusLogoFile(file);
+                          setAktPlusLogoPreview(URL.createObjectURL(file));
+                        }
+                      }}
+                      className="block w-full text-sm text-gray-500
+                file:mr-4 file:py-2 file:px-4
+                file:rounded-md file:border-0
+                file:text-sm file:font-semibold
+                file:bg-blue-50 file:text-blue-700
+                hover:file:bg-blue-100"
+                    />
+                    <button
+                      onClick={handleAktPlusLogoUpload}
+                      disabled={!aktPlusLogoFile}
+                      className="mt-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-70 disabled:cursor-not-allowed"
+                    >
+                      Update AKTPLUS Logo
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* 🔵 LOOP OVER OPTIONS BELOW */}
               {(aktPlusOverrides || []).map((item) => {
                 const conversionRates = {
                   EUR: 0.1,
@@ -1195,49 +1243,6 @@ export default function ResellerAdmin({ session }) {
                             </p>
                           )}
                         </div>
-                      </div>
-                    </div>
-
-                    <h3 className="text-md font-medium text-gray-900 mb-4">
-                      AKTPLUS Logo
-                    </h3>
-                    <div className="flex items-center gap-4">
-                      {aktPlusLogoPreview ? (
-                        <img
-                          src={aktPlusLogoPreview}
-                          alt="AKT+ Logo"
-                          className="h-8 w-auto object-contain"
-                        />
-                      ) : (
-                        <div className="w-16 h-16 flex items-center justify-center bg-gray-100 rounded-md border">
-                          <span className="text-xs text-gray-400">No logo</span>
-                        </div>
-                      )}
-                      <div className="flex-1">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              setAktPlusLogoFile(file);
-                              setAktPlusLogoPreview(URL.createObjectURL(file));
-                            }
-                          }}
-                          className="block w-full text-sm text-gray-500
-        file:mr-4 file:py-2 file:px-4
-        file:rounded-md file:border-0
-        file:text-sm file:font-semibold
-        file:bg-blue-50 file:text-blue-700
-        hover:file:bg-blue-100"
-                        />
-                        <button
-                          onClick={handleAktPlusLogoUpload}
-                          disabled={!aktPlusLogoFile}
-                          className="mt-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-70 disabled:cursor-not-allowed"
-                        >
-                          Update AKTPLUS Logo
-                        </button>
                       </div>
                     </div>
 
@@ -1346,34 +1351,6 @@ export default function ResellerAdmin({ session }) {
                     <button
                       onClick={async () => {
                         try {
-                          const conversionRates = {
-                            EUR: 0.1,
-                            USD: 0.1,
-                            GBP: 0.08,
-                            SEK: 1,
-                            THB: 3.5,
-                            JPY: 14.0,
-                            CNY: 0.68,
-                            RUB: 8.5,
-                            TRY: 3.1,
-                            PLN: 0.42,
-                            CZK: 2.3,
-                            HUF: 35.0,
-                            AED: 0.35,
-                            KRW: 125.0,
-                            NOK: 1.0,
-                            DKK: 0.7,
-                            CHF: 0.085,
-                            AUD: 0.14,
-                            CAD: 0.13,
-                            INR: 7.8,
-                            SGD: 0.13,
-                            NZD: 0.15,
-                            ZAR: 1.7,
-                            BRL: 0.5,
-                            MXN: 1.8,
-                          };
-
                           const parsedPrice = parseFloat(currentInput.price);
                           const priceInSek = isNaN(parsedPrice)
                             ? 0
@@ -1851,6 +1828,186 @@ export default function ResellerAdmin({ session }) {
                   </div>
                 </div>
 
+                {/* Display Settings Section */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                  <div className="px-6 py-5 border-b border-gray-200">
+                    <h2 className="text-lg font-semibold text-gray-900">
+                      Display Settings Configuration
+                    </h2>
+                    <p className="mt-1 text-sm text-gray-500">
+                      Control which elements are visible to your customers
+                    </p>
+                  </div>
+                  <div className="px-6 py-5">
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="text-sm font-medium text-gray-900">
+                            AKTPLUS Options
+                          </h3>
+                          <p className="text-sm text-gray-500">
+                            Show or hide the additional options section
+                          </p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={displaySettings.showAktPlus}
+                            onChange={() =>
+                              setDisplaySettings((prev) => ({
+                                ...prev,
+                                showAktPlus: !prev.showAktPlus,
+                              }))
+                            }
+                            className="sr-only peer"
+                          />
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="text-sm font-medium text-gray-900">
+                            Brand Logo
+                          </h3>
+                          <p className="text-sm text-gray-500">
+                            Show or hide the brand logo in the tuning stages
+                          </p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={displaySettings.showBrandLogo}
+                            onChange={() =>
+                              setDisplaySettings((prev) => ({
+                                ...prev,
+                                showBrandLogo: !prev.showBrandLogo,
+                              }))
+                            }
+                            className="sr-only peer"
+                          />
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="text-sm font-medium text-gray-900">
+                            Stage Badges
+                          </h3>
+                          <p className="text-sm text-gray-500">
+                            Show or hide the stage badges (Steg 1, Steg 2, etc.)
+                          </p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={displaySettings.showStageLogo}
+                            onChange={() =>
+                              setDisplaySettings((prev) => ({
+                                ...prev,
+                                showStageLogo: !prev.showStageLogo,
+                              }))
+                            }
+                            className="sr-only peer"
+                          />
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="text-sm font-medium text-gray-900">
+                            Dyno Charts
+                          </h3>
+                          <p className="text-sm text-gray-500">
+                            Show or hide the dyno performance charts
+                          </p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={displaySettings.showDynoChart}
+                            onChange={() =>
+                              setDisplaySettings((prev) => ({
+                                ...prev,
+                                showDynoChart: !prev.showDynoChart,
+                              }))
+                            }
+                            className="sr-only peer"
+                          />
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                      </div>
+                    </div>
+
+                    <div className="mt-6 flex justify-end">
+                      <button
+                        onClick={async () => {
+                          try {
+                            setIsLoading(true);
+                            await fetch("/api/update-display-settings", {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify(displaySettings),
+                            });
+                            setSaveStatus({
+                              message: "Display settings saved successfully!",
+                              isError: false,
+                            });
+                          } catch (err) {
+                            console.error(
+                              "Error updating display settings",
+                              err,
+                            );
+                            setSaveStatus({
+                              message: "Failed to save settings.",
+                              isError: true,
+                            });
+                          } finally {
+                            setIsLoading(false);
+                            setTimeout(
+                              () =>
+                                setSaveStatus({ message: "", isError: false }),
+                              3000,
+                            );
+                          }
+                        }}
+                        disabled={isLoading}
+                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-70 disabled:cursor-not-allowed"
+                      >
+                        {isLoading ? (
+                          <>
+                            <svg
+                              className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <circle
+                                className="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                              ></circle>
+                              <path
+                                className="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                              ></path>
+                            </svg>
+                            Saving...
+                          </>
+                        ) : (
+                          "Save Display Settings"
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Password Change Section */}
                 <div className="mt-8 border-t pt-6">
                   <h3 className="text-md font-medium text-gray-900 mb-4">
@@ -2009,182 +2166,6 @@ export default function ResellerAdmin({ session }) {
 
                 <div className="mt-4 text-sm text-gray-500">
                   Contact support if you need to change your subscription plan.
-                </div>
-              </div>
-            </div>
-
-            {/* Display Settings Section */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="px-6 py-5 border-b border-gray-200">
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Display Settings Configuration
-                </h2>
-                <p className="mt-1 text-sm text-gray-500">
-                  Control which elements are visible to your customers
-                </p>
-              </div>
-              <div className="px-6 py-5">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-900">
-                        AKTPLUS Options
-                      </h3>
-                      <p className="text-sm text-gray-500">
-                        Show or hide the additional options section
-                      </p>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={displaySettings.showAktPlus}
-                        onChange={() =>
-                          setDisplaySettings((prev) => ({
-                            ...prev,
-                            showAktPlus: !prev.showAktPlus,
-                          }))
-                        }
-                        className="sr-only peer"
-                      />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                    </label>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-900">
-                        Brand Logo
-                      </h3>
-                      <p className="text-sm text-gray-500">
-                        Show or hide the brand logo in the tuning stages
-                      </p>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={displaySettings.showBrandLogo}
-                        onChange={() =>
-                          setDisplaySettings((prev) => ({
-                            ...prev,
-                            showBrandLogo: !prev.showBrandLogo,
-                          }))
-                        }
-                        className="sr-only peer"
-                      />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                    </label>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-900">
-                        Stage Badges
-                      </h3>
-                      <p className="text-sm text-gray-500">
-                        Show or hide the stage badges (Steg 1, Steg 2, etc.)
-                      </p>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={displaySettings.showStageLogo}
-                        onChange={() =>
-                          setDisplaySettings((prev) => ({
-                            ...prev,
-                            showStageLogo: !prev.showStageLogo,
-                          }))
-                        }
-                        className="sr-only peer"
-                      />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                    </label>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-900">
-                        Dyno Charts
-                      </h3>
-                      <p className="text-sm text-gray-500">
-                        Show or hide the dyno performance charts
-                      </p>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={displaySettings.showDynoChart}
-                        onChange={() =>
-                          setDisplaySettings((prev) => ({
-                            ...prev,
-                            showDynoChart: !prev.showDynoChart,
-                          }))
-                        }
-                        className="sr-only peer"
-                      />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                    </label>
-                  </div>
-                </div>
-
-                <div className="mt-6 flex justify-end">
-                  <button
-                    onClick={async () => {
-                      try {
-                        setIsLoading(true);
-                        await fetch("/api/update-display-settings", {
-                          method: "POST",
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify(displaySettings),
-                        });
-                        setSaveStatus({
-                          message: "Display settings saved successfully!",
-                          isError: false,
-                        });
-                      } catch (err) {
-                        console.error("Error updating display settings", err);
-                        setSaveStatus({
-                          message: "Failed to save settings.",
-                          isError: true,
-                        });
-                      } finally {
-                        setIsLoading(false);
-                        setTimeout(
-                          () => setSaveStatus({ message: "", isError: false }),
-                          3000,
-                        );
-                      }
-                    }}
-                    disabled={isLoading}
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-70 disabled:cursor-not-allowed"
-                  >
-                    {isLoading ? (
-                      <>
-                        <svg
-                          className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          ></circle>
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                          ></path>
-                        </svg>
-                        Saving...
-                      </>
-                    ) : (
-                      "Save Display Settings"
-                    )}
-                  </button>
                 </div>
               </div>
             </div>
