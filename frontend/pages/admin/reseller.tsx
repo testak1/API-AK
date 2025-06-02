@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../api/auth/[...nextauth]";
 import { signOut } from "next-auth/react";
+import { urlFor } from "@/lib/sanity";
 
 export default function ResellerAdmin({ session }) {
   const [brands, setBrands] = useState([]);
@@ -139,7 +140,7 @@ export default function ResellerAdmin({ session }) {
         .then((res) => res.json())
         .then((json) => {
           if (json.aktPlusLogo?.asset?.url) {
-            setAktPlusLogoPreview(json.aktPlusLogo.asset.url);
+            setAktPlusLogoPreview(urlFor(json.aktPlusLogo).url());
           }
         });
     }
