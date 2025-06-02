@@ -1642,33 +1642,32 @@ export default function ResellerAdmin({ session }) {
                         onChange={(e) => setLanguage(e.target.value)}
                         className="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border"
                       >
-                        <option value="sv">Swedish</option>
-                        <option value="en">English</option>
-                        <option value="de">German</option>
-                        <option value="fr">French</option>
-                        <option value="nl">Dutch</option>
-                        <option value="da">Danish</option>
-                        <option value="no">Norwegian</option>
-                        <option value="ar">Arabic</option>
-                        <option value="fi">Finnish</option>
-                        <option value="es">Spanish</option>
-                        <option value="it">Italian</option>
-                        <option value="pt">Portuguese</option>
-                        <option value="ru">Russian</option>
-                        <option value="zh">Chinese</option>
-                        <option value="ja">Japanese</option>
-                        <option value="ko">Korean</option>
-                        <option value="pl">Polish</option>
-                        <option value="tr">Turkish</option>
-                        <option value="hu">Hungarian</option>
-                        <option value="cs">Czech</option>
-                        <option value="uk">Ukrainian</option>
-                        <option value="th">ไทย (Thai)</option>
+                        <option value="sv">🇸🇪 Swedish</option>
+                        <option value="en">🇬🇧 English</option>
+                        <option value="de">🇩🇪 German</option>
+                        <option value="fr">🇫🇷 French</option>
+                        <option value="nl">🇳🇱 Dutch</option>
+                        <option value="da">🇩🇰 Danish</option>
+                        <option value="no">🇳🇴 Norwegian</option>
+                        <option value="ar">🇸🇦 Arabic</option>
+                        <option value="fi">🇫🇮 Finnish</option>
+                        <option value="es">🇪🇸 Spanish</option>
+                        <option value="it">🇮🇹 Italian</option>
+                        <option value="pt">🇵🇹 Portuguese</option>
+                        <option value="ru">🇷🇺 Russian</option>
+                        <option value="zh">🇨🇳 Chinese</option>
+                        <option value="ja">🇯🇵 Japanese</option>
+                        <option value="ko">🇰🇷 Korean</option>
+                        <option value="pl">🇵🇱 Polish</option>
+                        <option value="tr">🇹🇷 Turkish</option>
+                        <option value="hu">🇭🇺 Hungarian</option>
+                        <option value="cs">🇨🇿 Czech</option>
+                        <option value="uk">🇺🇦 Ukrainian</option>
+                        <option value="th">🇹🇭 ไทย (Thai)</option>
                       </select>
                     </div>
                   </div>
                 </div>
-
                 {/* Language Switcher Settings */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                   <div className="px-6 py-5 border-b border-gray-200">
@@ -1739,7 +1738,6 @@ export default function ResellerAdmin({ session }) {
                     )}
                   </div>
                 </div>
-
                 {/* Logo Upload Section */}
                 <div className="mt-8 border-t pt-6">
                   <h3 className="text-md font-medium text-gray-900 mb-4">
@@ -1807,7 +1805,6 @@ export default function ResellerAdmin({ session }) {
                     </div>
                   </div>
                 </div>
-
                 <div className="mt-8 border-t pt-6">
                   <h3 className="text-md font-medium text-gray-900 mb-4">
                     AKTPLUS Logo
@@ -1852,7 +1849,6 @@ export default function ResellerAdmin({ session }) {
                     </div>
                   </div>
                 </div>
-
                 {/* Password Change Section */}
                 <div className="mt-8 border-t pt-6">
                   <h3 className="text-md font-medium text-gray-900 mb-4">
@@ -1937,7 +1933,6 @@ export default function ResellerAdmin({ session }) {
                     </button>
                   </div>
                 </div>
-
                 <div className="mt-6 flex justify-end">
                   <button
                     onClick={handleSettingsSave}
