@@ -1337,7 +1337,7 @@ export default function ResellerAdmin({ session }) {
                                 parsedPrice / (conversionRates[currency] || 1),
                               );
 
-                          let imageUrl = null;
+                          let assetId = null;
 
                           // 👇 Upload image if set
                           if (aktPlusInputs[item.id]?.imageFile) {
@@ -1359,7 +1359,9 @@ export default function ResellerAdmin({ session }) {
                               "/api/upload-aktplus-option-image",
                               {
                                 method: "POST",
-                                headers: { "Content-Type": "application/json" },
+                                headers: {
+                                  "Content-Type": "application/json",
+                                },
                                 body: JSON.stringify({
                                   imageData: base64,
                                   contentType: file.type,
@@ -1368,10 +1370,10 @@ export default function ResellerAdmin({ session }) {
                             );
 
                             const uploadJson = await uploadRes.json();
-                            imageUrl = uploadJson.url;
+                            assetId = uploadJson.assetId; // ✅ get _id not url
                           }
 
-                          // 👇 Save the override
+                          // 👇 Save the override (send assetId instead of imageUrl)
                           await fetch("/api/aktplus-overrides", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
@@ -1380,7 +1382,7 @@ export default function ResellerAdmin({ session }) {
                               title: currentInput.title,
                               description: currentInput.content,
                               price: priceInSek,
-                              imageUrl,
+                              assetId, // ✅ backend expects this now
                             }),
                           });
 
