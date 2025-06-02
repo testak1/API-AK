@@ -117,11 +117,6 @@ export const getServerSideProps: GetServerSideProps<EnginePageProps> = async (
         yearData,
         engineData,
       },
-      // Add these caching headers
-      headers: {
-        "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=1800",
-        Vary: "Accept-Encoding, Accept-Language",
-      },
     };
   } catch (err) {
     console.error("Engine fetch failed:", err);
@@ -561,6 +556,7 @@ export default function EnginePage({
       <Head>
         <title>{pageTitle}</title>
         <meta name="description" content={pageDescription} />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
 
         <link
           rel="canonical"
