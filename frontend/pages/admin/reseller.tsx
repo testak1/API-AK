@@ -1355,14 +1355,17 @@ export default function ResellerAdmin({ session }) {
                               },
                             );
 
-                            const uploadRes = await fetch("/api/upload-image", {
-                              method: "POST",
-                              headers: { "Content-Type": "application/json" },
-                              body: JSON.stringify({
-                                imageData: base64,
-                                contentType: file.type,
-                              }),
-                            });
+                            const uploadRes = await fetch(
+                              "/api/upload-aktplus-option-image",
+                              {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({
+                                  imageData: base64,
+                                  contentType: file.type,
+                                }),
+                              },
+                            );
 
                             const uploadJson = await uploadRes.json();
                             imageUrl = uploadJson.url;

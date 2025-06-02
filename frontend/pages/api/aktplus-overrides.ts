@@ -1,3 +1,4 @@
+// /api/aktplus-overrides
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./auth/[...nextauth]";
 import sanity, { urlFor } from "@/lib/sanity";
@@ -64,7 +65,7 @@ export default async function handler(req, res) {
     });
 
     if (req.method === "POST") {
-      const { aktPlusId, title, description, price, gallery } = req.body;
+      const { aktPlusId, title, description, price, imageUrl } = req.body;
 
       if (!aktPlusId || !description) {
         return res.status(400).json({ error: "Missing data" });
@@ -77,6 +78,21 @@ export default async function handler(req, res) {
 
       const multilingualTitle = { [lang]: title };
       const multilingualDescription = { [lang]: description };
+
+      let gallery = undefined;
+
+      if (imageUrl) {
+        const match = imageUrl.match(/image-([a-zA-Z0-9]+)-/);
+        if (match) {
+          const assetId = `image-${match[1]}`;
+          gallery = [
+            {
+              _type: "image",
+              asset: { _type: "reference", _ref: assetId },
+            },
+          ];
+        }
+      }
 
       const payload = {
         title: multilingualTitle,
