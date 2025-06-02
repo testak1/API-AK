@@ -1,7 +1,6 @@
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./auth/[...nextauth]";
-import sanity from "@/lib/sanity";
-import { urlFor } from "@/lib/sanity";
+import sanity, { urlFor } from "@/lib/sanity";
 
 export default async function handler(req, res) {
   const session = await getServerSession(req, res, authOptions);
@@ -12,24 +11,26 @@ export default async function handler(req, res) {
   const lang = req.query.lang || "sv";
 
   try {
+    // Fetch defaults and overrides
     const [defaults, overrides] = await Promise.all([
-      sanity.fetch(
-        `*[_type == "aktPlus"]{
+      sanity.fetch(`
+        *[_type == "aktPlus"]{
           _id,
           title,
           description,
           price,
           installationTime,
           gallery
-        }`,
-      ),
+        }
+      `),
       sanity.fetch(
         `*[_type == "resellerAktPlusOverride" && resellerId == $resellerId]{
           _id,
           aktPlusId->{_id},
           title,
           description,
-          price
+          price,
+          gallery
         }`,
         { resellerId },
       ),
@@ -43,21 +44,27 @@ export default async function handler(req, res) {
           ? field?.[lang] || field?.sv || ""
           : field || "";
 
+      const gallery = override?.gallery?.length
+        ? override.gallery
+        : item.gallery;
+
+      const imageUrl = gallery?.[0]?.asset
+        ? urlFor(gallery[0]).width(100).url()
+        : null;
+
       return {
         id: item._id,
         title: resolveLang(override?.title || item.title),
         description: resolveLang(override?.description || item.description),
         price: override?.price ?? item.price ?? 0,
         isOverride: !!override,
-        imageUrl: item.gallery?.[0]?.asset
-          ? urlFor(item.gallery[0]).width(100).url()
-          : null,
+        imageUrl,
         installationTime: item.installationTime ?? null,
       };
     });
 
     if (req.method === "POST") {
-      const { aktPlusId, title, description, price } = req.body;
+      const { aktPlusId, title, description, price, gallery } = req.body;
 
       if (!aktPlusId || !description) {
         return res.status(400).json({ error: "Missing data" });
@@ -71,23 +78,21 @@ export default async function handler(req, res) {
       const multilingualTitle = { [lang]: title };
       const multilingualDescription = { [lang]: description };
 
+      const payload = {
+        title: multilingualTitle,
+        description: multilingualDescription,
+        price,
+        ...(gallery ? { gallery } : {}),
+      };
+
       if (existing?._id) {
-        await sanity
-          .patch(existing._id)
-          .set({
-            title: multilingualTitle,
-            description: multilingualDescription,
-            price,
-          })
-          .commit();
+        await sanity.patch(existing._id).set(payload).commit();
       } else {
         await sanity.create({
           _type: "resellerAktPlusOverride",
           resellerId,
           aktPlusId: { _type: "reference", _ref: aktPlusId },
-          title: multilingualTitle,
-          description: multilingualDescription,
-          price,
+          ...payload,
         });
       }
 
