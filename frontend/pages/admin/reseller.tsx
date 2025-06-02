@@ -1158,6 +1158,54 @@ export default function ResellerAdmin({ session }) {
                     key={item.id}
                     className="space-y-3 border-b pb-4 last:border-b-0"
                   >
+                    <div className="mt-8 border-t pt-6">
+                      <h3 className="text-md font-medium text-gray-900 mb-4">
+                        AKTPLUS Logo
+                      </h3>
+                      <div className="flex items-center gap-4">
+                        {aktPlusLogoPreview ? (
+                          <img
+                            src={aktPlusLogoPreview}
+                            alt="AKT+ Logo"
+                            className="h-8 w-auto object-contain"
+                          />
+                        ) : (
+                          <div className="w-16 h-16 flex items-center justify-center bg-gray-100 rounded-md border">
+                            <span className="text-xs text-gray-400">
+                              No logo
+                            </span>
+                          </div>
+                        )}
+                        <div className="flex-1">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                setAktPlusLogoFile(file);
+                                setAktPlusLogoPreview(
+                                  URL.createObjectURL(file),
+                                );
+                              }
+                            }}
+                            className="block w-full text-sm text-gray-500
+        file:mr-4 file:py-2 file:px-4
+        file:rounded-md file:border-0
+        file:text-sm file:font-semibold
+        file:bg-blue-50 file:text-blue-700
+        hover:file:bg-blue-100"
+                          />
+                          <button
+                            onClick={handleAktPlusLogoUpload}
+                            disabled={!aktPlusLogoFile}
+                            className="mt-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-70 disabled:cursor-not-allowed"
+                          >
+                            Update AKTPLUS Logo
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                     <div className="flex items-start gap-4">
                       {item.imageUrl && (
                         <img
@@ -1712,27 +1760,28 @@ export default function ResellerAdmin({ session }) {
                           className="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border"
                         >
                           <option value="">Select Secondary Language</option>
-                          <option value="en">English</option>
-                          <option value="de">German</option>
-                          <option value="fr">French</option>
-                          <option value="nl">Dutch</option>
-                          <option value="da">Danish</option>
-                          <option value="no">Norwegian</option>
-                          <option value="ar">Arabic</option>
-                          <option value="fi">Finnish</option>
-                          <option value="es">Spanish</option>
-                          <option value="it">Italian</option>
-                          <option value="pt">Portuguese</option>
-                          <option value="ru">Russian</option>
-                          <option value="zh">Chinese</option>
-                          <option value="ja">Japanese</option>
-                          <option value="ko">Korean</option>
-                          <option value="pl">Polish</option>
-                          <option value="tr">Turkish</option>
-                          <option value="hu">Hungarian</option>
-                          <option value="cs">Czech</option>
-                          <option value="uk">Ukrainian</option>
-                          <option value="th">ไทย (Thai)</option>
+                          <option value="sv">🇸🇪 Swedish</option>
+                          <option value="en">🇬🇧 English</option>
+                          <option value="de">🇩🇪 German</option>
+                          <option value="fr">🇫🇷 French</option>
+                          <option value="nl">🇳🇱 Dutch</option>
+                          <option value="da">🇩🇰 Danish</option>
+                          <option value="no">🇳🇴 Norwegian</option>
+                          <option value="ar">🇸🇦 Arabic</option>
+                          <option value="fi">🇫🇮 Finnish</option>
+                          <option value="es">🇪🇸 Spanish</option>
+                          <option value="it">🇮🇹 Italian</option>
+                          <option value="pt">🇵🇹 Portuguese</option>
+                          <option value="ru">🇷🇺 Russian</option>
+                          <option value="zh">🇨🇳 Chinese</option>
+                          <option value="ja">🇯🇵 Japanese</option>
+                          <option value="ko">🇰🇷 Korean</option>
+                          <option value="pl">🇵🇱 Polish</option>
+                          <option value="tr">🇹🇷 Turkish</option>
+                          <option value="hu">🇭🇺 Hungarian</option>
+                          <option value="cs">🇨🇿 Czech</option>
+                          <option value="uk">🇺🇦 Ukrainian</option>
+                          <option value="th">🇹🇭 ไทย (Thai)</option>
                         </select>
                       </div>
                     )}
@@ -1805,50 +1854,7 @@ export default function ResellerAdmin({ session }) {
                     </div>
                   </div>
                 </div>
-                <div className="mt-8 border-t pt-6">
-                  <h3 className="text-md font-medium text-gray-900 mb-4">
-                    AKTPLUS Logo
-                  </h3>
-                  <div className="flex items-center gap-4">
-                    {aktPlusLogoPreview ? (
-                      <img
-                        src={aktPlusLogoPreview}
-                        alt="AKT+ Logo"
-                        className="h-8 w-auto object-contain"
-                      />
-                    ) : (
-                      <div className="w-16 h-16 flex items-center justify-center bg-gray-100 rounded-md border">
-                        <span className="text-xs text-gray-400">No logo</span>
-                      </div>
-                    )}
-                    <div className="flex-1">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            setAktPlusLogoFile(file);
-                            setAktPlusLogoPreview(URL.createObjectURL(file));
-                          }
-                        }}
-                        className="block w-full text-sm text-gray-500
-        file:mr-4 file:py-2 file:px-4
-        file:rounded-md file:border-0
-        file:text-sm file:font-semibold
-        file:bg-blue-50 file:text-blue-700
-        hover:file:bg-blue-100"
-                      />
-                      <button
-                        onClick={handleAktPlusLogoUpload}
-                        disabled={!aktPlusLogoFile}
-                        className="mt-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-70 disabled:cursor-not-allowed"
-                      >
-                        Update AKTPLUS Logo
-                      </button>
-                    </div>
-                  </div>
-                </div>
+
                 {/* Password Change Section */}
                 <div className="mt-8 border-t pt-6">
                   <h3 className="text-md font-medium text-gray-900 mb-4">
