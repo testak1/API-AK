@@ -1231,6 +1231,24 @@ export default function ResellerAdmin({ session }) {
                     />
 
                     <label className="block text-sm font-medium text-gray-700 mt-3">
+                      Custom Title ({language.toUpperCase()})
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full border border-gray-300 rounded-md p-2 text-sm"
+                      value={aktPlusInputs[item.id]?.title ?? item.title}
+                      onChange={(e) =>
+                        setAktPlusInputs((prev) => ({
+                          ...prev,
+                          [item.id]: {
+                            ...prev[item.id],
+                            title: e.target.value,
+                          },
+                        }))
+                      }
+                    />
+
+                    <label className="block text-sm font-medium text-gray-700 mt-3">
                       Description Override
                     </label>
                     <textarea
