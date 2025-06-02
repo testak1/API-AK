@@ -38,6 +38,7 @@ export default async function handler(req, res) {
 
       const merged = defaults.map((item) => {
         const override = overrides.find((o) => o.aktPlusId?._id === item._id);
+
         const resolveLang = (field) =>
           typeof field === "object"
             ? field?.[lang] || field?.sv || ""
@@ -66,30 +67,24 @@ export default async function handler(req, res) {
     }
 
     if (req.method === "POST") {
-      const { aktPlusId, title, description, price, imageUrl } = req.body;
+      const { aktPlusId, title, description, price, assetId } = req.body;
 
       if (!aktPlusId || !description) {
         return res.status(400).json({ error: "Missing data" });
       }
 
-      // Extract asset ID from image URL
+      // Build gallery from assetId if provided
       let gallery;
-      if (imageUrl) {
-        const match = imageUrl.match(
-          /image-([a-zA-Z0-9]+-[a-zA-Z0-9]+-[a-z]+)/,
-        );
-        if (match) {
-          const assetId = match[0]; // e.g., image-abc123-500x500-png
-          gallery = [
-            {
-              _type: "image",
-              asset: { _type: "reference", _ref: assetId },
-            },
-          ];
-        }
+      if (assetId) {
+        gallery = [
+          {
+            _type: "image",
+            asset: { _type: "reference", _ref: assetId },
+          },
+        ];
       }
 
-      // Define multilingual fields after
+      // Ensure multilingual title and description
       const multilingualTitle = { [lang]: title };
       const multilingualDescription = {
         [lang]: Array.isArray(description)
@@ -97,8 +92,8 @@ export default async function handler(req, res) {
           : [
               {
                 _type: "block",
-                children: [{ _type: "span", text: description }],
                 style: "normal",
+                children: [{ _type: "span", text: description }],
               },
             ],
       };
