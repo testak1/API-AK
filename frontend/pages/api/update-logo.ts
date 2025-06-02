@@ -2,6 +2,7 @@
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./auth/[...nextauth]";
 import sanity from "@/lib/sanity";
+import { urlFor } from "@/lib/sanity";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -50,7 +51,8 @@ export default async function handler(req, res) {
 
     res.status(200).json({
       success: true,
-      logoUrl: imageAsset.url,
+      assetId: imageAsset._id,
+      logoUrl: urlFor(imageAsset).url(), // ✅ return actual preview URL
     });
   } catch (error) {
     console.error("Error updating logo:", error);
