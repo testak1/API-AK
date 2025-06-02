@@ -12,57 +12,61 @@ export default async function handler(req, res) {
   const lang = req.query.lang || "sv";
 
   try {
-    // Fetch defaults and overrides
-    const [defaults, overrides] = await Promise.all([
-      sanity.fetch(`
-        *[_type == "aktPlus"]{
-          _id,
-          title,
-          description,
-          price,
-          installationTime,
-          gallery
-        }
-      `),
-      sanity.fetch(
-        `*[_type == "resellerAktPlusOverride" && resellerId == $resellerId]{
-          _id,
-          aktPlusId->{_id},
-          title,
-          description,
-          price,
-          gallery
-        }`,
-        { resellerId },
-      ),
-    ]);
+    if (req.method === "GET") {
+      // Fetch defaults and overrides
+      const [defaults, overrides] = await Promise.all([
+        sanity.fetch(`
+          *[_type == "aktPlus"]{
+            _id,
+            title,
+            description,
+            price,
+            installationTime,
+            gallery
+          }
+        `),
+        sanity.fetch(
+          `*[_type == "resellerAktPlusOverride" && resellerId == $resellerId]{
+            _id,
+            aktPlusId->{_id},
+            title,
+            description,
+            price,
+            gallery
+          }`,
+          { resellerId },
+        ),
+      ]);
 
-    const merged = defaults.map((item) => {
-      const override = overrides.find((o) => o.aktPlusId?._id === item._id);
+      const merged = defaults.map((item) => {
+        const override = overrides.find((o) => o.aktPlusId?._id === item._id);
 
-      const resolveLang = (field) =>
-        typeof field === "object"
-          ? field?.[lang] || field?.sv || ""
-          : field || "";
+        const resolveLang = (field) =>
+          typeof field === "object"
+            ? field?.[lang] || field?.sv || ""
+            : field || "";
 
-      const gallery = override?.gallery?.length
-        ? override.gallery
-        : item.gallery;
+        const gallery = override?.gallery?.length
+          ? override.gallery
+          : item.gallery;
 
-      const imageUrl = gallery?.[0]?.asset
-        ? urlFor(gallery[0]).width(100).url()
-        : null;
+        const imageUrl = gallery?.[0]?.asset
+          ? urlFor(gallery[0]).width(100).url()
+          : null;
 
-      return {
-        id: item._id,
-        title: resolveLang(override?.title || item.title),
-        description: resolveLang(override?.description || item.description),
-        price: override?.price ?? item.price ?? 0,
-        isOverride: !!override,
-        imageUrl,
-        installationTime: item.installationTime ?? null,
-      };
-    });
+        return {
+          id: item._id,
+          title: resolveLang(override?.title || item.title),
+          description: resolveLang(override?.description || item.description),
+          price: override?.price ?? item.price ?? 0,
+          isOverride: !!override,
+          imageUrl,
+          installationTime: item.installationTime ?? null,
+        };
+      });
+
+      return res.status(200).json({ aktplus: merged });
+    }
 
     if (req.method === "POST") {
       const { aktPlusId, title, description, price, imageUrl } = req.body;
@@ -71,16 +75,8 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: "Missing data" });
       }
 
-      const existing = await sanity.fetch(
-        `*[_type == "resellerAktPlusOverride" && resellerId == $resellerId && aktPlusId._ref == $aktPlusId][0]{_id}`,
-        { resellerId, aktPlusId },
-      );
-
-      const multilingualTitle = { [lang]: title };
-      const multilingualDescription = { [lang]: description };
-
-      let gallery = undefined;
-
+      // Extract assetId from sanity image URL if available
+      let gallery;
       if (imageUrl) {
         const match = imageUrl.match(/image-([a-zA-Z0-9]+)-/);
         if (match) {
@@ -93,6 +89,23 @@ export default async function handler(req, res) {
           ];
         }
       }
+
+      const multilingualTitle = { [lang]: title };
+      const multilingualDescription = {
+        [lang]: Array.isArray(description)
+          ? description
+          : [
+              {
+                _type: "block",
+                children: [{ _type: "span", text: description }],
+              },
+            ],
+      };
+
+      const existing = await sanity.fetch(
+        `*[_type == "resellerAktPlusOverride" && resellerId == $resellerId && aktPlusId._ref == $aktPlusId][0]{_id}`,
+        { resellerId, aktPlusId },
+      );
 
       const payload = {
         title: multilingualTitle,
@@ -115,7 +128,7 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true });
     }
 
-    return res.status(200).json({ aktplus: merged });
+    return res.status(405).json({ error: "Method not allowed" });
   } catch (err) {
     console.error("Error in AKTPLUS descriptions:", err);
     return res.status(500).json({ error: "Internal Server Error" });
