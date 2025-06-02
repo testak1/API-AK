@@ -1,18 +1,49 @@
-import {NextApiRequest, NextApiResponse} from "next";
+// pages/api/engines.ts
+import { NextApiRequest, NextApiResponse } from "next";
 import client from "@/lib/sanity";
+import { createHash } from "crypto";
+
+// ETag generator
+function generateETag(content: string): string {
+  return createHash("sha1").update(content).digest("hex");
+}
+
+// Cache in memory (simple solution for serverless environments)
+const cache = new Map();
+const CACHE_TTL = 3600 * 1000; // 1 hour in milliseconds
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ) {
   const lang = (req.query.lang as string) || "sv";
-  const {brand, model, year, resellerId} = req.query;
+  const { brand, model, year, resellerId } = req.query;
 
   if (!brand || !model || !year) {
-    return res.status(400).json({error: "Missing parameters"});
+    return res.status(400).json({ error: "Missing parameters" });
   }
 
-  const query = `
+  const cacheKey = `engines:${brand}:${model}:${year}:${lang}:${resellerId || "default"}`;
+
+  try {
+    // Check cache first
+    const cached = cache.get(cacheKey);
+    const now = Date.now();
+
+    if (cached && now - cached.timestamp < CACHE_TTL) {
+      // Check ETag for 304 Not Modified
+      if (req.headers["if-none-match"] === cached.etag) {
+        return res.status(304).end();
+      }
+
+      // Serve from cache
+      res.setHeader("Cache-Control", "public, max-age=3600, must-revalidate");
+      res.setHeader("ETag", cached.etag);
+      res.setHeader("Vary", "Accept-Encoding, Accept-Language");
+      return res.status(200).json({ result: cached.data });
+    }
+
+    const query = `
     *[_type == "brand" && name == $brand][0]{
       models[name == $model][0]{
         years[range == $year][0]{
@@ -100,17 +131,16 @@ export default async function handler(
     }.models.years.engines
   `;
 
-  try {
-    const result = await client.fetch(query, {brand, model, year, lang});
+    const result = await client.fetch(query, { brand, model, year, lang });
 
     if (!Array.isArray(result)) {
-      return res.status(200).json({result: []});
+      return res.status(200).json({ result: [] });
     }
 
     if (resellerId) {
       const overrides = await client.fetch(
         `*[_type == "resellerOverride" && resellerId == $resellerId]`,
-        {resellerId}
+        { resellerId },
       );
 
       const overrideMap = new Map();
@@ -119,8 +149,8 @@ export default async function handler(
         overrideMap.set(key, o);
       }
 
-      result.forEach(engine => {
-        engine.stages = engine.stages.map(stage => {
+      result.forEach((engine) => {
+        engine.stages = engine.stages.map((stage) => {
           const key = `${brand}|${model}|${year}|${engine.label}|${stage.name}`;
           const override = overrideMap.get(key);
           return override
@@ -135,9 +165,27 @@ export default async function handler(
       });
     }
 
-    res.status(200).json({result});
+    // Generate ETag
+    const etag = generateETag(JSON.stringify(result));
+
+    // Update cache
+    cache.set(cacheKey, {
+      data: result,
+      etag,
+      timestamp: now,
+    });
+
+    // Set headers
+    res.setHeader("Cache-Control", "public, max-age=3600, must-revalidate");
+    res.setHeader("ETag", etag);
+    res.setHeader("Vary", "Accept-Encoding, Accept-Language");
+
+    return res.status(200).json({ result });
   } catch (error) {
-    console.error("Error fetching engines with overrides:", error);
-    res.status(500).json({error: "Failed to load engines"});
+    console.error("Engine API Error:", error);
+    return res.status(500).json({
+      error: "Internal server error",
+      message: error instanceof Error ? error.message : "Unknown error",
+    });
   }
 }
