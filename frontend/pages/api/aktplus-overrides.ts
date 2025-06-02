@@ -9,11 +9,19 @@ export default async function handler(req, res) {
 
   if (!resellerId) return res.status(401).json({ error: "Unauthorized" });
 
+  const lang = req.query.lang || "sv";
+
   try {
-    // Fetch defaults and overrides
     const [defaults, overrides] = await Promise.all([
       sanity.fetch(
-        `*[_type == "aktPlus"]{_id, title, description, price, gallery}`
+        `*[_type == "aktPlus"]{
+          _id,
+          title,
+          description,
+          price,
+          installationTime,
+          gallery
+        }`,
       ),
       sanity.fetch(
         `*[_type == "resellerAktPlusOverride" && resellerId == $resellerId]{
@@ -23,19 +31,28 @@ export default async function handler(req, res) {
           description,
           price
         }`,
-        { resellerId }
+        { resellerId },
       ),
     ]);
 
     const merged = defaults.map((item) => {
       const override = overrides.find((o) => o.aktPlusId?._id === item._id);
+
+      const resolveLang = (field) =>
+        typeof field === "object"
+          ? field?.[lang] || field?.sv || ""
+          : field || "";
+
       return {
         id: item._id,
-        title: override?.title || item.title,
-        description: override?.description || item.description,
+        title: resolveLang(override?.title || item.title),
+        description: resolveLang(override?.description || item.description),
         price: override?.price ?? item.price ?? 0,
         isOverride: !!override,
-        imageUrl: item.gallery?.[0]?.asset ? urlFor(item.gallery[0]).width(100).url() : null,
+        imageUrl: item.gallery?.[0]?.asset
+          ? urlFor(item.gallery[0]).width(100).url()
+          : null,
+        installationTime: item.installationTime ?? null,
       };
     });
 
@@ -48,21 +65,28 @@ export default async function handler(req, res) {
 
       const existing = await sanity.fetch(
         `*[_type == "resellerAktPlusOverride" && resellerId == $resellerId && aktPlusId._ref == $aktPlusId][0]{_id}`,
-        { resellerId, aktPlusId }
+        { resellerId, aktPlusId },
       );
+
+      const multilingualTitle = { [lang]: title };
+      const multilingualDescription = { [lang]: description };
 
       if (existing?._id) {
         await sanity
           .patch(existing._id)
-          .set({ title, description, price })
+          .set({
+            title: multilingualTitle,
+            description: multilingualDescription,
+            price,
+          })
           .commit();
       } else {
         await sanity.create({
           _type: "resellerAktPlusOverride",
           resellerId,
           aktPlusId: { _type: "reference", _ref: aktPlusId },
-          title,
-          description,
+          title: multilingualTitle,
+          description: multilingualDescription,
           price,
         });
       }
