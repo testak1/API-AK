@@ -37,8 +37,8 @@ export default async function handler(req, res) {
 
     return res.status(200).json({
       success: true,
-      assetId: asset._id,
-      url: urlFor(asset).url(), // ✅ FIXED: use correct `asset`
+      assetId: asset._id, // ✅ You use this for gallery override later
+      url: urlFor(asset).url(), // ✅ To preview in UI if needed
     });
   } catch (error) {
     console.error("Image upload failed:", error);
