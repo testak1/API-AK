@@ -1,4 +1,3 @@
-// /api/upload-aktplus-option-image.ts
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./auth/[...nextauth]";
 import client from "@/lib/sanity";
@@ -39,7 +38,7 @@ export default async function handler(req, res) {
     return res.status(200).json({
       success: true,
       assetId: asset._id,
-      url: urlFor(asset).url(),
+      url: urlFor(asset).url(), // ✅ FIXED: use correct `asset`
     });
   } catch (error) {
     console.error("Image upload failed:", error);

@@ -1,4 +1,3 @@
-// /api/aktplus-overrides
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./auth/[...nextauth]";
 import sanity, { urlFor } from "@/lib/sanity";
@@ -13,7 +12,6 @@ export default async function handler(req, res) {
 
   try {
     if (req.method === "GET") {
-      // Fetch defaults and overrides
       const [defaults, overrides] = await Promise.all([
         sanity.fetch(`
           *[_type == "aktPlus"]{
@@ -40,7 +38,6 @@ export default async function handler(req, res) {
 
       const merged = defaults.map((item) => {
         const override = overrides.find((o) => o.aktPlusId?._id === item._id);
-
         const resolveLang = (field) =>
           typeof field === "object"
             ? field?.[lang] || field?.sv || ""
@@ -75,12 +72,14 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: "Missing data" });
       }
 
-      // Extract assetId from sanity image URL if available
+      // Extract asset ID from image URL
       let gallery;
       if (imageUrl) {
-        const match = imageUrl.match(/image-([a-zA-Z0-9]+)-/);
+        const match = imageUrl.match(
+          /image-([a-zA-Z0-9]+-[a-zA-Z0-9]+-[a-z]+)/,
+        );
         if (match) {
-          const assetId = `image-${match[1]}`;
+          const assetId = match[0]; // e.g., image-abc123-500x500-png
           gallery = [
             {
               _type: "image",
@@ -90,6 +89,7 @@ export default async function handler(req, res) {
         }
       }
 
+      // Define multilingual fields after
       const multilingualTitle = { [lang]: title };
       const multilingualDescription = {
         [lang]: Array.isArray(description)
@@ -98,14 +98,10 @@ export default async function handler(req, res) {
               {
                 _type: "block",
                 children: [{ _type: "span", text: description }],
+                style: "normal",
               },
             ],
       };
-
-      const existing = await sanity.fetch(
-        `*[_type == "resellerAktPlusOverride" && resellerId == $resellerId && aktPlusId._ref == $aktPlusId][0]{_id}`,
-        { resellerId, aktPlusId },
-      );
 
       const payload = {
         title: multilingualTitle,
@@ -113,6 +109,11 @@ export default async function handler(req, res) {
         price,
         ...(gallery ? { gallery } : {}),
       };
+
+      const existing = await sanity.fetch(
+        `*[_type == "resellerAktPlusOverride" && resellerId == $resellerId && aktPlusId._ref == $aktPlusId][0]{_id}`,
+        { resellerId, aktPlusId },
+      );
 
       if (existing?._id) {
         await sanity.patch(existing._id).set(payload).commit();
