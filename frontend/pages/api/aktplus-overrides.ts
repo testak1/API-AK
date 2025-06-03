@@ -11,19 +11,22 @@ export default async function handler(req, res) {
 
   try {
     if (req.method === "GET") {
+      const lang = req.query.lang || "sv";
+
       const [defaults, overrides] = await Promise.all([
         sanity.fetch(`
-          *[_type == "aktPlus"]{
-            _id,
-            title,
-            description,
-            price,
-            installationTime,
-            gallery
-          }
-        `),
-        sanity.fetch(
-          `*[_type == "resellerAktPlusOverride" && resellerId == $resellerId]{
+      *[_type == "aktPlus"]{
+        _id,
+        title,
+        description,
+        price,
+        installationTime,
+        gallery
+      }
+    `),
+        resellerId
+          ? sanity.fetch(
+              `*[_type == "resellerAktPlusOverride" && resellerId == $resellerId]{
             _id,
             aktPlusId->{_id},
             title,
@@ -31,8 +34,9 @@ export default async function handler(req, res) {
             price,
             gallery
           }`,
-          { resellerId },
-        ),
+              { resellerId },
+            )
+          : Promise.resolve([]), // No session → no overrides
       ]);
 
       const merged = defaults.map((item) => {
