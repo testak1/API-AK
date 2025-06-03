@@ -192,11 +192,11 @@ const generateDynoCurve = (
 
 const getStageColor = (stageName: string) => {
   const name = stageName.toLowerCase();
-  if (name.includes("steg 1")) return "text-red-700";
-  if (name.includes("steg 2")) return "text-orange-600";
-  if (name.includes("steg 3")) return "text-purple-600";
-  if (name.includes("steg 4")) return "text-yellow-600";
-  if (name.includes("dsg")) return "text-blue-600";
+  if (name.includes("steg 1")) return "text-red-500";
+  if (name.includes("steg 2")) return "text-orange-400";
+  if (name.includes("steg 3")) return "text-purple-400";
+  if (name.includes("steg 4")) return "text-yellow-400";
+  if (name.includes("dsg")) return "text-blue-400";
   return "text-white"; // fallback
 };
 
@@ -702,6 +702,8 @@ export default function EnginePage({
                             src={urlFor(brandData.logo).width(60).url()}
                             alt={brandData.name}
                             className="h-8 w-auto object-contain"
+                            width="35"
+                            height="35"
                           />
                         )}
                         <h2 className="text-lg font-semibold text-white">
@@ -1318,6 +1320,8 @@ export default function EnginePage({
                                 src="/logos/aktplus.png"
                                 alt="AKT+ Logo"
                                 className="h-8 w-auto object-contain"
+                                width="120"
+                                height="32"
                               />
                               <h3 className="text-md font-semibold text-white">
                                 {translate(currentLanguage, "additionsLabel")}
