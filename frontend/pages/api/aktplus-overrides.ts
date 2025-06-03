@@ -1,12 +1,11 @@
+// pages/api/aktplus-overrides.ts
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./auth/[...nextauth]";
 import sanity, { urlFor } from "@/lib/sanity";
 
 export default async function handler(req, res) {
   const session = await getServerSession(req, res, authOptions);
-  const resellerId = session?.user?.resellerId;
-
-  if (!resellerId) return res.status(401).json({ error: "Unauthorized" });
+  const resellerId = session?.user?.resellerId || null;
 
   const lang = req.query.lang || "sv";
 
