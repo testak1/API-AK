@@ -5,38 +5,37 @@ import sanity, { urlFor } from "@/lib/sanity";
 
 export default async function handler(req, res) {
   const session = await getServerSession(req, res, authOptions);
-  const resellerId = session?.user?.resellerId || null;
 
+  // Allow override via query param
+  const resellerId = session?.user?.resellerId || req.query.resellerId || null;
   const lang = req.query.lang || "sv";
 
   try {
     if (req.method === "GET") {
-      const lang = req.query.lang || "sv";
-
       const [defaults, overrides] = await Promise.all([
         sanity.fetch(`
-      *[_type == "aktPlus"]{
-        _id,
-        title,
-        description,
-        price,
-        installationTime,
-        gallery
-      }
-    `),
-        resellerId
-          ? sanity.fetch(
-              `*[_type == "resellerAktPlusOverride" && resellerId == $resellerId]{
+          *[_type == "aktPlus"]{
             _id,
-            aktPlusId->{_id},
             title,
             description,
             price,
+            installationTime,
             gallery
-          }`,
+          }
+        `),
+        resellerId
+          ? sanity.fetch(
+              `*[_type == "resellerAktPlusOverride" && resellerId == $resellerId]{
+                _id,
+                aktPlusId->{_id},
+                title,
+                description,
+                price,
+                gallery
+              }`,
               { resellerId },
             )
-          : Promise.resolve([]), // No session → no overrides
+          : Promise.resolve([]),
       ]);
 
       const merged = defaults.map((item) => {
@@ -50,7 +49,6 @@ export default async function handler(req, res) {
         const gallery = override?.gallery?.length
           ? override.gallery
           : item.gallery;
-
         const imageUrl = gallery?.[0]?.asset
           ? urlFor(gallery[0]).width(100).url()
           : null;
@@ -69,25 +67,25 @@ export default async function handler(req, res) {
       return res.status(200).json({ aktplus: merged });
     }
 
+    // POST still requires a session
     if (req.method === "POST") {
+      if (!session?.user?.resellerId) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
       const { aktPlusId, title, description, price, assetId } = req.body;
 
       if (!aktPlusId || !description) {
         return res.status(400).json({ error: "Missing data" });
       }
 
-      // Build gallery from assetId if provided
       let gallery;
       if (assetId) {
         gallery = [
-          {
-            _type: "image",
-            asset: { _type: "reference", _ref: assetId },
-          },
+          { _type: "image", asset: { _type: "reference", _ref: assetId } },
         ];
       }
 
-      // Ensure multilingual title and description
       const multilingualTitle = { [lang]: title };
       const multilingualDescription = {
         [lang]: Array.isArray(description)
@@ -110,7 +108,7 @@ export default async function handler(req, res) {
 
       const existing = await sanity.fetch(
         `*[_type == "resellerAktPlusOverride" && resellerId == $resellerId && aktPlusId._ref == $aktPlusId][0]{_id}`,
-        { resellerId, aktPlusId },
+        { resellerId: session.user.resellerId, aktPlusId },
       );
 
       if (existing?._id) {
@@ -118,7 +116,7 @@ export default async function handler(req, res) {
       } else {
         await sanity.create({
           _type: "resellerAktPlusOverride",
-          resellerId,
+          resellerId: session.user.resellerId,
           aktPlusId: { _type: "reference", _ref: aktPlusId },
           ...payload,
         });
