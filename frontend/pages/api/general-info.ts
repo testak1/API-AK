@@ -4,17 +4,19 @@ import sanity from "@/lib/sanity";
 
 export default async function handler(req, res) {
   const session = await getServerSession(req, res, authOptions);
-  const resellerId = session?.user?.resellerId;
 
-  if (!resellerId) return res.status(401).json({ error: "Unauthorized" });
+  // Allow query-based fallback if no session
+  const resellerId = session?.user?.resellerId || req.query.resellerId || null;
 
   try {
     const [defaults, override] = await Promise.all([
       sanity.fetch(`*[_type == "generalInfo"][0]{content}`),
-      sanity.fetch(
-        `*[_type == "resellerGeneralOverride" && resellerId == $resellerId][0]{content}`,
-        { resellerId },
-      ),
+      resellerId
+        ? sanity.fetch(
+            `*[_type == "resellerGeneralOverride" && resellerId == $resellerId][0]{content}`,
+            { resellerId },
+          )
+        : Promise.resolve(null),
     ]);
 
     const merged = {
@@ -23,15 +25,18 @@ export default async function handler(req, res) {
     };
 
     if (req.method === "POST") {
-      const { content } = req.body;
+      if (!session?.user?.resellerId) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
 
+      const { content } = req.body;
       if (!content) {
         return res.status(400).json({ error: "Missing content" });
       }
 
       const existing = await sanity.fetch(
         `*[_type == "resellerGeneralOverride" && resellerId == $resellerId][0]{_id}`,
-        { resellerId },
+        { resellerId: session.user.resellerId },
       );
 
       if (existing?._id) {
@@ -39,7 +44,7 @@ export default async function handler(req, res) {
       } else {
         await sanity.create({
           _type: "resellerGeneralOverride",
-          resellerId,
+          resellerId: session.user.resellerId,
           content,
         });
       }
