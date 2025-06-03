@@ -1,5 +1,5 @@
 import React from "react";
-import {t} from "@/lib/translations";
+import { t } from "@/lib/translations";
 
 const langNames: Record<string, string> = {
   sv: "SVENSKA",
@@ -32,12 +32,16 @@ export default function PublicLanguageDropdown({
 }: Props) {
   return (
     <div className="relative">
+      {/* Accessible label for screen readers */}
+      <label htmlFor="language-select" className="sr-only">
+        Välj språk
+      </label>
       <select
         value={currentLanguage}
-        onChange={e => setCurrentLanguage(e.target.value)}
+        onChange={(e) => setCurrentLanguage(e.target.value)}
         className="appearance-none bg-gray-800 text-white border border-gray-600 rounded-md px-4 py-2 pr-8 shadow-sm text-sm focus:outline-none hover:bg-gray-700 transition"
       >
-        {Object.keys(langNames).map(lang => (
+        {Object.keys(langNames).map((lang) => (
           <option key={lang} value={lang}>
             {langFlags[lang] || "🌐"} {langNames[lang]}
           </option>
