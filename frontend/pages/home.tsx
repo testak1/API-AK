@@ -129,28 +129,6 @@ export default function APISalesPage() {
           </div>
         </section>
 
-        {/* Brand Logos Section */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 bg-white rounded-xl shadow-sm mb-16">
-          <div className="text-center mb-8">
-            <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">
-              Trusted by tuning businesses worldwide
-            </h3>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 items-center justify-center">
-            {["Volkswagen", "Audi", "BMW", "Mercedes"].map((brand) => (
-              <div key={brand} className="flex justify-center">
-                <div className="h-16 w-16 md:h-20 md:w-20 bg-gray-100 rounded-full flex items-center justify-center p-2">
-                  <img
-                    src={`/brand-logos/${brand.toLowerCase()}.png`}
-                    alt={brand}
-                    className="h-12 w-12 object-contain"
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
         {/* Key Differentiators */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid md:grid-cols-3 gap-8">
           <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
@@ -567,9 +545,7 @@ export default function APISalesPage() {
           <div>
             <h3 className="text-lg font-semibold mb-6">Contact</h3>
             <div className="space-y-3 text-gray-400">
-              <p>support@aktuning.se</p>
-              <p>+46 123 456 789</p>
-              <p>Gothenburg, Sweden</p>
+              <p>info@aktuning.se</p>
             </div>
           </div>
         </div>
@@ -685,22 +661,6 @@ const footerLinks = [
       { text: "Features", url: "#features" },
       { text: "Pricing", url: "#pricing" },
       { text: "Demo", url: "#demo" },
-    ],
-  },
-  {
-    title: "Resources",
-    links: [
-      { text: "Documentation", url: "#" },
-      { text: "API Reference", url: "#" },
-      { text: "Support", url: "#" },
-    ],
-  },
-  {
-    title: "Company",
-    links: [
-      { text: "About", url: "#" },
-      { text: "Blog", url: "#" },
-      { text: "Contact", url: "#contact" },
     ],
   },
 ];
