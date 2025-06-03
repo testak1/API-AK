@@ -9,50 +9,59 @@ export default function APISalesPage() {
   );
   const [iframeLoaded, setIframeLoaded] = useState(false);
 
+  // Sample vehicle data for demo
+  const demoVehicle = {
+    brand: "Volkswagen",
+    model: "Golf R",
+    year: "2020-2023",
+    engine: "2.0 TSI 320HK 4Motion DSG",
+    stages: [
+      {
+        name: "Steg 1",
+        origHk: 320,
+        origNm: 420,
+        tunedHk: 400,
+        tunedNm: 520,
+        price: 5990,
+      },
+      {
+        name: "Steg 2",
+        origHk: 320,
+        origNm: 420,
+        tunedHk: 450,
+        tunedNm: 570,
+        price: 8990,
+      },
+    ],
+  };
+
   return (
     <>
       <Head>
         <title>AK-Tuning API | Premium Vehicle Tuning Data API</title>
         <meta
           name="description"
-          content="Purchase premium vehicle tuning data API for your automotive business. Real-time performance specs, pricing, and compatibility data."
+          content="Powerful API for vehicle tuning data with multi-language, multi-currency support for automotive businesses worldwide."
         />
         <meta
           name="keywords"
-          content="vehicle API, tuning data, car performance API, automotive data, ECU tuning API"
+          content="vehicle tuning API, car performance data, ECU tuning API, automotive API, multi-currency tuning data"
         />
         <meta
           property="og:title"
-          content="AK-Tuning API - Premium Vehicle Tuning Data"
+          content="AK-Tuning API - Vehicle Tuning Data Platform"
         />
         <meta
           property="og:description"
-          content="Access comprehensive vehicle tuning data through our powerful API"
+          content="Complete API solution for vehicle tuning businesses with real-time data, multi-language and multi-currency support"
         />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://api.aktuning.se/home" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <link rel="canonical" href="https://api.aktuning.se/home" />
-        <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "WebAPI",
-            name: "AK-Tuning Vehicle Tuning API",
-            description:
-              "Comprehensive API for vehicle tuning data including performance specs, compatibility, and pricing information.",
-            provider: {
-              "@type": "Organization",
-              name: "AK-Tuning",
-              url: "https://aktuning.se",
-            },
-          })}
-        </script>
       </Head>
 
-      <header className="bg-white/80 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50">
-        <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+      {/* Modern, clean header */}
+      <header className="bg-white/90 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <Link href="/" className="flex items-center space-x-2">
-            <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            <span className="text-2xl font-bold bg-gradient-to-r from-red-600 to-red-800 bg-clip-text text-transparent">
               AK-Tuning API
             </span>
           </Link>
@@ -60,157 +69,272 @@ export default function APISalesPage() {
           <div className="hidden md:flex items-center space-x-8">
             <button
               onClick={() => setActiveTab("features")}
-              className={`font-medium ${activeTab === "features" ? "text-blue-600" : "text-gray-600 hover:text-blue-600"} transition`}
+              className={`font-medium ${activeTab === "features" ? "text-red-600" : "text-gray-600 hover:text-red-600"} transition`}
             >
               Features
             </button>
             <button
               onClick={() => setActiveTab("pricing")}
-              className={`font-medium ${activeTab === "pricing" ? "text-blue-600" : "text-gray-600 hover:text-blue-600"} transition`}
+              className={`font-medium ${activeTab === "pricing" ? "text-red-600" : "text-gray-600 hover:text-red-600"} transition`}
             >
               Pricing
             </button>
             <button
               onClick={() => setActiveTab("demo")}
-              className={`font-medium ${activeTab === "demo" ? "text-blue-600" : "text-gray-600 hover:text-blue-600"} transition`}
+              className={`font-medium ${activeTab === "demo" ? "text-red-600" : "text-gray-600 hover:text-red-600"} transition`}
             >
               Live Demo
             </button>
-            <Link
-              href="#contact"
-              className="font-medium text-gray-600 hover:text-blue-600 transition"
-            >
-              Contact
-            </Link>
           </div>
 
           <Link
             href="#pricing"
-            className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-5 py-2.5 rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700 transition shadow-sm"
+            className="bg-gradient-to-r from-red-600 to-red-800 text-white px-5 py-2.5 rounded-lg font-medium hover:from-red-700 hover:to-red-900 transition shadow-sm"
           >
             Get Started
           </Link>
-        </nav>
+        </div>
       </header>
 
       <main className="bg-gradient-to-b from-gray-50 to-white">
-        {/* Hero Section */}
+        {/* Hero Section with Value Proposition */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28 text-center">
           <div className="max-w-4xl mx-auto">
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-6 leading-tight">
-              <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                Vehicle Tuning Data API
+              <span className="bg-gradient-to-r from-red-600 to-red-800 bg-clip-text text-transparent">
+                The Complete Tuning Data API
               </span>
               <br />
-              For Developers & Businesses
+              For Automotive Businesses
             </h1>
             <p className="text-xl text-gray-600 mb-10">
-              Access comprehensive vehicle tuning data including performance
-              specs, compatibility, and pricing through our powerful REST API.
+              Power your automotive business with our comprehensive tuning data
+              API. Real-time performance specs, multi-currency pricing, and 25+
+              language support in one powerful platform.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Link
                 href="#pricing"
-                className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-4 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition shadow-lg"
+                className="bg-gradient-to-r from-red-600 to-red-800 text-white px-8 py-4 rounded-lg font-semibold hover:from-red-700 hover:to-red-900 transition shadow-lg"
               >
                 View Pricing Plans
               </Link>
               <button
                 onClick={() => setActiveTab("demo")}
-                className="border-2 border-blue-600 text-blue-600 px-8 py-4 rounded-lg font-semibold hover:bg-blue-50 transition"
+                className="border-2 border-red-600 text-red-600 px-8 py-4 rounded-lg font-semibold hover:bg-red-50 transition"
               >
                 Try Live Demo
               </button>
             </div>
+          </div>
+        </section>
 
-            {/* Trust Badges */}
-            <div className="mt-12 flex flex-wrap justify-center gap-6 items-center">
-              <div className="flex items-center gap-2 text-gray-700">
-                <svg
-                  className="w-5 h-5 text-green-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M5 13l4 4L19 7"
-                  ></path>
-                </svg>
-                +25 Languages Supported
+        {/* Brand Logos Section */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 bg-white rounded-xl shadow-sm mb-16">
+          <div className="text-center mb-8">
+            <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">
+              Trusted by tuning businesses worldwide
+            </h3>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 items-center justify-center">
+            {["Volkswagen", "Audi", "BMW", "Mercedes"].map((brand) => (
+              <div key={brand} className="flex justify-center">
+                <div className="h-16 w-16 md:h-20 md:w-20 bg-gray-100 rounded-full flex items-center justify-center p-2">
+                  <img
+                    src={`/brand-logos/${brand.toLowerCase()}.png`}
+                    alt={brand}
+                    className="h-12 w-12 object-contain"
+                  />
+                </div>
               </div>
-              <div className="flex items-center gap-2 text-gray-700">
-                <svg
-                  className="w-5 h-5 text-green-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M5 13l4 4L19 7"
-                  ></path>
-                </svg>
-                +15 Live Currencies
-              </div>
-              <div className="flex items-center gap-2 text-gray-700">
-                <svg
-                  className="w-5 h-5 text-green-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M5 13l4 4L19 7"
-                  ></path>
-                </svg>
-                24/7 Free Support
-              </div>
-              <div className="flex items-center gap-2 text-gray-700">
-                <svg
-                  className="w-5 h-5 text-green-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M5 13l4 4L19 7"
-                  ></path>
-                </svg>
-                99.9% Uptime SLA
+            ))}
+          </div>
+        </section>
+
+        {/* Key Differentiators */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid md:grid-cols-3 gap-8">
+          <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+            <div className="w-14 h-14 flex items-center justify-center rounded-lg bg-red-50 text-red-600 text-2xl mb-6">
+              💰
+            </div>
+            <h3 className="text-xl font-bold mb-3">Multi-Currency Pricing</h3>
+            <p className="text-gray-600">
+              Automatic price conversion for 20+ currencies with
+              reseller-specific overrides.
+            </p>
+          </div>
+
+          <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+            <div className="w-14 h-14 flex items-center justify-center rounded-lg bg-red-50 text-red-600 text-2xl mb-6">
+              🌐
+            </div>
+            <h3 className="text-xl font-bold mb-3">25+ Languages</h3>
+            <p className="text-gray-600">
+              Full localization support with language switching for global
+              customers.
+            </p>
+          </div>
+
+          <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+            <div className="w-14 h-14 flex items-center justify-center rounded-lg bg-red-50 text-red-600 text-2xl mb-6">
+              🛠️
+            </div>
+            <h3 className="text-xl font-bold mb-3">Complete Tuning Data</h3>
+            <p className="text-gray-600">
+              Detailed specs for every stage including HP, torque, pricing and
+              descriptions.
+            </p>
+          </div>
+        </section>
+
+        {/* Data Structure Visualization */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 bg-white rounded-xl shadow-sm mb-16">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-4">
+              Comprehensive Vehicle Data Hierarchy
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Our API provides structured data for every level of vehicle tuning
+              specifications
+            </p>
+          </div>
+
+          <div className="flex justify-center">
+            <div className="relative w-full max-w-4xl">
+              {/* Data hierarchy visualization */}
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-4 text-center">
+                {["Brands", "Models", "Years", "Engines", "Stages"].map(
+                  (level, index) => (
+                    <div key={level} className="relative">
+                      <div className="bg-gray-800 text-white p-4 rounded-lg shadow-md h-32 flex flex-col items-center justify-center">
+                        <div className="text-lg font-bold mb-2">{level}</div>
+                        <div className="text-sm text-gray-300">
+                          {index === 0 && "50+ vehicle brands"}
+                          {index === 1 && "500+ models"}
+                          {index === 2 && "Year ranges"}
+                          {index === 3 && "Engine variants"}
+                          {index === 4 && "Tuning stages"}
+                        </div>
+                      </div>
+                      {index < 4 && (
+                        <div className="hidden md:block absolute top-1/2 right-0 transform translate-x-1/2 -translate-y-1/2">
+                          <svg
+                            className="w-8 h-8 text-gray-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M9 5l7 7-7 7"
+                            />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+                  ),
+                )}
               </div>
             </div>
           </div>
         </section>
 
-        {/* Stats Section */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 bg-white rounded-xl shadow-sm mb-16">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            <div className="p-6">
-              <div className="text-4xl font-bold text-blue-600 mb-2">10M+</div>
-              <div className="text-gray-600">Monthly API Calls</div>
+        {/* Sample Data Display */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-4">
+              Rich Tuning Data for Every Vehicle
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              See the detailed tuning data our API provides for each vehicle
+              configuration
+            </p>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div className="p-6 bg-gray-800 text-white">
+              <h3 className="text-xl font-bold">
+                {demoVehicle.brand} {demoVehicle.model} {demoVehicle.year} -{" "}
+                {demoVehicle.engine}
+              </h3>
             </div>
-            <div className="p-6">
-              <div className="text-4xl font-bold text-blue-600 mb-2">25+</div>
-              <div className="text-gray-600">Supported Languages</div>
+
+            <div className="p-6 grid md:grid-cols-2 gap-6">
+              {demoVehicle.stages.map((stage) => (
+                <div
+                  key={stage.name}
+                  className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow"
+                >
+                  <div className="flex justify-between items-start mb-4">
+                    <h4 className="text-lg font-bold text-red-600">
+                      {stage.name}
+                    </h4>
+                    <span className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-semibold">
+                      {stage.price} SEK
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="bg-gray-50 p-3 rounded">
+                      <p className="text-xs text-gray-500 uppercase font-semibold">
+                        Original HP
+                      </p>
+                      <p className="font-bold">{stage.origHk} HK</p>
+                    </div>
+                    <div className="bg-gray-50 p-3 rounded">
+                      <p className="text-xs text-gray-500 uppercase font-semibold">
+                        Tuned HP
+                      </p>
+                      <p className="font-bold text-red-600">
+                        {stage.tunedHk} HK{" "}
+                        <span className="text-green-600">
+                          (+{stage.tunedHk - stage.origHk})
+                        </span>
+                      </p>
+                    </div>
+                    <div className="bg-gray-50 p-3 rounded">
+                      <p className="text-xs text-gray-500 uppercase font-semibold">
+                        Original Torque
+                      </p>
+                      <p className="font-bold">{stage.origNm} NM</p>
+                    </div>
+                    <div className="bg-gray-50 p-3 rounded">
+                      <p className="text-xs text-gray-500 uppercase font-semibold">
+                        Tuned Torque
+                      </p>
+                      <p className="font-bold text-red-600">
+                        {stage.tunedNm} NM{" "}
+                        <span className="text-green-600">
+                          (+{stage.tunedNm - stage.origNm})
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+
+                  <p className="text-sm text-gray-600 mb-4">
+                    Complete stage description with technical details, benefits,
+                    and requirements.
+                  </p>
+
+                  <button className="w-full bg-gray-800 hover:bg-gray-700 text-white py-2 rounded-lg font-medium transition">
+                    View Full Details
+                  </button>
+                </div>
+              ))}
             </div>
-            <div className="p-6">
-              <div className="text-4xl font-bold text-blue-600 mb-2">15+</div>
-              <div className="text-gray-600">Live Currencies</div>
-            </div>
-            <div className="p-6">
-              <div className="text-4xl font-bold text-blue-600 mb-2">24/7</div>
-              <div className="text-gray-600">Support Availability</div>
+
+            <div className="p-6 bg-gray-50 border-t border-gray-200 text-center">
+              <p className="text-gray-600 mb-4">
+                This is just a sample of the data available through our API.
+              </p>
+              <button
+                onClick={() => setActiveTab("demo")}
+                className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition"
+              >
+                Explore Full Demo
+              </button>
             </div>
           </div>
         </section>
@@ -222,19 +346,19 @@ export default function APISalesPage() {
             <div className="flex space-x-4">
               <button
                 onClick={() => setActiveTab("features")}
-                className={`py-4 px-6 font-medium text-sm border-b-2 ${activeTab === "features" ? "border-blue-600 text-blue-600" : "border-transparent text-gray-500 hover:text-gray-700"}`}
+                className={`py-4 px-6 font-medium text-sm border-b-2 ${activeTab === "features" ? "border-red-600 text-red-600" : "border-transparent text-gray-500 hover:text-gray-700"}`}
               >
                 Key Features
               </button>
               <button
                 onClick={() => setActiveTab("pricing")}
-                className={`py-4 px-6 font-medium text-sm border-b-2 ${activeTab === "pricing" ? "border-blue-600 text-blue-600" : "border-transparent text-gray-500 hover:text-gray-700"}`}
+                className={`py-4 px-6 font-medium text-sm border-b-2 ${activeTab === "pricing" ? "border-red-600 text-red-600" : "border-transparent text-gray-500 hover:text-gray-700"}`}
               >
                 Pricing Plans
               </button>
               <button
                 onClick={() => setActiveTab("demo")}
-                className={`py-4 px-6 font-medium text-sm border-b-2 ${activeTab === "demo" ? "border-blue-600 text-blue-600" : "border-transparent text-gray-500 hover:text-gray-700"}`}
+                className={`py-4 px-6 font-medium text-sm border-b-2 ${activeTab === "demo" ? "border-red-600 text-red-600" : "border-transparent text-gray-500 hover:text-gray-700"}`}
               >
                 Live Demo
               </button>
@@ -250,7 +374,7 @@ export default function APISalesPage() {
                     key={index}
                     className="bg-white p-8 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-gray-100"
                   >
-                    <div className="w-14 h-14 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 text-2xl mb-6">
+                    <div className="w-14 h-14 flex items-center justify-center rounded-lg bg-red-50 text-red-600 text-2xl mb-6">
                       {feature.icon}
                     </div>
                     <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
@@ -267,12 +391,12 @@ export default function APISalesPage() {
                     key={index}
                     className={`bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow border ${
                       plan.popular
-                        ? "border-2 border-blue-600 relative"
+                        ? "border-2 border-red-600 relative"
                         : "border-gray-200"
                     }`}
                   >
                     {plan.popular && (
-                      <div className="absolute -top-3 right-6 bg-blue-600 text-white px-4 py-1 rounded-full text-xs font-semibold">
+                      <div className="absolute -top-3 right-6 bg-red-600 text-white px-4 py-1 rounded-full text-xs font-semibold">
                         Most Popular
                       </div>
                     )}
@@ -288,7 +412,7 @@ export default function APISalesPage() {
                         {plan.features.map((feature, i) => (
                           <li key={i} className="flex items-start">
                             <svg
-                              className="w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0"
+                              className="w-5 h-5 text-red-500 mr-2 mt-0.5 flex-shrink-0"
                               fill="none"
                               stroke="currentColor"
                               viewBox="0 0 24 24"
@@ -308,7 +432,7 @@ export default function APISalesPage() {
                         href={plan.ctaLink}
                         className={`block text-center py-3 px-6 rounded-lg font-medium ${
                           plan.popular
-                            ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700"
+                            ? "bg-gradient-to-r from-red-600 to-red-800 text-white hover:from-red-700 hover:to-red-900"
                             : "bg-gray-100 text-gray-800 hover:bg-gray-200"
                         } transition shadow-sm`}
                       >
@@ -325,9 +449,9 @@ export default function APISalesPage() {
                 <div className="p-8">
                   <h2 className="text-3xl font-bold mb-6">Live API Demo</h2>
                   <p className="text-gray-600 mb-6">
-                    Interact with our API directly through this live demo. The
-                    demo loads our actual API interface where you can test
-                    endpoints.
+                    Experience our full API interface with real tuning data. The
+                    demo shows exactly what your resellers will see when they
+                    use your branded portal.
                   </p>
 
                   <div className="relative pt-[75%] rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
@@ -339,7 +463,7 @@ export default function APISalesPage() {
                       </div>
                     )}
                     <iframe
-                      src="https://api.aktuning.se"
+                      src="https://api.aktuning.se/reseller/demo"
                       className="absolute top-0 left-0 w-full h-full border-0"
                       onLoad={() => setIframeLoaded(true)}
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -348,56 +472,34 @@ export default function APISalesPage() {
                     />
                   </div>
 
-                  <div className="mt-6 bg-blue-50 p-4 rounded-lg border border-blue-100">
-                    <h3 className="font-medium text-blue-800 mb-2">
-                      Demo Tips
-                    </h3>
-                    <ul className="space-y-2 text-sm text-gray-700">
-                      <li>
-                        • Use the navigation to explore different API endpoints
-                      </li>
-                      <li>
-                        • Try making sample requests with the demo credentials
-                      </li>
-                      <li>• Check the response formats and status codes</li>
-                      <li>• The demo resets every 30 minutes</li>
-                    </ul>
-                  </div>
+                  <div className="mt-8 grid md:grid-cols-2 gap-6">
+                    <div className="bg-red-50 p-6 rounded-lg border border-red-100">
+                      <h3 className="font-bold text-red-800 mb-3">
+                        Demo Credentials
+                      </h3>
+                      <div className="space-y-2">
+                        <p className="text-sm">
+                          <span className="font-semibold">Email:</span>{" "}
+                          demo@aktuning.se
+                        </p>
+                        <p className="text-sm">
+                          <span className="font-semibold">Password:</span>{" "}
+                          demodemo
+                        </p>
+                      </div>
+                    </div>
 
-                  <div className="mt-6 text-center">
-                    <form
-                      method="POST"
-                      action="https://api.aktuning.se/admin/login"
-                      target="_blank"
-                      className="inline-block"
-                    >
-                      <input
-                        type="hidden"
-                        name="email"
-                        value="demo@aktuning.se"
-                      />
-                      <input type="hidden" name="password" value="demodemo" />
-                      <button
-                        type="submit"
-                        className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
-                      >
-                        Login as Demo Admin
-                      </button>
-                    </form>
-                    <div className="mt-6 text-center">
-                      <a
-                        href="https://api.aktuning.se/admin/login"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
-                      >
-                        Go to Demo Login Page
-                      </a>
-                      <p className="text-sm text-gray-500 mt-2">
-                        Use <strong>demo@aktuning.se</strong> /{" "}
-                        <strong>demodemo</strong> to log in
-                      </p>
-                    </div>{" "}
+                    <div className="bg-blue-50 p-6 rounded-lg border border-blue-100">
+                      <h3 className="font-bold text-blue-800 mb-3">
+                        Key Features to Try
+                      </h3>
+                      <ul className="space-y-2 text-sm">
+                        <li>• Vehicle selection hierarchy</li>
+                        <li>• Multi-currency pricing</li>
+                        <li>• Performance data visualization</li>
+                        <li>• Stage descriptions</li>
+                      </ul>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -405,233 +507,20 @@ export default function APISalesPage() {
           </div>
         </section>
 
-        {/* API Features Section */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold mb-4">Advanced API Features</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Our API comes packed with powerful features to help you build
-              better automotive applications
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-12">
-            <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-              <div className="flex items-center mb-6">
-                <div className="w-12 h-12 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 text-xl mr-6">
-                  🌐
-                </div>
-                <h3 className="text-xl font-bold">Multi-Language Support</h3>
-              </div>
-              <p className="text-gray-600 mb-6">
-                Our API supports over 25 languages, making it easy to localize
-                your application for global markets.
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {[
-                  "English",
-                  "Spanish",
-                  "German",
-                  "French",
-                  "Italian",
-                  "Portuguese",
-                  "Russian",
-                  "Japanese",
-                  "Chinese",
-                  "Arabic",
-                ].map((lang) => (
-                  <span
-                    key={lang}
-                    className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm"
-                  >
-                    {lang}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-              <div className="flex items-center mb-6">
-                <div className="w-12 h-12 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 text-xl mr-6">
-                  💰
-                </div>
-                <h3 className="text-xl font-bold">Multi-Currency Support</h3>
-              </div>
-              <p className="text-gray-600 mb-6">
-                Get pricing data in 15+ currencies with real-time exchange
-                rates, perfect for e-commerce applications.
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {[
-                  "USD",
-                  "EUR",
-                  "GBP",
-                  "JPY",
-                  "CAD",
-                  "AUD",
-                  "CNY",
-                  "SEK",
-                  "NOK",
-                  "DKK",
-                  "CHF",
-                  "PLN",
-                  "RUB",
-                  "BRL",
-                  "MXN",
-                ].map((currency) => (
-                  <span
-                    key={currency}
-                    className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm"
-                  >
-                    {currency}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-              <div className="flex items-center mb-6">
-                <div className="w-12 h-12 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 text-xl mr-6">
-                  ⚡
-                </div>
-                <h3 className="text-xl font-bold">Real-Time Data</h3>
-              </div>
-              <p className="text-gray-600 mb-6">
-                Our API delivers real-time tuning data with sub-second response
-                times, ensuring your application always has the latest
-                information.
-              </p>
-              <div className="space-y-4">
-                <div className="flex items-center">
-                  <svg
-                    className="w-5 h-5 text-green-500 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M5 13l4 4L19 7"
-                    ></path>
-                  </svg>
-                  <span>Average response time: 120ms</span>
-                </div>
-                <div className="flex items-center">
-                  <svg
-                    className="w-5 h-5 text-green-500 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M5 13l4 4L19 7"
-                    ></path>
-                  </svg>
-                  <span>99.9% uptime SLA</span>
-                </div>
-                <div className="flex items-center">
-                  <svg
-                    className="w-5 h-5 text-green-500 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M5 13l4 4L19 7"
-                    ></path>
-                  </svg>
-                  <span>Webhooks for real-time updates</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-              <div className="flex items-center mb-6">
-                <div className="w-12 h-12 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 text-xl mr-6">
-                  🛠️
-                </div>
-                <h3 className="text-xl font-bold">Developer Friendly</h3>
-              </div>
-              <p className="text-gray-600 mb-6">
-                We've designed our API with developers in mind, offering
-                comprehensive documentation and 24/7 support.
-              </p>
-              <div className="space-y-4">
-                <div className="flex items-center">
-                  <svg
-                    className="w-5 h-5 text-green-500 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M5 13l4 4L19 7"
-                    ></path>
-                  </svg>
-                  <span>Interactive API documentation</span>
-                </div>
-                <div className="flex items-center">
-                  <svg
-                    className="w-5 h-5 text-green-500 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M5 13l4 4L19 7"
-                    ></path>
-                  </svg>
-                  <span>Code samples in 8+ languages</span>
-                </div>
-                <div className="flex items-center">
-                  <svg
-                    className="w-5 h-5 text-green-500 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M5 13l4 4L19 7"
-                    ></path>
-                  </svg>
-                  <span>24/7 developer support</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* CTA Section */}
-        <section className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        {/* Final CTA Section */}
+        <section className="bg-gradient-to-r from-red-600 to-red-800 text-white py-20">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-3xl font-bold mb-6">
-              Ready to integrate our API?
+              Ready to Power Your Tuning Business?
             </h2>
-            <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
-              Start building with AK-Tuning API today and get your first 100
-              requests free.
+            <p className="text-xl text-red-100 mb-8">
+              Join hundreds of automotive businesses using our API to deliver
+              exceptional tuning services.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Link
                 href="#pricing"
-                className="bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold hover:bg-gray-100 transition shadow-lg"
+                className="bg-white text-red-600 px-8 py-4 rounded-lg font-semibold hover:bg-gray-100 transition shadow-lg"
               >
                 View Pricing Plans
               </Link>
@@ -639,105 +528,22 @@ export default function APISalesPage() {
                 href="#contact"
                 className="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold hover:bg-white/10 transition"
               >
-                Contact Sales
+                Contact Our Team
               </Link>
-            </div>
-
-            <div className="mt-8 flex flex-wrap justify-center gap-6">
-              <div className="flex items-center gap-2 text-blue-100">
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M5 13l4 4L19 7"
-                  ></path>
-                </svg>
-                No credit card required
-              </div>
-              <div className="flex items-center gap-2 text-blue-100">
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M5 13l4 4L19 7"
-                  ></path>
-                </svg>
-                24/7 Support
-              </div>
-              <div className="flex items-center gap-2 text-blue-100">
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M5 13l4 4L19 7"
-                  ></path>
-                </svg>
-                Cancel anytime
-              </div>
             </div>
           </div>
         </section>
       </main>
 
-      <footer className="bg-gray-900 text-white pt-20 pb-10">
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white pt-16 pb-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-4 gap-12">
           <div>
             <h3 className="text-xl font-bold mb-6">AK-Tuning API</h3>
             <p className="text-gray-400">
-              Premium vehicle tuning data API for developers and businesses.
+              The complete vehicle tuning data platform for automotive
+              businesses.
             </p>
-            <div className="mt-6 space-y-2">
-              <div className="flex items-center gap-2 text-gray-400">
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                  ></path>
-                </svg>
-                +1 (555) 123-4567
-              </div>
-              <div className="flex items-center gap-2 text-gray-400">
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                  ></path>
-                </svg>
-                support@aktuning.com
-              </div>
-            </div>
           </div>
 
           {footerLinks.map((column, index) => (
@@ -759,138 +565,95 @@ export default function APISalesPage() {
           ))}
 
           <div>
-            <h3 className="text-lg font-semibold mb-6">API Status</h3>
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-2 h-2 rounded-full bg-green-500"></div>
-              <span className="text-gray-400">All Systems Operational</span>
+            <h3 className="text-lg font-semibold mb-6">Contact</h3>
+            <div className="space-y-3 text-gray-400">
+              <p>support@aktuning.se</p>
+              <p>+46 123 456 789</p>
+              <p>Gothenburg, Sweden</p>
             </div>
-            <p className="text-sm text-gray-500 mt-4">
-              Last updated:{" "}
-              {new Date().toLocaleDateString("en-US", {
-                weekday: "long",
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
-            </p>
-            <Link
-              href="/status"
-              className="inline-block mt-4 text-blue-400 hover:text-blue-300 text-sm"
-            >
-              View API Status Page
-            </Link>
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 mt-12 border-t border-gray-800">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-gray-400 text-sm">
-              &copy; {new Date().getFullYear()} AK-Tuning. All rights reserved.
-            </p>
-            <div className="flex space-x-6 mt-4 md:mt-0">
-              <Link
-                href="/terms"
-                className="text-gray-400 hover:text-white text-sm"
-              >
-                Terms
-              </Link>
-              <Link
-                href="/privacy"
-                className="text-gray-400 hover:text-white text-sm"
-              >
-                Privacy
-              </Link>
-              <Link
-                href="/security"
-                className="text-gray-400 hover:text-white text-sm"
-              >
-                Security
-              </Link>
-              <Link
-                href="/sla"
-                className="text-gray-400 hover:text-white text-sm"
-              >
-                SLA
-              </Link>
-            </div>
-          </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 mt-12 border-t border-gray-800 text-center">
+          <p className="text-gray-400 text-sm">
+            &copy; {new Date().getFullYear()} AK-Tuning API. All rights
+            reserved.
+          </p>
         </div>
       </footer>
     </>
   );
 }
 
-// Data
+// Updated data arrays
 const features = [
   {
-    icon: "⚡",
-    title: "Real-time Data",
+    icon: "🚗",
+    title: "Complete Vehicle Hierarchy",
     description:
-      "Get up-to-date tuning information for thousands of vehicle models with our constantly updated database.",
+      "Structured data from brands down to individual engine tuning stages with all specifications.",
   },
   {
-    icon: "🔧",
-    title: "Comprehensive Specs",
+    icon: "💵",
+    title: "Reseller Pricing Control",
     description:
-      "Detailed performance data including horsepower, torque, and stage tuning information for each vehicle.",
+      "Allow resellers to set custom prices while maintaining your base pricing structure.",
+  },
+  {
+    icon: "🌍",
+    title: "Global Market Ready",
+    description:
+      "25+ languages and 20+ currencies built-in for international businesses.",
+  },
+  {
+    icon: "🛠️",
+    title: "AKT+ Options System",
+    description:
+      "Manage add-on products and services that can be combined with tuning stages.",
   },
   {
     icon: "📊",
-    title: "Analytics Ready",
+    title: "Performance Visualization",
     description:
-      "Structured JSON responses that integrate seamlessly with your applications and analytics tools.",
+      "Built-in dyno charts showing before/after performance for each tuning stage.",
   },
   {
-    icon: "🔒",
-    title: "Secure & Reliable",
+    icon: "🔌",
+    title: "Easy Integration",
     description:
-      "Enterprise-grade security with 99.9% uptime guarantee and automatic scaling.",
-  },
-  {
-    icon: "🌐",
-    title: "Global Coverage",
-    description:
-      "Data for vehicles from all major manufacturers worldwide with multi-language support.",
-  },
-  {
-    icon: "📝",
-    title: "Excellent Documentation",
-    description:
-      "Comprehensive documentation with code samples in multiple programming languages.",
+      "REST API with comprehensive documentation and code samples in multiple languages.",
   },
 ];
 
 const pricingPlans = [
   {
     name: "Starter",
-    price: "$99",
+    price: "€99",
     period: "month",
     features: [
-      "1,000 API requests/month",
-      "Basic vehicle data",
+      "Up to 5 reseller accounts",
+      "10,000 API requests/month",
+      "5 languages included",
+      "10 currencies supported",
       "Email support",
-      "Standard response times",
-      "Community forum access",
-      "10+ languages supported",
-      "5 currency options",
+      "Basic analytics",
     ],
-    ctaText: "Get Started",
+    ctaText: "Start Free Trial",
     ctaLink: "#",
     popular: false,
   },
   {
     name: "Professional",
-    price: "$299",
+    price: "€299",
     period: "month",
     features: [
-      "10,000 API requests/month",
-      "Full vehicle data including tuning specs",
+      "Up to 20 reseller accounts",
+      "50,000 API requests/month",
+      "All languages included",
+      "All currencies supported",
       "Priority email support",
-      "Faster response times",
-      "Basic analytics dashboard",
-      "Webhook support",
-      "25+ languages supported",
-      "15+ currency options",
+      "Advanced analytics",
+      "Custom branding",
     ],
     ctaText: "Get Started",
     ctaLink: "#",
@@ -901,15 +664,13 @@ const pricingPlans = [
     price: "Custom",
     period: "month",
     features: [
+      "Unlimited resellers",
       "Unlimited API requests",
-      "Full data access including beta features",
-      "24/7 priority support",
-      "Dedicated account manager",
-      "Advanced analytics",
+      "All features included",
+      "Dedicated support",
+      "White-label options",
       "Custom integrations",
       "SLAs available",
-      "All languages & currencies",
-      "White-label options",
     ],
     ctaText: "Contact Sales",
     ctaLink: "#contact",
@@ -924,6 +685,22 @@ const footerLinks = [
       { text: "Features", url: "#features" },
       { text: "Pricing", url: "#pricing" },
       { text: "Demo", url: "#demo" },
+    ],
+  },
+  {
+    title: "Resources",
+    links: [
+      { text: "Documentation", url: "#" },
+      { text: "API Reference", url: "#" },
+      { text: "Support", url: "#" },
+    ],
+  },
+  {
+    title: "Company",
+    links: [
+      { text: "About", url: "#" },
+      { text: "Blog", url: "#" },
+      { text: "Contact", url: "#contact" },
     ],
   },
 ];
