@@ -4,12 +4,17 @@ import sanity from "@/lib/sanity";
 
 export default async function handler(req, res) {
   const session = await getServerSession(req, res, authOptions);
-  const resellerId = session?.user?.resellerId;
 
-  if (!resellerId) return res.status(401).json({ error: "Unauthorized" });
+  // Allow resellerId from query param if not logged in
+  const resellerId = session?.user?.resellerId || req.query.resellerId || null;
 
   try {
     if (req.method === "POST") {
+      // ❗️Write actions still require authentication
+      if (!session?.user?.resellerId) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+
       const { stageName, description } = req.body;
 
       if (!stageName || !description) {
@@ -18,7 +23,7 @@ export default async function handler(req, res) {
 
       const existing = await sanity.fetch(
         `*[_type == "resellerStageOverride" && resellerId == $resellerId && stageName == $stageName][0]`,
-        { resellerId, stageName },
+        { resellerId: session.user.resellerId, stageName },
       );
 
       if (existing?._id) {
@@ -26,7 +31,7 @@ export default async function handler(req, res) {
       } else {
         await sanity.create({
           _type: "resellerStageOverride",
-          resellerId,
+          resellerId: session.user.resellerId,
           stageName,
           description,
         });
@@ -38,10 +43,12 @@ export default async function handler(req, res) {
     // GET handler
     const [defaults, overrides] = await Promise.all([
       sanity.fetch(`*[_type == "stageDescription"]{stageName, description}`),
-      sanity.fetch(
-        `*[_type == "resellerStageOverride" && resellerId == $resellerId]{stageName, description}`,
-        { resellerId },
-      ),
+      resellerId
+        ? sanity.fetch(
+            `*[_type == "resellerStageOverride" && resellerId == $resellerId]{stageName, description}`,
+            { resellerId },
+          )
+        : Promise.resolve([]),
     ]);
 
     const merged = defaults.map((def) => {

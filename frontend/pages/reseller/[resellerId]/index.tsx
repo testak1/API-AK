@@ -172,7 +172,9 @@ export default function TuningViewer() {
 
     const fetchOverrides = async () => {
       try {
-        const res = await fetch("/api/aktplus-overrides");
+        const res = await fetch(
+          `/api/aktplus-overrides?resellerId=${resellerId}`,
+        );
         const json = await res.json();
         setAktPlusOptions(json.aktplus || []);
       } catch (err) {
@@ -188,7 +190,9 @@ export default function TuningViewer() {
 
     const fetchDescriptions = async () => {
       try {
-        const res = await fetch(`/api/stage-descriptions`);
+        const res = await fetch(
+          `/api/stage-descriptions?resellerId=${resellerId}`,
+        );
         if (!res.ok) throw new Error("Failed to fetch descriptions");
         const json = await res.json();
         setStageDescriptions(json.descriptions || []);
@@ -208,7 +212,7 @@ export default function TuningViewer() {
     if (!resellerId) return;
 
     const fetchGeneralInfo = async () => {
-      const res = await fetch(`/api/general-info`);
+      const res = await fetch(`/api/general-info?resellerId=${resellerId}`);
       const json = await res.json();
       setGeneralInfo(json.generalInfo || {});
     };
