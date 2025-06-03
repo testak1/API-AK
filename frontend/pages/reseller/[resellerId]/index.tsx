@@ -734,7 +734,7 @@ export default function TuningViewer() {
 
       return Array.from(uniqueOptionsMap.values());
     },
-    [selectedEngine],
+    [selectedEngine, aktPlusOptions],
   );
 
   const generateDynoCurve = (

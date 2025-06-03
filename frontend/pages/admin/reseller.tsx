@@ -2123,7 +2123,7 @@ export default function ResellerAdmin({ session }) {
                         Saving...
                       </>
                     ) : (
-                      "Save Settings"
+                      "Save All Settings"
                     )}
                   </button>
                 </div>
