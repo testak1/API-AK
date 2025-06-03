@@ -257,23 +257,49 @@ export default function TuningViewer() {
     const rate = settings.exchangeRates[settings.currency] || 1;
     const converted = priceInSek * rate;
 
-    // Round to nearest 100
-    const rounded = Math.round(converted / 100) * 100;
+    const rounded = Math.round(converted / 50) * 50;
 
-    if (
-      settings.currency === "SEK" ||
-      settings.currency === "NOK" ||
-      settings.currency === "DKK"
-    ) {
-      return `${rounded} ${settings.currency}`;
-    }
+    // Currency display symbol or fallback
+    const currencySymbols: Record<string, string> = {
+      SEK: "kr",
+      EUR: "€",
+      USD: "$",
+      GBP: "£",
+      THB: "฿",
+      JPY: "¥",
+      CNY: "¥",
+      RUB: "₽",
+      TRY: "₺",
+      PLN: "zł",
+      CZK: "Kč",
+      HUF: "Ft",
+      AED: "د.إ",
+      KRW: "₩",
+      NOK: "kr",
+      DKK: "kr",
+      CHF: "CHF",
+      AUD: "A$",
+      CAD: "C$",
+      INR: "₹",
+      SGD: "S$",
+      NZD: "NZ$",
+      ZAR: "R",
+      BRL: "R$",
+      MXN: "MX$",
+    };
 
-    return rounded.toLocaleString(settings.language, {
-      style: "currency",
-      currency: settings.currency,
-      maximumFractionDigits: 0,
-      minimumFractionDigits: 0,
-    });
+    const symbol = currencySymbols[settings.currency] || settings.currency;
+
+    // Localized formatting (zero decimal style)
+    return rounded
+      .toLocaleString(settings.language, {
+        style: "currency",
+        currency: settings.currency,
+        currencyDisplay: "symbol",
+        maximumFractionDigits: 0,
+        minimumFractionDigits: 0,
+      })
+      .replace(settings.currency, symbol);
   };
 
   const updateSettings = async (settings: Partial<DisplaySettings>) => {
