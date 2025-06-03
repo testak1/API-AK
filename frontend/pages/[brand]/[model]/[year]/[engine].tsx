@@ -709,7 +709,7 @@ export default function EnginePage({
                         <h2 className="text-lg font-semibold text-white">
                           {engineData.label} -{" "}
                           <span
-                            className={`uppercase tracking-wide ${getStageColor(stage.name)} bg-white/10 px-1 rounded-sm`}
+                            className={`uppercase tracking-wide ${getStageColor(stage.name)}`}
                           >
                             [{translateStageName(currentLanguage, stage.name)}]
                           </span>
