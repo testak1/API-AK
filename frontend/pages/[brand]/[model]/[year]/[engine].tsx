@@ -949,7 +949,6 @@ export default function EnginePage({
                               "translateStageName",
                               stage.name,
                             ).toUpperCase()}{" "}
-                            {translate(currentLanguage, "tuningCurveNote")}
                           </h3>
                         )}
 

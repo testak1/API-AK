@@ -288,6 +288,24 @@ export default function TuningViewer() {
       MXN: "MX$",
     };
 
+    const convertPrice = (priceInSek: number): string => {
+      const rate = settings.exchangeRates[settings.currency] || 1;
+      const converted = priceInSek * rate;
+      const rounded = Math.round(converted / 50) * 50;
+
+      const symbol = currencySymbols[settings.currency] || settings.currency;
+
+      return rounded
+        .toLocaleString(settings.language, {
+          style: "currency",
+          currency: settings.currency,
+          currencyDisplay: "symbol",
+          maximumFractionDigits: 0,
+          minimumFractionDigits: 0,
+        })
+        .replace(settings.currency, symbol);
+    };
+
     const symbol = currencySymbols[settings.currency] || settings.currency;
 
     // Localized formatting (zero decimal style)
@@ -350,60 +368,6 @@ export default function TuningViewer() {
 
     return translations[lang] || name;
   };
-
-  const currencySymbol =
-    settings.currency === "EUR"
-      ? "€"
-      : settings.currency === "USD"
-        ? "$"
-        : settings.currency === "GBP"
-          ? "£"
-          : settings.currency === "THB"
-            ? "฿"
-            : settings.currency === "JPY"
-              ? "¥"
-              : settings.currency === "CNY"
-                ? "¥"
-                : settings.currency === "RUB"
-                  ? "₽"
-                  : settings.currency === "TRY"
-                    ? "₺"
-                    : settings.currency === "PLN"
-                      ? "zł"
-                      : settings.currency === "CZK"
-                        ? "Kč"
-                        : settings.currency === "HUF"
-                          ? "Ft"
-                          : settings.currency === "AED"
-                            ? "د.إ"
-                            : settings.currency === "KRW"
-                              ? "₩"
-                              : settings.currency === "NOK"
-                                ? "kr"
-                                : settings.currency === "DKK"
-                                  ? "kr"
-                                  : settings.currency === "CHF"
-                                    ? "CHF"
-                                    : settings.currency === "AUD"
-                                      ? "A$"
-                                      : settings.currency === "CAD"
-                                        ? "C$"
-                                        : settings.currency === "INR"
-                                          ? "₹"
-                                          : settings.currency === "SGD"
-                                            ? "S$"
-                                            : settings.currency === "NZD"
-                                              ? "NZ$"
-                                              : settings.currency === "ZAR"
-                                                ? "R"
-                                                : settings.currency === "BRL"
-                                                  ? "R$"
-                                                  : settings.currency === "MXN"
-                                                    ? "MX$"
-                                                    : settings.currency ===
-                                                        "SEK"
-                                                      ? "kr"
-                                                      : settings.currency;
 
   const [isLoading, setIsLoading] = useState(true);
   const [expandedStages, setExpandedStages] = useState<Record<string, boolean>>(
