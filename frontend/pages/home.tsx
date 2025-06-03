@@ -122,6 +122,96 @@ export default function APISalesPage() {
                 Try Live Demo
               </button>
             </div>
+
+            {/* Trust Badges */}
+            <div className="mt-12 flex flex-wrap justify-center gap-6 items-center">
+              <div className="flex items-center gap-2 text-gray-700">
+                <svg
+                  className="w-5 h-5 text-green-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M5 13l4 4L19 7"
+                  ></path>
+                </svg>
+                +25 Languages Supported
+              </div>
+              <div className="flex items-center gap-2 text-gray-700">
+                <svg
+                  className="w-5 h-5 text-green-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M5 13l4 4L19 7"
+                  ></path>
+                </svg>
+                +15 Live Currencies
+              </div>
+              <div className="flex items-center gap-2 text-gray-700">
+                <svg
+                  className="w-5 h-5 text-green-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M5 13l4 4L19 7"
+                  ></path>
+                </svg>
+                24/7 Free Support
+              </div>
+              <div className="flex items-center gap-2 text-gray-700">
+                <svg
+                  className="w-5 h-5 text-green-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M5 13l4 4L19 7"
+                  ></path>
+                </svg>
+                99.9% Uptime SLA
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Stats Section */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 bg-white rounded-xl shadow-sm mb-16">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div className="p-6">
+              <div className="text-4xl font-bold text-blue-600 mb-2">10M+</div>
+              <div className="text-gray-600">Monthly API Calls</div>
+            </div>
+            <div className="p-6">
+              <div className="text-4xl font-bold text-blue-600 mb-2">25+</div>
+              <div className="text-gray-600">Supported Languages</div>
+            </div>
+            <div className="p-6">
+              <div className="text-4xl font-bold text-blue-600 mb-2">15+</div>
+              <div className="text-gray-600">Live Currencies</div>
+            </div>
+            <div className="p-6">
+              <div className="text-4xl font-bold text-blue-600 mb-2">24/7</div>
+              <div className="text-gray-600">Support Availability</div>
+            </div>
           </div>
         </section>
 
@@ -315,6 +405,219 @@ export default function APISalesPage() {
           </div>
         </section>
 
+        {/* API Features Section */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold mb-4">Advanced API Features</h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Our API comes packed with powerful features to help you build
+              better automotive applications
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-12">
+            <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+              <div className="flex items-center mb-6">
+                <div className="w-12 h-12 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 text-xl mr-6">
+                  🌐
+                </div>
+                <h3 className="text-xl font-bold">Multi-Language Support</h3>
+              </div>
+              <p className="text-gray-600 mb-6">
+                Our API supports over 25 languages, making it easy to localize
+                your application for global markets.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  "English",
+                  "Spanish",
+                  "German",
+                  "French",
+                  "Italian",
+                  "Portuguese",
+                  "Russian",
+                  "Japanese",
+                  "Chinese",
+                  "Arabic",
+                ].map((lang) => (
+                  <span
+                    key={lang}
+                    className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm"
+                  >
+                    {lang}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+              <div className="flex items-center mb-6">
+                <div className="w-12 h-12 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 text-xl mr-6">
+                  💰
+                </div>
+                <h3 className="text-xl font-bold">Multi-Currency Support</h3>
+              </div>
+              <p className="text-gray-600 mb-6">
+                Get pricing data in 15+ currencies with real-time exchange
+                rates, perfect for e-commerce applications.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  "USD",
+                  "EUR",
+                  "GBP",
+                  "JPY",
+                  "CAD",
+                  "AUD",
+                  "CNY",
+                  "SEK",
+                  "NOK",
+                  "DKK",
+                  "CHF",
+                  "PLN",
+                  "RUB",
+                  "BRL",
+                  "MXN",
+                ].map((currency) => (
+                  <span
+                    key={currency}
+                    className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm"
+                  >
+                    {currency}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+              <div className="flex items-center mb-6">
+                <div className="w-12 h-12 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 text-xl mr-6">
+                  ⚡
+                </div>
+                <h3 className="text-xl font-bold">Real-Time Data</h3>
+              </div>
+              <p className="text-gray-600 mb-6">
+                Our API delivers real-time tuning data with sub-second response
+                times, ensuring your application always has the latest
+                information.
+              </p>
+              <div className="space-y-4">
+                <div className="flex items-center">
+                  <svg
+                    className="w-5 h-5 text-green-500 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M5 13l4 4L19 7"
+                    ></path>
+                  </svg>
+                  <span>Average response time: 120ms</span>
+                </div>
+                <div className="flex items-center">
+                  <svg
+                    className="w-5 h-5 text-green-500 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M5 13l4 4L19 7"
+                    ></path>
+                  </svg>
+                  <span>99.9% uptime SLA</span>
+                </div>
+                <div className="flex items-center">
+                  <svg
+                    className="w-5 h-5 text-green-500 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M5 13l4 4L19 7"
+                    ></path>
+                  </svg>
+                  <span>Webhooks for real-time updates</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+              <div className="flex items-center mb-6">
+                <div className="w-12 h-12 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 text-xl mr-6">
+                  🛠️
+                </div>
+                <h3 className="text-xl font-bold">Developer Friendly</h3>
+              </div>
+              <p className="text-gray-600 mb-6">
+                We've designed our API with developers in mind, offering
+                comprehensive documentation and 24/7 support.
+              </p>
+              <div className="space-y-4">
+                <div className="flex items-center">
+                  <svg
+                    className="w-5 h-5 text-green-500 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M5 13l4 4L19 7"
+                    ></path>
+                  </svg>
+                  <span>Interactive API documentation</span>
+                </div>
+                <div className="flex items-center">
+                  <svg
+                    className="w-5 h-5 text-green-500 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M5 13l4 4L19 7"
+                    ></path>
+                  </svg>
+                  <span>Code samples in 8+ languages</span>
+                </div>
+                <div className="flex items-center">
+                  <svg
+                    className="w-5 h-5 text-green-500 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M5 13l4 4L19 7"
+                    ></path>
+                  </svg>
+                  <span>24/7 developer support</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* CTA Section */}
         <section className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -339,6 +642,57 @@ export default function APISalesPage() {
                 Contact Sales
               </Link>
             </div>
+
+            <div className="mt-8 flex flex-wrap justify-center gap-6">
+              <div className="flex items-center gap-2 text-blue-100">
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M5 13l4 4L19 7"
+                  ></path>
+                </svg>
+                No credit card required
+              </div>
+              <div className="flex items-center gap-2 text-blue-100">
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M5 13l4 4L19 7"
+                  ></path>
+                </svg>
+                24/7 Support
+              </div>
+              <div className="flex items-center gap-2 text-blue-100">
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M5 13l4 4L19 7"
+                  ></path>
+                </svg>
+                Cancel anytime
+              </div>
+            </div>
           </div>
         </section>
       </main>
@@ -350,6 +704,40 @@ export default function APISalesPage() {
             <p className="text-gray-400">
               Premium vehicle tuning data API for developers and businesses.
             </p>
+            <div className="mt-6 space-y-2">
+              <div className="flex items-center gap-2 text-gray-400">
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                  ></path>
+                </svg>
+                +1 (555) 123-4567
+              </div>
+              <div className="flex items-center gap-2 text-gray-400">
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                  ></path>
+                </svg>
+                support@aktuning.com
+              </div>
+            </div>
           </div>
 
           {footerLinks.map((column, index) => (
@@ -369,6 +757,29 @@ export default function APISalesPage() {
               </ul>
             </div>
           ))}
+
+          <div>
+            <h3 className="text-lg font-semibold mb-6">API Status</h3>
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-2 h-2 rounded-full bg-green-500"></div>
+              <span className="text-gray-400">All Systems Operational</span>
+            </div>
+            <p className="text-sm text-gray-500 mt-4">
+              Last updated:{" "}
+              {new Date().toLocaleDateString("en-US", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </p>
+            <Link
+              href="/status"
+              className="inline-block mt-4 text-blue-400 hover:text-blue-300 text-sm"
+            >
+              View API Status Page
+            </Link>
+          </div>
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 mt-12 border-t border-gray-800">
@@ -376,7 +787,32 @@ export default function APISalesPage() {
             <p className="text-gray-400 text-sm">
               &copy; {new Date().getFullYear()} AK-Tuning. All rights reserved.
             </p>
-            <div className="flex space-x-6 mt-4 md:mt-0"></div>
+            <div className="flex space-x-6 mt-4 md:mt-0">
+              <Link
+                href="/terms"
+                className="text-gray-400 hover:text-white text-sm"
+              >
+                Terms
+              </Link>
+              <Link
+                href="/privacy"
+                className="text-gray-400 hover:text-white text-sm"
+              >
+                Privacy
+              </Link>
+              <Link
+                href="/security"
+                className="text-gray-400 hover:text-white text-sm"
+              >
+                Security
+              </Link>
+              <Link
+                href="/sla"
+                className="text-gray-400 hover:text-white text-sm"
+              >
+                SLA
+              </Link>
+            </div>
           </div>
         </div>
       </footer>
@@ -435,6 +871,8 @@ const pricingPlans = [
       "Email support",
       "Standard response times",
       "Community forum access",
+      "10+ languages supported",
+      "5 currency options",
     ],
     ctaText: "Get Started",
     ctaLink: "#",
@@ -451,6 +889,8 @@ const pricingPlans = [
       "Faster response times",
       "Basic analytics dashboard",
       "Webhook support",
+      "25+ languages supported",
+      "15+ currency options",
     ],
     ctaText: "Get Started",
     ctaLink: "#",
@@ -468,6 +908,8 @@ const pricingPlans = [
       "Advanced analytics",
       "Custom integrations",
       "SLAs available",
+      "All languages & currencies",
+      "White-label options",
     ],
     ctaText: "Contact Sales",
     ctaLink: "#contact",
@@ -481,9 +923,7 @@ const footerLinks = [
     links: [
       { text: "Features", url: "#features" },
       { text: "Pricing", url: "#pricing" },
-      { text: "Documentation", url: "https://docs.aktuning.se" },
-      { text: "Changelog", url: "#" },
-      { text: "Status", url: "#" },
+      { text: "Demo", url: "#demo" },
     ],
   },
 ];
