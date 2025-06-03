@@ -37,6 +37,7 @@ export default function PublicLanguageDropdown({
         Välj språk
       </label>
       <select
+        id="language-select"
         value={currentLanguage}
         onChange={(e) => setCurrentLanguage(e.target.value)}
         className="appearance-none bg-gray-800 text-white border border-gray-600 rounded-md px-4 py-2 pr-8 shadow-sm text-sm focus:outline-none hover:bg-gray-700 transition"
