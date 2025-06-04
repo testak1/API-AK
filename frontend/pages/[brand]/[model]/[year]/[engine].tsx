@@ -693,24 +693,6 @@ export default function EnginePage({
                 {
                   "@type": "ListItem",
                   position: 2,
-                  name: brandData.name,
-                  item: `https://tuning.aktuning.se/${brandSlug}`,
-                },
-                {
-                  "@type": "ListItem",
-                  position: 3,
-                  name: modelData.name,
-                  item: `https://tuning.aktuning.se/${brandSlug}/${modelSlug}`,
-                },
-                {
-                  "@type": "ListItem",
-                  position: 4,
-                  name: yearData.range,
-                  item: `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}`,
-                },
-                {
-                  "@type": "ListItem",
-                  position: 5,
                   name: engineData.label,
                   item: canonicalUrl,
                 },
