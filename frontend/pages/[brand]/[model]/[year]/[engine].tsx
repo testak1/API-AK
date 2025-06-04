@@ -652,7 +652,9 @@ export default function EnginePage({
                       : opt.title[currentLanguage] || opt.title["sv"] || "",
                   ...(opt.description && {
                     description: extractPlainTextFromDescription(
-                      opt.description,
+                      opt.description[currentLanguage] ||
+                        opt.description["sv"] ||
+                        "",
                     ),
                   }),
                   ...(opt.gallery?.[0]?.asset?.url && {
