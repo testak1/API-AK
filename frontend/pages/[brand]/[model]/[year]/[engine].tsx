@@ -600,105 +600,84 @@ export default function EnginePage({
             }),
           }}
         />
-        {/* 1. Steg-produktlista */}
+
+        {/* Structured Data: Product */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
-              "@type": "ItemList",
-              name: `Motoroptimering för ${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label}`,
-              itemListElement: engineData.stages.map((stage, index) => ({
-                "@type": "ListItem",
-                position: index + 1,
-                item: {
-                  "@type": "Product",
-                  name: `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${stage.name} Mjukvara`,
-                  image: [imageUrl],
-                  description: extractPlainTextFromDescription(
-                    stage.descriptionRef?.description ||
-                      stage.description?.["sv"] ||
-                      "",
-                  ),
-                  brand: {
-                    "@type": "Brand",
-                    name: "AK-TUNING Motoroptimering",
-                    logo: imageUrl,
-                  },
-                  ...(stage.price && {
-                    offers: {
-                      "@type": "Offer",
-                      priceCurrency: "SEK",
-                      price: stage.price,
-                      availability: "https://schema.org/InStock",
-                      url: `${canonicalUrl}#${slugifyStage(stage.name)}`,
-                    },
-                  }),
-                },
-              })),
+              "@type": "Product",
+              name: `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${selectedStep} Mjukvara`,
+              image: [imageUrl],
+              description: pageDescription,
+              brand: {
+                "@type": "Brand",
+                name: "AK-TUNING",
+                logo: "https://tuning.aktuning.se/ak-logo2.png",
+              },
+              offers: selectedStage?.price
+                ? {
+                    "@type": "Offer",
+                    priceCurrency: "SEK",
+                    price: selectedStage.price,
+                    availability: "https://schema.org/InStock",
+                    url: pageUrl,
+                  }
+                : undefined,
             }),
           }}
         />
 
-        {/* 2. AKT+ produktlista med positioner justerade efter antal steg */}
+        {/* Structured Data: Organization for LOGO */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "AK-TUNING",
+              url: "https://tuning.aktuning.se",
+              logo: "https://tuning.aktuning.se/ak-logo2.png",
+            }),
+          }}
+        />
+
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "ItemList",
-              name: `AKT+ tillval för ${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label}`,
-              itemListElement: mergedAktPlusOptions
-                .filter((opt) => {
-                  const isLinkedToStage =
-                    opt.manualAssignments?.some((ref) =>
-                      engineData.stages?.some(
-                        (stage) =>
-                          ref._ref === (stage as any)._id ||
-                          ref._ref === stage.name,
-                      ),
-                    ) ?? false;
-
-                  const title =
+              name: `AKT+ tillägg för ${brandData.name} ${modelData.name} ${engineData.label}`,
+              itemListElement: mergedAktPlusOptions.map((opt, index) => ({
+                "@type": "ListItem",
+                position: index + 1,
+                item: {
+                  "@type": "Product",
+                  name:
                     typeof opt.title === "string"
                       ? opt.title
-                      : opt.title?.sv || "";
-
-                  const titleContainsStage = /steg\s?\d+/i.test(title);
-
-                  return !isLinkedToStage && !titleContainsStage;
-                })
-                .map((opt, index) => ({
-                  "@type": "ListItem",
-                  position: engineData.stages.length + index + 1, // 👈 fixat här!
-                  item: {
-                    "@type": "Product",
-                    name: `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${
-                      typeof opt.title === "string"
-                        ? opt.title
-                        : opt.title?.sv || ""
-                    }`,
-                    ...(opt.description && {
-                      description: extractPlainTextFromDescription(
-                        typeof opt.description === "string"
-                          ? opt.description
-                          : opt.description?.sv || "",
-                      ),
-                    }),
-                    ...(opt.gallery?.[0]?.asset?.url && {
-                      image: opt.gallery[0].asset.url,
-                    }),
-                    ...(opt.price && {
-                      offers: {
-                        "@type": "Offer",
-                        priceCurrency: "SEK",
-                        price: opt.price,
-                        availability: "https://schema.org/InStock",
-                        url: canonicalUrl,
-                      },
-                    }),
-                  },
-                })),
+                      : opt.title[currentLanguage] || opt.title["sv"] || "",
+                  ...(opt.description && {
+                    description: extractPlainTextFromDescription(
+                      opt.description,
+                    ),
+                  }),
+                  ...(opt.gallery?.[0]?.asset?.url && {
+                    image: opt.gallery[0].asset.url,
+                  }),
+                  ...(opt.price && {
+                    offers: {
+                      "@type": "Offer",
+                      priceCurrency: "SEK",
+                      price: opt.price,
+                      availability: "https://schema.org/InStock",
+                      url: pageUrl,
+                    },
+                  }),
+                },
+              })),
             }),
           }}
         />
