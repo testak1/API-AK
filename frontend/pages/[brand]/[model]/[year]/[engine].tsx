@@ -531,6 +531,20 @@ export default function EnginePage({
       ? `${selectedStage.price.toLocaleString()} kr`
       : "";
 
+  const brandSlug = brandData.slug?.current || slugify(brandData.name);
+  const modelSlug =
+    typeof modelData.slug === "object"
+      ? modelData.slug.current
+      : modelData.slug || slugify(modelData.name);
+  const yearSlug = yearData.range.includes(" ")
+    ? slugify(yearData.range)
+    : yearData.range;
+  const engineSlug = engineData.label.includes(" ")
+    ? slugify(engineData.label)
+    : engineData.label;
+
+  const canonicalUrl = `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}`;
+
   const pageTitle = `Motoroptimering ${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${selectedStep}`;
 
   const pageDescription = `Motoroptimering till ${brandData.name} ${modelData.name} ${engineData.label} ökning +${hkIncrease} hk & +${nmIncrease} Nm med skräddarsydd ${selectedStep} mjukvara. 2 års garanti & 30 dagars öppet köp!`;
@@ -558,10 +572,7 @@ export default function EnginePage({
         <meta name="description" content={pageDescription} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-        <link
-          rel="canonical"
-          href={`https://tuning.aktuning.se${router.asPath}`}
-        />
+        <link rel="canonical" href={canonicalUrl} />
 
         {/* Open Graph */}
         <meta property="og:title" content={pageTitle} />
@@ -690,7 +701,7 @@ export default function EnginePage({
                   "@type": "ListItem",
                   position: 5,
                   name: engineData.label,
-                  item: `https://tuning.aktuning.se/${brandData.slug?.current}/${modelData.slug?.current}/${yearData.range}/${engineData.slug?.current || engineData.label}`,
+                  item: canonicalUrl,
                 },
               ],
             }),
