@@ -656,12 +656,12 @@ export default function EnginePage({
                   position: engineData.stages.length + idx + 1, // Continue numbering after stages
                   item: {
                     "@type": "Product",
-                    name:
+                    name: `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${
                       typeof opt.title === "string"
-                        ? `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${opt.title}`
-                        : `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${
-                            opt.title["sv"] || ""
-                          }`,
+                        ? opt.title
+                        : opt.title["sv"] || ""
+                    }`,
+
                     ...(opt.description && {
                       description: extractPlainTextFromDescription(
                         opt.description["sv"] || "",
