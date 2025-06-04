@@ -600,7 +600,7 @@ export default function EnginePage({
             }),
           }}
         />
-        // 1. Steg-produktlista
+        {/* 1. Steg-produktlista */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -622,7 +622,7 @@ export default function EnginePage({
                   ),
                   brand: {
                     "@type": "Brand",
-                    name: "AK-TUNING",
+                    name: "AK-TUNING Motoroptimering",
                     logo: imageUrl,
                   },
                   ...(stage.price && {
@@ -639,7 +639,8 @@ export default function EnginePage({
             }),
           }}
         />
-        // 2. AKT+ produktlista
+
+        {/* 2. AKT+ produktlista med positioner justerade efter antal steg */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -652,7 +653,9 @@ export default function EnginePage({
                   const isLinkedToStage =
                     opt.manualAssignments?.some((ref) =>
                       engineData.stages?.some(
-                        (stage) => ref._ref === stage.name,
+                        (stage) =>
+                          ref._ref === (stage as any)._id ||
+                          ref._ref === stage.name,
                       ),
                     ) ?? false;
 
@@ -667,7 +670,7 @@ export default function EnginePage({
                 })
                 .map((opt, index) => ({
                   "@type": "ListItem",
-                  position: index + 1,
+                  position: engineData.stages.length + index + 1, // 👈 fixat här!
                   item: {
                     "@type": "Product",
                     name: `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${
