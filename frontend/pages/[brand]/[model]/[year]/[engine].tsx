@@ -550,6 +550,10 @@ export default function EnginePage({
     ? slugify(engineData.label)
     : engineData.label;
 
+  const aktPlusOptions = selectedStage
+    ? getAllAktPlusOptions(selectedStage)
+    : [];
+
   const canonicalUrl = `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}`;
 
   const pageTitle = `Motoroptimering ${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${selectedStep}`;
@@ -647,7 +651,7 @@ export default function EnginePage({
                 })),
 
                 // Then all AKT Plus options
-                ...mergedAktPlusOptions.map((opt, idx) => ({
+                ...aktPlusOptions.map((opt, idx) => ({
                   "@type": "ListItem",
                   position: engineData.stages.length + idx + 1,
                   item: {
