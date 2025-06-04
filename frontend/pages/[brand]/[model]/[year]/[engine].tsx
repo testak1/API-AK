@@ -328,31 +328,27 @@ export default function EnginePage({
     }
   }, [engineData, stage]);
 
-  const getAllAktPlusOptions = useMemo(
-    () => (stage: Stage) => {
-      if (!engineData) return [];
+  const getAllAktPlusOptions = (stage: Stage): AktPlusOption[] => {
+    if (!engineData) return [];
 
-      const options = allAktOptions.filter((opt) => {
-        const isFuelMatch =
-          opt.isUniversal || opt.applicableFuelTypes?.includes(engineData.fuel);
+    const options = allAktOptions.filter((opt) => {
+      const isFuelMatch =
+        opt.isUniversal || opt.applicableFuelTypes?.includes(engineData.fuel);
 
-        const isManualMatch = opt.manualAssignments?.some(
-          (ref) => ref._ref === engineData._id,
-        );
+      const isManualMatch = opt.manualAssignments?.some(
+        (ref) => ref._ref === engineData._id,
+      );
 
-        const isStageMatch =
-          !opt.stageCompatibility || opt.stageCompatibility === stage.name;
+      const isStageMatch =
+        !opt.stageCompatibility || opt.stageCompatibility === stage.name;
 
-        return (isFuelMatch || isManualMatch) && isStageMatch;
-      });
+      return (isFuelMatch || isManualMatch) && isStageMatch;
+    });
 
-      const unique = new Map<string, AktPlusOption>();
-      options.forEach((opt) => unique.set(opt._id, opt));
-
-      return Array.from(unique.values());
-    },
-    [engineData, allAktOptions],
-  );
+    const unique = new Map<string, AktPlusOption>();
+    options.forEach((opt) => unique.set(opt._id, opt));
+    return Array.from(unique.values());
+  };
 
   const mergedAktPlusOptions = useMemo(() => {
     const optionMap = new Map<string, AktPlusOption>();
@@ -366,7 +362,7 @@ export default function EnginePage({
     });
 
     return Array.from(optionMap.values());
-  }, [engineData, getAllAktPlusOptions]);
+  }, [engineData, allAktOptions]);
 
   useEffect(() => {
     const fetchAktPlusOptions = async () => {
@@ -550,11 +546,6 @@ export default function EnginePage({
     ? slugify(engineData.label)
     : engineData.label;
 
-  const aktPlusOptions = useMemo(() => {
-    if (!selectedStage) return [];
-    return getAllAktPlusOptions(selectedStage);
-  }, [selectedStage, getAllAktPlusOptions]);
-
   const canonicalUrl = `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}`;
 
   const pageTitle = `Motoroptimering ${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${selectedStep}`;
@@ -652,7 +643,7 @@ export default function EnginePage({
                 })),
 
                 // Then all AKT Plus options
-                ...aktPlusOptions.map((opt, idx) => ({
+                ...mergedAktPlusOptions.map((opt, idx) => ({
                   "@type": "ListItem",
                   position: engineData.stages.length + idx + 1,
                   item: {
