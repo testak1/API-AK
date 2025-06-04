@@ -606,7 +606,7 @@ export default function EnginePage({
                     priceCurrency: "SEK",
                     price: selectedStage.price,
                     availability: "https://schema.org/InStock",
-                    url: pageUrl,
+                    url: canonicalUrl,
                   }
                 : undefined,
             }),
@@ -683,19 +683,19 @@ export default function EnginePage({
                   "@type": "ListItem",
                   position: 2,
                   name: brandData.name,
-                  item: `https://tuning.aktuning.se/${brandData.slug?.current}`,
+                  item: `https://tuning.aktuning.se/${brandSlug}`,
                 },
                 {
                   "@type": "ListItem",
                   position: 3,
                   name: modelData.name,
-                  item: `https://tuning.aktuning.se/${brandData.slug?.current}/${modelData.slug?.current}`,
+                  item: `https://tuning.aktuning.se/${brandSlug}/${modelSlug}`,
                 },
                 {
                   "@type": "ListItem",
                   position: 4,
                   name: yearData.range,
-                  item: `https://tuning.aktuning.se/${brandData.slug?.current}/${modelData.slug?.current}/${yearData.range}`,
+                  item: `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}`,
                 },
                 {
                   "@type": "ListItem",
