@@ -642,35 +642,43 @@ export default function EnginePage({
               "@type": "ItemList",
               name: `Tuningalternativ för ${brandData.name} ${modelData.name} ${engineData.label}`,
               itemListElement: [
-                ...engineData.stages.map((stage, index) => ({
-                  "@type": "ListItem",
-                  position: index + 1,
-                  item: {
-                    "@type": "Product",
-                    name: `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${stage.name} Mjukvara`,
-                    image: [imageUrl],
-                    description: extractPlainTextFromDescription(
-                      stage.descriptionRef?.description ||
-                        stage.description?.[currentLanguage] ||
-                        stage.description?.["sv"] ||
-                        "",
-                    ),
-                    brand: {
-                      "@type": "Brand",
-                      name: "AK-TUNING",
-                      logo: "https://tuning.aktuning.se/ak-logo2.png",
-                    },
-                    ...(stage.price && {
-                      offers: {
-                        "@type": "Offer",
-                        priceCurrency: "SEK",
-                        price: stage.price,
-                        availability: "https://schema.org/InStock",
-                        url: canonicalUrl,
+                // STEG 1, STEG 2, etc.
+                ...engineData.stages.map((stage, index) => {
+                  const stageSlug = stage.name
+                    .toLowerCase()
+                    .replace(/\s+/g, "-")
+                    .replace(/[^\w-]/g, "");
+
+                  return {
+                    "@type": "ListItem",
+                    position: index + 1,
+                    item: {
+                      "@type": "Product",
+                      name: `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${stage.name} Mjukvara`,
+                      image: [imageUrl],
+                      description: extractPlainTextFromDescription(
+                        stage.descriptionRef?.description ||
+                          stage.description?.[currentLanguage] ||
+                          stage.description?.["sv"] ||
+                          "",
+                      ),
+                      brand: {
+                        "@type": "Brand",
+                        name: "AK-TUNING",
+                        logo: "https://tuning.aktuning.se/ak-logo2.png",
                       },
-                    }),
-                  },
-                })),
+                      ...(stage.price && {
+                        offers: {
+                          "@type": "Offer",
+                          priceCurrency: "SEK",
+                          price: stage.price,
+                          availability: "https://schema.org/InStock",
+                          url: `${canonicalUrl}#${stageSlug}`,
+                        },
+                      }),
+                    },
+                  };
+                }),
 
                 ...mergedAktPlusOptions.map((opt, idx) => ({
                   "@type": "ListItem",
