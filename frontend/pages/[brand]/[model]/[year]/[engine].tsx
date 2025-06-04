@@ -642,8 +642,8 @@ export default function EnginePage({
                   },
                 })),
 
-                // Then all AKT Plus options
-                ...mergedAktPlusOptions.map((opt, idx) => ({
+                // Then all unique AKT Plus options
+                ...getUniqueAktPlusOptions().map((opt, idx) => ({
                   "@type": "ListItem",
                   position: engineData.stages.length + idx + 1,
                   item: {
