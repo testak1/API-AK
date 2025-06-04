@@ -609,7 +609,6 @@ export default function EnginePage({
               "@type": "ItemList",
               name: `Motoroptimering för ${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label}`,
               itemListElement: [
-                // All stages first (Steg 1, Steg 2, etc.)
                 ...engineData.stages.map((stage, index) => ({
                   "@type": "ListItem",
                   position: index + 1,
@@ -625,7 +624,7 @@ export default function EnginePage({
                     brand: {
                       "@type": "Brand",
                       name: "AK-TUNING",
-                      logo: "https://tuning.aktuning.se/ak-logo2.png",
+                      logo: imageUrl,
                     },
                     ...(stage.price && {
                       offers: {
@@ -633,17 +632,13 @@ export default function EnginePage({
                         priceCurrency: "SEK",
                         price: stage.price,
                         availability: "https://schema.org/InStock",
-                        url: `${canonicalUrl}#${stage.name
-                          .toLowerCase()
-                          .replace(/\s+/g, "-")
-                          .replace(/[^\w-]/g, "")}`,
+                        url: `${canonicalUrl}#${slugifyStage(stage.name)}`,
                       },
                     }),
                   },
                 })),
 
-                // Then all unique AKT Plus options
-                ...getUniqueAktPlusOptions().map((opt, idx) => ({
+                ...mergedAktPlusOptions.map((opt, idx) => ({
                   "@type": "ListItem",
                   position: engineData.stages.length + idx + 1,
                   item: {
@@ -655,7 +650,9 @@ export default function EnginePage({
                     }`,
                     ...(opt.description && {
                       description: extractPlainTextFromDescription(
-                        opt.description["sv"] || "",
+                        typeof opt.description === "string"
+                          ? opt.description
+                          : opt.description["sv"] || "",
                       ),
                     }),
                     ...(opt.gallery?.[0]?.asset?.url && {
