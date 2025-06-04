@@ -578,20 +578,16 @@ export default function EnginePage({
         <title>{pageTitle}</title>
         <meta name="description" content={pageDescription} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-
         <link rel="canonical" href={canonicalUrl} />
-
         {/* Open Graph */}
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={pageDescription} />
         <meta property="og:type" content="website" />
         <meta property="og:url" content={pageUrl} />
         <meta property="og:image" content={imageUrl} />
-
         {/* Favicon */}
         <link rel="icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -604,98 +600,99 @@ export default function EnginePage({
             }),
           }}
         />
-
+        // 1. Steg-produktlista
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "ItemList",
-              name: `Motoroptimering för ${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label}`,
-              itemListElement: [
-                // Steg
-                ...engineData.stages.map((stage, index) => ({
+              name: `Tuning Steg för ${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label}`,
+              itemListElement: engineData.stages.map((stage, index) => ({
+                "@type": "ListItem",
+                position: index + 1,
+                item: {
+                  "@type": "Product",
+                  name: `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${stage.name} Mjukvara`,
+                  image: [imageUrl],
+                  description: extractPlainTextFromDescription(
+                    stage.descriptionRef?.description ||
+                      stage.description?.["sv"] ||
+                      "",
+                  ),
+                  brand: {
+                    "@type": "Brand",
+                    name: "AK-TUNING",
+                    logo: imageUrl,
+                  },
+                  ...(stage.price && {
+                    offers: {
+                      "@type": "Offer",
+                      priceCurrency: "SEK",
+                      price: stage.price,
+                      availability: "https://schema.org/InStock",
+                      url: `${canonicalUrl}#${slugifyStage(stage.name)}`,
+                    },
+                  }),
+                },
+              })),
+            }),
+          }}
+        />
+        // 2. AKT+ produktlista
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "ItemList",
+              name: `AKT+ tillval för ${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label}`,
+              itemListElement: mergedAktPlusOptions
+                .filter((opt) => {
+                  const isLinkedToStage =
+                    opt.manualAssignments?.some((ref) =>
+                      stageRefs.includes(ref._ref),
+                    ) ?? false;
+                  const title =
+                    typeof opt.title === "string"
+                      ? opt.title
+                      : opt.title?.sv || "";
+                  return !isLinkedToStage && !/steg\s?\d+/i.test(title);
+                })
+                .map((opt, index) => ({
                   "@type": "ListItem",
                   position: index + 1,
                   item: {
                     "@type": "Product",
-                    name: `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${stage.name} Mjukvara`,
-                    image: [imageUrl],
-                    description: extractPlainTextFromDescription(
-                      stage.descriptionRef?.description ||
-                        stage.description?.["sv"] ||
-                        "",
-                    ),
-                    brand: {
-                      "@type": "Brand",
-                      name: "AK-TUNING",
-                      logo: imageUrl,
-                    },
-                    ...(stage.price && {
+                    name: `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${
+                      typeof opt.title === "string"
+                        ? opt.title
+                        : opt.title?.sv || ""
+                    }`,
+                    ...(opt.description && {
+                      description: extractPlainTextFromDescription(
+                        typeof opt.description === "string"
+                          ? opt.description
+                          : opt.description?.sv || "",
+                      ),
+                    }),
+                    ...(opt.gallery?.[0]?.asset?.url && {
+                      image: opt.gallery[0].asset.url,
+                    }),
+                    ...(opt.price && {
                       offers: {
                         "@type": "Offer",
                         priceCurrency: "SEK",
-                        price: stage.price,
+                        price: opt.price,
                         availability: "https://schema.org/InStock",
-                        url: `${canonicalUrl}#${slugifyStage(stage.name)}`,
+                        url: canonicalUrl,
                       },
                     }),
                   },
                 })),
-
-                // AKT+ alternativ, filtrerade
-                ...mergedAktPlusOptions
-                  .filter((opt) => {
-                    const isLinkedToStage =
-                      opt.manualAssignments?.some((ref) =>
-                        stageRefs.includes(ref._ref),
-                      ) ?? false;
-
-                    const title =
-                      typeof opt.title === "string"
-                        ? opt.title
-                        : opt.title?.sv || "";
-
-                    return (
-                      !isLinkedToStage && !title.toLowerCase().includes("steg")
-                    );
-                  })
-                  .map((opt, idx) => ({
-                    "@type": "ListItem",
-                    position: engineData.stages.length + idx + 1,
-                    item: {
-                      "@type": "Product",
-                      name: `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${
-                        typeof opt.title === "string"
-                          ? opt.title
-                          : opt.title?.sv || ""
-                      }`,
-                      ...(opt.description && {
-                        description: extractPlainTextFromDescription(
-                          typeof opt.description === "string"
-                            ? opt.description
-                            : opt.description?.sv || "",
-                        ),
-                      }),
-                      ...(opt.gallery?.[0]?.asset?.url && {
-                        image: opt.gallery[0].asset.url,
-                      }),
-                      ...(opt.price && {
-                        offers: {
-                          "@type": "Offer",
-                          priceCurrency: "SEK",
-                          price: opt.price,
-                          availability: "https://schema.org/InStock",
-                          url: canonicalUrl,
-                        },
-                      }),
-                    },
-                  })),
-              ],
             }),
           }}
         />
-
         {/* Breadcrumbs */}
         <script
           type="application/ld+json"
