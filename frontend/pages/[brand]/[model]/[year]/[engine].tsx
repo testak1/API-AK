@@ -546,6 +546,10 @@ export default function EnginePage({
     ? slugify(engineData.label)
     : engineData.label;
 
+  const stageRefs = engineData.stages
+    .map((s) => (s as any)?._id) // eller extrahera rätt ID från annan källa
+    .filter(Boolean);
+
   const canonicalUrl = `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}`;
 
   const pageTitle = `Motoroptimering ${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${selectedStep}`;
@@ -644,9 +648,7 @@ export default function EnginePage({
                   .filter((opt) => {
                     const isLinkedToStage =
                       opt.manualAssignments?.some((ref) =>
-                        engineData.stages.some((stage) =>
-                          ref._ref.includes(stage.name),
-                        ),
+                        stageRefs.includes(ref._ref),
                       ) ?? false;
 
                     const title =
