@@ -550,9 +550,10 @@ export default function EnginePage({
     ? slugify(engineData.label)
     : engineData.label;
 
-  const aktPlusOptions = selectedStage
-    ? getAllAktPlusOptions(selectedStage)
-    : [];
+  const aktPlusOptions = useMemo(() => {
+    if (!selectedStage) return [];
+    return getAllAktPlusOptions(selectedStage);
+  }, [selectedStage, getAllAktPlusOptions]);
 
   const canonicalUrl = `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}`;
 
