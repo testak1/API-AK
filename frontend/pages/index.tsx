@@ -579,6 +579,8 @@ export default function TuningViewer() {
   return (
     <>
       <Head>
+        <link rel="canonical" href="https://tuning.aktuning.se" />
+
         <title>
           AK-TUNING | Skräddarsydd Motoroptimering beprövat på vår dyno |
           Göteborg - Stockholm - Skåne - Jönköping - Örebro
@@ -615,6 +617,20 @@ export default function TuningViewer() {
               logo: "https://tuning.aktuning.se/ak-logo1.png",
             }),
           }}
+        />
+
+        {["sv", "en", "de", "fr", "da", "no", "it"].map((lang) => (
+          <link
+            key={lang}
+            rel="alternate"
+            hrefLang={lang}
+            href={`https://tuning.aktuning.se?lang=${lang}`}
+          />
+        ))}
+        <link
+          rel="alternate"
+          hrefLang="x-default"
+          href="https://tuning.aktuning.se"
         />
       </Head>
 

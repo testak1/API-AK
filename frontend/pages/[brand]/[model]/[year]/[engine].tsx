@@ -654,6 +654,62 @@ export default function EnginePage({
             }),
           }}
         />
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                {
+                  "@type": "ListItem",
+                  position: 1,
+                  name: "Hem",
+                  item: "https://tuning.aktuning.se",
+                },
+                {
+                  "@type": "ListItem",
+                  position: 2,
+                  name: brandData.name,
+                  item: `https://tuning.aktuning.se/${brandData.slug?.current}`,
+                },
+                {
+                  "@type": "ListItem",
+                  position: 3,
+                  name: modelData.name,
+                  item: `https://tuning.aktuning.se/${brandData.slug?.current}/${modelData.slug?.current}`,
+                },
+                {
+                  "@type": "ListItem",
+                  position: 4,
+                  name: yearData.range,
+                  item: `https://tuning.aktuning.se/${brandData.slug?.current}/${modelData.slug?.current}/${yearData.range}`,
+                },
+                {
+                  "@type": "ListItem",
+                  position: 5,
+                  name: engineData.label,
+                  item: `https://tuning.aktuning.se/${brandData.slug?.current}/${modelData.slug?.current}/${yearData.range}/${engineData.slug?.current || engineData.label}`,
+                },
+              ],
+            }),
+          }}
+        />
+
+        {["sv", "en", "de", "fr", "da", "no", "it"].map((lang) => (
+          <link
+            key={lang}
+            rel="alternate"
+            hrefLang={lang}
+            href={`https://tuning.aktuning.se${router.asPath.split("?")[0]}?lang=${lang}`}
+          />
+        ))}
+        <link
+          rel="alternate"
+          hrefLang="x-default"
+          href={`https://tuning.aktuning.se${router.asPath.split("?")[0]}`}
+        />
       </Head>
 
       <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
