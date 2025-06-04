@@ -659,13 +659,11 @@ export default function EnginePage({
                       typeof opt.title === "string"
                         ? `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${opt.title}`
                         : `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${
-                            opt.title[currentLanguage] || opt.title["sv"] || ""
+                            opt.title["sv"] || ""
                           }`,
                     ...(opt.description && {
                       description: extractPlainTextFromDescription(
-                        opt.description[currentLanguage] ||
-                          opt.description["sv"] ||
-                          "",
+                        opt.description["sv"] || "",
                       ),
                     }),
                     ...(opt.gallery?.[0]?.asset?.url && {
