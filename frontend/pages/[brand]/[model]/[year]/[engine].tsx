@@ -648,8 +648,10 @@ export default function EnginePage({
                   "@type": "Product",
                   name:
                     typeof opt.title === "string"
-                      ? opt.title
-                      : opt.title[currentLanguage] || opt.title["sv"] || "",
+                      ? `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${opt.title}`
+                      : `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${
+                          opt.title[currentLanguage] || opt.title["sv"] || ""
+                        }`,
                   ...(opt.description && {
                     description: extractPlainTextFromDescription(
                       opt.description[currentLanguage] ||
