@@ -638,37 +638,41 @@ export default function EnginePage({
                   },
                 })),
 
-                ...mergedAktPlusOptions.map((opt, idx) => ({
-                  "@type": "ListItem",
-                  position: engineData.stages.length + idx + 1,
-                  item: {
-                    "@type": "Product",
-                    name: `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${
-                      typeof opt.title === "string"
-                        ? opt.title
-                        : opt.title["sv"] || ""
-                    }`,
-                    ...(opt.description && {
-                      description: extractPlainTextFromDescription(
-                        typeof opt.description === "string"
-                          ? opt.description
-                          : opt.description["sv"] || "",
-                      ),
-                    }),
-                    ...(opt.gallery?.[0]?.asset?.url && {
-                      image: opt.gallery[0].asset.url,
-                    }),
-                    ...(opt.price && {
-                      offers: {
-                        "@type": "Offer",
-                        priceCurrency: "SEK",
-                        price: opt.price,
-                        availability: "https://schema.org/InStock",
-                        url: canonicalUrl,
-                      },
-                    }),
-                  },
-                })),
+                ...mergedAktPlusOptions
+                  .filter(
+                    (opt) => !opt.title?.sv?.toLowerCase().includes("steg"),
+                  )
+                  .map((opt, idx) => ({
+                    "@type": "ListItem",
+                    position: engineData.stages.length + idx + 1,
+                    item: {
+                      "@type": "Product",
+                      name: `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${
+                        typeof opt.title === "string"
+                          ? opt.title
+                          : opt.title["sv"] || ""
+                      }`,
+                      ...(opt.description && {
+                        description: extractPlainTextFromDescription(
+                          typeof opt.description === "string"
+                            ? opt.description
+                            : opt.description["sv"] || "",
+                        ),
+                      }),
+                      ...(opt.gallery?.[0]?.asset?.url && {
+                        image: opt.gallery[0].asset.url,
+                      }),
+                      ...(opt.price && {
+                        offers: {
+                          "@type": "Offer",
+                          priceCurrency: "SEK",
+                          price: opt.price,
+                          availability: "https://schema.org/InStock",
+                          url: canonicalUrl,
+                        },
+                      }),
+                    },
+                  })),
               ],
             }),
           }}
