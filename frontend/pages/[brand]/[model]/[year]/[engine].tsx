@@ -613,7 +613,7 @@ export default function EnginePage({
               "@type": "ItemList",
               name: `Motoroptimering för ${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label}`,
               itemListElement: [
-                // Stages are already included in engineData.stages (positions 1, 2, etc.)
+                // All stages first (Steg 1, Steg 2, etc.)
                 ...engineData.stages.map((stage, index) => ({
                   "@type": "ListItem",
                   position: index + 1,
@@ -646,7 +646,7 @@ export default function EnginePage({
                   },
                 })),
 
-                // Only add AKT Plus options (positions after stages)
+                // Then all AKT Plus options
                 ...mergedAktPlusOptions.map((opt, idx) => ({
                   "@type": "ListItem",
                   position: engineData.stages.length + idx + 1,
