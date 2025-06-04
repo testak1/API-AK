@@ -125,15 +125,22 @@ export const getServerSideProps: GetServerSideProps<EnginePageProps> = async (
 };
 
 function extractPlainTextFromDescription(description: any): string {
-  if (!description || !Array.isArray(description)) return "";
+  if (!Array.isArray(description)) return "";
 
   return description
     .map((block) => {
       if (block._type === "block" && Array.isArray(block.children)) {
-        return block.children.map((child) => child.text).join("");
+        return block.children
+          .map((child) => (typeof child.text === "string" ? child.text : ""))
+          .join("");
+      }
+      // Handle custom block types with simple 'text' field fallback
+      if (typeof block.text === "string") {
+        return block.text;
       }
       return "";
     })
+    .filter(Boolean)
     .join("\n")
     .trim();
 }
