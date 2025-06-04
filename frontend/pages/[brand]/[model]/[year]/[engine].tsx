@@ -644,8 +644,8 @@ export default function EnginePage({
                   .filter((opt) => {
                     const isLinkedToStage =
                       opt.manualAssignments?.some((ref) =>
-                        engineData.stages.some(
-                          (stage) => stage._id === ref._ref,
+                        engineData.stages.some((stage) =>
+                          ref._ref.includes(stage.name),
                         ),
                       ) ?? false;
 
