@@ -640,39 +640,71 @@ export default function EnginePage({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "ItemList",
-              name: `AKT+ tillägg för ${brandData.name} ${modelData.name} ${engineData.label}`,
-              itemListElement: mergedAktPlusOptions.map((opt, index) => ({
-                "@type": "ListItem",
-                position: index + 1,
-                item: {
-                  "@type": "Product",
-                  name:
-                    typeof opt.title === "string"
-                      ? `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${opt.title}`
-                      : `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${
-                          opt.title[currentLanguage] || opt.title["sv"] || ""
-                        }`,
-                  ...(opt.description && {
+              name: `Tuningalternativ för ${brandData.name} ${modelData.name} ${engineData.label}`,
+              itemListElement: [
+                ...engineData.stages.map((stage, index) => ({
+                  "@type": "ListItem",
+                  position: index + 1,
+                  item: {
+                    "@type": "Product",
+                    name: `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${stage.name} Mjukvara`,
+                    image: [imageUrl],
                     description: extractPlainTextFromDescription(
-                      opt.description[currentLanguage] ||
-                        opt.description["sv"] ||
+                      stage.descriptionRef?.description ||
+                        stage.description?.[currentLanguage] ||
+                        stage.description?.["sv"] ||
                         "",
                     ),
-                  }),
-                  ...(opt.gallery?.[0]?.asset?.url && {
-                    image: opt.gallery[0].asset.url,
-                  }),
-                  ...(opt.price && {
-                    offers: {
-                      "@type": "Offer",
-                      priceCurrency: "SEK",
-                      price: opt.price,
-                      availability: "https://schema.org/InStock",
-                      url: pageUrl,
+                    brand: {
+                      "@type": "Brand",
+                      name: "AK-TUNING",
+                      logo: "https://tuning.aktuning.se/ak-logo2.png",
                     },
-                  }),
-                },
-              })),
+                    ...(stage.price && {
+                      offers: {
+                        "@type": "Offer",
+                        priceCurrency: "SEK",
+                        price: stage.price,
+                        availability: "https://schema.org/InStock",
+                        url: canonicalUrl,
+                      },
+                    }),
+                  },
+                })),
+
+                ...mergedAktPlusOptions.map((opt, idx) => ({
+                  "@type": "ListItem",
+                  position: engineData.stages.length + idx + 1,
+                  item: {
+                    "@type": "Product",
+                    name:
+                      typeof opt.title === "string"
+                        ? `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${opt.title}`
+                        : `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${
+                            opt.title[currentLanguage] || opt.title["sv"] || ""
+                          }`,
+                    ...(opt.description && {
+                      description: extractPlainTextFromDescription(
+                        opt.description[currentLanguage] ||
+                          opt.description["sv"] ||
+                          "",
+                      ),
+                    }),
+                    ...(opt.gallery?.[0]?.asset?.url && {
+                      image: opt.gallery[0].asset.url,
+                    }),
+                    ...(opt.price && {
+                      offers: {
+                        "@type": "Offer",
+                        priceCurrency: "SEK",
+                        price: opt.price,
+                        availability: "https://schema.org/InStock",
+                        url: pageUrl,
+                      },
+                    }),
+                  },
+                })),
+              ],
             }),
           }}
         />
