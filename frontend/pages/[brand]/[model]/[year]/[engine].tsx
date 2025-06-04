@@ -613,47 +613,43 @@ export default function EnginePage({
               "@type": "ItemList",
               name: `Motoroptimering för ${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label}`,
               itemListElement: [
-                // First add all stages (Steg items)
-                ...engineData.stages.map((stage, index) => {
-                  const stageSlug = stage.name
-                    .toLowerCase()
-                    .replace(/\s+/g, "-")
-                    .replace(/[^\w-]/g, "");
-
-                  return {
-                    "@type": "ListItem",
-                    position: index + 1, // Positions 1, 2, etc. for stages
-                    item: {
-                      "@type": "Product",
-                      name: `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${stage.name} Mjukvara`,
-                      image: [imageUrl],
-                      description: extractPlainTextFromDescription(
-                        stage.descriptionRef?.description ||
-                          stage.description?.["sv"] ||
-                          "",
-                      ),
-                      brand: {
-                        "@type": "Brand",
-                        name: "AK-TUNING",
-                        logo: "https://tuning.aktuning.se/ak-logo2.png",
-                      },
-                      ...(stage.price && {
-                        offers: {
-                          "@type": "Offer",
-                          priceCurrency: "SEK",
-                          price: stage.price,
-                          availability: "https://schema.org/InStock",
-                          url: `${canonicalUrl}#${stageSlug}`,
-                        },
-                      }),
+                // Stages are already included in engineData.stages (positions 1, 2, etc.)
+                ...engineData.stages.map((stage, index) => ({
+                  "@type": "ListItem",
+                  position: index + 1,
+                  item: {
+                    "@type": "Product",
+                    name: `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${stage.name} Mjukvara`,
+                    image: [imageUrl],
+                    description: extractPlainTextFromDescription(
+                      stage.descriptionRef?.description ||
+                        stage.description?.["sv"] ||
+                        "",
+                    ),
+                    brand: {
+                      "@type": "Brand",
+                      name: "AK-TUNING",
+                      logo: "https://tuning.aktuning.se/ak-logo2.png",
                     },
-                  };
-                }),
+                    ...(stage.price && {
+                      offers: {
+                        "@type": "Offer",
+                        priceCurrency: "SEK",
+                        price: stage.price,
+                        availability: "https://schema.org/InStock",
+                        url: `${canonicalUrl}#${stage.name
+                          .toLowerCase()
+                          .replace(/\s+/g, "-")
+                          .replace(/[^\w-]/g, "")}`,
+                      },
+                    }),
+                  },
+                })),
 
-                // Then add all AKT Plus options after stages
+                // Only add AKT Plus options (positions after stages)
                 ...mergedAktPlusOptions.map((opt, idx) => ({
                   "@type": "ListItem",
-                  position: engineData.stages.length + idx + 1, // Continue numbering after stages
+                  position: engineData.stages.length + idx + 1,
                   item: {
                     "@type": "Product",
                     name: `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${
@@ -661,7 +657,6 @@ export default function EnginePage({
                         ? opt.title
                         : opt.title["sv"] || ""
                     }`,
-
                     ...(opt.description && {
                       description: extractPlainTextFromDescription(
                         opt.description["sv"] || "",
