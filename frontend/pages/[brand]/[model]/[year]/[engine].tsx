@@ -609,6 +609,7 @@ export default function EnginePage({
               "@type": "ItemList",
               name: `Motoroptimering för ${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label}`,
               itemListElement: [
+                // Steg
                 ...engineData.stages.map((stage, index) => ({
                   "@type": "ListItem",
                   position: index + 1,
@@ -638,10 +639,25 @@ export default function EnginePage({
                   },
                 })),
 
+                // AKT+ alternativ, filtrerade
                 ...mergedAktPlusOptions
-                  .filter(
-                    (opt) => !opt.title?.sv?.toLowerCase().includes("steg"),
-                  )
+                  .filter((opt) => {
+                    const isLinkedToStage =
+                      opt.manualAssignments?.some((ref) =>
+                        engineData.stages.some(
+                          (stage) => stage._id === ref._ref,
+                        ),
+                      ) ?? false;
+
+                    const title =
+                      typeof opt.title === "string"
+                        ? opt.title
+                        : opt.title?.sv || "";
+
+                    return (
+                      !isLinkedToStage && !title.toLowerCase().includes("steg")
+                    );
+                  })
                   .map((opt, idx) => ({
                     "@type": "ListItem",
                     position: engineData.stages.length + idx + 1,
@@ -650,13 +666,13 @@ export default function EnginePage({
                       name: `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${
                         typeof opt.title === "string"
                           ? opt.title
-                          : opt.title["sv"] || ""
+                          : opt.title?.sv || ""
                       }`,
                       ...(opt.description && {
                         description: extractPlainTextFromDescription(
                           typeof opt.description === "string"
                             ? opt.description
-                            : opt.description["sv"] || "",
+                            : opt.description?.sv || "",
                         ),
                       }),
                       ...(opt.gallery?.[0]?.asset?.url && {
