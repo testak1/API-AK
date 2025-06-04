@@ -613,6 +613,7 @@ export default function EnginePage({
               "@type": "ItemList",
               name: `Motoroptimering för ${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label}`,
               itemListElement: [
+                // First add all stages (Steg items)
                 ...engineData.stages.map((stage, index) => {
                   const stageSlug = stage.name
                     .toLowerCase()
@@ -621,14 +622,13 @@ export default function EnginePage({
 
                   return {
                     "@type": "ListItem",
-                    position: index + 1,
+                    position: index + 1, // Positions 1, 2, etc. for stages
                     item: {
                       "@type": "Product",
                       name: `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${stage.name} Mjukvara`,
                       image: [imageUrl],
                       description: extractPlainTextFromDescription(
                         stage.descriptionRef?.description ||
-                          stage.description?.[currentLanguage] ||
                           stage.description?.["sv"] ||
                           "",
                       ),
@@ -650,9 +650,10 @@ export default function EnginePage({
                   };
                 }),
 
+                // Then add all AKT Plus options after stages
                 ...mergedAktPlusOptions.map((opt, idx) => ({
                   "@type": "ListItem",
-                  position: engineData.stages.length + idx + 1,
+                  position: engineData.stages.length + idx + 1, // Continue numbering after stages
                   item: {
                     "@type": "Product",
                     name:
