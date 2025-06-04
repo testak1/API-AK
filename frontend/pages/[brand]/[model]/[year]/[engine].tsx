@@ -601,35 +601,35 @@ export default function EnginePage({
           }}
         />
 
-        {/* Structured Data: Product */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Product",
-              name: `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${selectedStep} Mjukvara`,
-              image: [imageUrl],
-              description: pageDescription,
-              brand: {
-                "@type": "Brand",
-                name: "AK-TUNING",
-                logo: "https://tuning.aktuning.se/ak-logo2.png",
-              },
-              offers: selectedStage?.price
-                ? {
-                    "@type": "Offer",
-                    priceCurrency: "SEK",
-                    price: selectedStage.price,
-                    availability: "https://schema.org/InStock",
-                    url: pageUrl,
-                  }
-                : undefined,
-            }),
-          }}
-        />
+        {/* Structured Data: Product for selectedStep */}
+        {selectedStage && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "Product",
+                name: `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${selectedStep} Mjukvara`,
+                image: [imageUrl],
+                description: pageDescription,
+                brand: {
+                  "@type": "Brand",
+                  name: "AK-TUNING",
+                  logo: "https://tuning.aktuning.se/ak-logo2.png",
+                },
+                offers: {
+                  "@type": "Offer",
+                  priceCurrency: "SEK",
+                  price: selectedStage.price,
+                  availability: "https://schema.org/InStock",
+                  url: `${canonicalUrl}#${slugifyStage(selectedStage.name)}`,
+                },
+              }),
+            }}
+          />
+        )}
 
-        {/* Structured Data: Organization for LOGO */}
+        {/* Structured Data: Organization */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -643,41 +643,63 @@ export default function EnginePage({
           }}
         />
 
+        {/* Structured Data: AKT+ ItemList */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "ItemList",
-              name: `AKT+ tillägg för ${brandData.name} ${modelData.name} ${engineData.label}`,
-              itemListElement: mergedAktPlusOptions.map((opt, index) => ({
-                "@type": "ListItem",
-                position: index + 1,
-                item: {
-                  "@type": "Product",
-                  name:
+              name: `AKT+ tillägg för ${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label}`,
+              itemListElement: mergedAktPlusOptions
+                .filter((opt) => {
+                  const isLinkedToStage =
+                    opt.manualAssignments?.some((ref) =>
+                      engineData.stages?.some(
+                        (stage) =>
+                          ref._ref === (stage as any)._id ||
+                          ref._ref === stage.name,
+                      ),
+                    ) ?? false;
+
+                  const title =
                     typeof opt.title === "string"
                       ? opt.title
-                      : opt.title[currentLanguage] || opt.title["sv"] || "",
-                  ...(opt.description && {
-                    description: extractPlainTextFromDescription(
-                      opt.description,
-                    ),
-                  }),
-                  ...(opt.gallery?.[0]?.asset?.url && {
-                    image: opt.gallery[0].asset.url,
-                  }),
-                  ...(opt.price && {
-                    offers: {
-                      "@type": "Offer",
-                      priceCurrency: "SEK",
-                      price: opt.price,
-                      availability: "https://schema.org/InStock",
-                      url: pageUrl,
-                    },
-                  }),
-                },
-              })),
+                      : opt.title?.sv || "";
+
+                  return !isLinkedToStage && !/steg\s?\d+/i.test(title);
+                })
+                .map((opt, index) => ({
+                  "@type": "ListItem",
+                  position: index + 1,
+                  item: {
+                    "@type": "Product",
+                    name: `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${
+                      typeof opt.title === "string"
+                        ? opt.title
+                        : opt.title?.sv || ""
+                    }`,
+                    ...(opt.description && {
+                      description: extractPlainTextFromDescription(
+                        typeof opt.description === "string"
+                          ? opt.description
+                          : opt.description?.sv || "",
+                      ),
+                    }),
+                    ...(opt.gallery?.[0]?.asset?.url && {
+                      image: opt.gallery[0].asset.url,
+                    }),
+                    ...(opt.price && {
+                      offers: {
+                        "@type": "Offer",
+                        priceCurrency: "SEK",
+                        price: opt.price,
+                        availability: "https://schema.org/InStock",
+                        url: canonicalUrl,
+                      },
+                    }),
+                  },
+                })),
             }),
           }}
         />
