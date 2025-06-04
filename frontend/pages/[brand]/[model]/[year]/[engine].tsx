@@ -592,35 +592,6 @@ export default function EnginePage({
         <link rel="icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
-        {/* Structured Data: Product */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Product",
-              name: `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${selectedStep} Mjukvara`,
-              image: [imageUrl],
-              description: pageDescription,
-              brand: {
-                "@type": "Brand",
-                name: "AK-TUNING",
-                logo: "https://tuning.aktuning.se/ak-logo2.png",
-              },
-              offers: selectedStage?.price
-                ? {
-                    "@type": "Offer",
-                    priceCurrency: "SEK",
-                    price: selectedStage.price,
-                    availability: "https://schema.org/InStock",
-                    url: canonicalUrl,
-                  }
-                : undefined,
-            }),
-          }}
-        />
-
-        {/* Structured Data: Organization for LOGO */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -640,9 +611,8 @@ export default function EnginePage({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "ItemList",
-              name: `Tuningalternativ för ${brandData.name} ${modelData.name} ${engineData.label}`,
+              name: `Motoroptimering för ${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label}`,
               itemListElement: [
-                // STEG 1, STEG 2, etc.
                 ...engineData.stages.map((stage, index) => {
                   const stageSlug = stage.name
                     .toLowerCase()
@@ -707,7 +677,7 @@ export default function EnginePage({
                         priceCurrency: "SEK",
                         price: opt.price,
                         availability: "https://schema.org/InStock",
-                        url: pageUrl,
+                        url: canonicalUrl,
                       },
                     }),
                   },
@@ -717,6 +687,30 @@ export default function EnginePage({
           }}
         />
 
+        {/* Breadcrumbs */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                {
+                  "@type": "ListItem",
+                  position: 1,
+                  name: "Hem",
+                  item: "https://tuning.aktuning.se",
+                },
+                {
+                  "@type": "ListItem",
+                  position: 2,
+                  name: `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label}`,
+                  item: canonicalUrl,
+                },
+              ],
+            }),
+          }}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
