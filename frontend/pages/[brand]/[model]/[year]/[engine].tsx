@@ -693,7 +693,7 @@ export default function EnginePage({
                 {
                   "@type": "ListItem",
                   position: 2,
-                  name: engineData.label,
+                  name: `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label}`,
                   item: canonicalUrl,
                 },
               ],
