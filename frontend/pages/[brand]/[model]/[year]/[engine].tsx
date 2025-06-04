@@ -607,7 +607,7 @@ export default function EnginePage({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "ItemList",
-              name: `Tuning Steg för ${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label}`,
+              name: `Motoroptimering för ${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label}`,
               itemListElement: engineData.stages.map((stage, index) => ({
                 "@type": "ListItem",
                 position: index + 1,
@@ -651,13 +651,19 @@ export default function EnginePage({
                 .filter((opt) => {
                   const isLinkedToStage =
                     opt.manualAssignments?.some((ref) =>
-                      stageRefs.includes(ref._ref),
+                      engineData.stages?.some(
+                        (stage) => ref._ref === stage._id,
+                      ),
                     ) ?? false;
+
                   const title =
                     typeof opt.title === "string"
                       ? opt.title
                       : opt.title?.sv || "";
-                  return !isLinkedToStage && !/steg\s?\d+/i.test(title);
+
+                  const titleContainsStage = /steg\s?\d+/i.test(title);
+
+                  return !isLinkedToStage && !titleContainsStage;
                 })
                 .map((opt, index) => ({
                   "@type": "ListItem",
