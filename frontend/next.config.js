@@ -59,7 +59,17 @@ const nextConfig = {
           },
         ],
       },
+
       // Cache static assets
+      {
+        source: "/sitemap.xml",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "no-cache, no-store, must-revalidate",
+          },
+        ],
+      },
       {
         source: "/_next/static/(.*)",
         headers: [
