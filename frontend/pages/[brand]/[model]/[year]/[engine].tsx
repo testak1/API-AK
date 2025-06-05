@@ -660,6 +660,7 @@ export default function EnginePage({
                           : {
                               "@type": "Offer",
                               priceCurrency: "SEK",
+                              price: 0, // <– Detta är viktigt för validering
                               availability: "https://schema.org/InStock",
                               url: `${canonicalUrl}?stage=${slugifyStage(stage.name)}`,
                               description: "Kontakta oss för offert",
