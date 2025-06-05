@@ -588,18 +588,7 @@ export default function EnginePage({
         {/* Favicon */}
         <link rel="icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Organization",
-              name: "AK-TUNING",
-              url: "https://tuning.aktuning.se",
-              logo: "https://tuning.aktuning.se/ak-logo2.png",
-            }),
-          }}
-        />
+        
 
         {/* Structured Data: Product for selectedStep */}
         {selectedStage && (
