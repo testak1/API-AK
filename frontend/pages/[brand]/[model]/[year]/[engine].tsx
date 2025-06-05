@@ -589,34 +589,6 @@ export default function EnginePage({
         <link rel="icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
-        {/* Structured Data: Product for selectedStep */}
-        {selectedStage && (
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{
-              __html: JSON.stringify({
-                "@context": "https://schema.org",
-                "@type": "Product",
-                name: `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${selectedStep} Mjukvara`,
-                image: [imageUrl],
-                description: pageDescription,
-                brand: {
-                  "@type": "Brand",
-                  name: "AK-TUNING",
-                  logo: "https://tuning.aktuning.se/ak-logo2.png",
-                },
-                offers: {
-                  "@type": "Offer",
-                  priceCurrency: "SEK",
-                  price: selectedStage.price,
-                  availability: "https://schema.org/InStock",
-                  url: `${canonicalUrl}#${slugifyStage(selectedStage.name)}`,
-                },
-              }),
-            }}
-          />
-        )}
-
         {/* Structured Data: Organization */}
         <script
           type="application/ld+json"
@@ -624,113 +596,107 @@ export default function EnginePage({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "Organization",
-              name: "AK-TUNING",
+              name: "AK-TUNING Motoroptimering",
               url: "https://tuning.aktuning.se",
               logo: "https://tuning.aktuning.se/ak-logo2.png",
             }),
           }}
         />
 
-        {/* Structured Data: Tuning Steg ItemList */}
+        {/* Structured Data: Samlat ItemList för alla steg + akt+ */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "ItemList",
-              name: `Motoroptimering steg för ${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label}`,
-              itemListElement: engineData.stages.map((stage, index) => ({
-                "@type": "ListItem",
-                position: index + 1,
-                item: {
-                  "@type": "Product",
-                  name: `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${stage.name} Mjukvara`,
-                  image: [imageUrl],
-                  description: extractPlainTextFromDescription(
-                    stage.descriptionRef?.description ||
-                      stage.description?.["sv"] ||
-                      "",
-                  ),
-                  brand: {
-                    "@type": "Brand",
-                    name: "AK-TUNING",
-                    logo: "https://tuning.aktuning.se/ak-logo2.png",
-                  },
-                  ...(stage.price && {
-                    offers: {
-                      "@type": "Offer",
-                      priceCurrency: "SEK",
-                      price: stage.price,
-                      availability: "https://schema.org/InStock",
-                      url: `${canonicalUrl}#${slugifyStage(stage.name)}`,
-                    },
-                  }),
-                },
-              })),
-            }),
-          }}
-        />
-
-        {/* Structured Data: AKT+ ItemList */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "ItemList",
-              name: `AKT+ tillägg för ${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label}`,
-              itemListElement: mergedAktPlusOptions
-                .filter((opt) => {
-                  const isLinkedToStage =
-                    opt.manualAssignments?.some((ref) =>
-                      engineData.stages?.some(
-                        (stage) =>
-                          ref._ref === (stage as any)._id ||
-                          ref._ref === stage.name,
-                      ),
-                    ) ?? false;
-
-                  const title =
-                    typeof opt.title === "string"
-                      ? opt.title
-                      : opt.title?.sv || "";
-
-                  return !isLinkedToStage && !/steg\s?\d+/i.test(title);
-                })
-                .map((opt, index) => ({
+              name: `Motoroptimering för ${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label}`,
+              itemListElement: [
+                // Steg 1, 2, 3, DSG m.m.
+                ...engineData.stages.map((stage, index) => ({
                   "@type": "ListItem",
                   position: index + 1,
                   item: {
                     "@type": "Product",
-                    name: `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${
-                      typeof opt.title === "string"
-                        ? opt.title
-                        : opt.title?.sv || ""
-                    }`,
-                    ...(opt.description && {
-                      description: extractPlainTextFromDescription(
-                        typeof opt.description === "string"
-                          ? opt.description
-                          : opt.description?.sv || "",
-                      ),
-                    }),
-                    ...(opt.gallery?.[0]?.asset?.url && {
-                      image: opt.gallery[0].asset.url,
-                    }),
-                    ...(opt.price && {
+                    name: `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${stage.name} Mjukvara`,
+                    image: [imageUrl],
+                    description: extractPlainTextFromDescription(
+                      stage.descriptionRef?.description ||
+                        stage.description?.["sv"] ||
+                        "",
+                    ),
+                    brand: {
+                      "@type": "Brand",
+                      name: "AK-TUNING",
+                      logo: "https://tuning.aktuning.se/ak-logo2.png",
+                    },
+                    ...(stage.price && {
                       offers: {
                         "@type": "Offer",
                         priceCurrency: "SEK",
-                        price: opt.price,
+                        price: stage.price,
                         availability: "https://schema.org/InStock",
-                        url: canonicalUrl,
+                        url: `${canonicalUrl}#${slugifyStage(stage.name)}`,
                       },
                     }),
                   },
                 })),
+
+                // AKT+ tillval
+                ...mergedAktPlusOptions
+                  .filter((opt) => {
+                    const isLinkedToStage =
+                      opt.manualAssignments?.some((ref) =>
+                        engineData.stages?.some(
+                          (stage) =>
+                            ref._ref === (stage as any)._id ||
+                            ref._ref === stage.name,
+                        ),
+                      ) ?? false;
+
+                    const title =
+                      typeof opt.title === "string"
+                        ? opt.title
+                        : opt.title?.sv || "";
+
+                    return !isLinkedToStage && !/steg\s?\d+/i.test(title);
+                  })
+                  .map((opt, index) => ({
+                    "@type": "ListItem",
+                    position: engineData.stages.length + index + 1,
+                    item: {
+                      "@type": "Product",
+                      name: `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${
+                        typeof opt.title === "string"
+                          ? opt.title
+                          : opt.title?.sv || ""
+                      }`,
+                      ...(opt.description && {
+                        description: extractPlainTextFromDescription(
+                          typeof opt.description === "string"
+                            ? opt.description
+                            : opt.description?.sv || "",
+                        ),
+                      }),
+                      ...(opt.gallery?.[0]?.asset?.url && {
+                        image: opt.gallery[0].asset.url,
+                      }),
+                      ...(opt.price && {
+                        offers: {
+                          "@type": "Offer",
+                          priceCurrency: "SEK",
+                          price: opt.price,
+                          availability: "https://schema.org/InStock",
+                          url: canonicalUrl,
+                        },
+                      }),
+                    },
+                  })),
+              ],
             }),
           }}
         />
+
         {/* Breadcrumbs */}
         <script
           type="application/ld+json"
