@@ -547,7 +547,7 @@ export default function EnginePage({
     : engineData.label;
 
   const stageRefs = engineData.stages
-    .map((s) => (s as any)?._id) // eller extrahera rätt ID från annan källa
+    .map((s) => (s as any)?._id)
     .filter(Boolean);
 
   const canonicalUrl = `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}`;
@@ -613,34 +613,45 @@ export default function EnginePage({
               name: `Motoroptimering för ${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label}`,
               itemListElement: [
                 // Steg 1, 2, 3, DSG m.m.
-                ...engineData.stages.map((stage, index) => ({
-                  "@type": "ListItem",
-                  position: index + 1,
-                  item: {
-                    "@type": "Product",
-                    name: `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${stage.name} Mjukvara`,
-                    image: [imageUrl],
-                    description: extractPlainTextFromDescription(
-                      stage.descriptionRef?.description ||
-                        stage.description?.["sv"] ||
-                        "",
-                    ),
-                    brand: {
-                      "@type": "Brand",
-                      name: "AK-TUNING",
-                      logo: "https://tuning.aktuning.se/ak-logo2.png",
-                    },
-                    ...(stage.price && {
-                      offers: {
-                        "@type": "Offer",
-                        priceCurrency: "SEK",
-                        price: stage.price,
-                        availability: "https://schema.org/InStock",
-                        url: `${canonicalUrl}#${slugifyStage(stage.name)}`,
+                ...engineData.stages.map((stage, index) => {
+                  const hasPrice =
+                    typeof stage.price === "number" && stage.price > 0;
+
+                  const baseDescription = extractPlainTextFromDescription(
+                    stage.descriptionRef?.description ||
+                      stage.description?.["sv"] ||
+                      "",
+                  );
+
+                  const fullDescription = hasPrice
+                    ? baseDescription
+                    : `${baseDescription}\nKontakta oss för offert!`;
+
+                  return {
+                    "@type": "ListItem",
+                    position: index + 1,
+                    item: {
+                      "@type": "Product",
+                      name: `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${stage.name} Mjukvara`,
+                      image: [imageUrl],
+                      description: fullDescription,
+                      brand: {
+                        "@type": "Brand",
+                        name: "AK-TUNING",
+                        logo: "https://tuning.aktuning.se/ak-logo2.png",
                       },
-                    }),
-                  },
-                })),
+                      ...(hasPrice && {
+                        offers: {
+                          "@type": "Offer",
+                          priceCurrency: "SEK",
+                          price: stage.price,
+                          availability: "https://schema.org/InStock",
+                          url: `${canonicalUrl}#${slugifyStage(stage.name)}`,
+                        },
+                      }),
+                    },
+                  };
+                }),
 
                 // AKT+ tillval
                 ...mergedAktPlusOptions
