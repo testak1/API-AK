@@ -653,7 +653,7 @@ export default function EnginePage({
                   };
                 }),
 
-                // AKT+ tillval
+                // Sedan: AKT+ alternativ (sorterat alfabetiskt)
                 ...mergedAktPlusOptions
                   .filter((opt) => {
                     const isLinkedToStage =
@@ -672,9 +672,16 @@ export default function EnginePage({
 
                     return !isLinkedToStage && !/steg\s?\d+/i.test(title);
                   })
-                  .map((opt, index) => ({
+                  .sort((a, b) => {
+                    const titleA =
+                      typeof a.title === "string" ? a.title : a.title?.sv || "";
+                    const titleB =
+                      typeof b.title === "string" ? b.title : b.title?.sv || "";
+                    return titleA.localeCompare(titleB);
+                  })
+                  .map((opt, i) => ({
                     "@type": "ListItem",
-                    position: engineData.stages.length + index + 1,
+                    position: engineData.stages.length + i + 1,
                     item: {
                       "@type": "Product",
                       name: `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${
@@ -692,15 +699,16 @@ export default function EnginePage({
                       ...(opt.gallery?.[0]?.asset?.url && {
                         image: opt.gallery[0].asset.url,
                       }),
-                      ...(opt.price && {
-                        offers: {
-                          "@type": "Offer",
-                          priceCurrency: "SEK",
-                          price: opt.price,
-                          availability: "https://schema.org/InStock",
-                          url: canonicalUrl,
-                        },
-                      }),
+                      ...(typeof opt.price === "number" &&
+                        opt.price > 0 && {
+                          offers: {
+                            "@type": "Offer",
+                            priceCurrency: "SEK",
+                            price: opt.price,
+                            availability: "https://schema.org/InStock",
+                            url: canonicalUrl,
+                          },
+                        }),
                     },
                   })),
               ],
