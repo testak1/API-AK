@@ -613,45 +613,60 @@ export default function EnginePage({
               name: `Motoroptimering för ${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label}`,
               itemListElement: [
                 // Steg 1, 2, 3, DSG m.m.
-                ...engineData.stages.map((stage, index) => {
-                  const hasPrice =
-                    typeof stage.price === "number" && stage.price > 0;
+                ...[...engineData.stages]
+                  .sort((a, b) => {
+                    const extractSortValue = (name: string) => {
+                      const match = name.toLowerCase().match(/steg\s?(\d+)/);
+                      return match ? parseInt(match[1], 10) : 999;
+                    };
+                    return extractSortValue(a.name) - extractSortValue(b.name);
+                  })
+                  .map((stage, index) => {
+                    const hasPrice =
+                      typeof stage.price === "number" && stage.price > 0;
 
-                  const baseDescription = extractPlainTextFromDescription(
-                    stage.descriptionRef?.description ||
-                      stage.description?.["sv"] ||
-                      "",
-                  );
+                    const baseDescription = extractPlainTextFromDescription(
+                      stage.descriptionRef?.description ||
+                        stage.description?.["sv"] ||
+                        "",
+                    );
 
-                  const fullDescription = hasPrice
-                    ? baseDescription
-                    : `${baseDescription}\nKontakta oss för offert!`;
+                    const fullDescription =
+                      baseDescription || "Kontakta oss för offert!";
 
-                  return {
-                    "@type": "ListItem",
-                    position: index + 1,
-                    item: {
-                      "@type": "Product",
-                      name: `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${stage.name} Mjukvara`,
-                      image: [imageUrl],
-                      description: fullDescription,
-                      brand: {
-                        "@type": "Brand",
-                        name: "AK-TUNING",
-                        logo: "https://tuning.aktuning.se/ak-logo2.png",
-                      },
-                      ...(hasPrice && {
-                        offers: {
-                          "@type": "Offer",
-                          priceCurrency: "SEK",
-                          price: stage.price,
-                          availability: "https://schema.org/InStock",
-                          url: `${canonicalUrl}#${slugifyStage(stage.name)}`,
+                    return {
+                      "@type": "ListItem",
+                      position: index + 1,
+                      item: {
+                        "@type": "Product",
+                        name: `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${stage.name} Mjukvara`,
+                        image: [imageUrl],
+                        description: hasPrice
+                          ? fullDescription
+                          : `${fullDescription}\nKontakta oss för offert!`,
+                        brand: {
+                          "@type": "Brand",
+                          name: "AK-TUNING Motoroptimering",
+                          logo: "https://tuning.aktuning.se/ak-logo2.png",
                         },
-                      }),
-                    },
-                  };
-                }),
+                        offers: hasPrice
+                          ? {
+                              "@type": "Offer",
+                              priceCurrency: "SEK",
+                              price: stage.price,
+                              availability: "https://schema.org/InStock",
+                              url: `${canonicalUrl}?stage=${slugifyStage(stage.name)}`,
+                            }
+                          : {
+                              "@type": "Offer",
+                              priceCurrency: "SEK",
+                              availability: "https://schema.org/InStock",
+                              url: `${canonicalUrl}?stage=${slugifyStage(stage.name)}`,
+                              description: "Kontakta oss för offert",
+                            },
+                      },
+                    };
+                  }),
 
                 // Sedan: AKT+ alternativ (sorterat alfabetiskt)
                 ...mergedAktPlusOptions
