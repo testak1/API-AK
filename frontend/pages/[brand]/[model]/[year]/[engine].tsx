@@ -588,7 +588,6 @@ export default function EnginePage({
         {/* Favicon */}
         <link rel="icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        
 
         {/* Structured Data: Product for selectedStep */}
         {selectedStage && (
@@ -628,6 +627,46 @@ export default function EnginePage({
               name: "AK-TUNING",
               url: "https://tuning.aktuning.se",
               logo: "https://tuning.aktuning.se/ak-logo2.png",
+            }),
+          }}
+        />
+
+        {/* Structured Data: Tuning Steg ItemList */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "ItemList",
+              name: `Motoroptimering steg för ${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label}`,
+              itemListElement: engineData.stages.map((stage, index) => ({
+                "@type": "ListItem",
+                position: index + 1,
+                item: {
+                  "@type": "Product",
+                  name: `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${stage.name} Mjukvara`,
+                  image: [imageUrl],
+                  description: extractPlainTextFromDescription(
+                    stage.descriptionRef?.description ||
+                      stage.description?.["sv"] ||
+                      "",
+                  ),
+                  brand: {
+                    "@type": "Brand",
+                    name: "AK-TUNING",
+                    logo: "https://tuning.aktuning.se/ak-logo2.png",
+                  },
+                  ...(stage.price && {
+                    offers: {
+                      "@type": "Offer",
+                      priceCurrency: "SEK",
+                      price: stage.price,
+                      availability: "https://schema.org/InStock",
+                      url: `${canonicalUrl}#${slugifyStage(stage.name)}`,
+                    },
+                  }),
+                },
+              })),
             }),
           }}
         />
