@@ -431,21 +431,23 @@ export default function EnginePage({
     }));
   };
 
-  const rpmLabels = engineData.fuel.toLowerCase().includes("diesel")
-    ? ["1500", "2000", "2500", "3000", "3500", "4000", "4500", "5000"]
-    : [
-        "2000",
-        "2500",
-        "3000",
-        "3500",
-        "4000",
-        "4500",
-        "5000",
-        "5500",
-        "6000",
-        "6500",
-        "7000",
-      ];
+  const rpmLabels = useMemo(() => {
+    return engineData.fuel.toLowerCase().includes("diesel")
+      ? ["1500", "2000", "2500", "3000", "3500", "4000", "4500", "5000"]
+      : [
+          "2000",
+          "2500",
+          "3000",
+          "3500",
+          "4000",
+          "4500",
+          "5000",
+          "5500",
+          "6000",
+          "6500",
+          "7000",
+        ];
+  }, [engineData.fuel]);
 
   const selectedStage = engineData?.stages?.find((s) => expandedStages[s.name]);
   const selectedStep = selectedStage?.name?.toUpperCase() || "MJUKVARA";
