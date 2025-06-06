@@ -749,7 +749,7 @@ export default function EnginePage({
                 {
                   "@type": "ListItem",
                   position: 2,
-                  name: `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label}`,
+                  name: `Motoroptimering ${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label}`,
                   item: canonicalUrl,
                 },
               ],
