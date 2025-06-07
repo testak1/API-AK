@@ -364,6 +364,7 @@ export default function TuningViewer() {
       cs: `Stupeň ${stageNum}`,
       uk: `Етап ${stageNum}`,
       th: `ขั้นตอน ${stageNum}`,
+      ro: `Stadiu ${stageNum}`,
     };
 
     return translations[lang] || name;
