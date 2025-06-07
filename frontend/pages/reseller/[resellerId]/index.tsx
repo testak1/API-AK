@@ -1699,15 +1699,7 @@ export default function TuningViewer() {
                                             )}
 
                                             <button
-                                              onClick={(onClose) =>
-                                                setResellerContactModalData(
-                                                  (prev) => ({
-                                                    ...prev,
-                                                    isOpen: true,
-                                                    stageOrOption: stage.name, // or appropriate value
-                                                  }),
-                                                )
-                                              }
+                                              onClick={() => handleBookNow}
                                               className="bg-green-600 hover:bg-green-700 hover:scale-105 transform transition-all text-white px-6 py-3 rounded-lg font-medium shadow-lg"
                                             >
                                               <span>📩</span>{" "}
