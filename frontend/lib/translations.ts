@@ -562,7 +562,7 @@ export const translations = {
     phoneTitle: "📱 電話番号",
     noPhoneNumbers: "❌ 利用可能な電話番号がありません",
   },
-ro: {
+  ro: {
     switchLanguage: "Schimbă în",
     BrandValue: "MARCĂ",
     ModelValue: "MODEL",
@@ -576,9 +576,9 @@ ro: {
     contactvalue: "CONTACT",
     fuelPetrol: "Benzină",
     fuelDiesel: "Motorină",
-    originalHp: "HP ORIGINALI",
+    originalHp: "CP ORIGINALI",
     originalNm: "Nm ORIGINAL",
-    stockHp: "HP Originali",
+    stockHp: "CP Originali",
     stageLabel: "STADIU",
     infoGeneral: "INFORMAȚII GENERALE",
     infoStage: "INFORMAȚII",
@@ -595,15 +595,15 @@ ro: {
     powerLabel: "PUTERE",
     torqueLabel: "CUPLU",
     additionsLabel: "ADAOSURI",
-    stageNameWithHP: (stageName: string) => `${stageName} HP`,
+    stageNameWithHP: (stageName: string) => `${stageName} CP`,
     powerCurveLabel: (stageName: string) => `Curba de putere ${stageName}`,
     translateStageName: (stageName: string) =>
-      stageName.replace("Steg", "Stadiu"),
+      stageName.replace("Steg", "STAGE"),
     stageInfoPrefix: "INFORMAȚII",
     stageInfoSuffix: "STADIU",
     generalInfoLabel: "INFORMAȚII GENERALE",
-    horsepowerUnit: "hp",
-    horsepowerDisplay: (value: number) => `${value} hp`,
+    horsepowerUnit: "CP",
+    horsepowerDisplay: (value: number) => `${value} CP`,
     requestSent: "✅ CERERE TRIMISĂ CU SUCCES!",
     requestNote: "📬 Vă vom contacta cât mai curând posibil!",
     close: "✖️ ÎNCHIDE",
@@ -621,10 +621,13 @@ ro: {
     sendMessage: "Trimite mesaj",
     phoneTitle: "📱 NUMĂR DE TELEFON",
     noPhoneNumbers: "❌ Nu sunt numere de contact disponibile",
-    customSoftware: "Toate soluțiile software sunt personalizate pentru mașina ta",
+    customSoftware:
+      "Toate soluțiile software sunt personalizate pentru mașina ta",
     prePostDiagnostics: "Diagnosticare înainte și după optimizare",
-    loggingForCustomization: "Înregistrare date pentru personalizarea software-ului",
-    performanceAndEconomy: "Optimizat atât pentru performanță cât și pentru economie",
+    loggingForCustomization:
+      "Înregistrare date pentru personalizarea software-ului",
+    performanceAndEconomy:
+      "Optimizat atât pentru performanță cât și pentru economie",
     aboutUs1:
       "AK-TUNING sunt specialiști în optimizare motor personalizată, chiptuning și programare ECU pentru toate mărcile auto.",
     aboutUs2:
