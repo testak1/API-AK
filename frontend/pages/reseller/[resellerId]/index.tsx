@@ -484,12 +484,6 @@ export default function TuningViewer() {
 
     const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
 
-    setResellerContactModalData({
-      isOpen: true,
-      stageOrOption: stageOrOptionName,
-      link: finalLink,
-      scrollPosition: isMobile ? undefined : 0,
-    });
     window.parent.postMessage({ scrollToIframe: true }, "*");
   };
 
@@ -1752,7 +1746,6 @@ export default function TuningViewer() {
           }}
           stageOrOption={ResellerContactModalData.stageOrOption}
           lang={settings.language}
-          scrollPosition={ResellerContactModalData.scrollPosition}
         />
 
         <InfoModal
