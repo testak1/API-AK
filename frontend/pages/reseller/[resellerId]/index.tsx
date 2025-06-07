@@ -1169,7 +1169,7 @@ export default function TuningViewer() {
                                 "translateStageName",
                                 stage.name,
                               )}{" "}
-                              HK
+                              {translate(currentLanguage, "HKLABEL")}
                             </p>
                             <p className="text-xl font-bold">
                               {stage.tunedHk} HK
