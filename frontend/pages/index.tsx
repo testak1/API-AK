@@ -649,6 +649,8 @@ export default function TuningViewer() {
               {translate(currentLanguage, "BrandValue")}
             </label>
             <select
+              id="brand"
+              name="brand"
               className={`w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
                 isLoading
                   ? "opacity-50 cursor-not-allowed"
@@ -685,6 +687,8 @@ export default function TuningViewer() {
               {translate(currentLanguage, "ModelValue")}
             </label>
             <select
+              id="model"
+              name="model"
               className={`w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
                 !selected.brand
                   ? "opacity-50 cursor-not-allowed"
@@ -713,6 +717,8 @@ export default function TuningViewer() {
               {translate(currentLanguage, "YearValue")}
             </label>
             <select
+              id="year"
+              name="year"
               className={`w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
                 !selected.model
                   ? "opacity-50 cursor-not-allowed"
@@ -740,6 +746,8 @@ export default function TuningViewer() {
               {translate(currentLanguage, "EngineValue")}
             </label>
             <select
+              id="engine"
+              name="engine"
               className={`w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
                 !selected.year
                   ? "opacity-50 cursor-not-allowed"
