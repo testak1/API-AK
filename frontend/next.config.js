@@ -5,33 +5,44 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "cdn.sanity.io",
-        // Add path pattern if needed
-        // pathname: '/images/**',
       },
       {
         protocol: "https",
         hostname: "tuning.aktuning.se",
       },
     ],
-    minimumCacheTTL: 60, // 60 seconds minimum cache
-    formats: ["image/webp"], // Enable WebP by default
+    minimumCacheTTL: 60,
+    formats: ["image/webp"],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
+
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [
+          {
+            type: "host",
+            value: "www.tuning.aktuning.se",
+          },
+        ],
+        destination: "https://tuning.aktuning.se/:path*",
+        permanent: true,
+      },
+    ];
+  },
+
   reactStrictMode: true,
-  // Enable SWC minification
   swcMinify: true,
-  // Enable compression
   compress: true,
-  // Add production browser source maps
   productionBrowserSourceMaps: false,
-  // Environment variables
   env: {
     SANITY_PROJECT_ID: "dinSanityProjectId",
     SANITY_DATASET: "production",
     NEXT_PUBLIC_API_BASE: "https://api.aktuning.se",
   },
-  // Custom headers
+
   async headers() {
     return [
       {
@@ -60,7 +71,6 @@ const nextConfig = {
         ],
       },
 
-      // Cache static assets
       {
         source: "/sitemap.xml",
         headers: [
@@ -90,12 +100,8 @@ const nextConfig = {
       },
     ];
   },
-  // Enable experimental features if needed
-  experimental: {
-    // optimizeCss: true, // Uncomment if using CSS optimization
-    // scrollRestoration: true,
-    // newNextLinkBehavior: true,
-  },
+
+  experimental: {},
 };
 
 module.exports = nextConfig;
