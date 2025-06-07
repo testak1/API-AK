@@ -1040,7 +1040,6 @@ export default function TuningViewer() {
                               "translateStageName",
                               stage.name,
                             ).toUpperCase()}{" "}
-                            {translate(currentLanguage, "tuningCurveNote")}
                           </h3>
                         )}
 
