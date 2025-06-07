@@ -142,11 +142,7 @@ export default function ResellerContactModal({
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
-      <Dialog
-        as="div"
-        className="fixed inset-0 z-50 overflow-y-auto"
-        onClose={resetModal}
-      >
+      <Dialog as="div" className="fixed z-50 inset-0" onClose={() => {}} static>
         <div className="min-h-screen px-4 text-center">
           <Transition.Child
             as={Fragment}
