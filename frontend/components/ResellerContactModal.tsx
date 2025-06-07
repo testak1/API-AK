@@ -14,7 +14,6 @@ interface ResellerContactModalProps {
   stageOrOption?: string;
   lang: string;
   link?: string;
-  scrollPosition?: number;
 }
 
 interface ContactNumber {
@@ -29,7 +28,7 @@ export default function ResellerContactModal({
   vehicleInfo,
   stageOrOption,
   lang,
-  scrollPosition = 200,
+  link,
 }: ResellerContactModalProps) {
   const [mode, setMode] = useState<"options" | "form" | "phone" | "thankyou">(
     "options",
@@ -42,31 +41,6 @@ export default function ResellerContactModal({
     phone: "",
     message: "",
   });
-
-  useEffect(() => {
-    if (isOpen) setMode(null);
-  }, [isOpen]);
-
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
-
-  useEffect(() => {
-    setTimeout(() => {
-      const message = {
-        height: document.body.scrollHeight,
-        scrollToIframe: isOpen, // ✅ Always scroll on modal open, all devices
-      };
-      window.parent.postMessage(message, "*");
-    }, 300);
-  }, [isOpen]);
 
   // Fetch reseller's contact info when modal opens
   useEffect(() => {
@@ -132,13 +106,6 @@ export default function ResellerContactModal({
     setMode("options");
     onClose();
   };
-
-  // ✅ Mobile-aware modal positioning
-  const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
-  const modalTop = isMobile ? "50%" : `${scrollPosition}px`;
-  const modalTransform = isMobile
-    ? "translate(-50%, -50%)"
-    : "translateX(-50%)";
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
