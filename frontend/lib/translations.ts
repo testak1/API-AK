@@ -578,6 +578,7 @@ export const translations = {
     contactvalue: "CONTACT",
     fuelPetrol: "Benzină",
     fuelDiesel: "Motorină",
+    HKLABEL: "HP",
     originalHp: "CP ORIGINALI",
     originalNm: "Nm ORIGINAL",
     stockHp: "CP Originali",
