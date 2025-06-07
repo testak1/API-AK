@@ -17,22 +17,6 @@ const nextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
 
-  async redirects() {
-    return [
-      {
-        source: "/:path*",
-        has: [
-          {
-            type: "host",
-            value: "www.tuning.aktuning.se",
-          },
-        ],
-        destination: "https://tuning.aktuning.se/:path*",
-        permanent: true,
-      },
-    ];
-  },
-
   reactStrictMode: true,
   swcMinify: true,
   compress: true,
