@@ -598,7 +598,7 @@ ro: {
     stageNameWithHP: (stageName: string) => `${stageName} HP`,
     powerCurveLabel: (stageName: string) => `Curba de putere ${stageName}`,
     translateStageName: (stageName: string) =>
-      stageName.replace("Stadiu", "Stadiu"),
+      stageName.replace("Steg", "Stadiu"),
     stageInfoPrefix: "INFORMAȚII",
     stageInfoSuffix: "STADIU",
     generalInfoLabel: "INFORMAȚII GENERALE",
