@@ -1872,6 +1872,7 @@ const LanguageSwitcher = ({
     cs: "Čeština",
     uk: "Українська",
     th: "ไทย",
+    ro: "Romanian",
   };
 
   const langFlags: Record<string, string> = {
@@ -1897,6 +1898,7 @@ const LanguageSwitcher = ({
     cs: "🇨🇿",
     uk: "🇺🇦",
     th: "🇹🇭",
+    ro: "🇷🇴",
   };
 
   return (
