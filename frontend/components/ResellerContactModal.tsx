@@ -143,34 +143,26 @@ export default function ResellerContactModal({
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" className="fixed z-50 inset-0" onClose={() => {}} static>
-        <div className="min-h-screen px-4 text-center">
+        <div className="fixed inset-0 bg-black bg-opacity-50" />
+
+        {/* ✅ MODAL POSITIONING FIXED HERE */}
+        <div
+          className="fixed left-1/2 transform -translate-x-1/2 z-50 px-4 w-full max-w-xl md:max-w-2xl lg:max-w-3xl sm:px-6"
+          style={{
+            top: isMobile ? 0 : `${scrollPosition}px`,
+            bottom: isMobile ? 0 : "auto",
+            height: isMobile ? "100vh" : "auto",
+            overflowY: isMobile ? "auto" : "visible",
+          }}
+        >
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
-            enterFrom="opacity-0"
-            enterTo="opacity-100"
-            leave="ease-in duration-200"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-50" />
-          </Transition.Child>
-
-          <span
-            className="inline-block h-screen align-middle"
-            aria-hidden="true"
-          >
-            &#8203;
-          </span>
-
-          <Transition.Child
-            as={Fragment}
-            enter="ease-out duration-300"
-            enterFrom="opacity-0 scale-95"
+            enterFrom="opacity-0 scale-90"
             enterTo="opacity-100 scale-100"
             leave="ease-in duration-200"
             leaveFrom="opacity-100 scale-100"
-            leaveTo="opacity-0 scale-95"
+            leaveTo="opacity-0 scale-90"
           >
             <div className="inline-block w-full max-w-md p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-gray-800 shadow-xl rounded-2xl">
               {mode === "thankyou" ? (
