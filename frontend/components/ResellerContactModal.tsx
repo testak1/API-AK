@@ -14,6 +14,7 @@ interface ResellerContactModalProps {
   stageOrOption?: string;
   lang: string;
   link?: string;
+  scrollPosition?: number;
 }
 
 interface ContactNumber {
@@ -104,6 +105,11 @@ export default function ResellerContactModal({
 
   const resetModal = () => {
     setMode("options");
+    onClose();
+  };
+
+  const handleClose = () => {
+    setMode(null);
     onClose();
   };
 
@@ -337,6 +343,14 @@ export default function ResellerContactModal({
                         className="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 disabled:opacity-70"
                       >
                         {loading ? t(lang, "sending") : t(lang, "sendMessage")}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleClose}
+                        className="w-full bg-gray-700 hover:bg-gray-600 text-white hover:text-red-400 py-2 px-4 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
+                      >
+                        <span>❌</span>
+                        CLOSE
                       </button>
                     </div>
                   </div>
