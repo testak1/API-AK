@@ -642,7 +642,10 @@ export default function TuningViewer() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-8">
           <div>
-            <label className="block text-sm font-bold text-black mb-1">
+            <label
+              htmlFor="brand"
+              className="block text-sm font-bold text-black mb-1"
+            >
               {translate(currentLanguage, "BrandValue")}
             </label>
             <select
@@ -675,7 +678,10 @@ export default function TuningViewer() {
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-black mb-1">
+            <label
+              htmlFor="model"
+              className="block text-sm font-bold text-black mb-1"
+            >
               {translate(currentLanguage, "ModelValue")}
             </label>
             <select
@@ -700,7 +706,10 @@ export default function TuningViewer() {
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-black mb-1">
+            <label
+              htmlFor="year"
+              className="block text-sm font-bold text-black mb-1"
+            >
               {translate(currentLanguage, "YearValue")}
             </label>
             <select
@@ -724,7 +733,10 @@ export default function TuningViewer() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-bold text-black mb-1">
+            <label
+              htmlFor="engine"
+              className="block text-sm font-bold text-black mb-1"
+            >
               {translate(currentLanguage, "EngineValue")}
             </label>
             <select
