@@ -7,6 +7,10 @@ const nextConfig = {
         hostname: 'cdn.sanity.io',
  
       },
+       {
+        protocol: "https",
+        hostname: "tuning.aktuning.se",
+      },
     ],
   },
   reactStrictMode: true,
