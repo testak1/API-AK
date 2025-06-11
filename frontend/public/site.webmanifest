@@ -1,6 +1,6 @@
 {
-  "name": "MyWebSite",
-  "short_name": "MySite",
+  "name": "AK-TUNING Motoroptimering",
+  "short_name": "AK-Tuning API",
   "icons": [
     {
       "src": "/web-app-manifest-192x192.png",
