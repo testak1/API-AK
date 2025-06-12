@@ -5,16 +5,19 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'cdn.sanity.io',
+ 
       },
-      {
-        protocol: 'https',
-        hostname: 'tuning.aktuning.se',
+       {
+        protocol: "https",
+        hostname: "tuning.aktuning.se",
       },
     ],
   },
   reactStrictMode: true,
   env: {
-    NEXT_PUBLIC_API_BASE: "https://api.aktuning.se", // ✅ This one stays
+    SANITY_PROJECT_ID: "dinSanityProjectId",
+    SANITY_DATASET: "production",
+    NEXT_PUBLIC_API_BASE: "https://api.aktuning.se",
   },
 };
 
