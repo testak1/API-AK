@@ -1,4 +1,3 @@
-// lib/sanity.ts
 import {
   createClient,
   type ClientConfig,
@@ -8,12 +7,15 @@ import imageUrlBuilder from "@sanity/image-url";
 import type { Brand } from "@/types/sanity";
 import { allBrandsQuery } from "../src/lib/queries";
 
+// Dynamiskt token (bara vid behov)
+const token = process.env.SANITY_WRITE_TOKEN || process.env.SANITY_API_TOKEN;
+
 const config: ClientConfig = {
   projectId: process.env.SANITY_PROJECT_ID!,
   dataset: process.env.SANITY_DATASET!,
-  apiVersion: "2025-04-23",
-  useCdn: process.env.NODE_ENV === "production",
-  token: process.env.SANITY_WRITE_TOKEN,
+  apiVersion: process.env.SANITY_API_VERSION || "2025-04-23",
+  useCdn: !token, // Använd CDN om inget token finns (för read)
+  token: token,
   ignoreBrowserTokenWarning: true,
 };
 
@@ -43,11 +45,14 @@ export async function getBrandBySlug(slug: string): Promise<Brand | null> {
 
 export async function uploadImageToSanity(base64Data: string) {
   try {
-    const result = await client.assets.upload('image', Buffer.from(base64Data, 'base64'));
+    const result = await client.assets.upload(
+      "image",
+      Buffer.from(base64Data, "base64")
+    );
     return result;
   } catch (error) {
-    console.error('Error uploading image to Sanity:', error);
-    throw new Error('Failed to upload image');
+    console.error("Error uploading image to Sanity:", error);
+    throw new Error("Failed to upload image");
   }
 }
 
