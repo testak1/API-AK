@@ -9,8 +9,8 @@ import type { Brand } from "@/types/sanity";
 import { allBrandsQuery } from "../src/lib/queries";
 
 const config: ClientConfig = {
-  projectId: "wensahkh",
-  dataset: "production",
+  projectId: process.env.SANITY_PROJECT_ID!,
+  dataset: process.env.SANITY_DATASET!,
   apiVersion: "2025-04-23",
   useCdn: process.env.NODE_ENV === "production",
   token: process.env.SANITY_WRITE_TOKEN,
