@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://tuning.aktuning.se/sitemap-main.xml
+Sitemap: https://tuning.aktuning.se/sitemap-2.xml
