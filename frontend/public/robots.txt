@@ -4,4 +4,4 @@ Allow: /
 
 # Sitemaps
 Sitemap: https://tuning.aktuning.se/sitemap-0.xml
-Sitemap: https://tuning.aktuning.se/sitemap-b.xml
+Sitemap: https://tuning.aktuning.se/sitemap-1.xml
