@@ -1,8 +1,8 @@
 import { createClient } from '@sanity/client';
 
 export const client = createClient({
-  projectId: 'wensahkh', // From your Sanity URL
+  projectId: 'wensahkh',
   dataset: 'production',
   apiVersion: '2025-04-23',
-  useCdn: false, // Enable CDN for faster responses
+  useCdn: true,
 });
