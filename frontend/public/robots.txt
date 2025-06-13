@@ -1,4 +1,9 @@
+# *
 User-agent: *
 Allow: /
 
+# Host
+Host: https://tuning.aktuning.se
+
+# Sitemaps
 Sitemap: https://tuning.aktuning.se/sitemap-3.xml
