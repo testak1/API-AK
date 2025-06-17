@@ -216,7 +216,7 @@ export default function ContactModal({
                     className="w-full bg-gray-700 hover:bg-gray-600 text-white hover:text-red-400 py-2 px-4 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
                   >
                     <span>❌</span>
-                    STÄNG
+                    {translate(currentLanguage, "closeButton")}
                   </button>
                 </div>
               )}
@@ -227,7 +227,7 @@ export default function ContactModal({
                   onSubmit={handleSubmit}
                 >
                   <div className="text-sm text-gray-400 mb-2">
-                    FÖRFRÅGAN FÖR:{" "}
+                    {translate(currentLanguage, "INSELECT")}{" "}
                     <strong>
                       {selectedVehicle.brand} {selectedVehicle.model}{" "}
                       {selectedVehicle.year} – {selectedVehicle.engine}
@@ -241,7 +241,7 @@ export default function ContactModal({
 
                   <input
                     type="text"
-                    placeholder="🏷️ NAMN"
+                    placeholder="🏷️ {translate(currentLanguage, "NAME1")}"
                     required
                     className="w-full p-2 rounded bg-gray-800 border border-gray-600"
                     value={formData.name}
@@ -261,7 +261,7 @@ export default function ContactModal({
                   />
                   <input
                     type="tel"
-                    placeholder="☎️ TELNR"
+                    placeholder="☎️ {translate(currentLanguage, "TELNR1")}"
                     required
                     className="w-full p-2 rounded bg-gray-800 border border-gray-600"
                     value={formData.tel}
@@ -270,7 +270,7 @@ export default function ContactModal({
                     }
                   />
                   <textarea
-                    placeholder="💬 MEDDELANDE"
+                    placeholder="💬 {translate(currentLanguage, "MES1")}"
                     required
                     className="w-full p-2 rounded bg-gray-800 border border-gray-600"
                     rows={3}
@@ -287,7 +287,7 @@ export default function ContactModal({
                       setFormData({ ...formData, branch: e.target.value })
                     }
                   >
-                    <option value="">📍 VÄLJ ANLÄGGNING</option>
+                    <option value="">📍 {translate(currentLanguage, "SELECTLOCATION")}</option>
                     <option value="goteborg">GÖTEBORG</option>
                     <option value="jonkoping">JÖNKÖPING</option>
                     <option value="malmo">MALMÖ</option>
