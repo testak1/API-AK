@@ -1,5 +1,6 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useEffect, useState } from "react";
+import { t as translate } from "@/lib/translations";
 
 interface ContactModalProps {
   isOpen: boolean;
@@ -111,6 +112,8 @@ export default function ContactModal({
     onClose();
   };
 
+  const [currentLanguage, setCurrentLanguage] = useState("sv");
+
   // ✅ Mobile-aware modal positioning
   const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
   const modalTop = isMobile ? "50%" : `${scrollPosition}px`;
@@ -184,14 +187,14 @@ export default function ContactModal({
                     className="bg-blue-600 hover:bg-blue-700 active:scale-95 transition transform px-4 py-2 rounded-lg shadow-md font-semibold"
                     onClick={() => setContactMode("form")}
                   >
-                    📩 SKICKA FÖRFRÅGAN
+                    📩 {translate(currentLanguage, "skicka1")}
                   </button>
                   <button
                     type="button"
                     className="bg-green-600 hover:bg-green-700 active:scale-95 transition transform px-4 py-2 rounded-lg shadow-md font-semibold"
                     onClick={() => setContactMode("phone")}
                   >
-                    📞 RING OSS
+                    📞 {translate(currentLanguage, "ring1")}
                   </button>
                   {/* STÄNG button */}
                   <button
@@ -272,7 +275,7 @@ export default function ContactModal({
                     }
                   >
                     <option value="">📍 VÄLJ ANLÄGGNING</option>
-                    <option value="goteborg">GÖTEBORG (HQ)</option>
+                    <option value="goteborg">GÖTEBORG</option>
                     <option value="jonkoping">JÖNKÖPING</option>
                     <option value="malmo">MALMÖ</option>
                     <option value="stockholm">STOCKHOLM</option>
@@ -304,7 +307,7 @@ export default function ContactModal({
               {contactMode === "phone" && (
                 <div className="text-white mt-4 space-y-4 text-left">
                   {[
-                    { city: "GÖTEBORG (HQ)", number: "0313823300" },
+                    { city: "GÖTEBORG", number: "0313823300" },
                     { city: "JÖNKÖPING", number: "0362907887" },
                     { city: "SKÅNE", number: "041318166" },
                     { city: "STOCKHOLM", number: "0708265573" },
