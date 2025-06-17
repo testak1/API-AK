@@ -114,18 +114,6 @@ export default function ContactModal({
 
   const [currentLanguage, setCurrentLanguage] = useState("sv");
 
-    // Hämta språk från localStorage om det finns
-  useEffect(() => {
-    const storedLang = localStorage.getItem("lang");
-    if (storedLang) {
-      setCurrentLanguage(storedLang);
-    }
-  }, []);
-
-  // Spara språk till localStorage när det ändras
-  useEffect(() => {
-    localStorage.setItem("lang", currentLanguage);
-  }, [currentLanguage]);
 
   // ✅ Mobile-aware modal positioning
   const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
