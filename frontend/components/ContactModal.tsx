@@ -181,7 +181,7 @@ export default function ContactModal({
                 </Dialog.Title>
               )}
 
-              {!contactMode && (
+              {contactMode && (
                 <div className="flex flex-col gap-4">
                   <button
                     type="button"
