@@ -3,6 +3,11 @@ export const translations = {
   sv: {
     skicka1: "SKICKA FÖRFRÅGAN",
     ring1: "RING OSS",
+    INSELECT: "FÖRFRÅGAN FÖR:",
+    SELECTLOCATION: "VÄLJ ANLÄGGNING",
+    MES1: "MEDDELANDE",
+    TELNR1: "TELNR",
+    NAME1: "NAMN",
     switchLanguage: "Byt till",
     BrandValue: "MÄRKE",
     ModelValue: "MODELL",
@@ -76,6 +81,11 @@ export const translations = {
   en: {
     skicka1: "SEND INQUIRY",
     ring1: "CALL US",
+    INSELECT: "INQUIRE FOR:",
+    SELECTLOCATION: "SELECT LOCATION",
+    MES1: "MESSAGE",
+    TELNR1: "PHONE",
+    NAME1: "NAME",
     switchLanguage: "Switch to",
     BrandValue: "MAKE",
     ModelValue: "MODEL",
