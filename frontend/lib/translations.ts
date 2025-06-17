@@ -1,6 +1,8 @@
 // lib/translations.ts
 export const translations = {
   sv: {
+    skicka1: "SKICKA FÖRFRÅGAN",
+    ring1: "RING OSS",
     switchLanguage: "Byt till",
     BrandValue: "MÄRKE",
     ModelValue: "MODELL",
@@ -72,6 +74,8 @@ export const translations = {
       "All mjukvara utvecklas in-house med fokus på kvalitet, säkerhet och lång livslängd. Välkommen till en ny nivå av bilprestanda med AK-TUNING.",
   },
   en: {
+    skicka1: "SEND INQUIRY",
+    ring1: "CALL US",
     switchLanguage: "Switch to",
     BrandValue: "MAKE",
     ModelValue: "MODEL",
