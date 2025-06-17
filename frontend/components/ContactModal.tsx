@@ -177,7 +177,7 @@ export default function ContactModal({
                 </>
               ) : (
                 <Dialog.Title className="text-green-400 text-xl font-bold mb-4 text-center">
-                  VÄLJ METOD
+                  {translate(currentLanguage, "SELECT1")}
                 </Dialog.Title>
               )}
 
@@ -222,7 +222,7 @@ export default function ContactModal({
                     </strong>
                     {formData.stage && formData.stage !== "-" && (
                       <div className="mt-1 text-green-400 text-xs">
-                        <strong>VAL ➔ {formData.stage.toUpperCase()}</strong>
+                        <strong>{translate(currentLanguage, "VAL1")} ➔ {formData.stage.toUpperCase()}</strong>
                       </div>
                     )}
                   </div>
