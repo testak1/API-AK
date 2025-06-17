@@ -114,7 +114,6 @@ export default function ContactModal({
 
   const [currentLanguage, setCurrentLanguage] = useState("sv");
 
-
   // ✅ Mobile-aware modal positioning
   const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
   const modalTop = isMobile ? "50%" : `${scrollPosition}px`;
@@ -161,17 +160,17 @@ export default function ContactModal({
                     <div className="text-6xl animate-pulse">✅</div>
                   </div>
                   <Dialog.Title className="text-green-400 text-2xl font-extrabold mb-2 text-center">
-                    {translate(currentLanguage, "TACKFOR")}
+                    TACK FÖR DIN FÖRFRÅGAN!
                   </Dialog.Title>
                   <p className="text-white text-base text-center">
-                    {translate(currentLanguage, "BESVARAR")} 🚀
+                    VI BESVARAR SÅ FORT VI KAN 🚀
                   </p>
                   <div className="mt-6 text-center">
                     <button
                       onClick={handleClose}
                       className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-semibold transition-all"
                     >
-                      🔙 {translate(currentLanguage, "BACK1")}
+                      🔙 Tillbaka
                     </button>
                   </div>
                 </>
@@ -204,7 +203,7 @@ export default function ContactModal({
                     className="w-full bg-gray-700 hover:bg-gray-600 text-white hover:text-red-400 py-2 px-4 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
                   >
                     <span>❌</span>
-                    {translate(currentLanguage, "closeButton")}
+                    STÄNG
                   </button>
                 </div>
               )}
@@ -215,7 +214,7 @@ export default function ContactModal({
                   onSubmit={handleSubmit}
                 >
                   <div className="text-sm text-gray-400 mb-2">
-                    {translate(currentLanguage, "INSELECT")}{" "}
+                    FÖRFRÅGAN FÖR:{" "}
                     <strong>
                       {selectedVehicle.brand} {selectedVehicle.model}{" "}
                       {selectedVehicle.year} – {selectedVehicle.engine}
@@ -229,7 +228,7 @@ export default function ContactModal({
 
                   <input
                     type="text"
-                    placeholder="🏷️ {translate(currentLanguage, "NAME1")}"
+                    placeholder="🏷️ NAMN"
                     required
                     className="w-full p-2 rounded bg-gray-800 border border-gray-600"
                     value={formData.name}
@@ -249,7 +248,7 @@ export default function ContactModal({
                   />
                   <input
                     type="tel"
-                    placeholder="☎️ {translate(currentLanguage, "TELNR1")}"
+                    placeholder="☎️ TELNR"
                     required
                     className="w-full p-2 rounded bg-gray-800 border border-gray-600"
                     value={formData.tel}
@@ -258,7 +257,7 @@ export default function ContactModal({
                     }
                   />
                   <textarea
-                    placeholder="💬 {translate(currentLanguage, "MES1")}"
+                    placeholder="💬 MEDDELANDE"
                     required
                     className="w-full p-2 rounded bg-gray-800 border border-gray-600"
                     rows={3}
@@ -275,7 +274,7 @@ export default function ContactModal({
                       setFormData({ ...formData, branch: e.target.value })
                     }
                   >
-                    <option value="">📍 {translate(currentLanguage, "SELECTLOCATION")}</option>
+                    <option value="">📍 VÄLJ ANLÄGGNING</option>
                     <option value="goteborg">GÖTEBORG</option>
                     <option value="jonkoping">JÖNKÖPING</option>
                     <option value="malmo">MALMÖ</option>
@@ -298,7 +297,7 @@ export default function ContactModal({
                     className="w-full bg-gray-700 hover:bg-gray-600 text-white hover:text-red-400 py-2 px-4 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
                   >
                     <span>❌</span>
-                    {translate(currentLanguage, "closeButton")}
+                    STÄNG
                   </button>
 
                   {error && <p className="text-red-400 text-center">{error}</p>}
@@ -338,7 +337,7 @@ export default function ContactModal({
                       className="w-full bg-gray-700 hover:bg-gray-600 text-white hover:text-red-400 py-2 px-4 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
                     >
                       <span>❌</span>
-                      {translate(currentLanguage, "closeButton")}
+                      STÄNG
                     </button>
                   </div>
                 </div>
