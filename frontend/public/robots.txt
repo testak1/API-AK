@@ -8,3 +8,4 @@ Host: https://tuning.aktuning.se
 # Sitemaps
 Sitemap: https://tuning.aktuning.se/sitemap-0.xml
 Sitemap: https://tuning.aktuning.se/sitemap-1.xml
+Sitemap: https://tuning.aktuning.se/sitemap-2.xml
