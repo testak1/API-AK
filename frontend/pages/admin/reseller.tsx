@@ -503,9 +503,10 @@ export default function ResellerAdmin({ session }) {
   }, [selectedBrand, selectedModel, selectedYear, bulkPrices.applyLevel]);
 
   const handleBulkPriceChange = (field, value) => {
+    const sekValue = value ? fromCurrency(parseFloat(value)) : "";
     setBulkPrices((prev) => ({
       ...prev,
-      [field]: value,
+      [field]: sekValue,
     }));
   };
 
@@ -926,7 +927,9 @@ export default function ResellerAdmin({ session }) {
                     </div>
                     <input
                       type="number"
-                      value={bulkPrices.steg1}
+                      value={
+                        bulkPrices.steg1 ? toCurrency(bulkPrices.steg1) : ""
+                      }
                       onChange={(e) =>
                         handleBulkPriceChange("steg1", e.target.value)
                       }
