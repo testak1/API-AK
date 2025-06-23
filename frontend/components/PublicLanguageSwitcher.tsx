@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 
 const langOptions: { code: string; name: string; flag: string }[] = [
-  { code: "se", name: "SVENSKA", flag: "se" },
-  { code: "gb", name: "ENGLISH", flag: "gb" },
+  { code: "sv", name: "SVENSKA", flag: "se" },
+  { code: "en", name: "ENGLISH", flag: "gb" },
   { code: "no", name: "NORSK", flag: "no" },
-  { code: "dk", name: "DANSK", flag: "dk" },
+  { code: "da", name: "DANSK", flag: "dk" },
   { code: "de", name: "DEUTSCH", flag: "de" },
   { code: "fr", name: "FRANÇAIS", flag: "fr" },
   { code: "it", name: "ITALIANO", flag: "it" },
