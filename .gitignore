@@ -6,7 +6,7 @@
 node_modules/
 
 # next
-next/
+.next/
 
 
 # Ignore the Sanity Studio build folder (if any)
