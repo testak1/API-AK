@@ -938,7 +938,9 @@ export default function ResellerAdmin({ session }) {
                     <input
                       type="number"
                       value={
-                        bulkPrices.steg1 ? toCurrency(bulkPrices.steg1) : ""
+                        bulkPrices.steg1 !== null
+                          ? toCurrency(bulkPrices.steg1)
+                          : ""
                       }
                       onChange={(e) =>
                         handleBulkPriceChange("steg1", e.target.value)
