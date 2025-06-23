@@ -256,10 +256,8 @@ export default function TuningViewer() {
   const convertPrice = (priceInSek: number): string => {
     const rate = settings.exchangeRates[settings.currency] || 1;
     const converted = priceInSek * rate;
-
     const rounded = Math.round(converted / 50) * 50;
 
-    // Currency display symbol or fallback
     const currencySymbols: Record<string, string> = {
       SEK: "kr",
       EUR: "€",
@@ -288,27 +286,8 @@ export default function TuningViewer() {
       MXN: "MX$",
     };
 
-    const convertPrice = (priceInSek: number): string => {
-      const rate = settings.exchangeRates[settings.currency] || 1;
-      const converted = priceInSek * rate;
-      const rounded = Math.round(converted / 50) * 50;
-
-      const symbol = currencySymbols[settings.currency] || settings.currency;
-
-      return rounded
-        .toLocaleString(settings.language, {
-          style: "currency",
-          currency: settings.currency,
-          currencyDisplay: "symbol",
-          maximumFractionDigits: 0,
-          minimumFractionDigits: 0,
-        })
-        .replace(settings.currency, symbol);
-    };
-
     const symbol = currencySymbols[settings.currency] || settings.currency;
 
-    // Localized formatting (zero decimal style)
     return rounded
       .toLocaleString(settings.language, {
         style: "currency",
