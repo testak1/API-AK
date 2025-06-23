@@ -253,27 +253,9 @@ export default function TuningViewer() {
     fetchSettings();
   }, [resellerId]);
 
-  const [overrides, setOverrides] = useState<any[]>([]);
-
-  const getEffectiveStagePrice = (stageName: string): number => {
-    const override = overrides.find(
-      (o) =>
-        o.brand === selected.brand &&
-        o.model === selected.model &&
-        o.year === selected.year &&
-        o.engine === selected.engine &&
-        o.stageName === stageName,
-    );
-
-    const basePrice =
-      selectedStages?.find((s) => s.name === stageName)?.price ?? 0;
-
-    return override?.price ?? basePrice;
-  };
-
   const convertPrice = (priceInSek: number): string => {
     const rate = settings.exchangeRates[settings.currency] || 1;
-    const converted = priceInSek * rate;
+    const converted = priceInSek * rate; //
 
     const currencySymbols: Record<string, string> = {
       SEK: "kr",
@@ -844,13 +826,6 @@ export default function TuningViewer() {
     }));
   };
 
-  const selectedStages =
-    data
-      .find((b) => b.name === selected.brand)
-      ?.models?.find((m) => m.name === selected.model)
-      ?.years?.find((y) => y.range === selected.year)
-      ?.engines?.find((e) => e.label === selected.engine)?.stages || [];
-
   return (
     <>
       <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
@@ -1059,9 +1034,7 @@ export default function TuningViewer() {
                           />
                         )}
                         <span className="inline-block bg-red-600 text-black px-4 py-1 rounded-full text-xl font-semibold shadow-md">
-                          <span>
-                            {convertPrice(getEffectiveStagePrice(stage.name))}
-                          </span>
+                          <span>{convertPrice(stage.price)}</span>
                         </span>
                         {(stage.name.includes("Steg 2") ||
                           stage.name.includes("Steg 3") ||
