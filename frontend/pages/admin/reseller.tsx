@@ -324,11 +324,21 @@ export default function ResellerAdmin({ session }) {
           brand: selectedBrand,
           model: bulkPrices.applyLevel === "model" ? selectedModel : undefined,
           year: bulkPrices.applyLevel === "year" ? selectedYear : undefined,
-          stage1Price: fromCurrency(Number(bulkPrices.steg1)),
-          stage2Price: fromCurrency(Number(bulkPrices.steg2)),
-          stage3Price: fromCurrency(Number(bulkPrices.steg3)),
-          stage4Price: fromCurrency(Number(bulkPrices.steg4)),
-          dsgPrice: fromCurrency(Number(bulkPrices.dsg)),
+          stage1Price: bulkPrices.steg1
+            ? fromCurrency(Number(bulkPrices.steg1))
+            : undefined,
+          stage2Price: bulkPrices.steg2
+            ? fromCurrency(Number(bulkPrices.steg2))
+            : undefined,
+          stage3Price: bulkPrices.steg3
+            ? fromCurrency(Number(bulkPrices.steg3))
+            : undefined,
+          stage4Price: bulkPrices.steg4
+            ? fromCurrency(Number(bulkPrices.steg4))
+            : undefined,
+          dsgPrice: bulkPrices.dsg
+            ? fromCurrency(Number(bulkPrices.dsg))
+            : undefined,
         }),
       });
 
