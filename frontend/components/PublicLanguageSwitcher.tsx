@@ -24,23 +24,17 @@ export default function PublicLanguageDropdown({
   const selected = languages.find((l) => l.code === currentLanguage);
 
   return (
-    <div className="relative inline-block text-left z-50">
+    <div className="relative inline-block text-left">
       <button
         onClick={() => setOpen(!open)}
         className="inline-flex items-center gap-2 bg-gray-800 text-white border border-gray-600 rounded-md px-4 py-2 shadow-sm text-sm hover:bg-gray-700 transition"
       >
-        {selected ? (
-          <>
-            <img
-              src={`https://flagcdn.com/w40/${selected.code}.png`}
-              alt={selected.name}
-              className="w-5 h-4 object-cover"
-            />
-            {selected.name}
-          </>
-        ) : (
-          <>🌐 Välj språk</>
-        )}
+        <img
+          src={`https://flagcdn.com/w40/${currentLanguage}.png`}
+          alt={selected?.name}
+          className="w-5 h-4 object-cover"
+        />
+        {selected?.name}
         <svg
           className="w-4 h-4 ml-2 text-gray-400"
           fill="none"
@@ -57,13 +51,7 @@ export default function PublicLanguageDropdown({
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-48 bg-gray-900 border border-gray-700 rounded-md shadow-lg overflow-hidden">
-          <button
-            disabled
-            className="w-full text-left px-4 py-2 text-sm text-gray-500 bg-gray-800 font-semibold cursor-default"
-          >
-            🌐 Välj språk
-          </button>
+        <div className="absolute z-10 mt-2 w-48 bg-gray-800 border border-gray-600 rounded-md shadow-lg">
           {languages.map((lang) => (
             <button
               key={lang.code}
