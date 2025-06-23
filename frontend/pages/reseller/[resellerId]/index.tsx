@@ -1056,7 +1056,7 @@ export default function TuningViewer() {
                           />
                         )}
                         <span className="inline-block bg-red-600 text-black px-4 py-1 rounded-full text-xl font-semibold shadow-md">
-                          <span>{convertPrice(stage.price)}</span>
+                          <span>{stage.price?.toLocaleString()}</span>
                         </span>
                         {(stage.name.includes("Steg 2") ||
                           stage.name.includes("Steg 3") ||
