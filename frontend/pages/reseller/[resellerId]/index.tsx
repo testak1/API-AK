@@ -256,8 +256,8 @@ export default function TuningViewer() {
   const convertPrice = (priceInSek: number): string => {
     const rate = settings.exchangeRates[settings.currency] || 1;
     const converted = priceInSek * rate;
-    const rounded = Math.round(converted / 50) * 50;
 
+    // Currency display symbol or fallback
     const currencySymbols: Record<string, string> = {
       SEK: "kr",
       EUR: "€",
@@ -288,15 +288,33 @@ export default function TuningViewer() {
 
     const symbol = currencySymbols[settings.currency] || settings.currency;
 
-    return rounded
-      .toLocaleString(settings.language, {
-        style: "currency",
-        currency: settings.currency,
-        currencyDisplay: "symbol",
-        maximumFractionDigits: 0,
-        minimumFractionDigits: 0,
-      })
-      .replace(settings.currency, symbol);
+    // Specialhantering för vissa valutor
+    const formatOptions: Intl.NumberFormatOptions = {
+      style: "currency",
+      currency: settings.currency,
+      currencyDisplay: "symbol",
+    };
+
+    // Anpassa decimaler baserat på valuta
+    if (
+      ["JPY", "KRW", "ISK", "SEK", "DKK", "NOK"].includes(settings.currency)
+    ) {
+      formatOptions.maximumFractionDigits = 0;
+      formatOptions.minimumFractionDigits = 0;
+    } else {
+      formatOptions.maximumFractionDigits = 2;
+      formatOptions.minimumFractionDigits = 2;
+    }
+
+    // Formatera och ersätt valutakod med symbol
+    let formatted = converted.toLocaleString(settings.language, formatOptions);
+
+    // Extra ersättning för bättre symbolhantering
+    formatted = formatted
+      .replace(settings.currency, symbol) // Grundersättning
+      .replace(/(\d)\s?([^\d\s])/g, "$1$2"); // Ta bort mellanslag mellan nummer och symbol
+
+    return formatted;
   };
 
   const updateSettings = async (settings: Partial<DisplaySettings>) => {
