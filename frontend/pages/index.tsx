@@ -1329,12 +1329,14 @@ export default function TuningViewer() {
                             {/* Performance Summary */}
                             <div className="text-center mb-6">
                               <p className="text-lg font-semibold text-white">
-                                {translate(currentLanguage, "tuningIntro")}
-                                <span className="text-white-400 text-sm ml-1">
-                                  {translateStageName(
-                                    currentLanguage,
-                                    stage.name,
-                                  ).toUpperCase()}
+                                {translate(currentLanguage, "tuningIntro")}{" "}
+                                <span className={getStageColor(stage.name)}>
+                                  {stage.name
+                                    .replace(
+                                      "Steg",
+                                      translate(currentLanguage, "stageLabel"),
+                                    )
+                                    .toUpperCase()}
                                 </span>
                               </p>
                               <p className="text-gray-300 mt-1">
