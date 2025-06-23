@@ -1293,6 +1293,15 @@ export default function ResellerAdmin({ session }) {
                         }));
                       }}
                     />
+                    {aktPlusInputs[item.id]?.price && (
+                      <small className="text-gray-500 block mt-1">
+                        ≈{" "}
+                        {Number(aktPlusInputs[item.id].price).toLocaleString(
+                          "sv-SE",
+                        )}{" "}
+                        SEK
+                      </small>
+                    )}
 
                     <label className="block text-sm font-medium text-gray-700 mt-3">
                       Custom Title ({language.toUpperCase()})
