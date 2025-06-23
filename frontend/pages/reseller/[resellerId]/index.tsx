@@ -188,23 +188,6 @@ export default function TuningViewer() {
   useEffect(() => {
     if (!resellerId) return;
 
-    const fetchOverrides = async () => {
-      try {
-        const res = await fetch(`/api/overrides?resellerId=${resellerId}`);
-        if (!res.ok) throw new Error("Failed to fetch overrides");
-        const json = await res.json();
-        setOverrides(json.overrides || []);
-      } catch (err) {
-        console.error("Failed to fetch overrides:", err);
-      }
-    };
-
-    fetchOverrides();
-  }, [resellerId]);
-
-  useEffect(() => {
-    if (!resellerId) return;
-
     const fetchDescriptions = async () => {
       try {
         const res = await fetch(
@@ -272,7 +255,7 @@ export default function TuningViewer() {
 
   const convertPrice = (priceInSek: number): string => {
     const rate = settings.exchangeRates[settings.currency] || 1;
-    const converted = priceInSek * rate;
+    const converted = priceInSek * rate; //
 
     const currencySymbols: Record<string, string> = {
       SEK: "kr",
@@ -313,24 +296,6 @@ export default function TuningViewer() {
         minimumFractionDigits: 0,
       })
       .replace(settings.currency, symbol);
-  };
-
-  const [overrides, setOverrides] = useState<any[]>([]);
-
-  const getEffectiveStagePrice = (stageName: string): number => {
-    const override = overrides.find(
-      (o) =>
-        o.brand === selected.brand &&
-        o.model === selected.model &&
-        o.year === selected.year &&
-        o.engine === selected.engine &&
-        o.stageName === stageName,
-    );
-
-    const basePrice =
-      selectedStages?.find((s) => s.name === stageName)?.price ?? 0;
-
-    return override?.price ?? basePrice;
   };
 
   const updateSettings = async (settings: Partial<DisplaySettings>) => {
@@ -861,13 +826,6 @@ export default function TuningViewer() {
     }));
   };
 
-  const selectedStages =
-    data
-      .find((b) => b.name === selected.brand)
-      ?.models?.find((m) => m.name === selected.model)
-      ?.years?.find((y) => y.range === selected.year)
-      ?.engines?.find((e) => e.label === selected.engine)?.stages || [];
-
   return (
     <>
       <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
@@ -1076,9 +1034,7 @@ export default function TuningViewer() {
                           />
                         )}
                         <span className="inline-block bg-red-600 text-black px-4 py-1 rounded-full text-xl font-semibold shadow-md">
-                          <span>
-                            {convertPrice(getEffectiveStagePrice(stage.name))}
-                          </span>
+                          <span>{convertPrice(stage.price)}</span>
                         </span>
                         {(stage.name.includes("Steg 2") ||
                           stage.name.includes("Steg 3") ||
