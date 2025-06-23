@@ -54,7 +54,9 @@ export default function ResellerAdmin({ session }) {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const res = await fetch("/api/brands-with-overrides");
+        const res = await fetch("/api/brands-with-overrides", {
+          cache: "no-store",
+        });
         const { brands, overrides } = await res.json();
         setBrands(brands || []);
         setOverrides(overrides || []);
@@ -334,7 +336,9 @@ export default function ResellerAdmin({ session }) {
 
       if (!response.ok) throw new Error("Failed to save bulk prices");
 
-      const refreshed = await fetch("/api/brands-with-overrides");
+      const refreshed = await fetch("/api/brands-with-overrides", {
+        cache: "no-store",
+      });
       const { brands: refreshedBrands, overrides: refreshedOverrides } =
         await refreshed.json();
       setBrands(refreshedBrands);
