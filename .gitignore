@@ -5,8 +5,6 @@
 # Ignore node_modules for all parts of the monorepo
 node_modules/
 
-# Ignore .next
-.next/
 
 # Ignore the Sanity Studio build folder (if any)
 studio/.next/
