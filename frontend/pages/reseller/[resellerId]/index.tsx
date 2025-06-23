@@ -255,7 +255,7 @@ export default function TuningViewer() {
 
   const convertPrice = (priceInSek: number): string => {
     const rate = settings.exchangeRates[settings.currency] || 1;
-    const converted = priceInSek * rate;
+    const converted = priceInSek;
 
     const currencySymbols: Record<string, string> = {
       SEK: "kr",
