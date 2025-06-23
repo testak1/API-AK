@@ -1070,7 +1070,7 @@ export default function EnginePage({
                                   "translateStageName",
                                   stage.name,
                                 )
-                                  .replace(/\s+/g, "")
+                                  .replace("Steg", "ST")
                                   .toUpperCase()}{" "}
                                 HK
                               </span>
@@ -1087,7 +1087,7 @@ export default function EnginePage({
                                   "translateStageName",
                                   stage.name,
                                 )
-                                  .replace(/\s+/g, "")
+                                  .replace("Steg", "ST")
                                   .toUpperCase()}{" "}
                                 NM
                               </span>
