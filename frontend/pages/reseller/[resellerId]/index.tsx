@@ -255,7 +255,9 @@ export default function TuningViewer() {
 
   const convertPrice = (priceInSek: number): string => {
     const rate = settings.exchangeRates[settings.currency] || 1;
-    const converted = priceInSek * rate; //
+
+    // Avrunda till närmsta 10
+    const converted = Math.round((priceInSek * rate) / 10) * 10;
 
     const currencySymbols: Record<string, string> = {
       SEK: "kr",
