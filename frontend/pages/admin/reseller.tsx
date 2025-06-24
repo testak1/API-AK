@@ -583,31 +583,31 @@ export default function ResellerAdmin({ session }) {
 
   const convertCurrency = (price: number, currency: string) => {
     const rates = {
-      EUR: 0.1,
-      USD: 0.1,
-      GBP: 0.08,
-      SEK: 1,
-      THB: 3.5,
-      JPY: 14.0,
-      CNY: 0.68,
-      RUB: 8.5,
-      TRY: 3.1,
-      PLN: 0.42,
-      CZK: 2.3,
-      HUF: 35.0,
-      AED: 0.35,
-      KRW: 125.0,
-      NOK: 1.0,
-      DKK: 0.7,
-      CHF: 0.085,
-      AUD: 0.14,
-      CAD: 0.13,
-      INR: 7.8,
-      SGD: 0.13,
-      NZD: 0.15,
-      ZAR: 1.7,
-      BRL: 0.5,
-      MXN: 1.8,
+      SEK: 1, // 1 SEK = 1 SEK
+      EUR: 10.0, // 1 EUR = 10 SEK
+      USD: 8.5, // 1 USD = 8.5 SEK
+      GBP: 12.0, // 1 GBP = 12 SEK
+      THB: 0.25, // 1 THB = 0.25 SEK
+      JPY: 0.07, // 1 JPY = 0.07 SEK
+      CNY: 1.3, // 1 CNY = 1.3 SEK
+      RUB: 0.12, // 1 RUB = 0.12 SEK
+      TRY: 0.32, // 1 TRY = 0.32 SEK
+      PLN: 2.38, // 1 PLN = 2.38 SEK
+      CZK: 0.43, // 1 CZK = 0.43 SEK
+      HUF: 0.029, // 1 HUF = 0.029 SEK
+      AED: 2.86, // 1 AED = 2.86 SEK
+      KRW: 0.008, // 1 KRW = 0.008 SEK
+      NOK: 1.0, // 1 NOK = 1 SEK
+      DKK: 1.43, // 1 DKK = 1.43 SEK
+      CHF: 11.76, // 1 CHF = 11.76 SEK
+      AUD: 7.14, // 1 AUD = 7.14 SEK
+      CAD: 7.69, // 1 CAD = 7.69 SEK
+      INR: 0.13, // 1 INR = 0.13 SEK
+      SGD: 7.69, // 1 SGD = 7.69 SEK
+      NZD: 6.67, // 1 NZD = 6.67 SEK
+      ZAR: 0.59, // 1 ZAR = 0.59 SEK
+      BRL: 2.0, // 1 BRL = 2.0 SEK
+      MXN: 0.56, // 1 MXN = 0.56 SEK
     };
     return Math.round(price * (rates[currency] || 1));
   };
@@ -2410,16 +2410,9 @@ export default function ResellerAdmin({ session }) {
                                       {
                                         style: "currency",
                                         currency,
-                                        maximumFractionDigits: 0, // or use 2 if needed
+                                        maximumFractionDigits: 0,
                                       },
-                                    ).format(
-                                      convertCurrency(stage.price, currency),
-                                    )}
-                                    {currency === "SEK" && (
-                                      <span className="text-xs text-gray-400 ml-1">
-                                        (SEK)
-                                      </span>
-                                    )}
+                                    ).format(toCurrency(stage.price))}
                                   </p>
                                 </div>
                                 <div className="bg-gray-50 p-2 rounded text-center">
