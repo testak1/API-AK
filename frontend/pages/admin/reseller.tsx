@@ -329,16 +329,16 @@ export default function ResellerAdmin({ session }) {
             : undefined,
 
           stage2Price: bulkPrices.steg2
-            ? fromCurrency(Number(bulkPrices.steg2), currency)
+            ? Number(bulkPrices.steg2) // ✅ redan i SEK från onChange
             : undefined,
           stage3Price: bulkPrices.steg3
-            ? fromCurrency(Number(bulkPrices.steg3), currency)
+            ? Number(bulkPrices.steg3) // ✅ redan i SEK från onChange
             : undefined,
           stage4Price: bulkPrices.steg4
-            ? fromCurrency(Number(bulkPrices.steg4), currency)
+            ? Number(bulkPrices.steg4) // ✅ redan i SEK från onChange
             : undefined,
           dsgPrice: bulkPrices.dsg
-            ? fromCurrency(Number(bulkPrices.dsg), currency)
+            ? Number(bulkPrices.dsg) // ✅ redan i SEK från onChange
             : undefined,
         }),
       });
@@ -969,7 +969,11 @@ export default function ResellerAdmin({ session }) {
                     </div>
                     <input
                       type="number"
-                      value={bulkPrices.steg2}
+                      value={
+                        bulkPrices.steg2 !== null && bulkPrices.steg2 !== ""
+                          ? toCurrency(Number(bulkPrices.steg2), currency)
+                          : ""
+                      }
                       onChange={(e) =>
                         handleBulkPriceChange("steg2", e.target.value)
                       }
@@ -991,7 +995,11 @@ export default function ResellerAdmin({ session }) {
                     </div>
                     <input
                       type="number"
-                      value={bulkPrices.steg3}
+                      value={
+                        bulkPrices.steg3 !== null && bulkPrices.steg3 !== ""
+                          ? toCurrency(Number(bulkPrices.steg3), currency)
+                          : ""
+                      }
                       onChange={(e) =>
                         handleBulkPriceChange("steg3", e.target.value)
                       }
@@ -1013,7 +1021,11 @@ export default function ResellerAdmin({ session }) {
                     </div>
                     <input
                       type="number"
-                      value={bulkPrices.steg4}
+                      value={
+                        bulkPrices.steg4 !== null && bulkPrices.steg4 !== ""
+                          ? toCurrency(Number(bulkPrices.steg4), currency)
+                          : ""
+                      }
                       onChange={(e) =>
                         handleBulkPriceChange("steg4", e.target.value)
                       }
@@ -1034,7 +1046,11 @@ export default function ResellerAdmin({ session }) {
                     </div>
                     <input
                       type="number"
-                      value={bulkPrices.dsg}
+                      value={
+                        bulkPrices.dsg !== null && bulkPrices.dsg !== ""
+                          ? toCurrency(Number(bulkPrices.dsg), currency)
+                          : ""
+                      }
                       onChange={(e) =>
                         handleBulkPriceChange("dsg", e.target.value)
                       }
@@ -2455,7 +2471,18 @@ export default function ResellerAdmin({ session }) {
                                     </span>
                                   </div>
                                   <input
-                                    value={toCurrency(price, currency)}
+                                    value={
+                                      stageInputs[stage.name]?.price !==
+                                      undefined
+                                        ? toCurrency(
+                                            stageInputs[stage.name].price,
+                                            currency,
+                                          )
+                                        : toCurrency(
+                                            override?.price ?? stage.price,
+                                            currency,
+                                          )
+                                    }
                                     onChange={(e) => {
                                       const val = parseFloat(e.target.value);
                                       const sekValue = isNaN(val)
