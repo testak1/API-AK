@@ -2471,18 +2471,13 @@ export default function ResellerAdmin({ session }) {
                                     </span>
                                   </div>
                                   <input
-                                    value={
-                                      stageInputs[stage.name]?.price !==
-                                      undefined
-                                        ? toCurrency(
-                                            stageInputs[stage.name].price,
-                                            currency,
-                                          )
-                                        : toCurrency(
-                                            override?.price ?? stage.price,
-                                            currency,
-                                          )
-                                    }
+                                    value={(() => {
+                                      const sekValue =
+                                        stageInputs[stage.name]?.price ??
+                                        override?.price ??
+                                        stage.price;
+                                      return toCurrency(sekValue, currency);
+                                    })()}
                                     onChange={(e) => {
                                       const val = parseFloat(e.target.value);
                                       const sekValue = isNaN(val)
@@ -2492,7 +2487,7 @@ export default function ResellerAdmin({ session }) {
                                         stage.name,
                                         "price",
                                         sekValue,
-                                      );
+                                      ); // alltid lagrat i SEK
                                     }}
                                     type="number"
                                     className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md p-2 border"
@@ -2540,9 +2535,9 @@ export default function ResellerAdmin({ session }) {
                             <button
                               onClick={() => {
                                 const inputSekPrice =
-                                  stageInputs[stage.name]?.price !== undefined
-                                    ? stageInputs[stage.name].price
-                                    : (override?.price ?? stage.price);
+                                  stageInputs[stage.name]?.price ??
+                                  override?.price ??
+                                  stage.price;
 
                                 handleSave(
                                   override?._id || null,
