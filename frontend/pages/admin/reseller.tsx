@@ -2546,7 +2546,10 @@ export default function ResellerAdmin({ session }) {
                                   selectedYear,
                                   selectedEngine,
                                   stage.name,
-                                  Number(price),
+                                  fromCurrency(
+                                    toCurrency(price, currency),
+                                    currency,
+                                  ),
                                   Number(hk),
                                   Number(nm),
                                 )
