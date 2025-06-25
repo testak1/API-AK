@@ -521,23 +521,22 @@ export default function ResellerAdmin({ session }) {
   };
 
   const conversionRates = {
-    EUR: 0.1,
-    USD: 0.1,
-    GBP: 0.08,
     SEK: 1,
-    THB: 3.5,
-    JPY: 14.0,
-    CNY: 0.68,
-    RUB: 8.5,
-    TRY: 3.1,
-    PLN: 0.42,
+    EUR: 0.1, // 1 SEK = 0.10 EUR (⇒ 1 EUR ≈ 10 SEK)
+    USD: 0.095, // 1 USD ≈ 10.5 SEK
+    GBP: 0.085, // 1 GBP ≈ 11.8 SEK
+    NOK: 0.98,
+    DKK: 0.72,
+    CHF: 0.09,
+    PLN: 0.39,
     CZK: 2.3,
-    HUF: 35.0,
+    HUF: 34.0,
+    JPY: 14.2,
+    CNY: 0.66,
+    RUB: 8.5,
+    TRY: 2.85,
     AED: 0.35,
-    KRW: 125.0,
-    NOK: 1.0,
-    DKK: 0.7,
-    CHF: 0.085,
+    THB: 3.45,
     AUD: 0.14,
     CAD: 0.13,
     INR: 7.8,
@@ -1179,23 +1178,22 @@ export default function ResellerAdmin({ session }) {
               {/* 🔵 LOOP OVER OPTIONS BELOW */}
               {(aktPlusOverrides || []).map((item) => {
                 const conversionRates = {
-                  EUR: 0.1,
-                  USD: 0.1,
-                  GBP: 0.08,
                   SEK: 1,
-                  THB: 3.5,
-                  JPY: 14.0,
-                  CNY: 0.68,
-                  RUB: 8.5,
-                  TRY: 3.1,
-                  PLN: 0.42,
+                  EUR: 0.1, // 1 SEK = 0.10 EUR (⇒ 1 EUR ≈ 10 SEK)
+                  USD: 0.095, // 1 USD ≈ 10.5 SEK
+                  GBP: 0.085, // 1 GBP ≈ 11.8 SEK
+                  NOK: 0.98,
+                  DKK: 0.72,
+                  CHF: 0.09,
+                  PLN: 0.39,
                   CZK: 2.3,
-                  HUF: 35.0,
+                  HUF: 34.0,
+                  JPY: 14.2,
+                  CNY: 0.66,
+                  RUB: 8.5,
+                  TRY: 2.85,
                   AED: 0.35,
-                  KRW: 125.0,
-                  NOK: 1.0,
-                  DKK: 0.7,
-                  CHF: 0.085,
+                  THB: 3.45,
                   AUD: 0.14,
                   CAD: 0.13,
                   INR: 7.8,
