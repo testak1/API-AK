@@ -2471,25 +2471,27 @@ export default function ResellerAdmin({ session }) {
                                     </span>
                                   </div>
                                   <input
+                                    type="number"
                                     value={(() => {
-                                      const sekValue =
+                                      const sek =
                                         stageInputs[stage.name]?.price ??
                                         override?.price ??
                                         stage.price;
-                                      return toCurrency(sekValue, currency);
+                                      return toCurrency(sek, currency); // SEK → visad valuta
                                     })()}
                                     onChange={(e) => {
-                                      const val = parseFloat(e.target.value);
-                                      const sekValue = isNaN(val)
+                                      const inputVal = parseFloat(
+                                        e.target.value,
+                                      );
+                                      const sekValue = isNaN(inputVal)
                                         ? 0
-                                        : fromCurrency(val, currency);
+                                        : fromCurrency(inputVal, currency); // valuta → SEK
                                       handleInputChange(
                                         stage.name,
                                         "price",
                                         sekValue,
-                                      ); // alltid lagrat i SEK
+                                      );
                                     }}
-                                    type="number"
                                     className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md p-2 border"
                                   />
                                 </div>
@@ -2534,7 +2536,7 @@ export default function ResellerAdmin({ session }) {
 
                             <button
                               onClick={() => {
-                                const inputSekPrice =
+                                const priceInSek =
                                   stageInputs[stage.name]?.price ??
                                   override?.price ??
                                   stage.price;
@@ -2546,7 +2548,7 @@ export default function ResellerAdmin({ session }) {
                                   selectedYear,
                                   selectedEngine,
                                   stage.name,
-                                  inputSekPrice, // 🟢 Redan i SEK tack vare hantering ovan
+                                  priceInSek, // 🟢 Redan i SEK
                                   Number(hk),
                                   Number(nm),
                                 );
