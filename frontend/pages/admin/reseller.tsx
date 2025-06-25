@@ -2538,7 +2538,12 @@ export default function ResellerAdmin({ session }) {
                             </div>
 
                             <button
-                              onClick={() =>
+                              onClick={() => {
+                                const inputSekPrice =
+                                  stageInputs[stage.name]?.price !== undefined
+                                    ? stageInputs[stage.name].price
+                                    : (override?.price ?? stage.price);
+
                                 handleSave(
                                   override?._id || null,
                                   selectedBrand,
@@ -2546,14 +2551,11 @@ export default function ResellerAdmin({ session }) {
                                   selectedYear,
                                   selectedEngine,
                                   stage.name,
-                                  fromCurrency(
-                                    toCurrency(price, currency),
-                                    currency,
-                                  ),
+                                  inputSekPrice, // 🟢 Redan i SEK tack vare hantering ovan
                                   Number(hk),
                                   Number(nm),
-                                )
-                              }
+                                );
+                              }}
                               disabled={isLoading}
                               className="mt-4 w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-70 disabled:cursor-not-allowed"
                             >
