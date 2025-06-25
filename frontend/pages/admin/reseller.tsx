@@ -2557,9 +2557,7 @@ export default function ResellerAdmin({ session }) {
                                   selectedYear,
                                   selectedEngine,
                                   stage.name,
-                                  stageInputs[stage.name]?.price ??
-                                    override?.price ??
-                                    stage.price,
+                                  priceInSek, // ✅ Enkelt, tydligt
                                   Number(hk),
                                   Number(nm),
                                 );
