@@ -325,19 +325,19 @@ export default function ResellerAdmin({ session }) {
           model: bulkPrices.applyLevel === "model" ? selectedModel : undefined,
           year: bulkPrices.applyLevel === "year" ? selectedYear : undefined,
           stage1Price: bulkPrices.steg1
-            ? fromCurrency(Number(bulkPrices.steg1))
+            ? fromCurrency(Number(bulkPrices.steg1), currency)
             : undefined,
           stage2Price: bulkPrices.steg2
-            ? fromCurrency(Number(bulkPrices.steg2))
+            ? fromCurrency(Number(bulkPrices.steg2), currency)
             : undefined,
           stage3Price: bulkPrices.steg3
-            ? fromCurrency(Number(bulkPrices.steg3))
+            ? fromCurrency(Number(bulkPrices.steg3), currency)
             : undefined,
           stage4Price: bulkPrices.steg4
-            ? fromCurrency(Number(bulkPrices.steg4))
+            ? fromCurrency(Number(bulkPrices.steg4), currency)
             : undefined,
           dsgPrice: bulkPrices.dsg
-            ? fromCurrency(Number(bulkPrices.dsg))
+            ? fromCurrency(Number(bulkPrices.dsg), currency)
             : undefined,
         }),
       });
@@ -436,7 +436,7 @@ export default function ResellerAdmin({ session }) {
           year,
           engine,
           stageName,
-          price: fromCurrency(Number(price)),
+          price: fromCurrency(Number(price), currency),
           tunedHk: hk,
           tunedNm: nm,
         }),
@@ -513,18 +513,18 @@ export default function ResellerAdmin({ session }) {
   }, [selectedBrand, selectedModel, selectedYear, bulkPrices.applyLevel]);
 
   const handleBulkPriceChange = (field, value) => {
-    const sekValue = value ? fromCurrency(parseFloat(value)) : "";
+    const sekValue = value ? fromCurrency(parseFloat(value), currency) : "";
     setBulkPrices((prev) => ({
       ...prev,
       [field]: sekValue,
     }));
   };
 
-  const conversionRates = {
+  const conversionRates: Record<string, number> = {
     SEK: 1,
-    EUR: 0.1, // 1 SEK = 0.10 EUR (⇒ 1 EUR ≈ 10 SEK)
-    USD: 0.095, // 1 USD ≈ 10.5 SEK
-    GBP: 0.085, // 1 GBP ≈ 11.8 SEK
+    EUR: 0.1,
+    USD: 0.095,
+    GBP: 0.085,
     NOK: 0.98,
     DKK: 0.72,
     CHF: 0.09,
@@ -547,29 +547,35 @@ export default function ResellerAdmin({ session }) {
     MXN: 1.8,
   };
 
-  const toCurrency = (sek) =>
-    Math.round(sek * (conversionRates[currency] || 1));
-  const fromCurrency = (val) =>
-    Math.round(val / (conversionRates[currency] || 1));
+  // Funktion för att konvertera SEK → Valuta
+  const toCurrency = (sek: number, currency: string): number => {
+    const rate = conversionRates[currency] || 1;
+    return Math.round(sek * rate);
+  };
+
+  // Funktion för att konvertera Valuta → SEK
+  const fromCurrency = (val: number, currency: string): number => {
+    const rate = conversionRates[currency] || 1;
+    return Math.round(val / rate);
+  };
 
   const currencySymbols = {
     SEK: "kr",
     EUR: "€",
     USD: "$",
     GBP: "£",
-    THB: "฿",
+    NOK: "kr",
+    DKK: "kr",
+    CHF: "CHF",
+    PLN: "zł",
+    CZK: "Kč",
+    HUF: "Ft",
     JPY: "¥",
     CNY: "¥",
     RUB: "₽",
     TRY: "₺",
-    PLN: "zł",
-    CZK: "Kč",
-    HUF: "Ft",
     AED: "د.إ",
-    KRW: "₩",
-    NOK: "kr",
-    DKK: "kr",
-    CHF: "CHF",
+    THB: "฿",
     AUD: "A$",
     CAD: "C$",
     INR: "₹",
@@ -937,8 +943,8 @@ export default function ResellerAdmin({ session }) {
                     <input
                       type="number"
                       value={
-                        bulkPrices.steg1 !== null
-                          ? toCurrency(bulkPrices.steg1)
+                        bulkPrices.steg1 !== null && bulkPrices.steg1 !== ""
+                          ? toCurrency(Number(bulkPrices.steg1), currency)
                           : ""
                       }
                       onChange={(e) =>
@@ -1267,20 +1273,14 @@ export default function ResellerAdmin({ session }) {
                       className="w-full border border-gray-300 rounded-md p-2 text-sm"
                       value={
                         aktPlusInputs[item.id]?.price !== undefined
-                          ? convertCurrency(
-                              aktPlusInputs[item.id].price,
-                              currency,
-                            )
-                          : convertCurrency(item.price ?? 0, currency)
+                          ? toCurrency(aktPlusInputs[item.id].price, currency)
+                          : toCurrency(item.price ?? 0, currency)
                       }
                       onChange={(e) => {
                         const inputCurrencyValue = parseFloat(e.target.value);
                         const sekValue = isNaN(inputCurrencyValue)
                           ? 0
-                          : Math.round(
-                              inputCurrencyValue /
-                                (conversionRates[currency] || 1),
-                            );
+                          : fromCurrency(inputCurrencyValue, currency);
 
                         setAktPlusInputs((prev) => ({
                           ...prev,
@@ -2450,12 +2450,12 @@ export default function ResellerAdmin({ session }) {
                                     </span>
                                   </div>
                                   <input
-                                    value={toCurrency(price)}
+                                    value={toCurrency(price, currency)}
                                     onChange={(e) => {
                                       const val = parseFloat(e.target.value);
                                       const sekValue = isNaN(val)
                                         ? 0
-                                        : fromCurrency(val);
+                                        : fromCurrency(val, currency);
                                       handleInputChange(
                                         stage.name,
                                         "price",
