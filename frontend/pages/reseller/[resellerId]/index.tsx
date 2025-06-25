@@ -255,9 +255,7 @@ export default function TuningViewer() {
 
   const convertPrice = (priceInSek: number): string => {
     const rate = settings.exchangeRates[settings.currency] || 1;
-
-    // Avrunda till närmsta 10
-    const converted = Math.round((priceInSek * rate) / 10) * 10;
+    const converted = priceInSek * rate;
 
     const currencySymbols: Record<string, string> = {
       SEK: "kr",
@@ -289,15 +287,7 @@ export default function TuningViewer() {
 
     const symbol = currencySymbols[settings.currency] || settings.currency;
 
-    return converted
-      .toLocaleString(settings.language, {
-        style: "currency",
-        currency: settings.currency,
-        currencyDisplay: "symbol",
-        maximumFractionDigits: 0,
-        minimumFractionDigits: 0,
-      })
-      .replace(settings.currency, symbol);
+    return `${Math.round(converted).toLocaleString()} ${symbol}`;
   };
 
   const updateSettings = async (settings: Partial<DisplaySettings>) => {
