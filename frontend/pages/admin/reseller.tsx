@@ -437,7 +437,7 @@ export default function ResellerAdmin({ session }) {
           year,
           engine,
           stageName,
-          price: fromCurrency(Number(price), currency),
+          price,
           tunedHk: hk,
           tunedNm: nm,
         }),
@@ -2495,13 +2495,13 @@ export default function ResellerAdmin({ session }) {
                                       );
                                       const valueInSek = isNaN(inputValue)
                                         ? 0
-                                        : fromCurrency(inputValue, currency);
+                                        : fromCurrency(inputValue, currency); // konvertera till SEK
 
                                       handleInputChange(
                                         stage.name,
                                         "price",
                                         valueInSek,
-                                      );
+                                      ); // spara SEK
                                     }}
                                     className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md p-2 border"
                                   />
