@@ -2211,6 +2211,7 @@ export default function ResellerAdmin({ session }) {
             </div>
           </div>
         )}
+
         {/* Tuning Tab */}
         {activeTab === "tuning" && (
           <>
@@ -2495,6 +2496,7 @@ export default function ResellerAdmin({ session }) {
                                       const valueInSek = isNaN(inputValue)
                                         ? 0
                                         : fromCurrency(inputValue, currency);
+
                                       handleInputChange(
                                         stage.name,
                                         "price",
