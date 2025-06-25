@@ -257,37 +257,15 @@ export default function TuningViewer() {
     const rate = settings.exchangeRates[settings.currency] || 1;
     const converted = priceInSek * rate;
 
-    const currencySymbols: Record<string, string> = {
-      SEK: "kr",
-      EUR: "€",
-      USD: "$",
-      GBP: "£",
-      THB: "฿",
-      JPY: "¥",
-      CNY: "¥",
-      RUB: "₽",
-      TRY: "₺",
-      PLN: "zł",
-      CZK: "Kč",
-      HUF: "Ft",
-      AED: "د.إ",
-      KRW: "₩",
-      NOK: "kr",
-      DKK: "kr",
-      CHF: "CHF",
-      AUD: "A$",
-      CAD: "C$",
-      INR: "₹",
-      SGD: "S$",
-      NZD: "NZ$",
-      ZAR: "R",
-      BRL: "R$",
-      MXN: "MX$",
-    };
-
-    const symbol = currencySymbols[settings.currency] || settings.currency;
-
-    return `${Math.round(converted).toLocaleString()} ${symbol}`;
+    return new Intl.NumberFormat(
+      settings.language === "sv" ? "sv-SE" : "en-US",
+      {
+        style: "currency",
+        currency: settings.currency,
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      },
+    ).format(converted);
   };
 
   const updateSettings = async (settings: Partial<DisplaySettings>) => {
