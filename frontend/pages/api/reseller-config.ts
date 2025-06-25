@@ -1,5 +1,5 @@
 import sanity from "@/lib/sanity";
-import {ResellerConfig} from "@/types/sanity";
+import { ResellerConfig } from "@/types/sanity";
 
 const defaultDisplaySettings = {
   showAktPlus: true,
@@ -8,73 +8,40 @@ const defaultDisplaySettings = {
   showDynoChart: true,
 };
 
-async function fetchExchangeRates(base: string = "SEK") {
-  try {
-    const response = await fetch(
-      `https://api.frankfurter.app/latest?from=${base}`
-    );
-    if (!response.ok) {
-      throw new Error(`Exchange rate API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-
-    if (!data?.rates || typeof data.rates !== "object") {
-      throw new Error("Invalid exchange rate response");
-    }
-
-    const supportedCurrencies = [
-      "SEK",
-      "EUR",
-      "USD",
-      "GBP",
-      "THB",
-      "JPY",
-      "CNY",
-      "RUB",
-      "TRY",
-      "PLN",
-      "CZK",
-      "HUF",
-      "AED",
-      "KRW",
-      "NOK",
-      "DKK",
-      "CHF",
-      "AUD",
-      "CAD",
-      "INR",
-      "SGD",
-      "NZD",
-      "ZAR",
-      "BRL",
-      "MXN",
-    ];
-
-    const filteredRates: Record<string, number> = {};
-    for (const currency of supportedCurrencies) {
-      if (currency === base) {
-        filteredRates[currency] = 1;
-      } else if (data.rates[currency]) {
-        filteredRates[currency] = data.rates[currency];
-      }
-    }
-
-    return filteredRates;
-  } catch (err) {
-    console.error("Failed to fetch exchange rates:", err);
-    return {
-      SEK: 1,
-      EUR: 0.1,
-      USD: 0.1,
-      GBP: 0.08,
-    };
-  }
+// ✅ Din statiska kursfunktion här
+async function fetchExchangeRates() {
+  return {
+    SEK: 1,
+    EUR: 0.1,
+    USD: 0.1,
+    GBP: 0.08,
+    THB: 3.5,
+    JPY: 14.0,
+    CNY: 0.68,
+    RUB: 8.5,
+    TRY: 3.1,
+    PLN: 0.42,
+    CZK: 2.3,
+    HUF: 35.0,
+    AED: 0.35,
+    KRW: 125.0,
+    NOK: 1.0,
+    DKK: 0.7,
+    CHF: 0.085,
+    AUD: 0.14,
+    CAD: 0.13,
+    INR: 7.8,
+    SGD: 0.13,
+    NZD: 0.15,
+    ZAR: 1.7,
+    BRL: 0.5,
+    MXN: 1.8,
+  };
 }
 
 export default async function handler(req, res) {
-  const {resellerId} = req.query;
-  if (!resellerId) return res.status(400).json({error: "Missing resellerId"});
+  const { resellerId } = req.query;
+  if (!resellerId) return res.status(400).json({ error: "Missing resellerId" });
 
   try {
     const result = await sanity.fetch<Partial<ResellerConfig>>(
@@ -95,10 +62,10 @@ export default async function handler(req, res) {
         contactInfo,
         aktPlusLogo
       }`,
-      {resellerId}
+      { resellerId },
     );
 
-    const exchangeRates = await fetchExchangeRates("SEK");
+    const exchangeRates = await fetchExchangeRates();
 
     const response: ResellerConfig = {
       email: result?.email ?? "",
@@ -116,6 +83,6 @@ export default async function handler(req, res) {
     res.status(200).json(response);
   } catch (error) {
     console.error("Error fetching reseller config:", error);
-    res.status(500).json({error: "Failed to fetch reseller config"});
+    res.status(500).json({ error: "Failed to fetch reseller config" });
   }
 }
