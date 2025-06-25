@@ -325,8 +325,9 @@ export default function ResellerAdmin({ session }) {
           model: bulkPrices.applyLevel === "model" ? selectedModel : undefined,
           year: bulkPrices.applyLevel === "year" ? selectedYear : undefined,
           stage1Price: bulkPrices.steg1
-            ? fromCurrency(Number(bulkPrices.steg1), currency)
+            ? Number(bulkPrices.steg1) // ✅ redan i SEK från onChange
             : undefined,
+
           stage2Price: bulkPrices.steg2
             ? fromCurrency(Number(bulkPrices.steg2), currency)
             : undefined,
@@ -2349,7 +2350,11 @@ export default function ResellerAdmin({ session }) {
 
                       const currentInputs = stageInputs[stage.name] || {};
                       const price =
-                        currentInputs.price ?? override?.price ?? stage.price;
+                        currentInputs.price !== undefined
+                          ? currentInputs.price
+                          : override?.price !== undefined
+                            ? override.price
+                            : stage.price;
                       const hk =
                         currentInputs.hk ?? override?.tunedHk ?? stage.tunedHk;
                       const nm =
