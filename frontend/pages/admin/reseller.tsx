@@ -2472,24 +2472,33 @@ export default function ResellerAdmin({ session }) {
                                   </div>
                                   <input
                                     type="number"
-                                    value={(() => {
-                                      const sek =
-                                        stageInputs[stage.name]?.price ??
-                                        override?.price ??
-                                        stage.price;
-                                      return toCurrency(sek, currency); // SEK → visad valuta
-                                    })()}
+                                    value={
+                                      stageInputs[stage.name]?.price !==
+                                      undefined
+                                        ? toCurrency(
+                                            Number(
+                                              stageInputs[stage.name].price,
+                                            ),
+                                            currency,
+                                          )
+                                        : toCurrency(
+                                            Number(
+                                              override?.price ?? stage.price,
+                                            ),
+                                            currency,
+                                          )
+                                    }
                                     onChange={(e) => {
-                                      const inputVal = parseFloat(
+                                      const inputValue = parseFloat(
                                         e.target.value,
                                       );
-                                      const sekValue = isNaN(inputVal)
+                                      const valueInSek = isNaN(inputValue)
                                         ? 0
-                                        : fromCurrency(inputVal, currency); // valuta → SEK
+                                        : fromCurrency(inputValue, currency);
                                       handleInputChange(
                                         stage.name,
                                         "price",
-                                        sekValue,
+                                        valueInSek,
                                       );
                                     }}
                                     className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md p-2 border"
@@ -2548,7 +2557,9 @@ export default function ResellerAdmin({ session }) {
                                   selectedYear,
                                   selectedEngine,
                                   stage.name,
-                                  priceInSek, // 🟢 Redan i SEK
+                                  stageInputs[stage.name]?.price ??
+                                    override?.price ??
+                                    stage.price,
                                   Number(hk),
                                   Number(nm),
                                 );
