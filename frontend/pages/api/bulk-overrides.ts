@@ -4,8 +4,8 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "./auth/[...nextauth]";
 import sanity from "@/lib/sanity";
 
-const normalizeString = (str: string) =>
-  str.toLowerCase().replace(/[^a-z0-9]/g, "");
+// Improved normalization - only removes spaces for more precise matching
+const normalizeString = (str: string) => str.toLowerCase().replace(/\s+/g, "");
 
 const slugify = (str: string) =>
   str
@@ -14,7 +14,14 @@ const slugify = (str: string) =>
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-");
 
-function generateOverrideId(resellerId, brand, model, year, engine, stageName) {
+function generateOverrideId(
+  resellerId: string,
+  brand: string,
+  model: string,
+  year: string,
+  engine: string,
+  stageName: string,
+) {
   const parts = [resellerId, brand, model || "", year || "", engine, stageName];
   return `override-${parts.map((p) => slugify(p || "")).join("-")}`;
 }
@@ -31,16 +38,26 @@ export default async function handler(req, res) {
   let {
     brand,
     model,
+    year, // Added year parameter
     stage1Price,
     stage2Price,
     stage3Price,
     stage4Price,
     dsgPrice,
   } = req.body;
+
   brand = brand?.trim();
   model = model?.trim();
+  year = year?.trim();
 
   try {
+    console.log(`Processing bulk override for:`, {
+      brand,
+      model,
+      year,
+      resellerId,
+    });
+
     const conversionRates = { EUR: 0.1, USD: 0.1, GBP: 0.08, SEK: 1 };
     const settings = await sanity.fetch(
       `*[_type == "resellerConfig" && resellerId == $resellerId][0]{currency}`,
@@ -87,31 +104,45 @@ export default async function handler(req, res) {
     );
 
     const normBrand = normalizeString(brand || "");
-    const normModel = normalizeString(model || "");
-
     const matchedBrand = allBrands.find(
-      (b) =>
-        normalizeString(b.name) === normBrand ||
-        normalizeString(b.slug?.current || "") === normBrand ||
-        normalizeString(b.name).includes(normBrand),
+      (b) => normalizeString(b.name) === normBrand, // Strict brand matching
     );
 
-    if (!matchedBrand)
-      return res.status(404).json({ error: "Brand not found" });
+    if (!matchedBrand) {
+      return res.status(404).json({
+        error: "Brand not found",
+        details: `No brand matching '${brand}'`,
+        availableBrands: allBrands.map((b) => b.name),
+      });
+    }
 
+    const normModel = normalizeString(model || "");
     const matchedModel = matchedBrand.models?.find(
-      (m) =>
-        normalizeString(m.name) === normModel ||
-        normalizeString(m.slug?.current || "") === normModel ||
-        normalizeString(m.name).includes(normModel),
+      (m) => normalizeString(m.name) === normModel, // Strict model matching
     );
 
-    if (!matchedModel)
-      return res.status(404).json({ error: "Model not found" });
+    if (!matchedModel) {
+      return res.status(404).json({
+        error: "Model not found",
+        details: `No exact match for model '${model}' in brand '${brand}'`,
+        availableModels: matchedBrand.models?.map((m) => m.name),
+      });
+    }
 
-    const yearsToProcess = matchedModel.years || [];
-    if (!yearsToProcess.length)
-      return res.status(404).json({ error: "No years with engines found" });
+    // Filter years if year parameter exists
+    const yearsToProcess = year
+      ? matchedModel.years?.filter((y) => y.range === year) || []
+      : matchedModel.years || [];
+
+    if (yearsToProcess.length === 0) {
+      return res.status(404).json({
+        error: year ? "Year not found" : "No years available",
+        details: year
+          ? `No matching year '${year}' for model '${model}'`
+          : `No years found for model '${model}'`,
+        availableYears: matchedModel.years?.map((y) => y.range),
+      });
+    }
 
     const createTransaction = sanity.transaction();
     let updatedCount = 0;
@@ -189,11 +220,25 @@ export default async function handler(req, res) {
       console.log(
         `Bulk override completed. ${updatedCount} overrides updated.`,
       );
+      return res.status(200).json({
+        success: true,
+        updated: updatedCount,
+        brand: matchedBrand.name,
+        model: matchedModel.name,
+        years: yearsToProcess.map((y) => y.range),
+      });
     }
 
-    return res.status(200).json({ success: true, updated: updatedCount });
+    return res.status(200).json({
+      success: true,
+      updated: 0,
+      message: "No changes were made (all prices were empty)",
+    });
   } catch (err) {
     console.error("Bulk override error:", err);
-    return res.status(500).json({ error: "Internal Server Error" });
+    return res.status(500).json({
+      error: "Internal Server Error",
+      details: err.message,
+    });
   }
 }
