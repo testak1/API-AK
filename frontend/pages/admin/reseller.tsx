@@ -331,7 +331,11 @@ export default function ResellerAdmin({ session }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           brand: selectedBrand,
-          model: bulkPrices.applyLevel === "model" ? selectedModel : undefined,
+          model:
+            bulkPrices.applyLevel === "model" ||
+            bulkPrices.applyLevel === "year"
+              ? selectedModel
+              : undefined,
           year: bulkPrices.applyLevel === "year" ? selectedYear : undefined,
           applyLevel: bulkPrices.applyLevel,
           stage1Price: bulkPrices.steg1 ? Number(bulkPrices.steg1) : undefined,
@@ -853,6 +857,7 @@ export default function ResellerAdmin({ session }) {
                 Apply standard pricing to all vehicles at model or year level
               </p>
             </div>
+
             <div className="px-6 py-5">
               <div className="grid grid-cols-1 gap-6 mb-6">
                 {/* Brand Selection */}
@@ -866,7 +871,7 @@ export default function ResellerAdmin({ session }) {
                       setSelectedBrand(e.target.value);
                       setSelectedModel("");
                       setSelectedYear("");
-                      setPreviewData(null); // Clear preview when brand changes
+                      setPreviewData(null);
                     }}
                     className="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm rounded-md border"
                     disabled={isLoading || isPreviewLoading}
@@ -880,7 +885,7 @@ export default function ResellerAdmin({ session }) {
                   </select>
                 </div>
 
-                {/* Apply To Selection */}
+                {/* Apply Level Selection */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Apply To
@@ -893,7 +898,8 @@ export default function ResellerAdmin({ session }) {
                         checked={bulkPrices.applyLevel === "model"}
                         onChange={() => {
                           handleBulkPriceChange("applyLevel", "model");
-                          setPreviewData(null); // Clear preview when selection changes
+                          setSelectedYear("");
+                          setPreviewData(null);
                         }}
                       />
                       <span className="ml-2 text-gray-700">Entire Model</span>
@@ -905,7 +911,7 @@ export default function ResellerAdmin({ session }) {
                         checked={bulkPrices.applyLevel === "year"}
                         onChange={() => {
                           handleBulkPriceChange("applyLevel", "year");
-                          setPreviewData(null); // Clear preview when selection changes
+                          setPreviewData(null);
                         }}
                       />
                       <span className="ml-2 text-gray-700">Specific Year</span>
@@ -913,60 +919,64 @@ export default function ResellerAdmin({ session }) {
                   </div>
                 </div>
 
+                {/* Model Selection (Always Required) */}
                 {selectedBrand && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      {bulkPrices.applyLevel === "model" ? "Model" : "Year"}
+                      Model
                     </label>
-                    {bulkPrices.applyLevel === "model" ? (
-                      <select
-                        value={selectedModel}
-                        onChange={(e) => {
-                          setSelectedModel(e.target.value);
-                          setPreviewData(null); // Clear preview when model changes
-                        }}
-                        className="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm rounded-md border"
-                        disabled={
-                          !selectedBrand || isLoading || isPreviewLoading
-                        }
-                      >
-                        <option value="">Select Model</option>
-                        {brands
-                          .find((b) => b.name === selectedBrand)
-                          ?.models?.map((m) => (
-                            <option key={m.name} value={m.name}>
-                              {m.name}
-                            </option>
-                          ))}
-                      </select>
-                    ) : (
-                      <select
-                        value={selectedYear}
-                        onChange={(e) => {
-                          setSelectedYear(e.target.value);
-                          setPreviewData(null); // Clear preview when year changes
-                        }}
-                        className="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm rounded-md border"
-                        disabled={
-                          !selectedModel || isLoading || isPreviewLoading
-                        }
-                      >
-                        <option value="">Select Year</option>
-                        {selectedModel &&
-                          brands
-                            .find((b) => b.name === selectedBrand)
-                            ?.models?.find((m) => m.name === selectedModel)
-                            ?.years?.map((y) => (
-                              <option key={y.range} value={y.range}>
-                                {y.range}
-                              </option>
-                            ))}
-                      </select>
-                    )}
+                    <select
+                      value={selectedModel}
+                      onChange={(e) => {
+                        setSelectedModel(e.target.value);
+                        setSelectedYear("");
+                        setPreviewData(null);
+                      }}
+                      className="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm rounded-md border"
+                      disabled={!selectedBrand || isLoading || isPreviewLoading}
+                    >
+                      <option value="">Select Model</option>
+                      {brands
+                        .find((b) => b.name === selectedBrand)
+                        ?.models?.map((m) => (
+                          <option key={m.name} value={m.name}>
+                            {m.name}
+                          </option>
+                        ))}
+                    </select>
+                  </div>
+                )}
+
+                {/* Year Selection (Only if "Specific Year") */}
+                {bulkPrices.applyLevel === "year" && selectedModel && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Year
+                    </label>
+                    <select
+                      value={selectedYear}
+                      onChange={(e) => {
+                        setSelectedYear(e.target.value);
+                        setPreviewData(null);
+                      }}
+                      className="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm rounded-md border"
+                      disabled={isLoading || isPreviewLoading}
+                    >
+                      <option value="">Select Year</option>
+                      {brands
+                        .find((b) => b.name === selectedBrand)
+                        ?.models?.find((m) => m.name === selectedModel)
+                        ?.years?.map((y) => (
+                          <option key={y.range} value={y.range}>
+                            {y.range}
+                          </option>
+                        ))}
+                    </select>
                   </div>
                 )}
               </div>
 
+              {/* Price Inputs */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {["steg1", "steg2", "steg3", "steg4", "dsg"].map((stage) => (
                   <div key={stage}>
@@ -989,7 +999,7 @@ export default function ResellerAdmin({ session }) {
                         }
                         onChange={(e) => {
                           handleBulkPriceChange(stage, e.target.value);
-                          setPreviewData(null); // Clear preview when price changes
+                          setPreviewData(null);
                         }}
                         className="focus:ring-red-500 focus:border-red-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md p-2 border"
                         placeholder="Leave empty to keep original"
