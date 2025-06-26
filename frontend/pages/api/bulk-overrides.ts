@@ -121,28 +121,36 @@ export default async function handler(req, res) {
       });
     }
 
+    // Update this section in your bulk-overrides.ts
     let yearsToProcess = [];
     let matchedModel = null;
 
     if (applyLevel === "year" && year) {
-      // Year-level override - find the year across all models
-      matchedBrand.models?.forEach((m) => {
-        m.years?.forEach((y) => {
-          if (y.range === year) {
-            yearsToProcess.push({ ...y, model: m.name });
-          }
-        });
-      });
+      // Year-level override - find the specific model and year combination
+      const normModel = normalizeString(model || "");
+      matchedModel = matchedBrand.models?.find(
+        (m) => normalizeString(m.name) === normModel,
+      );
 
-      if (yearsToProcess.length === 0) {
+      if (!matchedModel) {
         return res.status(404).json({
-          error: "Year not found",
-          details: `No matching year '${year}' in brand '${brand}'`,
-          availableYears: matchedBrand.models
-            ?.flatMap((m) => m.years?.map((y) => y.range) || [])
-            .filter((v, i, a) => a.indexOf(v) === i),
+          error: "Model not found",
+          details: `No model matching '${model}' in brand '${brand}'`,
+          availableModels: matchedBrand.models?.map((m) => m.name),
         });
       }
+
+      // Find the specific year within this model
+      const matchedYear = matchedModel.years?.find((y) => y.range === year);
+      if (!matchedYear) {
+        return res.status(404).json({
+          error: "Year not found",
+          details: `No matching year '${year}' for model '${model}'`,
+          availableYears: matchedModel.years?.map((y) => y.range),
+        });
+      }
+
+      yearsToProcess = [{ ...matchedYear, model: matchedModel.name }];
     } else {
       // Model-level override
       const normModel = normalizeString(model || "");
