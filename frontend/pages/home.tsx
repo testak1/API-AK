@@ -597,42 +597,41 @@ const features = [
     icon: "🔌",
     title: "Easy Integration",
     description:
-      "REST API with comprehensive documentation and code samples in multiple languages.",
+      "We will implement it to your website for free and support you at any time, no additional costs!",
   },
 ];
 
 const pricingPlans = [
   {
     name: "Starter",
-    price: "€99",
+    price: "€150",
     period: "month",
     features: [
-      "Up to 5 reseller accounts",
       "10,000 API requests/month",
-      "5 languages included",
+      "1 language included",
       "10 currencies supported",
       "Email support",
       "Basic analytics",
     ],
     ctaText: "Start Free Trial",
-    ctaLink: "#",
+    ctaLink: "mailto:info@aktuning.se",
     popular: false,
   },
   {
     name: "Professional",
-    price: "€299",
+    price: "€199",
     period: "month",
     features: [
-      "Up to 20 reseller accounts",
       "50,000 API requests/month",
       "All languages included",
+      "Multiply language options",
       "All currencies supported",
       "Priority email support",
       "Advanced analytics",
       "Custom branding",
     ],
     ctaText: "Get Started",
-    ctaLink: "#",
+    ctaLink: "mailto:info@aktuning.se",
     popular: true,
   },
   {
@@ -649,7 +648,7 @@ const pricingPlans = [
       "SLAs available",
     ],
     ctaText: "Contact Sales",
-    ctaLink: "#contact",
+    ctaLink: "mailto:info@aktuning.se",
     popular: false,
   },
 ];

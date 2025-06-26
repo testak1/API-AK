@@ -1068,12 +1068,16 @@ export default function ResellerAdmin({ session }) {
                                   {item.engine}
                                 </td>
                                 <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                                  {item.stageName}
+                                  {item.stageName.replace("Steg", "Stage")}
                                 </td>
                                 <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
                                   {item.currentPrice !== null ? (
                                     <>
-                                      {item.currentPrice} {item.currencySymbol}
+                                      {toCurrency(
+                                        item.currentPriceSEK,
+                                        currency,
+                                      )}{" "}
+                                      {currencySymbols[currency]}
                                       <div className="text-xs text-gray-400">
                                         ({item.currentPriceSEK} SEK)
                                       </div>
@@ -1083,7 +1087,8 @@ export default function ResellerAdmin({ session }) {
                                   )}
                                 </td>
                                 <td className="px-3 py-2 whitespace-nowrap text-sm font-medium text-green-600">
-                                  {item.price} {item.currencySymbol}
+                                  {toCurrency(item.priceSEK, currency)}{" "}
+                                  {currencySymbols[currency]}
                                   <div className="text-xs text-gray-400">
                                     ({item.priceSEK} SEK)
                                   </div>
