@@ -431,12 +431,9 @@ export default function EnginePage({
   }, []);
 
   const getMatchedProducts = () => {
-    const keywords = `${brandData.name} ${modelData.name} ${engineData.label}`
-      .toLowerCase()
-      .split(/[\s,-]+/);
-
-    return suggestedProducts.filter((p) =>
-      p.keywords.some((kw: string) => keywords.includes(kw)),
+    const label = engineData.label.toLowerCase();
+    return suggestedProducts.filter((product) =>
+      product.title.toLowerCase().includes(label),
     );
   };
 
