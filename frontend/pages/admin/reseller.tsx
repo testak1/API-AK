@@ -22,6 +22,10 @@ export default function ResellerAdmin({ session }) {
   const [enableLanguageSwitcher, setEnableLanguageSwitcher] = useState(false);
   const [secondaryLanguage, setSecondaryLanguage] = useState("");
 
+  const [previewData, setPreviewData] = useState(null);
+  const [showPreview, setShowPreview] = useState(false);
+  const [isPreviewLoading, setIsPreviewLoading] = useState(false);
+
   // New state for General tab
   const [bulkPrices, setBulkPrices] = useState({
     steg1: "",
@@ -299,10 +303,6 @@ export default function ResellerAdmin({ session }) {
       }, 3000);
     }
   };
-
-  const [previewData, setPreviewData] = useState(null);
-  const [showPreview, setShowPreview] = useState(false);
-  const [isPreviewLoading, setIsPreviewLoading] = useState(false);
 
   // Updated handleBulkPriceSave function
   const handleBulkPriceSave = async (isPreview = false) => {

@@ -144,6 +144,43 @@ export default async function handler(req, res) {
       });
     }
 
+    // Add this to your bulk-overrides.ts before the transaction code
+    if (req.body.preview) {
+      // Return preview data without making changes
+      const previewData = yearsToProcess
+        .flatMap((yearEntry) => {
+          const yearValue = yearEntry.range;
+          return (
+            yearEntry.engines?.flatMap((engine) => {
+              return ["Steg 1", "Steg 2", "Steg 3", "Steg 4", "DSG"].map(
+                (stageName) => {
+                  const priceSEK = pricesSEK[stageName];
+                  return {
+                    brand: matchedBrand.name,
+                    model: matchedModel.name,
+                    year: yearValue,
+                    engine: engine.label,
+                    stageName,
+                    newPrice: priceSEK,
+                    currentPrice: engine.stages?.find(
+                      (s) =>
+                        normalizeString(s.name) === normalizeString(stageName),
+                    )?.price,
+                  };
+                },
+              );
+            }) || []
+          );
+        })
+        .filter((item) => item.newPrice !== null);
+
+      return res.status(200).json({
+        preview: true,
+        items: previewData,
+        count: previewData.length,
+      });
+    }
+
     const createTransaction = sanity.transaction();
     let updatedCount = 0;
 
