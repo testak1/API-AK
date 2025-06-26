@@ -300,8 +300,12 @@ export default function ResellerAdmin({ session }) {
     }
   };
 
-  // New function to handle bulk price save
-  const handleBulkPriceSave = async () => {
+  const [previewData, setPreviewData] = useState(null);
+  const [showPreview, setShowPreview] = useState(false);
+  const [isPreviewLoading, setIsPreviewLoading] = useState(false);
+
+  // Updated handleBulkPriceSave function
+  const handleBulkPriceSave = async (isPreview = false) => {
     if (
       !selectedBrand ||
       (!selectedModel && bulkPrices.applyLevel === "model") ||
@@ -316,7 +320,12 @@ export default function ResellerAdmin({ session }) {
     }
 
     try {
-      setIsLoading(true);
+      if (isPreview) {
+        setIsPreviewLoading(true);
+      } else {
+        setIsLoading(true);
+      }
+
       const response = await fetch("/api/bulk-overrides", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -324,27 +333,27 @@ export default function ResellerAdmin({ session }) {
           brand: selectedBrand,
           model: bulkPrices.applyLevel === "model" ? selectedModel : undefined,
           year: bulkPrices.applyLevel === "year" ? selectedYear : undefined,
-          stage1Price: bulkPrices.steg1
-            ? Number(bulkPrices.steg1) // ✅ redan i SEK från onChange
-            : undefined,
-
-          stage2Price: bulkPrices.steg2
-            ? Number(bulkPrices.steg2) // ✅ redan i SEK från onChange
-            : undefined,
-          stage3Price: bulkPrices.steg3
-            ? Number(bulkPrices.steg3) // ✅ redan i SEK från onChange
-            : undefined,
-          stage4Price: bulkPrices.steg4
-            ? Number(bulkPrices.steg4) // ✅ redan i SEK från onChange
-            : undefined,
-          dsgPrice: bulkPrices.dsg
-            ? Number(bulkPrices.dsg) // ✅ redan i SEK från onChange
-            : undefined,
+          stage1Price: bulkPrices.steg1 ? Number(bulkPrices.steg1) : undefined,
+          stage2Price: bulkPrices.steg2 ? Number(bulkPrices.steg2) : undefined,
+          stage3Price: bulkPrices.steg3 ? Number(bulkPrices.steg3) : undefined,
+          stage4Price: bulkPrices.steg4 ? Number(bulkPrices.steg4) : undefined,
+          dsgPrice: bulkPrices.dsg ? Number(bulkPrices.dsg) : undefined,
+          preview: isPreview,
         }),
       });
 
-      if (!response.ok) throw new Error("Failed to save bulk prices");
+      if (!response.ok) throw new Error("Failed to process bulk prices");
 
+      const result = await response.json();
+
+      if (isPreview) {
+        setPreviewData(result);
+        setShowPreview(true);
+        setIsPreviewLoading(false);
+        return;
+      }
+
+      // Refresh data after actual save
       const refreshed = await fetch("/api/brands-with-overrides");
       const { brands: refreshedBrands, overrides: refreshedOverrides } =
         await refreshed.json();
@@ -355,11 +364,24 @@ export default function ResellerAdmin({ session }) {
         message: "Bulk prices saved successfully!",
         isError: false,
       });
+
+      // Clear preview after successful save
+      setPreviewData(null);
+      setShowPreview(false);
     } catch (error) {
-      console.error("Failed to save bulk prices:", error);
-      setSaveStatus({ message: "Error saving bulk prices", isError: true });
+      console.error("Failed to process bulk prices:", error);
+      setSaveStatus({
+        message: isPreview
+          ? "Error generating preview"
+          : "Error saving bulk prices",
+        isError: true,
+      });
     } finally {
-      setIsLoading(false);
+      if (isPreview) {
+        setIsPreviewLoading(false);
+      } else {
+        setIsLoading(false);
+      }
       setTimeout(() => setSaveStatus({ message: "", isError: false }), 3000);
     }
   };
@@ -843,9 +865,10 @@ export default function ResellerAdmin({ session }) {
                       setSelectedBrand(e.target.value);
                       setSelectedModel("");
                       setSelectedYear("");
+                      setPreviewData(null); // Clear preview when brand changes
                     }}
                     className="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm rounded-md border"
-                    disabled={isLoading}
+                    disabled={isLoading || isPreviewLoading}
                   >
                     <option value="">Select Brand</option>
                     {brands.map((b) => (
@@ -867,9 +890,10 @@ export default function ResellerAdmin({ session }) {
                         type="radio"
                         className="form-radio h-4 w-4 text-red-600"
                         checked={bulkPrices.applyLevel === "model"}
-                        onChange={() =>
-                          handleBulkPriceChange("applyLevel", "model")
-                        }
+                        onChange={() => {
+                          handleBulkPriceChange("applyLevel", "model");
+                          setPreviewData(null); // Clear preview when selection changes
+                        }}
                       />
                       <span className="ml-2 text-gray-700">Entire Model</span>
                     </label>
@@ -878,14 +902,16 @@ export default function ResellerAdmin({ session }) {
                         type="radio"
                         className="form-radio h-4 w-4 text-red-600"
                         checked={bulkPrices.applyLevel === "year"}
-                        onChange={() =>
-                          handleBulkPriceChange("applyLevel", "year")
-                        }
+                        onChange={() => {
+                          handleBulkPriceChange("applyLevel", "year");
+                          setPreviewData(null); // Clear preview when selection changes
+                        }}
                       />
                       <span className="ml-2 text-gray-700">Specific Year</span>
                     </label>
                   </div>
                 </div>
+
                 {selectedBrand && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -894,9 +920,14 @@ export default function ResellerAdmin({ session }) {
                     {bulkPrices.applyLevel === "model" ? (
                       <select
                         value={selectedModel}
-                        onChange={(e) => setSelectedModel(e.target.value)}
+                        onChange={(e) => {
+                          setSelectedModel(e.target.value);
+                          setPreviewData(null); // Clear preview when model changes
+                        }}
                         className="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm rounded-md border"
-                        disabled={!selectedBrand || isLoading}
+                        disabled={
+                          !selectedBrand || isLoading || isPreviewLoading
+                        }
                       >
                         <option value="">Select Model</option>
                         {brands
@@ -910,9 +941,14 @@ export default function ResellerAdmin({ session }) {
                     ) : (
                       <select
                         value={selectedYear}
-                        onChange={(e) => setSelectedYear(e.target.value)}
+                        onChange={(e) => {
+                          setSelectedYear(e.target.value);
+                          setPreviewData(null); // Clear preview when year changes
+                        }}
                         className="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm rounded-md border"
-                        disabled={!selectedModel || isLoading}
+                        disabled={
+                          !selectedModel || isLoading || isPreviewLoading
+                        }
                       >
                         <option value="">Select Year</option>
                         {selectedModel &&
@@ -931,146 +967,178 @@ export default function ResellerAdmin({ session }) {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Stage 1 Price ({currencySymbols[currency]})
-                  </label>
-                  <div className="relative rounded-md shadow-sm">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <span className="text-gray-500 sm:text-sm">
-                        {currencySymbols[currency]}
-                      </span>
+                {["steg1", "steg2", "steg3", "steg4", "dsg"].map((stage) => (
+                  <div key={stage}>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      {stage.replace("steg", "Stage ").toUpperCase()} Price (
+                      {currencySymbols[currency]})
+                    </label>
+                    <div className="relative rounded-md shadow-sm">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <span className="text-gray-500 sm:text-sm">
+                          {currencySymbols[currency]}
+                        </span>
+                      </div>
+                      <input
+                        type="number"
+                        value={
+                          bulkPrices[stage] !== null && bulkPrices[stage] !== ""
+                            ? toCurrency(Number(bulkPrices[stage]), currency)
+                            : ""
+                        }
+                        onChange={(e) => {
+                          handleBulkPriceChange(stage, e.target.value);
+                          setPreviewData(null); // Clear preview when price changes
+                        }}
+                        className="focus:ring-red-500 focus:border-red-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md p-2 border"
+                        placeholder="Leave empty to keep original"
+                        disabled={isLoading || isPreviewLoading}
+                      />
                     </div>
-                    <input
-                      type="number"
-                      value={
-                        bulkPrices.steg1 !== null && bulkPrices.steg1 !== ""
-                          ? toCurrency(Number(bulkPrices.steg1), currency)
-                          : ""
-                      }
-                      onChange={(e) =>
-                        handleBulkPriceChange("steg1", e.target.value)
-                      }
-                      className="focus:ring-red-500 focus:border-red-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md p-2 border"
-                      placeholder="Leave empty to keep original"
-                    />
                   </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Stage 2 Price ({currencySymbols[currency]})
-                  </label>
-                  <div className="relative rounded-md shadow-sm">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <span className="text-gray-500 sm:text-sm">
-                        {currencySymbols[currency]}
-                      </span>
-                    </div>
-                    <input
-                      type="number"
-                      value={
-                        bulkPrices.steg2 !== null && bulkPrices.steg2 !== ""
-                          ? toCurrency(Number(bulkPrices.steg2), currency)
-                          : ""
-                      }
-                      onChange={(e) =>
-                        handleBulkPriceChange("steg2", e.target.value)
-                      }
-                      className="focus:ring-red-500 focus:border-red-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md p-2 border"
-                      placeholder="Leave empty to keep original"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Stage 3 Price ({currencySymbols[currency]})
-                  </label>
-                  <div className="relative rounded-md shadow-sm">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <span className="text-gray-500 sm:text-sm">
-                        {currencySymbols[currency]}
-                      </span>
-                    </div>
-                    <input
-                      type="number"
-                      value={
-                        bulkPrices.steg3 !== null && bulkPrices.steg3 !== ""
-                          ? toCurrency(Number(bulkPrices.steg3), currency)
-                          : ""
-                      }
-                      onChange={(e) =>
-                        handleBulkPriceChange("steg3", e.target.value)
-                      }
-                      className="focus:ring-red-500 focus:border-red-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md p-2 border"
-                      placeholder="Leave empty to keep original"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Stage 4 Price ({currencySymbols[currency]})
-                  </label>
-                  <div className="relative rounded-md shadow-sm">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <span className="text-gray-500 sm:text-sm">
-                        {currencySymbols[currency]}
-                      </span>
-                    </div>
-                    <input
-                      type="number"
-                      value={
-                        bulkPrices.steg4 !== null && bulkPrices.steg4 !== ""
-                          ? toCurrency(Number(bulkPrices.steg4), currency)
-                          : ""
-                      }
-                      onChange={(e) =>
-                        handleBulkPriceChange("steg4", e.target.value)
-                      }
-                      className="focus:ring-red-500 focus:border-red-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md p-2 border"
-                      placeholder="Leave empty to keep original"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    DSG Price ({currencySymbols[currency]})
-                  </label>
-                  <div className="relative rounded-md shadow-sm">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <span className="text-gray-500 sm:text-sm">
-                        {currencySymbols[currency]}
-                      </span>
-                    </div>
-                    <input
-                      type="number"
-                      value={
-                        bulkPrices.dsg !== null && bulkPrices.dsg !== ""
-                          ? toCurrency(Number(bulkPrices.dsg), currency)
-                          : ""
-                      }
-                      onChange={(e) =>
-                        handleBulkPriceChange("dsg", e.target.value)
-                      }
-                      className="focus:ring-red-500 focus:border-red-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md p-2 border"
-                      placeholder="Leave empty to keep original"
-                    />
-                  </div>
-                </div>
+                ))}
               </div>
 
-              <div className="mt-6 flex justify-end">
+              {/* Preview Section */}
+              {previewData && (
+                <div className="mt-6 bg-white rounded-lg shadow overflow-hidden border border-gray-200">
+                  <button
+                    onClick={() => setShowPreview(!showPreview)}
+                    className="w-full px-4 py-3 bg-gray-50 text-left font-medium text-gray-900 hover:bg-gray-100 flex justify-between items-center"
+                  >
+                    <div className="flex items-center">
+                      <span className="mr-2">Preview Changes</span>
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        {previewData.count} items will be updated
+                      </span>
+                    </div>
+                    <svg
+                      className={`h-5 w-5 text-gray-400 transform transition-transform ${
+                        showPreview ? "rotate-180" : ""
+                      }`}
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </button>
+
+                  {showPreview && (
+                    <div className="border-t border-gray-200 p-4">
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200">
+                          <thead className="bg-gray-50">
+                            <tr>
+                              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Model
+                              </th>
+                              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Year
+                              </th>
+                              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Engine
+                              </th>
+                              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Stage
+                              </th>
+                              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Current Price
+                              </th>
+                              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                New Price
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody className="bg-white divide-y divide-gray-200">
+                            {previewData.items.map((item, index) => (
+                              <tr key={index}>
+                                <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                  {item.model}
+                                </td>
+                                <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                  {item.year}
+                                </td>
+                                <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                  {item.engine}
+                                </td>
+                                <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                  {item.stageName}
+                                </td>
+                                <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                  {item.currentPrice
+                                    ? `${item.currentPrice} SEK`
+                                    : "N/A"}
+                                </td>
+                                <td className="px-3 py-2 whitespace-nowrap text-sm font-medium text-green-600">
+                                  {item.newPrice} SEK
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="mt-6 flex space-x-4">
                 <button
-                  onClick={handleBulkPriceSave}
+                  onClick={() => handleBulkPriceSave(true)}
                   disabled={
                     isLoading ||
+                    isPreviewLoading ||
                     !selectedBrand ||
                     (bulkPrices.applyLevel === "model" && !selectedModel) ||
                     (bulkPrices.applyLevel === "year" && !selectedYear)
                   }
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-70 disabled:cursor-not-allowed transition-colors duration-200"
+                  className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-70"
+                >
+                  {isPreviewLoading ? (
+                    <>
+                      <svg
+                        className="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-500"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      Generating Preview...
+                    </>
+                  ) : (
+                    "Preview Changes"
+                  )}
+                </button>
+
+                <button
+                  onClick={() => handleBulkPriceSave(false)}
+                  disabled={
+                    isLoading ||
+                    isPreviewLoading ||
+                    (previewData && !showPreview) ||
+                    !selectedBrand ||
+                    (bulkPrices.applyLevel === "model" && !selectedModel) ||
+                    (bulkPrices.applyLevel === "year" && !selectedYear)
+                  }
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   {isLoading ? (
                     <>
@@ -1097,7 +1165,7 @@ export default function ResellerAdmin({ session }) {
                       Saving...
                     </>
                   ) : (
-                    "Apply Bulk Prices"
+                    "Apply Changes"
                   )}
                 </button>
               </div>
