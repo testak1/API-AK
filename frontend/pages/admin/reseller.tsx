@@ -333,6 +333,7 @@ export default function ResellerAdmin({ session }) {
           brand: selectedBrand,
           model: bulkPrices.applyLevel === "model" ? selectedModel : undefined,
           year: bulkPrices.applyLevel === "year" ? selectedYear : undefined,
+          applyLevel: bulkPrices.applyLevel,
           stage1Price: bulkPrices.steg1 ? Number(bulkPrices.steg1) : undefined,
           stage2Price: bulkPrices.steg2 ? Number(bulkPrices.steg2) : undefined,
           stage3Price: bulkPrices.steg3 ? Number(bulkPrices.steg3) : undefined,
@@ -1070,12 +1071,22 @@ export default function ResellerAdmin({ session }) {
                                   {item.stageName}
                                 </td>
                                 <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                                  {item.currentPrice
-                                    ? `${item.currentPrice} SEK`
-                                    : "N/A"}
+                                  {item.currentPrice !== null ? (
+                                    <>
+                                      {item.currentPrice} {item.currencySymbol}
+                                      <div className="text-xs text-gray-400">
+                                        ({item.currentPriceSEK} SEK)
+                                      </div>
+                                    </>
+                                  ) : (
+                                    "N/A"
+                                  )}
                                 </td>
                                 <td className="px-3 py-2 whitespace-nowrap text-sm font-medium text-green-600">
-                                  {item.newPrice} SEK
+                                  {item.price} {item.currencySymbol}
+                                  <div className="text-xs text-gray-400">
+                                    ({item.priceSEK} SEK)
+                                  </div>
                                 </td>
                               </tr>
                             ))}

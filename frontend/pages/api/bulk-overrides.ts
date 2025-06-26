@@ -4,7 +4,6 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "./auth/[...nextauth]";
 import sanity from "@/lib/sanity";
 
-// Improved normalization - only removes spaces for more precise matching
 const normalizeString = (str: string) => str.toLowerCase().replace(/\s+/g, "");
 
 const slugify = (str: string) =>
@@ -38,12 +37,14 @@ export default async function handler(req, res) {
   let {
     brand,
     model,
-    year, // Added year parameter
+    year,
     stage1Price,
     stage2Price,
     stage3Price,
     stage4Price,
     dsgPrice,
+    preview,
+    applyLevel,
   } = req.body;
 
   brand = brand?.trim();
@@ -56,14 +57,16 @@ export default async function handler(req, res) {
       model,
       year,
       resellerId,
+      applyLevel,
     });
 
-    const conversionRates = { EUR: 0.1, USD: 0.1, GBP: 0.08, SEK: 1 };
+    // Get reseller's currency settings
     const settings = await sanity.fetch(
       `*[_type == "resellerConfig" && resellerId == $resellerId][0]{currency}`,
       { resellerId },
     );
     const currency = settings?.currency || "SEK";
+    const conversionRates = { EUR: 0.1, USD: 0.1, GBP: 0.08, SEK: 1 };
     const rate = conversionRates[currency] || 1;
 
     const parseToSEK = (val: string | number | null) => {
@@ -79,6 +82,7 @@ export default async function handler(req, res) {
       DSG: parseToSEK(dsgPrice),
     };
 
+    // Fetch all brands data
     const allBrands = await sanity.fetch(
       `*[_type == "brand"]{
         name,
@@ -103,9 +107,10 @@ export default async function handler(req, res) {
       }`,
     );
 
+    // Find matching brand
     const normBrand = normalizeString(brand || "");
     const matchedBrand = allBrands.find(
-      (b) => normalizeString(b.name) === normBrand, // Strict brand matching
+      (b) => normalizeString(b.name) === normBrand,
     );
 
     if (!matchedBrand) {
@@ -116,84 +121,121 @@ export default async function handler(req, res) {
       });
     }
 
-    const normModel = normalizeString(model || "");
-    const matchedModel = matchedBrand.models?.find(
-      (m) => normalizeString(m.name) === normModel, // Strict model matching
-    );
+    let yearsToProcess = [];
+    let matchedModel = null;
 
-    if (!matchedModel) {
-      return res.status(404).json({
-        error: "Model not found",
-        details: `No exact match for model '${model}' in brand '${brand}'`,
-        availableModels: matchedBrand.models?.map((m) => m.name),
+    if (applyLevel === "year" && year) {
+      // Year-level override - find the year across all models
+      matchedBrand.models?.forEach((m) => {
+        m.years?.forEach((y) => {
+          if (y.range === year) {
+            yearsToProcess.push({ ...y, model: m.name });
+          }
+        });
       });
+
+      if (yearsToProcess.length === 0) {
+        return res.status(404).json({
+          error: "Year not found",
+          details: `No matching year '${year}' in brand '${brand}'`,
+          availableYears: matchedBrand.models
+            ?.flatMap((m) => m.years?.map((y) => y.range) || [])
+            .filter((v, i, a) => a.indexOf(v) === i),
+        });
+      }
+    } else {
+      // Model-level override
+      const normModel = normalizeString(model || "");
+      matchedModel = matchedBrand.models?.find(
+        (m) => normalizeString(m.name) === normModel,
+      );
+
+      if (!matchedModel) {
+        return res.status(404).json({
+          error: "Model not found",
+          details: `No model matching '${model}' in brand '${brand}'`,
+          availableModels: matchedBrand.models?.map((m) => m.name),
+        });
+      }
+
+      yearsToProcess =
+        matchedModel.years?.map((y) => ({ ...y, model: matchedModel.name })) ||
+        [];
     }
 
-    // Filter years if year parameter exists
-    const yearsToProcess = year
-      ? matchedModel.years?.filter((y) => y.range === year) || []
-      : matchedModel.years || [];
-
-    if (yearsToProcess.length === 0) {
-      return res.status(404).json({
-        error: year ? "Year not found" : "No years available",
-        details: year
-          ? `No matching year '${year}' for model '${model}'`
-          : `No years found for model '${model}'`,
-        availableYears: matchedModel.years?.map((y) => y.range),
-      });
-    }
-
-    // Add this to your bulk-overrides.ts before the transaction code
-    if (req.body.preview) {
-      // Return preview data without making changes
+    if (preview) {
+      // Generate preview data with converted prices
       const previewData = yearsToProcess
         .flatMap((yearEntry) => {
-          const yearValue = yearEntry.range;
           return (
             yearEntry.engines?.flatMap((engine) => {
               return ["Steg 1", "Steg 2", "Steg 3", "Steg 4", "DSG"].map(
                 (stageName) => {
                   const priceSEK = pricesSEK[stageName];
+                  if (priceSEK === null) return null;
+
+                  const stageData = engine.stages?.find(
+                    (s) =>
+                      normalizeString(s.name) === normalizeString(stageName),
+                  );
+
                   return {
                     brand: matchedBrand.name,
-                    model: matchedModel.name,
-                    year: yearValue,
+                    model: yearEntry.model,
+                    year: yearEntry.range,
                     engine: engine.label,
                     stageName,
-                    newPrice: priceSEK,
-                    currentPrice: engine.stages?.find(
-                      (s) =>
-                        normalizeString(s.name) === normalizeString(stageName),
-                    )?.price,
+                    priceSEK, // Original SEK value
+                    price: Math.round(priceSEK * rate), // Converted price
+                    currentPriceSEK: stageData?.price,
+                    currentPrice: stageData?.price
+                      ? Math.round(stageData.price * rate)
+                      : null,
+                    currency,
+                    currencySymbol:
+                      currency === "SEK"
+                        ? "kr"
+                        : currency === "EUR"
+                          ? "€"
+                          : currency === "USD"
+                            ? "$"
+                            : currency === "GBP"
+                              ? "£"
+                              : currency,
                   };
                 },
               );
             }) || []
           );
         })
-        .filter((item) => item.newPrice !== null);
+        .filter((item) => item !== null);
 
       return res.status(200).json({
         preview: true,
         items: previewData,
         count: previewData.length,
+        currency,
+        currencySymbol:
+          currency === "SEK"
+            ? "kr"
+            : currency === "EUR"
+              ? "€"
+              : currency === "USD"
+                ? "$"
+                : currency === "GBP"
+                  ? "£"
+                  : currency,
       });
     }
 
+    // Actual override creation
     const createTransaction = sanity.transaction();
     let updatedCount = 0;
 
     for (const yearEntry of yearsToProcess) {
-      const yearValue = yearEntry.range;
       const engines = yearEntry.engines || [];
 
       for (const engine of engines) {
-        const getStageData = (name: string) =>
-          engine.stages?.find(
-            (s) => normalizeString(s.name) === normalizeString(name),
-          );
-
         for (const stageName of [
           "Steg 1",
           "Steg 2",
@@ -215,14 +257,16 @@ export default async function handler(req, res) {
           const params = {
             resellerId,
             brand: matchedBrand.name,
-            model: matchedModel.name,
-            year: yearValue,
+            model: yearEntry.model,
+            year: yearEntry.range,
             engine: engine.label,
             stageName,
           };
 
           const existing = await sanity.fetch(query, params);
-          const stageData = getStageData(stageName);
+          const stageData = engine.stages?.find(
+            (s) => normalizeString(s.name) === normalizeString(stageName),
+          );
 
           createTransaction.createOrReplace({
             _type: "resellerOverride",
@@ -231,15 +275,15 @@ export default async function handler(req, res) {
               generateOverrideId(
                 resellerId,
                 matchedBrand.name,
-                matchedModel.name,
-                yearValue,
+                yearEntry.model,
+                yearEntry.range,
                 engine.label,
                 stageName,
               ),
             resellerId,
             brand: matchedBrand.name,
-            model: matchedModel.name,
-            year: yearValue,
+            model: yearEntry.model,
+            year: yearEntry.range,
             engine: engine.label,
             stageName,
             price: priceSEK,
@@ -254,15 +298,12 @@ export default async function handler(req, res) {
 
     if (updatedCount > 0) {
       await createTransaction.commit();
-      console.log(
-        `Bulk override completed. ${updatedCount} overrides updated.`,
-      );
       return res.status(200).json({
         success: true,
         updated: updatedCount,
         brand: matchedBrand.name,
-        model: matchedModel.name,
-        years: yearsToProcess.map((y) => y.range),
+        model: matchedModel?.name || "Multiple models",
+        years: [...new Set(yearsToProcess.map((y) => y.range))],
       });
     }
 
