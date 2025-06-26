@@ -207,64 +207,6 @@ const getStageColor = (stageName: string) => {
   return "text-white"; // fallback
 };
 
-const SuggestedProducts = () => {
-  const suggested = [
-    {
-      title:
-        "BMW F22/F20/F21 M140/M240i - HJS Tuning ECE Downpipe utan katalysator",
-      url: "https://aktuning.se/avgassystem/12593-downpipe-utan-katalysator-f2x-m240i-b58.html",
-      image: "https://aktuning.se/img/p/1/2/5/93/12593.jpg",
-      price: 22249.99,
-    },
-    {
-      title: "BMW M140i - Cat-back (non-resonated) GT90 Carbon Tips",
-      url: "https://aktuning.se/avgassystem/XXXXXX-bmw-m140i-catback-carbon.html",
-      image: "https://aktuning.se/img/p/0.jpg",
-      price: 23193.74,
-    },
-    {
-      title:
-        "BMW 2 Serie F87 M2 Coupé Cat-back - Hollowtek Cerakote Black Tips",
-      url: "https://aktuning.se/avgassystem/XXXXXX-m2-hollowtek-cerakote.html",
-      image: "https://aktuning.se/img/p/6/4/1/641.jpg",
-      price: 40312.49,
-    },
-  ];
-
-  return (
-    <div className="mt-16">
-      <h2 className="text-2xl font-bold text-white mb-6 text-center">
-        🔧 Föreslagna tillbehör för denna motor
-      </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {suggested.map((item, index) => (
-          <a
-            key={index}
-            href={item.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden shadow hover:shadow-lg transition duration-300"
-          >
-            <img
-              src={item.image}
-              alt={item.title}
-              className="w-full h-48 object-cover"
-            />
-            <div className="p-4">
-              <h3 className="text-lg text-orange-400 font-semibold mb-2">
-                {item.title}
-              </h3>
-              <p className="text-green-400 font-bold text-md">
-                {item.price.toLocaleString("sv-SE")} kr
-              </p>
-            </div>
-          </a>
-        ))}
-      </div>
-    </div>
-  );
-};
-
 export default function EnginePage({
   brandData,
   modelData,
@@ -470,6 +412,32 @@ export default function EnginePage({
         ctx.restore();
       }
     },
+  };
+
+  const [suggestedProducts, setSuggestedProducts] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await fetch("/data/suggested-products.json");
+        const data = await res.json();
+        setSuggestedProducts(data);
+      } catch (err) {
+        console.error("Failed to load suggested products", err);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  const getMatchedProducts = () => {
+    const keywords = `${brandData.name} ${modelData.name} ${engineData.label}`
+      .toLowerCase()
+      .split(/[\s,-]+/);
+
+    return suggestedProducts.filter((p) =>
+      p.keywords.some((kw: string) => keywords.includes(kw)),
+    );
   };
 
   const shadowPlugin = {
@@ -1622,8 +1590,37 @@ export default function EnginePage({
             </p>
           </div>
         )}
-        {engineData.label.toLowerCase().includes("m240i") && (
-          <SuggestedProducts />
+        {getMatchedProducts().length > 0 && (
+          <div className="mt-16">
+            <h2 className="text-2xl font-bold text-white mb-6 text-center">
+              🔧 Föreslagna tillbehör för denna motor
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {getMatchedProducts().map((item, index) => (
+                <a
+                  key={index}
+                  href={item.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden shadow hover:shadow-lg transition duration-300"
+                >
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    className="w-full h-48 object-cover"
+                  />
+                  <div className="p-4">
+                    <h3 className="text-lg text-orange-400 font-semibold mb-2">
+                      {item.title}
+                    </h3>
+                    <p className="text-green-400 font-bold text-md">
+                      {item.price.toLocaleString("sv-SE")} kr
+                    </p>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
         )}
         <ContactModal
           isOpen={contactModalData.isOpen}
