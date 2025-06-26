@@ -305,14 +305,14 @@ export default function ResellerAdmin({ session }) {
   };
 
   // Updated handleBulkPriceSave function
-  const handleBulkPriceSave = async (isPreview = false) => {
+  const handleBulkPriceSave = async (isPreview = false, applyLevel) => {
     if (
       !selectedBrand ||
-      (!selectedModel && bulkPrices.applyLevel === "model") ||
-      (!selectedYear && bulkPrices.applyLevel === "year")
+      !selectedModel ||
+      (applyLevel === "year" && !selectedYear)
     ) {
       setSaveStatus({
-        message: "Please select brand and model/year",
+        message: "Please select all required fields",
         isError: true,
       });
       setTimeout(() => setSaveStatus({ message: "", isError: false }), 3000);
@@ -331,13 +331,9 @@ export default function ResellerAdmin({ session }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           brand: selectedBrand,
-          model:
-            bulkPrices.applyLevel === "model" ||
-            bulkPrices.applyLevel === "year"
-              ? selectedModel
-              : undefined,
-          year: bulkPrices.applyLevel === "year" ? selectedYear : undefined,
-          applyLevel: bulkPrices.applyLevel,
+          model: selectedModel,
+          year: applyLevel === "year" ? selectedYear : undefined,
+          applyLevel,
           stage1Price: bulkPrices.steg1 ? Number(bulkPrices.steg1) : undefined,
           stage2Price: bulkPrices.steg2 ? Number(bulkPrices.steg2) : undefined,
           stage3Price: bulkPrices.steg3 ? Number(bulkPrices.steg3) : undefined,
@@ -848,354 +844,513 @@ export default function ResellerAdmin({ session }) {
 
         {/* General Tab */}
         {activeTab === "general" && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8">
-            <div className="px-6 py-5 border-b border-gray-200 bg-gradient-to-r from-red-50 to-white">
-              <h2 className="text-lg font-semibold text-gray-900">
-                Bulk Pricing Configuration
-              </h2>
-              <p className="mt-1 text-sm text-gray-500">
-                Apply standard pricing to all vehicles at model or year level
-              </p>
-            </div>
+          <div className="space-y-8">
+            {/* Option 1: Make - Model */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="px-6 py-5 border-b border-gray-200 bg-gradient-to-r from-red-50 to-white">
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Bulk Pricing by Model
+                </h2>
+                <p className="mt-1 text-sm text-gray-500">
+                  Apply standard pricing to all vehicles of a specific model
+                </p>
+              </div>
 
-            <div className="px-6 py-5">
-              <div className="grid grid-cols-1 gap-6 mb-6">
-                {/* Brand Selection */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Brand
-                  </label>
-                  <select
-                    value={selectedBrand}
-                    onChange={(e) => {
-                      setSelectedBrand(e.target.value);
-                      setSelectedModel("");
-                      setSelectedYear("");
-                      setPreviewData(null);
-                    }}
-                    className="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm rounded-md border"
-                    disabled={isLoading || isPreviewLoading}
-                  >
-                    <option value="">Select Brand</option>
-                    {brands.map((b) => (
-                      <option key={b.name} value={b.name}>
-                        {b.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Apply Level Selection */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Apply To
-                  </label>
-                  <div className="flex space-x-4">
-                    <label className="inline-flex items-center">
-                      <input
-                        type="radio"
-                        className="form-radio h-4 w-4 text-red-600"
-                        checked={bulkPrices.applyLevel === "model"}
-                        onChange={() => {
-                          handleBulkPriceChange("applyLevel", "model");
-                          setSelectedYear("");
-                          setPreviewData(null);
-                        }}
-                      />
-                      <span className="ml-2 text-gray-700">Entire Model</span>
-                    </label>
-                    <label className="inline-flex items-center">
-                      <input
-                        type="radio"
-                        className="form-radio h-4 w-4 text-red-600"
-                        checked={bulkPrices.applyLevel === "year"}
-                        onChange={() => {
-                          handleBulkPriceChange("applyLevel", "year");
-                          setPreviewData(null);
-                        }}
-                      />
-                      <span className="ml-2 text-gray-700">Specific Year</span>
-                    </label>
-                  </div>
-                </div>
-
-                {/* Model Selection (Always Required) */}
-                {selectedBrand && (
+              <div className="px-6 py-5">
+                <div className="grid grid-cols-1 gap-6 mb-6">
+                  {/* Brand Selection */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Model
+                      Brand
                     </label>
                     <select
-                      value={selectedModel}
+                      value={selectedBrand}
                       onChange={(e) => {
-                        setSelectedModel(e.target.value);
+                        setSelectedBrand(e.target.value);
+                        setSelectedModel("");
                         setSelectedYear("");
-                        setPreviewData(null);
-                      }}
-                      className="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm rounded-md border"
-                      disabled={!selectedBrand || isLoading || isPreviewLoading}
-                    >
-                      <option value="">Select Model</option>
-                      {brands
-                        .find((b) => b.name === selectedBrand)
-                        ?.models?.map((m) => (
-                          <option key={m.name} value={m.name}>
-                            {m.name}
-                          </option>
-                        ))}
-                    </select>
-                  </div>
-                )}
-
-                {/* Year Selection (Only if "Specific Year") */}
-                {bulkPrices.applyLevel === "year" && selectedModel && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Year
-                    </label>
-                    <select
-                      value={selectedYear}
-                      onChange={(e) => {
-                        setSelectedYear(e.target.value);
                         setPreviewData(null);
                       }}
                       className="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm rounded-md border"
                       disabled={isLoading || isPreviewLoading}
                     >
-                      <option value="">Select Year</option>
-                      {brands
-                        .find((b) => b.name === selectedBrand)
-                        ?.models?.find((m) => m.name === selectedModel)
-                        ?.years?.map((y) => (
-                          <option key={y.range} value={y.range}>
-                            {y.range}
-                          </option>
-                        ))}
+                      <option value="">Select Brand</option>
+                      {brands.map((b) => (
+                        <option key={b.name} value={b.name}>
+                          {b.name}
+                        </option>
+                      ))}
                     </select>
                   </div>
-                )}
-              </div>
 
-              {/* Price Inputs */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {["steg1", "steg2", "steg3", "steg4", "dsg"].map((stage) => (
-                  <div key={stage}>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      {stage.replace("steg", "Stage ").toUpperCase()} Price (
-                      {currencySymbols[currency]})
-                    </label>
-                    <div className="relative rounded-md shadow-sm">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <span className="text-gray-500 sm:text-sm">
-                          {currencySymbols[currency]}
-                        </span>
-                      </div>
-                      <input
-                        type="number"
-                        value={
-                          bulkPrices[stage] !== null && bulkPrices[stage] !== ""
-                            ? toCurrency(Number(bulkPrices[stage]), currency)
-                            : ""
-                        }
+                  {/* Model Selection */}
+                  {selectedBrand && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Model
+                      </label>
+                      <select
+                        value={selectedModel}
                         onChange={(e) => {
-                          handleBulkPriceChange(stage, e.target.value);
+                          setSelectedModel(e.target.value);
+                          setSelectedYear("");
                           setPreviewData(null);
                         }}
-                        className="focus:ring-red-500 focus:border-red-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md p-2 border"
-                        placeholder="Leave empty to keep original"
-                        disabled={isLoading || isPreviewLoading}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Preview Section */}
-              {previewData && (
-                <div className="mt-6 bg-white rounded-lg shadow overflow-hidden border border-gray-200">
-                  <button
-                    onClick={() => setShowPreview(!showPreview)}
-                    className="w-full px-4 py-3 bg-gray-50 text-left font-medium text-gray-900 hover:bg-gray-100 flex justify-between items-center"
-                  >
-                    <div className="flex items-center">
-                      <span className="mr-2">Preview Changes</span>
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                        {previewData.count} items will be updated
-                      </span>
-                    </div>
-                    <svg
-                      className={`h-5 w-5 text-gray-400 transform transition-transform ${
-                        showPreview ? "rotate-180" : ""
-                      }`}
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </button>
-
-                  {showPreview && (
-                    <div className="border-t border-gray-200 p-4">
-                      <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                          <thead className="bg-gray-50">
-                            <tr>
-                              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Model
-                              </th>
-                              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Year
-                              </th>
-                              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Engine
-                              </th>
-                              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Stage
-                              </th>
-                              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Current Price
-                              </th>
-                              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                New Price
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody className="bg-white divide-y divide-gray-200">
-                            {previewData.items.map((item, index) => (
-                              <tr key={index}>
-                                <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                                  {item.model}
-                                </td>
-                                <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                                  {item.year}
-                                </td>
-                                <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                                  {item.engine}
-                                </td>
-                                <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                                  {item.stageName.replace("Steg", "Stage")}
-                                </td>
-                                <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
-                                  {item.currentPrice !== null ? (
-                                    <>
-                                      {toCurrency(
-                                        item.currentPriceSEK,
-                                        currency,
-                                      )}{" "}
-                                      {currencySymbols[currency]}
-                                      <div className="text-xs text-gray-400">
-                                        ({item.currentPriceSEK} SEK)
-                                      </div>
-                                    </>
-                                  ) : (
-                                    "N/A"
-                                  )}
-                                </td>
-                                <td className="px-3 py-2 whitespace-nowrap text-sm font-medium text-green-600">
-                                  {toCurrency(item.priceSEK, currency)}{" "}
-                                  {currencySymbols[currency]}
-                                  <div className="text-xs text-gray-400">
-                                    ({item.priceSEK} SEK)
-                                  </div>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
+                        className="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm rounded-md border"
+                        disabled={
+                          !selectedBrand || isLoading || isPreviewLoading
+                        }
+                      >
+                        <option value="">Select Model</option>
+                        {brands
+                          .find((b) => b.name === selectedBrand)
+                          ?.models?.map((m) => (
+                            <option key={m.name} value={m.name}>
+                              {m.name}
+                            </option>
+                          ))}
+                      </select>
                     </div>
                   )}
                 </div>
-              )}
 
-              <div className="mt-6 flex space-x-4">
-                <button
-                  onClick={() => handleBulkPriceSave(true)}
-                  disabled={
-                    isLoading ||
-                    isPreviewLoading ||
-                    !selectedBrand ||
-                    (bulkPrices.applyLevel === "model" && !selectedModel) ||
-                    (bulkPrices.applyLevel === "year" && !selectedYear)
-                  }
-                  className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-70"
-                >
-                  {isPreviewLoading ? (
-                    <>
-                      <svg
-                        className="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-500"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        ></circle>
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        ></path>
-                      </svg>
-                      Generating Preview...
-                    </>
-                  ) : (
-                    "Preview Changes"
-                  )}
-                </button>
+                {/* Price Inputs */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {["steg1", "steg2", "steg3", "steg4", "dsg"].map((stage) => (
+                    <div key={stage}>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        {stage.replace("steg", "Stage ").toUpperCase()} Price (
+                        {currencySymbols[currency]})
+                      </label>
+                      <div className="relative rounded-md shadow-sm">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <span className="text-gray-500 sm:text-sm">
+                            {currencySymbols[currency]}
+                          </span>
+                        </div>
+                        <input
+                          type="number"
+                          value={
+                            bulkPrices[stage] !== null &&
+                            bulkPrices[stage] !== ""
+                              ? toCurrency(Number(bulkPrices[stage]), currency)
+                              : ""
+                          }
+                          onChange={(e) => {
+                            handleBulkPriceChange(stage, e.target.value);
+                            setPreviewData(null);
+                          }}
+                          className="focus:ring-red-500 focus:border-red-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md p-2 border"
+                          placeholder="Leave empty to keep original"
+                          disabled={isLoading || isPreviewLoading}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
 
-                <button
-                  onClick={() => handleBulkPriceSave(false)}
-                  disabled={
-                    isLoading ||
-                    isPreviewLoading ||
-                    (previewData && !showPreview) ||
-                    !selectedBrand ||
-                    (bulkPrices.applyLevel === "model" && !selectedModel) ||
-                    (bulkPrices.applyLevel === "year" && !selectedYear)
-                  }
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-70 disabled:cursor-not-allowed"
-                >
-                  {isLoading ? (
-                    <>
-                      <svg
-                        className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        ></circle>
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        ></path>
-                      </svg>
-                      Saving...
-                    </>
-                  ) : (
-                    "Apply Changes"
-                  )}
-                </button>
+                {/* Preview and Save Buttons */}
+                <div className="mt-6 flex space-x-4">
+                  <button
+                    onClick={() => handleBulkPriceSave(true, "model")}
+                    disabled={
+                      isLoading ||
+                      isPreviewLoading ||
+                      !selectedBrand ||
+                      !selectedModel
+                    }
+                    className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-70"
+                  >
+                    {isPreviewLoading ? (
+                      <>
+                        <svg
+                          className="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-500"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          ></path>
+                        </svg>
+                        Generating Preview...
+                      </>
+                    ) : (
+                      "Preview Changes"
+                    )}
+                  </button>
+
+                  <button
+                    onClick={() => handleBulkPriceSave(false, "model")}
+                    disabled={
+                      isLoading ||
+                      isPreviewLoading ||
+                      (previewData && !showPreview) ||
+                      !selectedBrand ||
+                      !selectedModel
+                    }
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-70 disabled:cursor-not-allowed"
+                  >
+                    {isLoading ? (
+                      <>
+                        <svg
+                          className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          ></path>
+                        </svg>
+                        Saving...
+                      </>
+                    ) : (
+                      "Apply to Model"
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
+
+            {/* Option 2: Make - Model - Year */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="px-6 py-5 border-b border-gray-200 bg-gradient-to-r from-red-50 to-white">
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Bulk Pricing by Year
+                </h2>
+                <p className="mt-1 text-sm text-gray-500">
+                  Apply standard pricing to all vehicles of a specific model
+                  year
+                </p>
+              </div>
+
+              <div className="px-6 py-5">
+                <div className="grid grid-cols-1 gap-6 mb-6">
+                  {/* Brand Selection */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Brand
+                    </label>
+                    <select
+                      value={selectedBrand}
+                      onChange={(e) => {
+                        setSelectedBrand(e.target.value);
+                        setSelectedModel("");
+                        setSelectedYear("");
+                        setPreviewData(null);
+                      }}
+                      className="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm rounded-md border"
+                      disabled={isLoading || isPreviewLoading}
+                    >
+                      <option value="">Select Brand</option>
+                      {brands.map((b) => (
+                        <option key={b.name} value={b.name}>
+                          {b.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Model Selection */}
+                  {selectedBrand && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Model
+                      </label>
+                      <select
+                        value={selectedModel}
+                        onChange={(e) => {
+                          setSelectedModel(e.target.value);
+                          setSelectedYear("");
+                          setPreviewData(null);
+                        }}
+                        className="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm rounded-md border"
+                        disabled={
+                          !selectedBrand || isLoading || isPreviewLoading
+                        }
+                      >
+                        <option value="">Select Model</option>
+                        {brands
+                          .find((b) => b.name === selectedBrand)
+                          ?.models?.map((m) => (
+                            <option key={m.name} value={m.name}>
+                              {m.name}
+                            </option>
+                          ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {/* Year Selection */}
+                  {selectedModel && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Year
+                      </label>
+                      <select
+                        value={selectedYear}
+                        onChange={(e) => {
+                          setSelectedYear(e.target.value);
+                          setPreviewData(null);
+                        }}
+                        className="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm rounded-md border"
+                        disabled={isLoading || isPreviewLoading}
+                      >
+                        <option value="">Select Year</option>
+                        {brands
+                          .find((b) => b.name === selectedBrand)
+                          ?.models?.find((m) => m.name === selectedModel)
+                          ?.years?.map((y) => (
+                            <option key={y.range} value={y.range}>
+                              {y.range}
+                            </option>
+                          ))}
+                      </select>
+                    </div>
+                  )}
+                </div>
+
+                {/* Price Inputs */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {["steg1", "steg2", "steg3", "steg4", "dsg"].map((stage) => (
+                    <div key={stage}>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        {stage.replace("steg", "Stage ").toUpperCase()} Price (
+                        {currencySymbols[currency]})
+                      </label>
+                      <div className="relative rounded-md shadow-sm">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <span className="text-gray-500 sm:text-sm">
+                            {currencySymbols[currency]}
+                          </span>
+                        </div>
+                        <input
+                          type="number"
+                          value={
+                            bulkPrices[stage] !== null &&
+                            bulkPrices[stage] !== ""
+                              ? toCurrency(Number(bulkPrices[stage]), currency)
+                              : ""
+                          }
+                          onChange={(e) => {
+                            handleBulkPriceChange(stage, e.target.value);
+                            setPreviewData(null);
+                          }}
+                          className="focus:ring-red-500 focus:border-red-500 block w-full pl-12 sm:text-sm border-gray-300 rounded-md p-2 border"
+                          placeholder="Leave empty to keep original"
+                          disabled={isLoading || isPreviewLoading}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Preview and Save Buttons */}
+                <div className="mt-6 flex space-x-4">
+                  <button
+                    onClick={() => handleBulkPriceSave(true, "year")}
+                    disabled={
+                      isLoading ||
+                      isPreviewLoading ||
+                      !selectedBrand ||
+                      !selectedModel ||
+                      !selectedYear
+                    }
+                    className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-70"
+                  >
+                    {isPreviewLoading ? (
+                      <>
+                        <svg
+                          className="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-500"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          ></path>
+                        </svg>
+                        Generating Preview...
+                      </>
+                    ) : (
+                      "Preview Changes"
+                    )}
+                  </button>
+
+                  <button
+                    onClick={() => handleBulkPriceSave(false, "year")}
+                    disabled={
+                      isLoading ||
+                      isPreviewLoading ||
+                      (previewData && !showPreview) ||
+                      !selectedBrand ||
+                      !selectedModel ||
+                      !selectedYear
+                    }
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-70 disabled:cursor-not-allowed"
+                  >
+                    {isLoading ? (
+                      <>
+                        <svg
+                          className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          ></path>
+                        </svg>
+                        Saving...
+                      </>
+                    ) : (
+                      "Apply to Year"
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Preview Section (shared between both options) */}
+            {previewData && (
+              <div className="mt-6 bg-white rounded-lg shadow overflow-hidden border border-gray-200">
+                <button
+                  onClick={() => setShowPreview(!showPreview)}
+                  className="w-full px-4 py-3 bg-gray-50 text-left font-medium text-gray-900 hover:bg-gray-100 flex justify-between items-center"
+                >
+                  <div className="flex items-center">
+                    <span className="mr-2">Preview Changes</span>
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      {previewData.count} items will be updated
+                    </span>
+                  </div>
+                  <svg
+                    className={`h-5 w-5 text-gray-400 transform transition-transform ${
+                      showPreview ? "rotate-180" : ""
+                    }`}
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+
+                {showPreview && (
+                  <div className="border-t border-gray-200 p-4">
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Model
+                            </th>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Year
+                            </th>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Engine
+                            </th>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Stage
+                            </th>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Current Price
+                            </th>
+                            <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              New Price
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          {previewData.items.map((item, index) => (
+                            <tr key={index}>
+                              <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                {item.model}
+                              </td>
+                              <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                {item.year}
+                              </td>
+                              <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                {item.engine}
+                              </td>
+                              <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                {item.stageName.replace("Steg", "Stage")}
+                              </td>
+                              <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                {item.currentPrice !== null ? (
+                                  <>
+                                    {toCurrency(item.currentPriceSEK, currency)}{" "}
+                                    {currencySymbols[currency]}
+                                    <div className="text-xs text-gray-400">
+                                      ({item.currentPriceSEK} SEK)
+                                    </div>
+                                  </>
+                                ) : (
+                                  "N/A"
+                                )}
+                              </td>
+                              <td className="px-3 py-2 whitespace-nowrap text-sm font-medium text-green-600">
+                                {toCurrency(item.priceSEK, currency)}{" "}
+                                {currencySymbols[currency]}
+                                <div className="text-xs text-gray-400">
+                                  ({item.priceSEK} SEK)
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 
