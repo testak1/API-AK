@@ -52,15 +52,6 @@ export default async function handler(req, res) {
   year = year?.trim();
 
   try {
-    console.log(`Processing bulk override for:`, {
-      brand,
-      model,
-      year,
-      resellerId,
-      applyLevel,
-    });
-
-    // Get reseller's currency settings
     const settings = await sanity.fetch(
       `*[_type == "resellerConfig" && resellerId == $resellerId][0]{currency}`,
       { resellerId },
@@ -82,7 +73,6 @@ export default async function handler(req, res) {
       DSG: parseToSEK(dsgPrice),
     };
 
-    // Fetch all brands data
     const allBrands = await sanity.fetch(
       `*[_type == "brand"]{
         name,
@@ -107,7 +97,6 @@ export default async function handler(req, res) {
       }`,
     );
 
-    // Find matching brand
     const normBrand = normalizeString(brand || "");
     const matchedBrand = allBrands.find(
       (b) => normalizeString(b.name) === normBrand,
@@ -121,26 +110,23 @@ export default async function handler(req, res) {
       });
     }
 
-    // Update this section in your bulk-overrides.ts
     let yearsToProcess = [];
     let matchedModel = null;
 
+    const normModel = normalizeString(model || "");
+    matchedModel = matchedBrand.models?.find(
+      (m) => normalizeString(m.name) === normModel,
+    );
+
+    if (!matchedModel) {
+      return res.status(404).json({
+        error: "Model not found",
+        details: `No model matching '${model}' in brand '${brand}'`,
+        availableModels: matchedBrand.models?.map((m) => m.name),
+      });
+    }
+
     if (applyLevel === "year" && year) {
-      // Year-level override - find the specific model and year combination
-      const normModel = normalizeString(model || "");
-      matchedModel = matchedBrand.models?.find(
-        (m) => normalizeString(m.name) === normModel,
-      );
-
-      if (!matchedModel) {
-        return res.status(404).json({
-          error: "Model not found",
-          details: `No model matching '${model}' in brand '${brand}'`,
-          availableModels: matchedBrand.models?.map((m) => m.name),
-        });
-      }
-
-      // Find the specific year within this model
       const matchedYear = matchedModel.years?.find((y) => y.range === year);
       if (!matchedYear) {
         return res.status(404).json({
@@ -149,52 +135,34 @@ export default async function handler(req, res) {
           availableYears: matchedModel.years?.map((y) => y.range),
         });
       }
-
       yearsToProcess = [{ ...matchedYear, model: matchedModel.name }];
     } else {
-      // Model-level override
-      const normModel = normalizeString(model || "");
-      matchedModel = matchedBrand.models?.find(
-        (m) => normalizeString(m.name) === normModel,
-      );
-
-      if (!matchedModel) {
-        return res.status(404).json({
-          error: "Model not found",
-          details: `No model matching '${model}' in brand '${brand}'`,
-          availableModels: matchedBrand.models?.map((m) => m.name),
-        });
-      }
-
       yearsToProcess =
         matchedModel.years?.map((y) => ({ ...y, model: matchedModel.name })) ||
         [];
     }
 
     if (preview) {
-      // Generate preview data with converted prices
       const previewData = yearsToProcess
-        .flatMap((yearEntry) => {
-          return (
-            yearEntry.engines?.flatMap((engine) => {
-              return ["Steg 1", "Steg 2", "Steg 3", "Steg 4", "DSG"].map(
+        .flatMap((yearEntry) =>
+          yearEntry.engines?.flatMap(
+            (engine) =>
+              ["Steg 1", "Steg 2", "Steg 3", "Steg 4", "DSG"].map(
                 (stageName) => {
                   const priceSEK = pricesSEK[stageName];
                   if (priceSEK === null) return null;
-
                   const stageData = engine.stages?.find(
                     (s) =>
                       normalizeString(s.name) === normalizeString(stageName),
                   );
-
                   return {
                     brand: matchedBrand.name,
                     model: yearEntry.model,
                     year: yearEntry.range,
                     engine: engine.label,
                     stageName,
-                    priceSEK, // Original SEK value
-                    price: Math.round(priceSEK * rate), // Converted price
+                    priceSEK,
+                    price: Math.round(priceSEK * rate),
                     currentPriceSEK: stageData?.price,
                     currentPrice: stageData?.price
                       ? Math.round(stageData.price * rate)
@@ -212,10 +180,9 @@ export default async function handler(req, res) {
                               : currency,
                   };
                 },
-              );
-            }) || []
-          );
-        })
+              ) || [],
+          ),
+        )
         .filter((item) => item !== null);
 
       return res.status(200).json({
@@ -236,7 +203,6 @@ export default async function handler(req, res) {
       });
     }
 
-    // Actual override creation
     const createTransaction = sanity.transaction();
     let updatedCount = 0;
 
