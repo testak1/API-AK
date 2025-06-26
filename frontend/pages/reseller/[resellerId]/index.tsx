@@ -1107,7 +1107,7 @@ export default function TuningViewer() {
                               {translate(currentLanguage, "originalHp")}
                             </p>
                             <p className="text-xl text-white font-bold">
-                              {stage.origHk} hk
+                              {stage.origHk} hp
                             </p>
                           </div>
                           <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
@@ -1120,10 +1120,10 @@ export default function TuningViewer() {
                               {translate(currentLanguage, "HKLABEL")}
                             </p>
                             <p className="text-xl font-bold">
-                              {stage.tunedHk} HK
+                              {stage.tunedHk} HP
                             </p>
                             <p className="text-xs mt-1 text-red-400">
-                              +{stage.tunedHk - stage.origHk} hk
+                              +{stage.tunedHk - stage.origHk} hp
                             </p>
                           </div>
                           <div className="border border-white rounded-lg p-3 text-center">
@@ -1197,7 +1197,7 @@ export default function TuningViewer() {
                           <div className="flex justify-center items-center gap-2 md:hidden text-xs text-white">
                             <div className="flex items-center gap-1">
                               <span className="w-3 h-3 rounded-full border-2 border-red-400"></span>
-                              <span>ORG HK</span>
+                              <span>ORG HP</span>
                             </div>
                             <div className="flex items-center gap-1">
                               <span className="w-3 h-3 rounded-full bg-red-400"></span>
@@ -1209,7 +1209,7 @@ export default function TuningViewer() {
                                 )
                                   .replace(/\s+/g, "")
                                   .toUpperCase()}{" "}
-                                HK
+                                HP
                               </span>
                             </div>
                             <div className="flex items-center gap-1">
@@ -1241,16 +1241,16 @@ export default function TuningViewer() {
                                 <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
                                   <p className="text-red-600">- - -</p>
                                   <p className="text-white">
-                                    HK ORG: {stage.origHk} HK
+                                    HP ORG: {stage.origHk} HP
                                   </p>
                                   <p className="text-red-600">_____</p>
                                   <p className="text-white">
-                                    HK{" "}
+                                    HP{" "}
                                     {stage.name
                                       .replace("Steg", "ST")
                                       .replace(/\s+/g, "")
                                       .toUpperCase()}
-                                    : {stage.tunedHk} HK
+                                    : {stage.tunedHk} HP
                                   </p>
                                 </div>
 
@@ -1277,7 +1277,7 @@ export default function TuningViewer() {
                                   labels: rpmLabels,
                                   datasets: [
                                     {
-                                      label: "ORG HK",
+                                      label: "ORG HP",
                                       data: generateDynoCurve(
                                         stage.origHk,
                                         true,
@@ -1292,7 +1292,7 @@ export default function TuningViewer() {
                                       yAxisID: "hp",
                                     },
                                     {
-                                      label: `ST ${stage.name.replace(/\D/g, "")} HK`,
+                                      label: `ST ${stage.name.replace(/\D/g, "")} HP`,
                                       data: generateDynoCurve(
                                         stage.tunedHk,
                                         true,
@@ -1474,7 +1474,7 @@ export default function TuningViewer() {
                                   stage.name,
                                 ).toUpperCase()}
                               </span>
-                              {` - ${stage.tunedHk} HK & ${stage.tunedNm} NM`}
+                              {` - ${stage.tunedHk} HP & ${stage.tunedNm} NM`}
                             </p>
                           </div>
                         )}
