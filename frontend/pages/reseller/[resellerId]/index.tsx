@@ -1798,6 +1798,9 @@ const PromotionPopup = ({
   config: typeof PromotionPopup;
   onClose: () => void;
 }) => {
+  if (!config) return null; // ✅ Add this line
+  if (!config.enabled) return null; // ✅ Add this line
+
   const popupRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
