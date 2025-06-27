@@ -30,8 +30,16 @@ export default function ResellerAdmin({ session }) {
 
   const [expandedSection, setExpandedSection] = useState(null);
 
-  const [allMakes, setAllMakes] = useState<string[]>([]);
-  const [hiddenMakes, setHiddenMakes] = useState<string[]>([]);
+  const [expandedSettingsSections, setExpandedSettingsSections] = useState({
+    account: false,
+    languageSwitcher: false,
+    logo: false,
+    hiddenMakes: false,
+    promotionPopup: false,
+    displaySettings: false,
+    password: false,
+    subscription: false,
+  });
 
   const [promotionPopup, setPromotionPopup] = useState({
     enabled: false,
@@ -93,21 +101,6 @@ export default function ResellerAdmin({ session }) {
       }
     };
     fetchData();
-  }, []);
-
-  useEffect(() => {
-    const fetchMakes = async () => {
-      try {
-        const makes = await sanity.fetch<string[]>(
-          `*[_type == "brand"] | order(name asc)[].name`,
-        );
-        setAllMakes(makes || []);
-      } catch (error) {
-        console.error("Failed to fetch vehicle makes:", error);
-      }
-    };
-
-    fetchMakes();
   }, []);
 
   useEffect(() => {
@@ -707,6 +700,9 @@ export default function ResellerAdmin({ session }) {
     content: [],
     isOverride: false,
   });
+
+  const allMakes = brands.map((b) => b.name);
+  const [hiddenMakes, setHiddenMakes] = useState<string[]>([]);
 
   return (
     <div className="min-h-screen bg-gray-50 overflow-x-hidden">
@@ -2064,138 +2060,96 @@ export default function ResellerAdmin({ session }) {
 
         {/* Combined Settings and Display Tab */}
         {activeTab === "settings" && (
-          <div className="space-y-8">
+          <div className="space-y-4">
             {/* Account Settings Section */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="px-6 py-5 border-b border-gray-200">
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Account Settings
-                </h2>
-                <p className="mt-1 text-sm text-gray-500">
-                  Manage your currency, language, logo, and password
-                </p>
-              </div>
-              <div className="px-6 py-5">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <button
+                onClick={() =>
+                  setExpandedSettingsSections((prev) => ({
+                    ...prev,
+                    account: !prev.account,
+                  }))
+                }
+                className="w-full px-6 py-5 border-b border-gray-200 text-left focus:outline-none"
+              >
+                <div className="flex justify-between items-center">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Currency
-                    </label>
-                    <div className="relative">
-                      <select
-                        value={currency}
-                        onChange={(e) => setCurrency(e.target.value)}
-                        className="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border"
-                      >
-                        <option value="SEK">SEK (kr)</option>
-                        <option value="EUR">EUR (€)</option>
-                        <option value="USD">USD ($)</option>
-                        <option value="GBP">GBP (£)</option>
-                        <option value="THB">THB (฿)</option>
-                        <option value="JPY">JPY (¥)</option>
-                        <option value="CNY">CNY (¥)</option>
-                        <option value="RUB">RUB (₽)</option>
-                        <option value="TRY">TRY (₺)</option>
-                        <option value="PLN">PLN (zł)</option>
-                        <option value="CZK">CZK (Kč)</option>
-                        <option value="HUF">HUF (Ft)</option>
-                        <option value="AED">AED (د.إ)</option>
-                        <option value="KRW">KRW (W)</option>
-                        <option value="NOK">NOK (kr)</option>
-                        <option value="DKK">DKK (kr)</option>
-                        <option value="CHF">CHF (CHF)</option>
-                        <option value="AUD">AUD (A$)</option>
-                        <option value="CAD">CAD (C$)</option>
-                        <option value="INR">INR (₹)</option>
-                        <option value="SGD">SGD (S$)</option>
-                        <option value="NZD">NZD (NZ$)</option>
-                        <option value="ZAR">ZAR (R)</option>
-                        <option value="BRL">BRL (R$)</option>
-                        <option value="MXN">MXN (MX$)</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Language
-                    </label>
-                    <div className="relative">
-                      <select
-                        value={language}
-                        onChange={(e) => setLanguage(e.target.value)}
-                        className="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border"
-                      >
-                        <option value="sv">🇸🇪 Swedish</option>
-                        <option value="en">🇬🇧 English</option>
-                        <option value="de">🇩🇪 German</option>
-                        <option value="fr">🇫🇷 French</option>
-                        <option value="nl">🇳🇱 Dutch</option>
-                        <option value="da">🇩🇰 Danish</option>
-                        <option value="no">🇳🇴 Norwegian</option>
-                        <option value="ar">🇸🇦 Arabic</option>
-                        <option value="fi">🇫🇮 Finnish</option>
-                        <option value="es">🇪🇸 Spanish</option>
-                        <option value="it">🇮🇹 Italian</option>
-                        <option value="pt">🇵🇹 Portuguese</option>
-                        <option value="ru">🇷🇺 Russian</option>
-                        <option value="zh">🇨🇳 Chinese</option>
-                        <option value="ja">🇯🇵 Japanese</option>
-                        <option value="ko">🇰🇷 Korean</option>
-                        <option value="pl">🇵🇱 Polish</option>
-                        <option value="tr">🇹🇷 Turkish</option>
-                        <option value="hu">🇭🇺 Hungarian</option>
-                        <option value="cs">🇨🇿 Czech</option>
-                        <option value="uk">🇺🇦 Ukrainian</option>
-                        <option value="ro">🇷🇴 Romanian</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-                {/* Language Switcher Settings */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                  <div className="px-6 py-5 border-b border-gray-200">
                     <h2 className="text-lg font-semibold text-gray-900">
-                      Language Switcher Configuration
+                      Account Settings
                     </h2>
                     <p className="mt-1 text-sm text-gray-500">
-                      Configure language switcher options for your customers
+                      Manage your currency, language, logo, and password
                     </p>
                   </div>
-                  <div className="px-6 py-5 space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="text-sm font-medium text-gray-900">
-                          Enable Language Switcher
-                        </h3>
-                        <p className="text-sm text-gray-500">
-                          Allow customers to switch between languages
-                        </p>
-                      </div>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={enableLanguageSwitcher}
-                          onChange={() =>
-                            setEnableLanguageSwitcher(!enableLanguageSwitcher)
-                          }
-                          className="sr-only peer"
-                        />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                      </label>
-                    </div>
+                  <svg
+                    className={`h-5 w-5 text-gray-500 transform transition-transform ${
+                      expandedSettingsSections.account ? "rotate-180" : ""
+                    }`}
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+              </button>
 
-                    {enableLanguageSwitcher && (
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Secondary Language
-                        </label>
+              {expandedSettingsSections.account && (
+                <div className="px-6 py-5 transition-all duration-300 ease-in-out">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Currency
+                      </label>
+                      <div className="relative">
                         <select
-                          value={secondaryLanguage}
-                          onChange={(e) => setSecondaryLanguage(e.target.value)}
+                          value={currency}
+                          onChange={(e) => setCurrency(e.target.value)}
                           className="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border"
                         >
-                          <option value="">Select Secondary Language</option>
+                          <option value="SEK">SEK (kr)</option>
+                          <option value="EUR">EUR (€)</option>
+                          <option value="USD">USD ($)</option>
+                          <option value="GBP">GBP (£)</option>
+                          <option value="THB">THB (฿)</option>
+                          <option value="JPY">JPY (¥)</option>
+                          <option value="CNY">CNY (¥)</option>
+                          <option value="RUB">RUB (₽)</option>
+                          <option value="TRY">TRY (₺)</option>
+                          <option value="PLN">PLN (zł)</option>
+                          <option value="CZK">CZK (Kč)</option>
+                          <option value="HUF">HUF (Ft)</option>
+                          <option value="AED">AED (د.إ)</option>
+                          <option value="KRW">KRW (W)</option>
+                          <option value="NOK">NOK (kr)</option>
+                          <option value="DKK">DKK (kr)</option>
+                          <option value="CHF">CHF (CHF)</option>
+                          <option value="AUD">AUD (A$)</option>
+                          <option value="CAD">CAD (C$)</option>
+                          <option value="INR">INR (₹)</option>
+                          <option value="SGD">SGD (S$)</option>
+                          <option value="NZD">NZD (NZ$)</option>
+                          <option value="ZAR">ZAR (R)</option>
+                          <option value="BRL">BRL (R$)</option>
+                          <option value="MXN">MXN (MX$)</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Language
+                      </label>
+                      <div className="relative">
+                        <select
+                          value={language}
+                          onChange={(e) => setLanguage(e.target.value)}
+                          className="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border"
+                        >
                           <option value="sv">🇸🇪 Swedish</option>
                           <option value="en">🇬🇧 English</option>
                           <option value="de">🇩🇪 German</option>
@@ -2217,18 +2171,158 @@ export default function ResellerAdmin({ session }) {
                           <option value="hu">🇭🇺 Hungarian</option>
                           <option value="cs">🇨🇿 Czech</option>
                           <option value="uk">🇺🇦 Ukrainian</option>
-                          <option value="th">🇹🇭 ไทย (Thai)</option>
                           <option value="ro">🇷🇴 Romanian</option>
                         </select>
                       </div>
-                    )}
+                    </div>
                   </div>
                 </div>
-                {/* Logo Upload Section */}
-                <div className="mt-8 border-t pt-6">
-                  <h3 className="text-md font-medium text-gray-900 mb-4">
-                    Company Logo
-                  </h3>
+              )}
+            </div>
+
+            {/* Language Switcher Settings */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              <button
+                onClick={() =>
+                  setExpandedSettingsSections((prev) => ({
+                    ...prev,
+                    languageSwitcher: !prev.languageSwitcher,
+                  }))
+                }
+                className="w-full px-6 py-5 border-b border-gray-200 text-left focus:outline-none"
+              >
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-900">
+                      Language Switcher Configuration
+                    </h2>
+                    <p className="mt-1 text-sm text-gray-500">
+                      Configure language switcher options for your customers
+                    </p>
+                  </div>
+                  <svg
+                    className={`h-5 w-5 text-gray-500 transform transition-transform ${
+                      expandedSettingsSections.languageSwitcher
+                        ? "rotate-180"
+                        : ""
+                    }`}
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+              </button>
+
+              {expandedSettingsSections.languageSwitcher && (
+                <div className="px-6 py-5 transition-all duration-300 ease-in-out">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-900">
+                        Enable Language Switcher
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        Allow customers to switch between languages
+                      </p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={enableLanguageSwitcher}
+                        onChange={() =>
+                          setEnableLanguageSwitcher(!enableLanguageSwitcher)
+                        }
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                    </label>
+                  </div>
+
+                  {enableLanguageSwitcher && (
+                    <div className="mt-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Secondary Language
+                      </label>
+                      <select
+                        value={secondaryLanguage}
+                        onChange={(e) => setSecondaryLanguage(e.target.value)}
+                        className="block w-full pl-3 pr-10 py-2.5 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md border"
+                      >
+                        <option value="">Select Secondary Language</option>
+                        <option value="sv">🇸🇪 Swedish</option>
+                        <option value="en">🇬🇧 English</option>
+                        <option value="de">🇩🇪 German</option>
+                        <option value="fr">🇫🇷 French</option>
+                        <option value="nl">🇳🇱 Dutch</option>
+                        <option value="da">🇩🇰 Danish</option>
+                        <option value="no">🇳🇴 Norwegian</option>
+                        <option value="ar">🇸🇦 Arabic</option>
+                        <option value="fi">🇫🇮 Finnish</option>
+                        <option value="es">🇪🇸 Spanish</option>
+                        <option value="it">🇮🇹 Italian</option>
+                        <option value="pt">🇵🇹 Portuguese</option>
+                        <option value="ru">🇷🇺 Russian</option>
+                        <option value="zh">🇨🇳 Chinese</option>
+                        <option value="ja">🇯🇵 Japanese</option>
+                        <option value="ko">🇰🇷 Korean</option>
+                        <option value="pl">🇵🇱 Polish</option>
+                        <option value="tr">🇹🇷 Turkish</option>
+                        <option value="hu">🇭🇺 Hungarian</option>
+                        <option value="cs">🇨🇿 Czech</option>
+                        <option value="uk">🇺🇦 Ukrainian</option>
+                        <option value="th">🇹🇭 ไทย (Thai)</option>
+                        <option value="ro">🇷🇴 Romanian</option>
+                      </select>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Logo Upload Section */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              <button
+                onClick={() =>
+                  setExpandedSettingsSections((prev) => ({
+                    ...prev,
+                    logo: !prev.logo,
+                  }))
+                }
+                className="w-full px-6 py-5 border-b border-gray-200 text-left focus:outline-none"
+              >
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-900">
+                      Company Logo
+                    </h2>
+                    <p className="mt-1 text-sm text-gray-500">
+                      Upload and manage your company logo
+                    </p>
+                  </div>
+                  <svg
+                    className={`h-5 w-5 text-gray-500 transform transition-transform ${
+                      expandedSettingsSections.logo ? "rotate-180" : ""
+                    }`}
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+              </button>
+
+              {expandedSettingsSections.logo && (
+                <div className="px-6 py-5 transition-all duration-300 ease-in-out">
                   <div className="flex items-center gap-4">
                     {logoPreview && (
                       <img
@@ -2249,11 +2343,11 @@ export default function ResellerAdmin({ session }) {
                           }
                         }}
                         className="block w-full text-sm text-gray-500
-                      file:mr-4 file:py-2 file:px-4
-                      file:rounded-md file:border-0
-                      file:text-sm file:font-semibold
-                      file:bg-blue-50 file:text-blue-700
-                      hover:file:bg-blue-100"
+              file:mr-4 file:py-2 file:px-4
+              file:rounded-md file:border-0
+              file:text-sm file:font-semibold
+              file:bg-blue-50 file:text-blue-700
+              hover:file:bg-blue-100"
                       />
                       <button
                         onClick={handleLogoUpload}
@@ -2291,30 +2385,88 @@ export default function ResellerAdmin({ session }) {
                     </div>
                   </div>
                 </div>
+              )}
+            </div>
 
-                <div>
-                  {allMakes.map((make) => (
-                    <label key={make} className="flex items-center space-x-2">
+            {/* Hidden Makes Section */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              <button
+                onClick={() =>
+                  setExpandedSettingsSections((prev) => ({
+                    ...prev,
+                    hiddenMakes: !prev.hiddenMakes,
+                  }))
+                }
+                className="w-full px-6 py-5 border-b border-gray-200 text-left focus:outline-none"
+              >
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-900">
+                      Hidden Vehicle Makes
+                    </h2>
+                    <p className="mt-1 text-sm text-gray-500">
+                      Select which vehicle makes to hide from your customers
+                    </p>
+                  </div>
+                  <svg
+                    className={`h-5 w-5 text-gray-500 transform transition-transform ${
+                      expandedSettingsSections.hiddenMakes ? "rotate-180" : ""
+                    }`}
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+              </button>
+
+              {expandedSettingsSections.hiddenMakes && (
+                <div className="space-y-2">
+                  {brands.map((brand) => (
+                    <label
+                      key={brand.name}
+                      className="flex items-center space-x-2"
+                    >
                       <input
                         type="checkbox"
-                        checked={hiddenMakes.includes(make)}
+                        checked={hiddenMakes.includes(brand.name)}
                         onChange={(e) => {
                           if (e.target.checked) {
-                            setHiddenMakes([...hiddenMakes, make]);
+                            setHiddenMakes((prev) => [...prev, brand.name]);
                           } else {
-                            setHiddenMakes(
-                              hiddenMakes.filter((m) => m !== make),
+                            setHiddenMakes((prev) =>
+                              prev.filter((m) => m !== brand.name),
                             );
                           }
                         }}
                       />
-                      <span>{make}</span>
+                      <span className="text-sm text-gray-800">
+                        {brand.name}
+                      </span>
                     </label>
                   ))}
                 </div>
+              )}
+            </div>
 
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                  <div className="px-6 py-5 border-b border-gray-200">
+            {/* Promotion Popup Section */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              <button
+                onClick={() =>
+                  setExpandedSettingsSections((prev) => ({
+                    ...prev,
+                    promotionPopup: !prev.promotionPopup,
+                  }))
+                }
+                className="w-full px-6 py-5 border-b border-gray-200 text-left focus:outline-none"
+              >
+                <div className="flex justify-between items-center">
+                  <div>
                     <h2 className="text-lg font-semibold text-gray-900">
                       Promotion Popup Settings
                     </h2>
@@ -2322,256 +2474,286 @@ export default function ResellerAdmin({ session }) {
                       Configure a promotional popup to show to your customers
                     </p>
                   </div>
+                  <svg
+                    className={`h-5 w-5 text-gray-500 transform transition-transform ${
+                      expandedSettingsSections.promotionPopup
+                        ? "rotate-180"
+                        : ""
+                    }`}
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+              </button>
 
-                  <div className="px-6 py-5 space-y-4">
-                    {/* Toggle */}
-                    <div className="flex items-center justify-between">
+              {expandedSettingsSections.promotionPopup && (
+                <div className="px-6 py-5 transition-all duration-300 ease-in-out">
+                  {/* Toggle */}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-900">
+                        Enable Promotion Popup
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        Show or hide the promotional popup
+                      </p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={promotionPopup?.enabled || false}
+                        onChange={() =>
+                          setPromotionPopup({
+                            ...promotionPopup,
+                            enabled: !promotionPopup?.enabled,
+                          })
+                        }
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                    </label>
+                  </div>
+
+                  {promotionPopup?.enabled && (
+                    <>
+                      {/* Title */}
                       <div>
-                        <h3 className="text-sm font-medium text-gray-900">
-                          Enable Promotion Popup
-                        </h3>
-                        <p className="text-sm text-gray-500">
-                          Show or hide the promotional popup
-                        </p>
-                      </div>
-                      <label className="relative inline-flex items-center cursor-pointer">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Popup Title
+                        </label>
                         <input
-                          type="checkbox"
-                          checked={promotionPopup?.enabled || false}
-                          onChange={() =>
+                          type="text"
+                          value={promotionPopup.title || ""}
+                          onChange={(e) =>
                             setPromotionPopup({
                               ...promotionPopup,
-                              enabled: !promotionPopup?.enabled,
+                              title: e.target.value,
                             })
                           }
-                          className="sr-only peer"
+                          className="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                          placeholder="Summer Sale!"
                         />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                      </label>
-                    </div>
+                      </div>
 
-                    {promotionPopup?.enabled && (
-                      <>
-                        {/* Title */}
+                      {/* Message */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Popup Message
+                        </label>
+                        <textarea
+                          rows={4}
+                          value={promotionPopup.message || ""}
+                          onChange={(e) =>
+                            setPromotionPopup({
+                              ...promotionPopup,
+                              message: e.target.value,
+                            })
+                          }
+                          className="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                          placeholder="Get 20% off all tuning packages this month!"
+                        />
+                      </div>
+
+                      {/* Image Upload Preview */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Promo Image URL
+                        </label>
+                        <input
+                          type="text"
+                          value={promotionPopup.promoImage || ""}
+                          onChange={(e) =>
+                            setPromotionPopup({
+                              ...promotionPopup,
+                              promoImage: e.target.value,
+                            })
+                          }
+                          placeholder="https://..."
+                          className="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        />
+                        {promotionPopup.promoImage && (
+                          <div className="mt-2">
+                            <Image
+                              src={promotionPopup.promoImage}
+                              alt="Promo Preview"
+                              width={200}
+                              height={100}
+                              className="rounded-md"
+                            />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Start / End Dates */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Popup Title
+                            Start Date
                           </label>
                           <input
-                            type="text"
-                            value={promotionPopup.title || ""}
+                            type="date"
+                            value={promotionPopup.startDate || ""}
                             onChange={(e) =>
                               setPromotionPopup({
                                 ...promotionPopup,
-                                title: e.target.value,
+                                startDate: e.target.value,
                               })
                             }
                             className="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                            placeholder="Summer Sale!"
                           />
                         </div>
-
-                        {/* Message */}
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Popup Message
-                          </label>
-                          <textarea
-                            rows={4}
-                            value={promotionPopup.message || ""}
-                            onChange={(e) =>
-                              setPromotionPopup({
-                                ...promotionPopup,
-                                message: e.target.value,
-                              })
-                            }
-                            className="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                            placeholder="Get 20% off all tuning packages this month!"
-                          />
-                        </div>
-
-                        {/* Image Upload Preview */}
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Promo Image URL
+                            End Date
                           </label>
                           <input
-                            type="text"
-                            value={promotionPopup.promoImage || ""}
+                            type="date"
+                            value={promotionPopup.endDate || ""}
                             onChange={(e) =>
                               setPromotionPopup({
                                 ...promotionPopup,
-                                promoImage: e.target.value,
+                                endDate: e.target.value,
                               })
                             }
-                            placeholder="https://..."
                             className="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                           />
-                          {promotionPopup.promoImage && (
-                            <div className="mt-2">
-                              <Image
-                                src={promotionPopup.promoImage}
-                                alt="Promo Preview"
-                                width={200}
-                                height={100}
-                                className="rounded-md"
-                              />
-                            </div>
-                          )}
                         </div>
+                      </div>
 
-                        {/* Start / End Dates */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Start Date
-                            </label>
-                            <input
-                              type="date"
-                              value={promotionPopup.startDate || ""}
-                              onChange={(e) =>
-                                setPromotionPopup({
-                                  ...promotionPopup,
-                                  startDate: e.target.value,
-                                })
-                              }
-                              className="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              End Date
-                            </label>
-                            <input
-                              type="date"
-                              value={promotionPopup.endDate || ""}
-                              onChange={(e) =>
-                                setPromotionPopup({
-                                  ...promotionPopup,
-                                  endDate: e.target.value,
-                                })
-                              }
-                              className="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                            />
-                          </div>
-                        </div>
-
-                        {/* Font and Color */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Font Family
-                            </label>
-                            <select
-                              value={promotionPopup.fontFamily}
-                              onChange={(e) =>
-                                setPromotionPopup({
-                                  ...promotionPopup,
-                                  fontFamily: e.target.value,
-                                })
-                              }
-                              className="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                            >
-                              <option value="sans-serif">Sans Serif</option>
-                              <option value="serif">Serif</option>
-                              <option value="monospace">Monospace</option>
-                            </select>
-                          </div>
-
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Heading Color
-                            </label>
-                            <input
-                              type="color"
-                              value={promotionPopup.headingColor}
-                              onChange={(e) =>
-                                setPromotionPopup({
-                                  ...promotionPopup,
-                                  headingColor: e.target.value,
-                                })
-                              }
-                              className="h-10 w-10 rounded border border-gray-300"
-                            />
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Text Color
-                            </label>
-                            <input
-                              type="color"
-                              value={promotionPopup.textColor}
-                              onChange={(e) =>
-                                setPromotionPopup({
-                                  ...promotionPopup,
-                                  textColor: e.target.value,
-                                })
-                              }
-                              className="h-10 w-10 rounded border border-gray-300"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Background Color
-                            </label>
-                            <input
-                              type="color"
-                              value={promotionPopup.backgroundColor}
-                              onChange={(e) =>
-                                setPromotionPopup({
-                                  ...promotionPopup,
-                                  backgroundColor: e.target.value,
-                                })
-                              }
-                              className="h-10 w-10 rounded border border-gray-300"
-                            />
-                          </div>
-                        </div>
-
-                        {/* Preview */}
-                        <div className="bg-gray-50 p-4 rounded-md border border-gray-200">
-                          <h4 className="text-sm font-medium text-gray-700 mb-2">
-                            Popup Preview
-                          </h4>
-                          <div
-                            className="p-4 rounded-md shadow-sm"
-                            style={{
-                              backgroundColor: promotionPopup.backgroundColor,
-                              color: promotionPopup.textColor,
-                              fontFamily: promotionPopup.fontFamily,
-                            }}
+                      {/* Font and Color */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Font Family
+                          </label>
+                          <select
+                            value={promotionPopup.fontFamily}
+                            onChange={(e) =>
+                              setPromotionPopup({
+                                ...promotionPopup,
+                                fontFamily: e.target.value,
+                              })
+                            }
+                            className="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                           >
-                            {promotionPopup.promoImage && (
-                              <img
-                                src={promotionPopup.promoImage}
-                                alt="Promo"
-                                className="w-full h-auto mb-2 rounded"
-                              />
-                            )}
-                            <h3
-                              className="text-lg font-bold mb-2"
-                              style={{ color: promotionPopup.headingColor }}
-                            >
-                              {promotionPopup.title || "Popup Title"}
-                            </h3>
-                            <p className="text-sm">
-                              {promotionPopup.message ||
-                                "This is a preview of how your popup will look."}
-                            </p>
-                          </div>
+                            <option value="sans-serif">Sans Serif</option>
+                            <option value="serif">Serif</option>
+                            <option value="monospace">Monospace</option>
+                          </select>
                         </div>
-                      </>
-                    )}
-                  </div>
-                </div>
 
-                {/* Display Settings Section */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                  <div className="px-6 py-5 border-b border-gray-200">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Heading Color
+                          </label>
+                          <input
+                            type="color"
+                            value={promotionPopup.headingColor}
+                            onChange={(e) =>
+                              setPromotionPopup({
+                                ...promotionPopup,
+                                headingColor: e.target.value,
+                              })
+                            }
+                            className="h-10 w-10 rounded border border-gray-300"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Text Color
+                          </label>
+                          <input
+                            type="color"
+                            value={promotionPopup.textColor}
+                            onChange={(e) =>
+                              setPromotionPopup({
+                                ...promotionPopup,
+                                textColor: e.target.value,
+                              })
+                            }
+                            className="h-10 w-10 rounded border border-gray-300"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Background Color
+                          </label>
+                          <input
+                            type="color"
+                            value={promotionPopup.backgroundColor}
+                            onChange={(e) =>
+                              setPromotionPopup({
+                                ...promotionPopup,
+                                backgroundColor: e.target.value,
+                              })
+                            }
+                            className="h-10 w-10 rounded border border-gray-300"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Preview */}
+                      <div className="bg-gray-50 p-4 rounded-md border border-gray-200">
+                        <h4 className="text-sm font-medium text-gray-700 mb-2">
+                          Popup Preview
+                        </h4>
+                        <div
+                          className="p-4 rounded-md shadow-sm"
+                          style={{
+                            backgroundColor: promotionPopup.backgroundColor,
+                            color: promotionPopup.textColor,
+                            fontFamily: promotionPopup.fontFamily,
+                          }}
+                        >
+                          {promotionPopup.promoImage && (
+                            <img
+                              src={promotionPopup.promoImage}
+                              alt="Promo"
+                              className="w-full h-auto mb-2 rounded"
+                            />
+                          )}
+                          <h3
+                            className="text-lg font-bold mb-2"
+                            style={{ color: promotionPopup.headingColor }}
+                          >
+                            {promotionPopup.title || "Popup Title"}
+                          </h3>
+                          <p className="text-sm">
+                            {promotionPopup.message ||
+                              "This is a preview of how your popup will look."}
+                          </p>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Display Settings Section */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              <button
+                onClick={() =>
+                  setExpandedSettingsSections((prev) => ({
+                    ...prev,
+                    displaySettings: !prev.displaySettings,
+                  }))
+                }
+                className="w-full px-6 py-5 border-b border-gray-200 text-left focus:outline-none"
+              >
+                <div className="flex justify-between items-center">
+                  <div>
                     <h2 className="text-lg font-semibold text-gray-900">
                       Display Settings Configuration
                     </h2>
@@ -2579,181 +2761,233 @@ export default function ResellerAdmin({ session }) {
                       Control which elements are visible to your customers
                     </p>
                   </div>
-                  <div className="px-6 py-5">
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="text-sm font-medium text-gray-900">
-                            AKTPLUS Options
-                          </h3>
-                          <p className="text-sm text-gray-500">
-                            Show or hide the additional options section
-                          </p>
-                        </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={displaySettings.showAktPlus}
-                            onChange={() =>
-                              setDisplaySettings((prev) => ({
-                                ...prev,
-                                showAktPlus: !prev.showAktPlus,
-                              }))
-                            }
-                            className="sr-only peer"
-                          />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                        </label>
-                      </div>
+                  <svg
+                    className={`h-5 w-5 text-gray-500 transform transition-transform ${
+                      expandedSettingsSections.displaySettings
+                        ? "rotate-180"
+                        : ""
+                    }`}
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+              </button>
 
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="text-sm font-medium text-gray-900">
-                            Brand Logo
-                          </h3>
-                          <p className="text-sm text-gray-500">
-                            Show or hide the brand logo in the tuning stages
-                          </p>
-                        </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={displaySettings.showBrandLogo}
-                            onChange={() =>
-                              setDisplaySettings((prev) => ({
-                                ...prev,
-                                showBrandLogo: !prev.showBrandLogo,
-                              }))
-                            }
-                            className="sr-only peer"
-                          />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                        </label>
+              {expandedSettingsSections.displaySettings && (
+                <div className="px-6 py-5 transition-all duration-300 ease-in-out">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-sm font-medium text-gray-900">
+                          AKTPLUS Options
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                          Show or hide the additional options section
+                        </p>
                       </div>
-
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="text-sm font-medium text-gray-900">
-                            Stage Badges
-                          </h3>
-                          <p className="text-sm text-gray-500">
-                            Show or hide the stage badges (Steg 1, Steg 2, etc.)
-                          </p>
-                        </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={displaySettings.showStageLogo}
-                            onChange={() =>
-                              setDisplaySettings((prev) => ({
-                                ...prev,
-                                showStageLogo: !prev.showStageLogo,
-                              }))
-                            }
-                            className="sr-only peer"
-                          />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                        </label>
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="text-sm font-medium text-gray-900">
-                            Dyno Charts
-                          </h3>
-                          <p className="text-sm text-gray-500">
-                            Show or hide the dyno performance charts
-                          </p>
-                        </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={displaySettings.showDynoChart}
-                            onChange={() =>
-                              setDisplaySettings((prev) => ({
-                                ...prev,
-                                showDynoChart: !prev.showDynoChart,
-                              }))
-                            }
-                            className="sr-only peer"
-                          />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                        </label>
-                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={displaySettings.showAktPlus}
+                          onChange={() =>
+                            setDisplaySettings((prev) => ({
+                              ...prev,
+                              showAktPlus: !prev.showAktPlus,
+                            }))
+                          }
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                      </label>
                     </div>
 
-                    <div className="mt-6 flex justify-end">
-                      <button
-                        onClick={async () => {
-                          try {
-                            setIsLoading(true);
-                            await fetch("/api/update-display-settings", {
-                              method: "POST",
-                              headers: { "Content-Type": "application/json" },
-                              body: JSON.stringify(displaySettings),
-                            });
-                            setSaveStatus({
-                              message: "Display settings saved successfully!",
-                              isError: false,
-                            });
-                          } catch (err) {
-                            console.error(
-                              "Error updating display settings",
-                              err,
-                            );
-                            setSaveStatus({
-                              message: "Failed to save settings.",
-                              isError: true,
-                            });
-                          } finally {
-                            setIsLoading(false);
-                            setTimeout(
-                              () =>
-                                setSaveStatus({ message: "", isError: false }),
-                              3000,
-                            );
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-sm font-medium text-gray-900">
+                          Brand Logo
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                          Show or hide the brand logo in the tuning stages
+                        </p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={displaySettings.showBrandLogo}
+                          onChange={() =>
+                            setDisplaySettings((prev) => ({
+                              ...prev,
+                              showBrandLogo: !prev.showBrandLogo,
+                            }))
                           }
-                        }}
-                        disabled={isLoading}
-                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-70 disabled:cursor-not-allowed"
-                      >
-                        {isLoading ? (
-                          <>
-                            <svg
-                              className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                            >
-                              <circle
-                                className="opacity-25"
-                                cx="12"
-                                cy="12"
-                                r="10"
-                                stroke="currentColor"
-                                strokeWidth="4"
-                              ></circle>
-                              <path
-                                className="opacity-75"
-                                fill="currentColor"
-                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                              ></path>
-                            </svg>
-                            Saving...
-                          </>
-                        ) : (
-                          "Save Display Settings"
-                        )}
-                      </button>
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                      </label>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-sm font-medium text-gray-900">
+                          Stage Badges
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                          Show or hide the stage badges (Steg 1, Steg 2, etc.)
+                        </p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={displaySettings.showStageLogo}
+                          onChange={() =>
+                            setDisplaySettings((prev) => ({
+                              ...prev,
+                              showStageLogo: !prev.showStageLogo,
+                            }))
+                          }
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                      </label>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-sm font-medium text-gray-900">
+                          Dyno Charts
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                          Show or hide the dyno performance charts
+                        </p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={displaySettings.showDynoChart}
+                          onChange={() =>
+                            setDisplaySettings((prev) => ({
+                              ...prev,
+                              showDynoChart: !prev.showDynoChart,
+                            }))
+                          }
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                      </label>
                     </div>
                   </div>
-                </div>
 
-                {/* Password Change Section */}
-                <div className="mt-8 border-t pt-6">
-                  <h3 className="text-md font-medium text-gray-900 mb-4">
-                    Change Password
-                  </h3>
+                  <div className="mt-6 flex justify-end">
+                    <button
+                      onClick={async () => {
+                        try {
+                          setIsLoading(true);
+                          await fetch("/api/update-display-settings", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(displaySettings),
+                          });
+                          setSaveStatus({
+                            message: "Display settings saved successfully!",
+                            isError: false,
+                          });
+                        } catch (err) {
+                          console.error("Error updating display settings", err);
+                          setSaveStatus({
+                            message: "Failed to save settings.",
+                            isError: true,
+                          });
+                        } finally {
+                          setIsLoading(false);
+                          setTimeout(
+                            () =>
+                              setSaveStatus({ message: "", isError: false }),
+                            3000,
+                          );
+                        }
+                      }}
+                      disabled={isLoading}
+                      className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-70 disabled:cursor-not-allowed"
+                    >
+                      {isLoading ? (
+                        <>
+                          <svg
+                            className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                          >
+                            <circle
+                              className="opacity-25"
+                              cx="12"
+                              cy="12"
+                              r="10"
+                              stroke="currentColor"
+                              strokeWidth="4"
+                            ></circle>
+                            <path
+                              className="opacity-75"
+                              fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
+                          </svg>
+                          Saving...
+                        </>
+                      ) : (
+                        "Save Display Settings"
+                      )}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Password Change Section */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              <button
+                onClick={() =>
+                  setExpandedSettingsSections((prev) => ({
+                    ...prev,
+                    password: !prev.password,
+                  }))
+                }
+                className="w-full px-6 py-5 border-b border-gray-200 text-left focus:outline-none"
+              >
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-900">
+                      Change Password
+                    </h2>
+                    <p className="mt-1 text-sm text-gray-500">
+                      Update your account password
+                    </p>
+                  </div>
+                  <svg
+                    className={`h-5 w-5 text-gray-500 transform transition-transform ${
+                      expandedSettingsSections.password ? "rotate-180" : ""
+                    }`}
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+              </button>
+
+              {expandedSettingsSections.password && (
+                <div className="px-6 py-5 transition-all duration-300 ease-in-out">
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -2833,82 +3067,115 @@ export default function ResellerAdmin({ session }) {
                     </button>
                   </div>
                 </div>
-                <div className="mt-6 flex justify-end">
-                  <button
-                    onClick={handleSettingsSave}
-                    disabled={isLoading}
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-70 disabled:cursor-not-allowed"
-                  >
-                    {isLoading ? (
-                      <>
-                        <svg
-                          className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          ></circle>
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                          ></path>
-                        </svg>
-                        Saving...
-                      </>
-                    ) : (
-                      "Save All Settings"
-                    )}
-                  </button>
-                </div>
-              </div>
+              )}
             </div>
 
+            {/* Subscription Plan Section */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="px-6 py-5 border-b border-gray-200">
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Subscription Plan
-                </h2>
-                <p className="mt-1 text-sm text-gray-500">
-                  Your current subscription details
-                </p>
-              </div>
-              <div className="px-6 py-5">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <button
+                onClick={() =>
+                  setExpandedSettingsSections((prev) => ({
+                    ...prev,
+                    subscription: !prev.subscription,
+                  }))
+                }
+                className="w-full px-6 py-5 border-b border-gray-200 text-left focus:outline-none"
+              >
+                <div className="flex justify-between items-center">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Plan Type
-                    </label>
-                    <div className="mt-1 text-sm text-gray-900 p-2 bg-gray-50 rounded-md">
-                      {subscription?.planType === "month"
-                        ? "Monthly"
-                        : "Yearly"}
+                    <h2 className="text-lg font-semibold text-gray-900">
+                      Subscription Plan
+                    </h2>
+                    <p className="mt-1 text-sm text-gray-500">
+                      Your current subscription details
+                    </p>
+                  </div>
+                  <svg
+                    className={`h-5 w-5 text-gray-500 transform transition-transform ${
+                      expandedSettingsSections.subscription ? "rotate-180" : ""
+                    }`}
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+              </button>
+
+              {expandedSettingsSections.subscription && (
+                <div className="px-6 py-5 transition-all duration-300 ease-in-out">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Plan Type
+                      </label>
+                      <div className="mt-1 text-sm text-gray-900 p-2 bg-gray-50 rounded-md">
+                        {subscription?.planType === "month"
+                          ? "Monthly"
+                          : "Yearly"}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Price
+                      </label>
+                      <div className="mt-1 text-sm text-gray-900 p-2 bg-gray-50 rounded-md">
+                        {subscription
+                          ? `${subscription.price} ${subscription.currency}`
+                          : "Not set"}
+                      </div>
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Price
-                    </label>
-                    <div className="mt-1 text-sm text-gray-900 p-2 bg-gray-50 rounded-md">
-                      {subscription
-                        ? `${subscription.price} ${subscription.currency}`
-                        : "Not set"}
-                    </div>
+                  <div className="mt-4 text-sm text-gray-500">
+                    Contact support if you need to change your subscription
+                    plan.
                   </div>
                 </div>
+              )}
+            </div>
 
-                <div className="mt-4 text-sm text-gray-500">
-                  Contact support if you need to change your subscription plan.
-                </div>
-              </div>
+            {/* Save All Settings Button */}
+            <div className="flex justify-end mt-4">
+              <button
+                onClick={handleSettingsSave}
+                disabled={isLoading}
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-70 disabled:cursor-not-allowed"
+              >
+                {isLoading ? (
+                  <>
+                    <svg
+                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    Saving...
+                  </>
+                ) : (
+                  "Save All Settings"
+                )}
+              </button>
             </div>
           </div>
         )}
