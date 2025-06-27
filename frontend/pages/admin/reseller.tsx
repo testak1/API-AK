@@ -1580,189 +1580,213 @@ export default function ResellerAdmin({ session }) {
         )}
 
         {activeTab === "aktplus" && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8">
-            <div className="px-6 py-5 border-b border-gray-200 bg-gradient-to-r from-red-50 to-white">
-              <h2 className="text-lg font-semibold text-gray-900">
-                AKTPLUS Configuration
-              </h2>
-              <p className="mt-1 text-sm text-gray-500">
-                View and override default AKTPLUS option descriptions and prices
-              </p>
-            </div>
+          <div className="space-y-4">
+            {/* AKTPLUS Logo Section */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              <button
+                onClick={() =>
+                  setExpandedSection(
+                    expandedSection === "aktplusLogo" ? null : "aktplusLogo",
+                  )
+                }
+                className="w-full px-6 py-5 border-b border-gray-200 bg-gradient-to-r from-red-50 to-white text-left focus:outline-none"
+              >
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-900">
+                      AKTPLUS Logo
+                    </h2>
+                    <p className="mt-1 text-sm text-gray-500">
+                      Upload and manage your AKTPLUS logo
+                    </p>
+                  </div>
+                  <svg
+                    className={`h-5 w-5 text-gray-500 transform transition-transform ${
+                      expandedSection === "aktplusLogo" ? "rotate-180" : ""
+                    }`}
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+              </button>
 
-            <div className="px-6 py-5 space-y-8">
-              {/* 🔴 AKTPLUS LOGO UPLOADER — Global logo for reseller */}
-              <div>
-                <h3 className="text-md font-medium text-gray-900 mb-2">
-                  AKTPLUS Logo
-                </h3>
-                <div className="flex items-center gap-4">
-                  {aktPlusLogoPreview ? (
-                    <img
-                      src={aktPlusLogoPreview}
-                      alt="AKT+ Logo"
-                      className="h-8 w-auto object-contain"
-                    />
-                  ) : (
-                    <div className="w-16 h-16 flex items-center justify-center bg-gray-100 rounded-md border">
-                      <span className="text-xs text-gray-400">No logo</span>
+              {expandedSection === "aktplusLogo" && (
+                <div className="px-6 py-5 transition-all duration-300 ease-in-out">
+                  <div className="flex items-center gap-4">
+                    {aktPlusLogoPreview ? (
+                      <img
+                        src={aktPlusLogoPreview}
+                        alt="AKT+ Logo"
+                        className="h-8 w-auto object-contain"
+                      />
+                    ) : (
+                      <div className="w-16 h-16 flex items-center justify-center bg-gray-100 rounded-md border">
+                        <span className="text-xs text-gray-400">No logo</span>
+                      </div>
+                    )}
+                    <div className="flex-1">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setAktPlusLogoFile(file);
+                            setAktPlusLogoPreview(URL.createObjectURL(file));
+                          }
+                        }}
+                        className="block w-full text-sm text-gray-500
+                file:mr-4 file:py-2 file:px-4
+                file:rounded-md file:border-0
+                file:text-sm file:font-semibold
+                file:bg-blue-50 file:text-blue-700
+                hover:file:bg-blue-100"
+                      />
+                      <button
+                        onClick={handleAktPlusLogoUpload}
+                        disabled={!aktPlusLogoFile}
+                        className="mt-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-70 disabled:cursor-not-allowed"
+                      >
+                        Update AKTPLUS Logo
+                      </button>
                     </div>
-                  )}
-                  <div className="flex-1">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          setAktPlusLogoFile(file);
-                          setAktPlusLogoPreview(URL.createObjectURL(file));
-                        }
-                      }}
-                      className="block w-full text-sm text-gray-500
-        file:mr-4 file:py-2 file:px-4
-        file:rounded-md file:border-0
-        file:text-sm file:font-semibold
-        file:bg-blue-50 file:text-blue-700
-        hover:file:bg-blue-100"
-                    />
-                    <button
-                      onClick={handleAktPlusLogoUpload}
-                      disabled={!aktPlusLogoFile}
-                      className="mt-2 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-70 disabled:cursor-not-allowed"
-                    >
-                      Update AKTPLUS Logo
-                    </button>
                   </div>
                 </div>
-              </div>
+              )}
+            </div>
 
-              {/* 🔵 LOOP OVER OPTIONS BELOW */}
-              {(aktPlusOverrides || []).map((item) => {
-                const [isExpanded, setIsExpanded] = useState(false);
-                const conversionRates = {
-                  SEK: 1,
-                  EUR: 0.1,
-                  USD: 0.095,
-                  GBP: 0.085,
-                  NOK: 0.98,
-                  DKK: 0.72,
-                  CHF: 0.09,
-                  PLN: 0.39,
-                  CZK: 2.3,
-                  HUF: 34.0,
-                  JPY: 14.2,
-                  CNY: 0.66,
-                  RUB: 8.5,
-                  TRY: 2.85,
-                  AED: 0.35,
-                  THB: 3.45,
-                  AUD: 0.14,
-                  CAD: 0.13,
-                  INR: 7.8,
-                  SGD: 0.13,
-                  NZD: 0.15,
-                  ZAR: 1.7,
-                  BRL: 0.5,
-                  MXN: 1.8,
-                };
+            {/* AKTPLUS Options Section */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              <button
+                onClick={() =>
+                  setExpandedSection(
+                    expandedSection === "aktplusOptions"
+                      ? null
+                      : "aktplusOptions",
+                  )
+                }
+                className="w-full px-6 py-5 border-b border-gray-200 bg-gradient-to-r from-red-50 to-white text-left focus:outline-none"
+              >
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-900">
+                      AKTPLUS Options
+                    </h2>
+                    <p className="mt-1 text-sm text-gray-500">
+                      View and override default AKTPLUS option descriptions and
+                      prices
+                    </p>
+                  </div>
+                  <svg
+                    className={`h-5 w-5 text-gray-500 transform transition-transform ${
+                      expandedSection === "aktplusOptions" ? "rotate-180" : ""
+                    }`}
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+              </button>
 
-                const currentInput = {
-                  title: aktPlusInputs[item.id]?.title ?? item.title,
-                  content:
-                    aktPlusInputs[item.id]?.content ?? (item.description || []),
-                  price:
-                    aktPlusInputs[item.id]?.price ??
-                    Math.round(
-                      (item.price ?? 0) * (conversionRates[currency] || 1),
-                    ),
-                };
+              {expandedSection === "aktplusOptions" && (
+                <div className="px-6 py-5 transition-all duration-300 ease-in-out">
+                  {(aktPlusOverrides || []).map((item) => {
+                    const conversionRates = {
+                      SEK: 1,
+                      EUR: 0.1,
+                      USD: 0.095,
+                      GBP: 0.085,
+                      NOK: 0.98,
+                      DKK: 0.72,
+                      CHF: 0.09,
+                      PLN: 0.39,
+                      CZK: 2.3,
+                      HUF: 34.0,
+                      JPY: 14.2,
+                      CNY: 0.66,
+                      RUB: 8.5,
+                      TRY: 2.85,
+                      AED: 0.35,
+                      THB: 3.45,
+                      AUD: 0.14,
+                      CAD: 0.13,
+                      INR: 7.8,
+                      SGD: 0.13,
+                      NZD: 0.15,
+                      ZAR: 1.7,
+                      BRL: 0.5,
+                      MXN: 1.8,
+                    };
 
-                return (
-                  <div key={item.id} className="border-b pb-4 last:border-b-0">
-                    <div
-                      className="flex items-start gap-4 cursor-pointer"
-                      onClick={() => setIsExpanded(!isExpanded)}
-                    >
-                      {item.imageUrl && (
-                        <img
-                          src={item.imageUrl}
-                          alt={item.title}
-                          className="w-16 h-16 object-contain rounded-md border"
-                        />
-                      )}
-                      <div className="flex-1">
-                        <div className="flex justify-between items-start">
-                          <h3 className="text-sm font-bold text-gray-700">
-                            {item.title}
-                          </h3>
-                          <button
-                            className="text-gray-500 hover:text-gray-700"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setIsExpanded(!isExpanded);
-                            }}
-                          >
-                            {isExpanded ? (
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-5 w-5"
-                                viewBox="0 0 20 20"
-                                fill="currentColor"
-                              >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                            ) : (
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-5 w-5"
-                                viewBox="0 0 20 20"
-                                fill="currentColor"
-                              >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                            )}
-                          </button>
-                        </div>
-                        {typeof item.price === "number" && (
-                          <p className="text-sm text-green-600 font-medium">
-                            Price:{" "}
-                            {new Intl.NumberFormat(
-                              currency === "SEK" ? "sv-SE" : "en-US",
-                              {
-                                style: "currency",
-                                currency: currency,
-                                maximumFractionDigits: 0,
-                              },
-                            ).format(convertCurrency(item.price, currency))}
-                          </p>
-                        )}
-                        <div className="prose prose-sm text-gray-500">
-                          {item.isOverride ? (
-                            <p className="text-xs text-red-500">
-                              Custom override applied
-                            </p>
-                          ) : (
-                            <p className="text-xs text-gray-400">
-                              Using default description
-                            </p>
+                    const currentInput = {
+                      title: aktPlusInputs[item.id]?.title ?? item.title,
+                      content:
+                        aktPlusInputs[item.id]?.content ??
+                        (item.description || []),
+                      price:
+                        aktPlusInputs[item.id]?.price ??
+                        Math.round(
+                          (item.price ?? 0) * (conversionRates[currency] || 1),
+                        ),
+                    };
+
+                    return (
+                      <div
+                        key={item.id}
+                        className="space-y-3 border-b pb-4 last:border-b-0"
+                      >
+                        <div className="flex items-start gap-4">
+                          {item.imageUrl && (
+                            <img
+                              src={item.imageUrl}
+                              alt={item.title}
+                              className="w-16 h-16 object-contain rounded-md border"
+                            />
                           )}
+                          <div className="flex-1">
+                            <h3 className="text-sm font-bold text-gray-700">
+                              {item.title}
+                            </h3>
+                            {typeof item.price === "number" && (
+                              <p className="text-sm text-green-600 font-medium">
+                                Price:{" "}
+                                {new Intl.NumberFormat(
+                                  currency === "SEK" ? "sv-SE" : "en-US",
+                                  {
+                                    style: "currency",
+                                    currency: currency,
+                                    maximumFractionDigits: 0,
+                                  },
+                                ).format(convertCurrency(item.price, currency))}
+                              </p>
+                            )}
+                            <div className="prose prose-sm text-gray-500">
+                              {item.isOverride ? (
+                                <p className="text-xs text-red-500">
+                                  Custom override applied
+                                </p>
+                              ) : (
+                                <p className="text-xs text-gray-400">
+                                  Using default description
+                                </p>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
 
-                    {isExpanded && (
-                      <div className="mt-4 space-y-3 pl-20">
-                        {" "}
-                        {/* Added left padding to align with the image */}
                         <label className="block text-sm font-medium text-gray-700">
                           Custom Price ({currencySymbols[currency]})
                         </label>
@@ -1803,6 +1827,7 @@ export default function ResellerAdmin({ session }) {
                             SEK
                           </small>
                         )}
+
                         <label className="block text-sm font-medium text-gray-700 mt-3">
                           Custom Title ({language.toUpperCase()})
                         </label>
@@ -1820,6 +1845,7 @@ export default function ResellerAdmin({ session }) {
                             }))
                           }
                         />
+
                         <label className="block text-sm font-medium text-gray-700 mt-3">
                           Description Override
                         </label>
@@ -1848,6 +1874,7 @@ export default function ResellerAdmin({ session }) {
                           className="w-full border border-gray-300 rounded-md p-3 text-sm"
                           placeholder="Write custom override..."
                         />
+
                         <label className="block text-sm font-medium text-gray-700 mt-3">
                           Custom Image (optional)
                         </label>
@@ -1868,6 +1895,7 @@ export default function ResellerAdmin({ session }) {
                           }}
                           className="text-sm"
                         />
+
                         {/* Save Button */}
                         <button
                           onClick={async () => {
@@ -1915,10 +1943,10 @@ export default function ResellerAdmin({ session }) {
                                 );
 
                                 const uploadJson = await uploadRes.json();
-                                assetId = uploadJson.assetId;
+                                assetId = uploadJson.assetId; // ✅ get _id not url
                               }
 
-                              // 👇 Save the override
+                              // 👇 Save the override (send assetId instead of imageUrl)
                               await fetch("/api/aktplus-overrides", {
                                 method: "POST",
                                 headers: { "Content-Type": "application/json" },
@@ -1927,7 +1955,7 @@ export default function ResellerAdmin({ session }) {
                                   title: currentInput.title,
                                   description: currentInput.content,
                                   price: priceInSek,
-                                  assetId,
+                                  assetId, // ✅ backend expects this now
                                 }),
                               });
 
@@ -1959,10 +1987,10 @@ export default function ResellerAdmin({ session }) {
                           Save Override
                         </button>
                       </div>
-                    )}
-                  </div>
-                );
-              })}
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -1980,84 +2008,126 @@ export default function ResellerAdmin({ session }) {
                   Update reseller-specific tuning stage descriptions
                 </p>
               </div>
-              <div className="px-6 py-5 space-y-6">
-                {sortedStageDescriptions.map((desc, index) => (
-                  <div
-                    key={desc.stageName}
-                    className="border border-gray-100 rounded p-4"
-                  >
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      {desc.stageName.replace("Steg", "Stage")}{" "}
-                      {desc.isOverride}
-                    </label>
-                    <textarea
-                      rows={5}
-                      value={
-                        desc.description
-                          .map(
-                            (block) =>
-                              block.children?.map((c) => c.text).join("") || "",
-                          )
-                          .join("\n\n") || ""
-                      }
-                      onChange={(e) => {
-                        const updated = [...stageDescriptions];
-                        updated[index] = {
-                          ...desc,
-                          description: [
-                            {
-                              _type: "block",
-                              style: "normal",
-                              children: [
-                                { _type: "span", text: e.target.value },
-                              ],
-                            },
-                          ],
-                        };
-                        setStageDescriptions(updated);
-                      }}
-                      className="block w-full mt-1 p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                    />
-                    <div className="mt-2 flex justify-end">
+              <div className="px-6 py-5 space-y-4">
+                {sortedStageDescriptions.map((desc, index) => {
+                  const [isExpanded, setIsExpanded] = useState(false);
+
+                  return (
+                    <div
+                      key={desc.stageName}
+                      className="border border-gray-200 rounded-lg overflow-hidden"
+                    >
                       <button
-                        onClick={async () => {
-                          try {
-                            const res = await fetch("/api/stage-descriptions", {
-                              method: "POST",
-                              headers: { "Content-Type": "application/json" },
-                              body: JSON.stringify({
-                                stageName: desc.stageName,
-                                description: desc.description,
-                              }),
-                            });
-
-                            if (!res.ok) throw new Error("Save failed");
-
-                            setSaveStatus({
-                              message: `Saved ${desc.stageName} successfully!`,
-                              isError: false,
-                            });
-                          } catch (err) {
-                            console.error("Failed to save", err);
-                            setSaveStatus({
-                              message: "Failed to save description",
-                              isError: true,
-                            });
-                          } finally {
-                            setTimeout(
-                              () =>
-                                setSaveStatus({ message: "", isError: false }),
-                              3000,
-                            );
-                          }
-                        }}
-                        className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
+                        className="w-full flex justify-between items-center p-4 text-left hover:bg-gray-50 transition-colors"
+                        onClick={() => setIsExpanded(!isExpanded)}
                       >
-                        Save
+                        <div>
+                          <h3 className="text-sm font-medium text-gray-900">
+                            {desc.stageName.replace("Steg", "Stage")}
+                          </h3>
+                          {desc.isOverride && (
+                            <span className="inline-block mt-1 px-2 py-0.5 text-xs font-medium bg-green-100 text-green-800 rounded">
+                              Custom Override
+                            </span>
+                          )}
+                        </div>
+                        <svg
+                          className={`h-5 w-5 text-gray-500 transform transition-transform ${isExpanded ? "rotate-180" : ""}`}
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
                       </button>
+
+                      {isExpanded && (
+                        <div className="p-4 border-t border-gray-200">
+                          <textarea
+                            rows={5}
+                            value={
+                              desc.description
+                                .map(
+                                  (block) =>
+                                    block.children
+                                      ?.map((c) => c.text)
+                                      .join("") || "",
+                                )
+                                .join("\n\n") || ""
+                            }
+                            onChange={(e) => {
+                              const updated = [...stageDescriptions];
+                              updated[index] = {
+                                ...desc,
+                                description: [
+                                  {
+                                    _type: "block",
+                                    style: "normal",
+                                    children: [
+                                      { _type: "span", text: e.target.value },
+                                    ],
+                                  },
+                                ],
+                              };
+                              setStageDescriptions(updated);
+                            }}
+                            className="block w-full mt-1 p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                          />
+                          <div className="mt-3 flex justify-end">
+                            <button
+                              onClick={async (e) => {
+                                e.stopPropagation();
+                                try {
+                                  const res = await fetch(
+                                    "/api/stage-descriptions",
+                                    {
+                                      method: "POST",
+                                      headers: {
+                                        "Content-Type": "application/json",
+                                      },
+                                      body: JSON.stringify({
+                                        stageName: desc.stageName,
+                                        description: desc.description,
+                                      }),
+                                    },
+                                  );
+
+                                  if (!res.ok) throw new Error("Save failed");
+
+                                  setSaveStatus({
+                                    message: `Saved ${desc.stageName} successfully!`,
+                                    isError: false,
+                                  });
+                                } catch (err) {
+                                  console.error("Failed to save", err);
+                                  setSaveStatus({
+                                    message: "Failed to save description",
+                                    isError: true,
+                                  });
+                                } finally {
+                                  setTimeout(
+                                    () =>
+                                      setSaveStatus({
+                                        message: "",
+                                        isError: false,
+                                      }),
+                                    3000,
+                                  );
+                                }
+                              }}
+                              className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
+                            >
+                              Save
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
