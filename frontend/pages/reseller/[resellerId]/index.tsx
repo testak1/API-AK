@@ -153,6 +153,8 @@ export default function TuningViewer() {
     defaultSettings.language,
   );
 
+  const [showPromotionPopup, setShowPromotionPopup] = useState(false);
+
   const [promotionPopup, setPromotionPopup] = useState({
     enabled: false,
     title: "",
@@ -161,8 +163,6 @@ export default function TuningViewer() {
     textColor: "#000000",
     backgroundColor: "#ffffff",
   });
-
-  const [showPromotionPopup, setShowPromotionPopup] = useState(false);
 
   // Stage + AKTplus (kan ligga kvar under detta)
   const [stageDescriptions, setStageDescriptions] = useState([]);
@@ -259,15 +259,9 @@ export default function TuningViewer() {
       const json = await res.json();
       setSettings(json);
       setCurrentLanguage(json.language);
-      // Add default values if promotionPopup doesn't exist
-      setPromotionPopup({
-        enabled: json.promotionPopup?.enabled || false,
-        title: json.promotionPopup?.title || "",
-        message: json.promotionPopup?.message || "",
-        fontFamily: json.promotionPopup?.fontFamily || "sans-serif",
-        textColor: json.promotionPopup?.textColor || "#000000",
-        backgroundColor: json.promotionPopup?.backgroundColor || "#ffffff",
-      });
+      if (json.promotionPopup) {
+        setPromotionPopup(json.promotionPopup);
+      }
     };
 
     fetchSettings();
