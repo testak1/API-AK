@@ -62,6 +62,7 @@ interface ResellerSettings {
   currency: string;
   language: string;
   aktPlusLogo?: any;
+  hiddenMakes?: string[];
   enableLanguageSwitcher?: boolean;
   secondaryLanguage?: string | null;
   exchangeRates: Record<string, number>;
@@ -905,10 +906,12 @@ export default function TuningViewer() {
               </option>
               {[...brands]
                 .filter((b) => !b.startsWith("[LASTBIL]"))
+                .filter((b) => !settings.hiddenMakes?.includes(b))
                 .sort((a, b) => a.localeCompare(b))
                 .concat(
                   brands
                     .filter((b) => b.startsWith("[LASTBIL]"))
+                    .filter((b) => !settings.hiddenMakes?.includes(b))
                     .sort((a, b) => a.localeCompare(b)),
                 )
                 .map((brand) => (
