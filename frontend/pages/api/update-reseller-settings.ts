@@ -18,6 +18,7 @@ export default async function handler(req, res) {
     enableLanguageSwitcher,
     secondaryLanguage,
     promotionPopup,
+    hiddenMakes,
   } = req.body;
 
   try {
@@ -30,36 +31,34 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: "Reseller user not found" });
     }
 
-    await sanity
-      .patch(userDoc)
-      .set({
-        currency,
-        language,
-        secondaryLanguage,
-        enableLanguageSwitcher,
-        ...(subscription && {
-          subscription: {
-            planType: subscription.planType,
-            price: subscription.price,
-            currency: subscription.currency,
-          },
-        }),
-        ...(promotionPopup && {
-          promotionPopup: {
-            enabled: promotionPopup.enabled || false,
-            title: promotionPopup.title || "",
-            message: promotionPopup.message || "",
-            fontFamily: promotionPopup.fontFamily || "sans-serif",
-            textColor: promotionPopup.textColor || "#000000",
-            headingColor: promotionPopup.headingColor || "#000000",
-            backgroundColor: promotionPopup.backgroundColor || "#ffffff",
-            startDate: promotionPopup.startDate || null,
-            endDate: promotionPopup.endDate || null,
-            promoImage: promotionPopup.promoImage || null, // ✅ string
-          },
-        }),
-      })
-      .commit();
+    await sanity.patch(userDoc).set({
+      currency,
+      language,
+      secondaryLanguage,
+      enableLanguageSwitcher,
+      hiddenMakes: hiddenMakes ?? [], // ✅ Add this line
+      ...(subscription && {
+        subscription: {
+          planType: subscription.planType,
+          price: subscription.price,
+          currency: subscription.currency,
+        },
+      }),
+      ...(promotionPopup && {
+        promotionPopup: {
+          enabled: promotionPopup.enabled || false,
+          title: promotionPopup.title || "",
+          message: promotionPopup.message || "",
+          fontFamily: promotionPopup.fontFamily || "sans-serif",
+          textColor: promotionPopup.textColor || "#000000",
+          headingColor: promotionPopup.headingColor || "#000000",
+          backgroundColor: promotionPopup.backgroundColor || "#ffffff",
+          startDate: promotionPopup.startDate || null,
+          endDate: promotionPopup.endDate || null,
+          promoImage: promotionPopup.promoImage || null,
+        },
+      }),
+    });
 
     res.status(200).json({ success: true });
   } catch (err) {

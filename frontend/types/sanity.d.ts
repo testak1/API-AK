@@ -137,6 +137,7 @@ export interface ResellerConfig {
   currency: string;
   enableLanguageSwitcher?: boolean;
   secondaryLanguage?: string | null;
+  hiddenMakes?: string[];
   aktPlusLogo: {
     _type: "image";
     asset: {

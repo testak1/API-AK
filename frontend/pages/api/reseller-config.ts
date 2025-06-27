@@ -52,6 +52,7 @@ export default async function handler(req, res) {
       language,
       enableLanguageSwitcher,
       secondaryLanguage,
+      hiddenMakes,
       displaySettings {
         showAktPlus,
         showBrandLogo,
@@ -90,6 +91,7 @@ export default async function handler(req, res) {
       aktPlusLogo: result?.aktPlusLogo ?? null,
       enableLanguageSwitcher: result?.enableLanguageSwitcher ?? false,
       secondaryLanguage: result?.secondaryLanguage ?? null,
+      hiddenMakes: result?.hiddenMakes ?? [], // 👈 Add this line
       promotionPopup: {
         enabled: result?.promotionPopup?.enabled ?? false,
         title: result?.promotionPopup?.title ?? "",

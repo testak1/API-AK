@@ -29,6 +29,17 @@ export default function ResellerAdmin({ session }) {
 
   const [expandedSection, setExpandedSection] = useState(null);
 
+  const [hiddenMakes, setHiddenMakes] = useState<string[]>([]);
+  const allMakes = [
+    "Audi",
+    "BMW",
+    "Mercedes",
+    "Volkswagen",
+    "Porsche",
+    "Toyota",
+    "Ford",
+  ];
+
   const [promotionPopup, setPromotionPopup] = useState({
     enabled: false,
     title: "",
@@ -138,6 +149,7 @@ export default function ResellerAdmin({ session }) {
           enableLanguageSwitcher,
           secondaryLanguage,
           promotionPopup,
+          hiddenMakes,
         }),
       });
       setSaveStatus({
@@ -2270,6 +2282,31 @@ export default function ResellerAdmin({ session }) {
                       </button>
                     </div>
                   </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Hidden Makes
+                  </label>
+                  <select
+                    multiple
+                    value={hiddenMakes}
+                    onChange={(e) =>
+                      setHiddenMakes(
+                        Array.from(
+                          e.target.selectedOptions,
+                          (option) => option.value,
+                        ),
+                      )
+                    }
+                    className="block w-full p-2 border border-gray-300 rounded-md shadow-sm"
+                  >
+                    {allMakes.map((make) => (
+                      <option key={make} value={make}>
+                        {make}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
