@@ -259,9 +259,15 @@ export default function TuningViewer() {
       const json = await res.json();
       setSettings(json);
       setCurrentLanguage(json.language);
-      if (json.promotionPopup) {
-        setPromotionPopup(json.promotionPopup);
-      }
+      // Add default values if promotionPopup doesn't exist
+      setPromotionPopup({
+        enabled: json.promotionPopup?.enabled || false,
+        title: json.promotionPopup?.title || "",
+        message: json.promotionPopup?.message || "",
+        fontFamily: json.promotionPopup?.fontFamily || "sans-serif",
+        textColor: json.promotionPopup?.textColor || "#000000",
+        backgroundColor: json.promotionPopup?.backgroundColor || "#ffffff",
+      });
     };
 
     fetchSettings();
@@ -827,20 +833,22 @@ export default function TuningViewer() {
 
   return (
     <>
-      <PromotionPopup
-        config={promotionPopup}
-        onClose={() => {
-          setShowPromotionPopup(false);
-          // Remember dismissal for 24 hours
-          localStorage.setItem("popupDismissed", "true");
-          const timer = setTimeout(
-            () => {
-              localStorage.removeItem("popupDismissed");
-            },
-            24 * 60 * 60 * 1000,
-          );
-        }}
-      />
+      {showPromotionPopup && promotionPopup.enabled && (
+        <PromotionPopup
+          config={promotionPopup}
+          onClose={() => {
+            setShowPromotionPopup(false);
+            // Remember dismissal for 24 hours
+            localStorage.setItem("popupDismissed", "true");
+            const timer = setTimeout(
+              () => {
+                localStorage.removeItem("popupDismissed");
+              },
+              24 * 60 * 60 * 1000,
+            );
+          }}
+        />
+      )}
       <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
         <div className="flex items-center justify-between mb-4">
           <div>
