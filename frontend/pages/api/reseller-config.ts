@@ -46,35 +46,34 @@ export default async function handler(req, res) {
   try {
     const result = await sanity.fetch<Partial<ResellerConfig>>(
       `*[_type == "resellerUser" && resellerId == $resellerId][0]{
-        email,
-        logo,
-        currency,
-        language,
-        enableLanguageSwitcher,
-        secondaryLanguage,
-        displaySettings {
-          showAktPlus,
-          showBrandLogo,
-          showStageLogo,
-          showDynoChart
-        },
-        promotionPopup {
-          enabled,
-          title,
-          message,
-          fontFamily,
-          textColor,
-          headingColor,
-          backgroundColor,
-          startDate,
-          endDate,
-          promoImage
-        }
+      email,
+      logo,
+      currency,
+      language,
+      enableLanguageSwitcher,
+      secondaryLanguage,
+      displaySettings {
+        showAktPlus,
+        showBrandLogo,
+        showStageLogo,
+        showDynoChart
       },
-        subscription,
-        contactInfo,
-        aktPlusLogo
-      }`,
+      promotionPopup {
+        enabled,
+        title,
+        message,
+        fontFamily,
+        textColor,
+        headingColor,
+        backgroundColor,
+        startDate,
+        endDate,
+        promoImage
+      },
+      subscription,
+      contactInfo,
+      aktPlusLogo
+    }`,
       { resellerId },
     );
 
