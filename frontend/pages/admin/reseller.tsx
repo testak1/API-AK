@@ -125,6 +125,7 @@ export default function ResellerAdmin({ session }) {
         if (json.secondaryLanguage)
           setSecondaryLanguage(json.secondaryLanguage);
         if (json.promotionPopup) setPromotionPopup(json.promotionPopup);
+        if (json.hiddenMakes) setHiddenMakes(json.hiddenMakes); // ✅ This enables persistent state
       } catch (err) {
         console.error("Failed to load reseller settings", err);
         setSaveStatus({ message: "Failed to load settings", isError: true });
@@ -2455,7 +2456,7 @@ export default function ResellerAdmin({ session }) {
             </div>
 
             {/* Hidden Makes Section */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden">
               <button
                 onClick={() =>
                   setExpandedSettingsSections((prev) => ({
@@ -2477,7 +2478,7 @@ export default function ResellerAdmin({ session }) {
                     </p>
                   </div>
                   <svg
-                    className={`h-5 w-5 text-gray-500 transform ${
+                    className={`h-5 w-5 text-gray-500 transform transition-transform ${
                       expandedSettingsSections.hiddenMakes ? "rotate-180" : ""
                     }`}
                     xmlns="http://www.w3.org/2000/svg"
@@ -2494,41 +2495,57 @@ export default function ResellerAdmin({ session }) {
               </button>
 
               {expandedSettingsSections.hiddenMakes && (
-                <div className="px-6 py-4 space-y-3">
-                  <div className="space-y-2">
-                    {brands.map((brand) => (
-                      <label
-                        key={brand.name}
-                        className="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded"
-                      >
-                        <input
-                          type="checkbox"
-                          className="rounded border-gray-300 text-blue-600"
-                          checked={hiddenMakes.includes(brand.name)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setHiddenMakes([...hiddenMakes, brand.name]);
-                            } else {
-                              setHiddenMakes(
-                                hiddenMakes.filter((m) => m !== brand.name),
-                              );
-                            }
-                          }}
-                        />
-                        <span className="text-sm text-gray-800">
-                          {brand.name}
-                        </span>
-                      </label>
-                    ))}
+                <div className="px-6 py-4 space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                    {brands.map((brand) => {
+                      const isHidden = hiddenMakes.includes(brand.name);
+                      return (
+                        <div
+                          key={brand.name}
+                          className="flex items-center justify-between px-3 py-2 bg-gray-50 rounded-lg border border-gray-200 hover:shadow-sm"
+                        >
+                          <span className="text-sm text-gray-800">
+                            {brand.name}
+                          </span>
+                          <label className="inline-flex items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              className="sr-only"
+                              checked={isHidden}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setHiddenMakes([...hiddenMakes, brand.name]);
+                                } else {
+                                  setHiddenMakes(
+                                    hiddenMakes.filter((m) => m !== brand.name),
+                                  );
+                                }
+                              }}
+                            />
+                            <span
+                              className={`w-10 h-5 flex items-center rounded-full p-1 transition-colors ${
+                                isHidden ? "bg-blue-600" : "bg-gray-300"
+                              }`}
+                            >
+                              <span
+                                className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${
+                                  isHidden ? "translate-x-5" : "translate-x-0"
+                                }`}
+                              />
+                            </span>
+                          </label>
+                        </div>
+                      );
+                    })}
                   </div>
 
                   {hiddenMakes.length > 0 && (
-                    <div className="pt-2">
+                    <div className="text-right">
                       <button
                         onClick={() => setHiddenMakes([])}
-                        className="text-sm text-blue-600 hover:text-blue-800"
+                        className="text-sm text-red-500 hover:text-red-700"
                       >
-                        Reset all selections
+                        Reset all
                       </button>
                     </div>
                   )}
