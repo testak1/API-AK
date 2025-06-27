@@ -2010,16 +2010,25 @@ export default function ResellerAdmin({ session }) {
               </div>
               <div className="px-6 py-5 space-y-4">
                 {sortedStageDescriptions.map((desc, index) => {
-                  const [isExpanded, setIsExpanded] = useState(false);
+                  // Create a unique key for each stage's expanded state
+                  const expandedKey = `stage-${desc.stageName}-expanded`;
+
+                  // Initialize state using a function to prevent hydration issues
+                  const [isExpanded, setIsExpanded] = useState(() => {
+                    // You could also use sessionStorage or localStorage here if you want to persist state
+                    return false;
+                  });
 
                   return (
                     <div
-                      key={desc.stageName}
+                      key={`${desc.stageName}-${index}`}
                       className="border border-gray-200 rounded-lg overflow-hidden"
                     >
                       <button
                         className="w-full flex justify-between items-center p-4 text-left hover:bg-gray-50 transition-colors"
                         onClick={() => setIsExpanded(!isExpanded)}
+                        aria-expanded={isExpanded}
+                        aria-controls={`stage-content-${index}`}
                       >
                         <div>
                           <h3 className="text-sm font-medium text-gray-900">
@@ -2035,6 +2044,7 @@ export default function ResellerAdmin({ session }) {
                           className={`h-5 w-5 text-gray-500 transform transition-transform ${isExpanded ? "rotate-180" : ""}`}
                           viewBox="0 0 20 20"
                           fill="currentColor"
+                          aria-hidden="true"
                         >
                           <path
                             fillRule="evenodd"
@@ -2044,7 +2054,10 @@ export default function ResellerAdmin({ session }) {
                         </svg>
                       </button>
 
-                      {isExpanded && (
+                      <div
+                        id={`stage-content-${index}`}
+                        className={`transition-all duration-200 ease-in-out ${isExpanded ? "block" : "hidden"}`}
+                      >
                         <div className="p-4 border-t border-gray-200">
                           <textarea
                             rows={5}
@@ -2079,7 +2092,7 @@ export default function ResellerAdmin({ session }) {
                           <div className="mt-3 flex justify-end">
                             <button
                               onClick={async (e) => {
-                                e.stopPropagation();
+                                e.preventDefault();
                                 try {
                                   const res = await fetch(
                                     "/api/stage-descriptions",
@@ -2124,14 +2137,14 @@ export default function ResellerAdmin({ session }) {
                             </button>
                           </div>
                         </div>
-                      )}
+                      </div>
                     </div>
                   );
                 })}
               </div>
             </div>
 
-            {/* General Info Section */}
+            {/* General Info Section (unchanged) */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
               <div className="px-6 py-5 border-b border-gray-200">
                 <h2 className="text-lg font-semibold text-gray-900">
