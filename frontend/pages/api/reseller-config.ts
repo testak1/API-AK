@@ -64,8 +64,17 @@ export default async function handler(req, res) {
           message,
           fontFamily,
           textColor,
-          backgroundColor
-        },
+          headingColor,
+          backgroundColor,
+          startDate,
+          endDate,
+          promoImage {
+          asset-> {
+            _ref,
+            url
+            }
+        }
+      },
         subscription,
         contactInfo,
         aktPlusLogo
@@ -86,13 +95,17 @@ export default async function handler(req, res) {
       aktPlusLogo: result?.aktPlusLogo ?? null,
       enableLanguageSwitcher: result?.enableLanguageSwitcher ?? false,
       secondaryLanguage: result?.secondaryLanguage ?? null,
-      promotionPopup: result?.promotionPopup ?? {
-        enabled: false,
-        title: "",
-        message: "",
-        fontFamily: "sans-serif",
-        textColor: "#000000",
-        backgroundColor: "#ffffff",
+      promotionPopup: {
+        enabled: result?.promotionPopup?.enabled ?? false,
+        title: result?.promotionPopup?.title ?? "",
+        message: result?.promotionPopup?.message ?? "",
+        fontFamily: result?.promotionPopup?.fontFamily ?? "sans-serif",
+        textColor: result?.promotionPopup?.textColor ?? "#000000",
+        headingColor: result?.promotionPopup?.headingColor ?? "#000000",
+        backgroundColor: result?.promotionPopup?.backgroundColor ?? "#ffffff",
+        startDate: result?.promotionPopup?.startDate ?? null,
+        endDate: result?.promotionPopup?.endDate ?? null,
+        promoImage: result?.promotionPopup?.promoImage ?? null,
       },
     };
 

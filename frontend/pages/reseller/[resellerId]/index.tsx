@@ -155,13 +155,17 @@ export default function TuningViewer() {
 
   const [showPromotionPopup, setShowPromotionPopup] = useState(false);
 
-  const [promotionPopup, setPromotionPopup] = useState({
+  const [promotionPopup, setPromotionPopup] = useState<PromotionPopupConfig>({
     enabled: false,
     title: "",
     message: "",
     fontFamily: "sans-serif",
     textColor: "#000000",
     backgroundColor: "#ffffff",
+    headingColor: "#000000",
+    startDate: null,
+    endDate: null,
+    promoImage: null,
   });
 
   // Stage + AKTplus (kan ligga kvar under detta)
@@ -463,17 +467,25 @@ export default function TuningViewer() {
   useEffect(() => {
     if (!promotionPopup.enabled) return;
 
-    // Check if user has dismissed the popup before
-    const hasDismissed = localStorage.getItem("popupDismissed");
-    if (hasDismissed) return;
+    const now = new Date();
+    const start = promotionPopup.startDate
+      ? new Date(promotionPopup.startDate)
+      : null;
+    const end = promotionPopup.endDate
+      ? new Date(promotionPopup.endDate)
+      : null;
 
-    // Show popup after a short delay
+    if ((start && now < start) || (end && now > end)) return;
+
+    const dismissed = localStorage.getItem("popupDismissed");
+    if (dismissed) return;
+
     const timer = setTimeout(() => {
       setShowPromotionPopup(true);
-    }, 2000);
+    }, 1000);
 
     return () => clearTimeout(timer);
-  }, [promotionPopup.enabled]);
+  }, [promotionPopup]);
 
   // Fetch brands and models
   useEffect(() => {
@@ -827,22 +839,26 @@ export default function TuningViewer() {
 
   return (
     <>
-      {showPromotionPopup && promotionPopup.enabled && (
-        <PromotionPopup
-          config={promotionPopup}
-          onClose={() => {
-            setShowPromotionPopup(false);
-            // Remember dismissal for 24 hours
-            localStorage.setItem("popupDismissed", "true");
-            const timer = setTimeout(
-              () => {
-                localStorage.removeItem("popupDismissed");
-              },
-              24 * 60 * 60 * 1000,
-            );
-          }}
-        />
-      )}
+      {promotionPopup.enabled &&
+        showPromotionPopup &&
+        (!promotionPopup.startDate ||
+          new Date() >= new Date(promotionPopup.startDate)) &&
+        (!promotionPopup.endDate ||
+          new Date() <= new Date(promotionPopup.endDate)) && (
+          <PromotionPopup
+            config={promotionPopup}
+            onClose={() => {
+              setShowPromotionPopup(false);
+              localStorage.setItem("popupDismissed", "true");
+              setTimeout(
+                () => {
+                  localStorage.removeItem("popupDismissed");
+                },
+                24 * 60 * 60 * 1000,
+              );
+            }}
+          />
+        )}
       <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
         <div className="flex items-center justify-between mb-4">
           <div>
@@ -1783,26 +1799,35 @@ export default function TuningViewer() {
     </>
   );
 }
-
-type PromotionPopupConfig = {
+export type PromotionPopupConfig = {
   enabled: boolean;
   title: string;
   message: string;
   fontFamily: string;
   textColor: string;
   backgroundColor: string;
+  headingColor: string;
+  startDate?: string | null;
+  endDate?: string | null;
+  promoImage?: any | null;
 };
 
-// PromotionPopup component
-const PromotionPopup = ({
+export const PromotionPopup = ({
   config,
   onClose,
 }: {
   config: PromotionPopupConfig;
   onClose: () => void;
 }) => {
-  if (!config) return null; // ✅ Add this line
-  if (!config.enabled) return null; // ✅ Add this line
+  // Block rendering if invalid or out of date range
+  if (
+    !config ||
+    !config.enabled ||
+    (config.startDate && new Date() < new Date(config.startDate)) ||
+    (config.endDate && new Date() > new Date(config.endDate))
+  ) {
+    return null;
+  }
 
   const popupRef = useRef<HTMLDivElement>(null);
 
@@ -1826,13 +1851,12 @@ const PromotionPopup = ({
   }, [onClose]);
 
   return (
-    <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black bg-opacity-50 transition-opacity duration-300">
+    <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black bg-opacity-50 p-4">
       <div
         ref={popupRef}
-        className="relative max-w-md w-full p-6 rounded-lg shadow-xl"
+        className="relative w-full max-w-lg rounded-2xl shadow-2xl p-8 text-center"
         style={{
           backgroundColor: config.backgroundColor,
-          color: config.textColor,
           fontFamily:
             config.fontFamily === "serif"
               ? "serif"
@@ -1841,29 +1865,41 @@ const PromotionPopup = ({
                 : "sans-serif",
         }}
       >
+        {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-200 hover:bg-opacity-20 transition"
+          className="absolute top-3 right-3 text-2xl font-bold hover:text-gray-400"
           aria-label="Close popup"
         >
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
+          &times;
         </button>
 
-        <h2 className="text-xl font-bold mb-3">{config.title}</h2>
-        <p className="mb-4 whitespace-pre-line">{config.message}</p>
+        {/* Optional Image */}
+        {config.promoImage && (
+          <img
+            src={urlFor(config.promoImage).url()}
+            alt="Promo"
+            className="mx-auto mb-4 max-h-40 object-contain"
+          />
+        )}
 
+        {/* Title */}
+        <h2
+          className="text-2xl font-bold mb-4"
+          style={{ color: config.headingColor }}
+        >
+          {config.title}
+        </h2>
+
+        {/* Message */}
+        <p
+          className="text-base whitespace-pre-line mb-6"
+          style={{ color: config.textColor }}
+        >
+          {config.message}
+        </p>
+
+        {/* Close Button */}
         <button
           onClick={onClose}
           className="w-full py-2 px-4 rounded-md shadow-sm text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 transition"

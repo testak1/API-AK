@@ -124,7 +124,15 @@ export type PromotionPopupConfig = {
   message: string;
   fontFamily: string;
   textColor: string;
+  headingColor: string;
   backgroundColor: string;
+  promoImage?: {
+    asset: {
+      _ref: string;
+    };
+  };
+  startDate?: string;
+  endDate?: string;
 };
 
 export interface ResellerConfig {

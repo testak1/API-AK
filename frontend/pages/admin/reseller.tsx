@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "../api/auth/[...nextauth]";
 import { signOut } from "next-auth/react";
 import { urlFor } from "@/lib/sanity";
+import Image from "next/image";
 
 export default function ResellerAdmin({ session }) {
   const [brands, setBrands] = useState([]);
@@ -35,6 +36,10 @@ export default function ResellerAdmin({ session }) {
     fontFamily: "sans-serif",
     textColor: "#000000",
     backgroundColor: "#ffffff",
+    headingColor: "#000000",
+    startDate: null,
+    endDate: null,
+    promoImage: null,
   });
 
   // New state for General tab
@@ -2276,7 +2281,9 @@ export default function ResellerAdmin({ session }) {
                       Configure a promotional popup to show to your customers
                     </p>
                   </div>
+
                   <div className="px-6 py-5 space-y-4">
+                    {/* Toggle */}
                     <div className="flex items-center justify-between">
                       <div>
                         <h3 className="text-sm font-medium text-gray-900">
@@ -2304,13 +2311,14 @@ export default function ResellerAdmin({ session }) {
 
                     {promotionPopup?.enabled && (
                       <>
+                        {/* Title */}
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
                             Popup Title
                           </label>
                           <input
                             type="text"
-                            value={promotionPopup?.title || ""}
+                            value={promotionPopup.title || ""}
                             onChange={(e) =>
                               setPromotionPopup({
                                 ...promotionPopup,
@@ -2322,13 +2330,14 @@ export default function ResellerAdmin({ session }) {
                           />
                         </div>
 
+                        {/* Message */}
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-1">
                             Popup Message
                           </label>
                           <textarea
                             rows={4}
-                            value={promotionPopup?.message || ""}
+                            value={promotionPopup.message || ""}
                             onChange={(e) =>
                               setPromotionPopup({
                                 ...promotionPopup,
@@ -2340,13 +2349,80 @@ export default function ResellerAdmin({ session }) {
                           />
                         </div>
 
+                        {/* Image Upload Preview */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Promo Image URL
+                          </label>
+                          <input
+                            type="text"
+                            value={promotionPopup.promoImage || ""}
+                            onChange={(e) =>
+                              setPromotionPopup({
+                                ...promotionPopup,
+                                promoImage: e.target.value,
+                              })
+                            }
+                            placeholder="https://..."
+                            className="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                          />
+                          {promotionPopup.promoImage && (
+                            <div className="mt-2">
+                              <Image
+                                src={promotionPopup.promoImage}
+                                alt="Promo Preview"
+                                width={200}
+                                height={100}
+                                className="rounded-md"
+                              />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Start / End Dates */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Start Date
+                            </label>
+                            <input
+                              type="date"
+                              value={promotionPopup.startDate || ""}
+                              onChange={(e) =>
+                                setPromotionPopup({
+                                  ...promotionPopup,
+                                  startDate: e.target.value,
+                                })
+                              }
+                              className="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              End Date
+                            </label>
+                            <input
+                              type="date"
+                              value={promotionPopup.endDate || ""}
+                              onChange={(e) =>
+                                setPromotionPopup({
+                                  ...promotionPopup,
+                                  endDate: e.target.value,
+                                })
+                              }
+                              className="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Font and Color */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
                               Font Family
                             </label>
                             <select
-                              value={promotionPopup?.fontFamily || "sans-serif"}
+                              value={promotionPopup.fontFamily}
                               onChange={(e) =>
                                 setPromotionPopup({
                                   ...promotionPopup,
@@ -2363,71 +2439,59 @@ export default function ResellerAdmin({ session }) {
 
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Heading Color
+                            </label>
+                            <input
+                              type="color"
+                              value={promotionPopup.headingColor}
+                              onChange={(e) =>
+                                setPromotionPopup({
+                                  ...promotionPopup,
+                                  headingColor: e.target.value,
+                                })
+                              }
+                              className="h-10 w-10 rounded border border-gray-300"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
                               Text Color
                             </label>
-                            <div className="flex items-center">
-                              <input
-                                type="color"
-                                value={promotionPopup?.textColor || "#000000"}
-                                onChange={(e) =>
-                                  setPromotionPopup({
-                                    ...promotionPopup,
-                                    textColor: e.target.value,
-                                  })
-                                }
-                                className="h-10 w-10 rounded border border-gray-300 mr-2"
-                              />
-                              <input
-                                type="text"
-                                value={promotionPopup?.textColor || "#000000"}
-                                onChange={(e) =>
-                                  setPromotionPopup({
-                                    ...promotionPopup,
-                                    textColor: e.target.value,
-                                  })
-                                }
-                                className="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                placeholder="#000000"
-                              />
-                            </div>
+                            <input
+                              type="color"
+                              value={promotionPopup.textColor}
+                              onChange={(e) =>
+                                setPromotionPopup({
+                                  ...promotionPopup,
+                                  textColor: e.target.value,
+                                })
+                              }
+                              className="h-10 w-10 rounded border border-gray-300"
+                            />
                           </div>
 
                           <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
                               Background Color
                             </label>
-                            <div className="flex items-center">
-                              <input
-                                type="color"
-                                value={
-                                  promotionPopup?.backgroundColor || "#ffffff"
-                                }
-                                onChange={(e) =>
-                                  setPromotionPopup({
-                                    ...promotionPopup,
-                                    backgroundColor: e.target.value,
-                                  })
-                                }
-                                className="h-10 w-10 rounded border border-gray-300 mr-2"
-                              />
-                              <input
-                                type="text"
-                                value={
-                                  promotionPopup?.backgroundColor || "#ffffff"
-                                }
-                                onChange={(e) =>
-                                  setPromotionPopup({
-                                    ...promotionPopup,
-                                    backgroundColor: e.target.value,
-                                  })
-                                }
-                                className="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                placeholder="#ffffff"
-                              />
-                            </div>
+                            <input
+                              type="color"
+                              value={promotionPopup.backgroundColor}
+                              onChange={(e) =>
+                                setPromotionPopup({
+                                  ...promotionPopup,
+                                  backgroundColor: e.target.value,
+                                })
+                              }
+                              className="h-10 w-10 rounded border border-gray-300"
+                            />
                           </div>
                         </div>
 
+                        {/* Preview */}
                         <div className="bg-gray-50 p-4 rounded-md border border-gray-200">
                           <h4 className="text-sm font-medium text-gray-700 mb-2">
                             Popup Preview
@@ -2435,18 +2499,26 @@ export default function ResellerAdmin({ session }) {
                           <div
                             className="p-4 rounded-md shadow-sm"
                             style={{
-                              backgroundColor:
-                                promotionPopup?.backgroundColor || "#ffffff",
-                              color: promotionPopup?.textColor || "#000000",
-                              fontFamily:
-                                promotionPopup?.fontFamily || "sans-serif",
+                              backgroundColor: promotionPopup.backgroundColor,
+                              color: promotionPopup.textColor,
+                              fontFamily: promotionPopup.fontFamily,
                             }}
                           >
-                            <h3 className="text-lg font-bold mb-2">
-                              {promotionPopup?.title || "Popup Title"}
+                            {promotionPopup.promoImage && (
+                              <img
+                                src={promotionPopup.promoImage}
+                                alt="Promo"
+                                className="w-full h-auto mb-2 rounded"
+                              />
+                            )}
+                            <h3
+                              className="text-lg font-bold mb-2"
+                              style={{ color: promotionPopup.headingColor }}
+                            >
+                              {promotionPopup.title || "Popup Title"}
                             </h3>
                             <p className="text-sm">
-                              {promotionPopup?.message ||
+                              {promotionPopup.message ||
                                 "This is a preview of how your popup will look."}
                             </p>
                           </div>
