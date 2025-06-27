@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "../api/auth/[...nextauth]";
 import { signOut } from "next-auth/react";
 import { urlFor } from "@/lib/sanity";
+import sanity from "@/lib/sanity";
 import Image from "next/image";
 
 export default function ResellerAdmin({ session }) {
@@ -28,17 +29,6 @@ export default function ResellerAdmin({ session }) {
   const [isPreviewLoading, setIsPreviewLoading] = useState(false);
 
   const [expandedSection, setExpandedSection] = useState(null);
-
-  const [hiddenMakes, setHiddenMakes] = useState<string[]>([]);
-  const allMakes = [
-    "Audi",
-    "BMW",
-    "Mercedes",
-    "Volkswagen",
-    "Porsche",
-    "Toyota",
-    "Ford",
-  ];
 
   const [promotionPopup, setPromotionPopup] = useState({
     enabled: false,
@@ -100,6 +90,22 @@ export default function ResellerAdmin({ session }) {
       }
     };
     fetchData();
+  }, []);
+
+  const [allMakes, setAllMakes] = useState<string[]>([]);
+  const [hiddenMakes, setHiddenMakes] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchMakes = async () => {
+      try {
+        const makes = await sanity.fetch<string[]>(`*[_type == "brand"].name`);
+        setAllMakes(makes || []);
+      } catch (err) {
+        console.error("Failed to load makes", err);
+      }
+    };
+
+    fetchMakes();
   }, []);
 
   useEffect(() => {
@@ -2285,28 +2291,24 @@ export default function ResellerAdmin({ session }) {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Hidden Makes
-                  </label>
-                  <select
-                    multiple
-                    value={hiddenMakes}
-                    onChange={(e) =>
-                      setHiddenMakes(
-                        Array.from(
-                          e.target.selectedOptions,
-                          (option) => option.value,
-                        ),
-                      )
-                    }
-                    className="block w-full p-2 border border-gray-300 rounded-md shadow-sm"
-                  >
-                    {allMakes.map((make) => (
-                      <option key={make} value={make}>
-                        {make}
-                      </option>
-                    ))}
-                  </select>
+                  {allMakes.map((make) => (
+                    <label key={make} className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        checked={hiddenMakes.includes(make)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setHiddenMakes([...hiddenMakes, make]);
+                          } else {
+                            setHiddenMakes(
+                              hiddenMakes.filter((m) => m !== make),
+                            );
+                          }
+                        }}
+                      />
+                      <span>{make}</span>
+                    </label>
+                  ))}
                 </div>
 
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
