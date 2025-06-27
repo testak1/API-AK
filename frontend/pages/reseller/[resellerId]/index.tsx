@@ -1909,7 +1909,7 @@ export const PromotionPopup = ({
             color: config.backgroundColor,
           }}
         >
-          ❌
+          ❌ CLOSE
         </button>
       </div>
     </div>
