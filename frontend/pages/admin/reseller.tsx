@@ -1997,213 +1997,234 @@ export default function ResellerAdmin({ session }) {
 
         {/* Combined Descriptions and General Info Tab */}
         {activeTab === "descriptions" && (
-          <div className="space-y-8">
+          <div className="space-y-4">
             {/* Stage Descriptions Section */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="px-6 py-5 border-b border-gray-200">
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Edit Stage Descriptions
-                </h2>
-                <p className="mt-1 text-sm text-gray-500">
-                  Update reseller-specific tuning stage descriptions
-                </p>
-              </div>
-              <div className="px-6 py-5 space-y-4">
-                {sortedStageDescriptions.map((desc, index) => {
-                  // Create a unique key for each stage's expanded state
-                  const expandedKey = `stage-${desc.stageName}-expanded`;
+              <button
+                onClick={() =>
+                  setExpandedSection(
+                    expandedSection === "stageDescriptions"
+                      ? null
+                      : "stageDescriptions",
+                  )
+                }
+                className="w-full px-6 py-5 border-b border-gray-200 text-left focus:outline-none"
+              >
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-900">
+                      Edit Stage Descriptions
+                    </h2>
+                    <p className="mt-1 text-sm text-gray-500">
+                      Update reseller-specific tuning stage descriptions
+                    </p>
+                  </div>
+                  <svg
+                    className={`h-5 w-5 text-gray-500 transform transition-transform ${
+                      expandedSection === "stageDescriptions"
+                        ? "rotate-180"
+                        : ""
+                    }`}
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+              </button>
 
-                  // Initialize state using a function to prevent hydration issues
-                  const [isExpanded, setIsExpanded] = useState(() => {
-                    // You could also use sessionStorage or localStorage here if you want to persist state
-                    return false;
-                  });
-
-                  return (
+              {expandedSection === "stageDescriptions" && (
+                <div className="px-6 py-5 transition-all duration-300 ease-in-out space-y-4">
+                  {sortedStageDescriptions.map((desc, index) => (
                     <div
-                      key={`${desc.stageName}-${index}`}
-                      className="border border-gray-200 rounded-lg overflow-hidden"
+                      key={desc.stageName}
+                      className="border border-gray-200 rounded-lg p-4"
                     >
-                      <button
-                        className="w-full flex justify-between items-center p-4 text-left hover:bg-gray-50 transition-colors"
-                        onClick={() => setIsExpanded(!isExpanded)}
-                        aria-expanded={isExpanded}
-                        aria-controls={`stage-content-${index}`}
-                      >
-                        <div>
-                          <h3 className="text-sm font-medium text-gray-900">
-                            {desc.stageName.replace("Steg", "Stage")}
-                          </h3>
-                          {desc.isOverride && (
-                            <span className="inline-block mt-1 px-2 py-0.5 text-xs font-medium bg-green-100 text-green-800 rounded">
-                              Custom Override
-                            </span>
-                          )}
-                        </div>
-                        <svg
-                          className={`h-5 w-5 text-gray-500 transform transition-transform ${isExpanded ? "rotate-180" : ""}`}
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                          aria-hidden="true"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      </button>
-
-                      <div
-                        id={`stage-content-${index}`}
-                        className={`transition-all duration-200 ease-in-out ${isExpanded ? "block" : "hidden"}`}
-                      >
-                        <div className="p-4 border-t border-gray-200">
-                          <textarea
-                            rows={5}
-                            value={
-                              desc.description
-                                .map(
-                                  (block) =>
-                                    block.children
-                                      ?.map((c) => c.text)
-                                      .join("") || "",
-                                )
-                                .join("\n\n") || ""
-                            }
-                            onChange={(e) => {
-                              const updated = [...stageDescriptions];
-                              updated[index] = {
-                                ...desc,
-                                description: [
-                                  {
-                                    _type: "block",
-                                    style: "normal",
-                                    children: [
-                                      { _type: "span", text: e.target.value },
-                                    ],
-                                  },
+                      <h3 className="text-sm font-medium text-gray-900 mb-2">
+                        {desc.stageName.replace("Steg", "Stage")}
+                        {desc.isOverride && (
+                          <span className="ml-2 inline-block px-2 py-0.5 text-xs font-medium bg-green-100 text-green-800 rounded">
+                            Custom Override
+                          </span>
+                        )}
+                      </h3>
+                      <textarea
+                        rows={5}
+                        value={
+                          desc.description
+                            .map(
+                              (block) =>
+                                block.children?.map((c) => c.text).join("") ||
+                                "",
+                            )
+                            .join("\n\n") || ""
+                        }
+                        onChange={(e) => {
+                          const updated = [...stageDescriptions];
+                          updated[index] = {
+                            ...desc,
+                            description: [
+                              {
+                                _type: "block",
+                                style: "normal",
+                                children: [
+                                  { _type: "span", text: e.target.value },
                                 ],
-                              };
-                              setStageDescriptions(updated);
-                            }}
-                            className="block w-full mt-1 p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                          />
-                          <div className="mt-3 flex justify-end">
-                            <button
-                              onClick={async (e) => {
-                                e.preventDefault();
-                                try {
-                                  const res = await fetch(
-                                    "/api/stage-descriptions",
-                                    {
-                                      method: "POST",
-                                      headers: {
-                                        "Content-Type": "application/json",
-                                      },
-                                      body: JSON.stringify({
-                                        stageName: desc.stageName,
-                                        description: desc.description,
-                                      }),
-                                    },
-                                  );
+                              },
+                            ],
+                          };
+                          setStageDescriptions(updated);
+                        }}
+                        className="block w-full mt-1 p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      />
+                      <div className="mt-3 flex justify-end">
+                        <button
+                          onClick={async () => {
+                            try {
+                              const res = await fetch(
+                                "/api/stage-descriptions",
+                                {
+                                  method: "POST",
+                                  headers: {
+                                    "Content-Type": "application/json",
+                                  },
+                                  body: JSON.stringify({
+                                    stageName: desc.stageName,
+                                    description: desc.description,
+                                  }),
+                                },
+                              );
 
-                                  if (!res.ok) throw new Error("Save failed");
+                              if (!res.ok) throw new Error("Save failed");
 
+                              setSaveStatus({
+                                message: `Saved ${desc.stageName} successfully!`,
+                                isError: false,
+                              });
+                            } catch (err) {
+                              console.error("Failed to save", err);
+                              setSaveStatus({
+                                message: "Failed to save description",
+                                isError: true,
+                              });
+                            } finally {
+                              setTimeout(
+                                () =>
                                   setSaveStatus({
-                                    message: `Saved ${desc.stageName} successfully!`,
+                                    message: "",
                                     isError: false,
-                                  });
-                                } catch (err) {
-                                  console.error("Failed to save", err);
-                                  setSaveStatus({
-                                    message: "Failed to save description",
-                                    isError: true,
-                                  });
-                                } finally {
-                                  setTimeout(
-                                    () =>
-                                      setSaveStatus({
-                                        message: "",
-                                        isError: false,
-                                      }),
-                                    3000,
-                                  );
-                                }
-                              }}
-                              className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
-                            >
-                              Save
-                            </button>
-                          </div>
-                        </div>
+                                  }),
+                                3000,
+                              );
+                            }
+                          }}
+                          className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
+                        >
+                          Save
+                        </button>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
 
-            {/* General Info Section (unchanged) */}
+            {/* General Info Section */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="px-6 py-5 border-b border-gray-200">
-                <h2 className="text-lg font-semibold text-gray-900">
-                  Edit General Info
-                </h2>
-                <p className="mt-1 text-sm text-gray-500">
-                  Customize the general info section for your reseller portal
-                </p>
-              </div>
-              <div className="px-6 py-5 space-y-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  General Info Content {generalInfo.isOverride}
-                </label>
-                <textarea
-                  rows={8}
-                  value={
-                    generalInfo.content
-                      ?.map(
-                        (b) => b.children?.map((c) => c.text).join("") || "",
-                      )
-                      .join("\n\n") || ""
-                  }
-                  onChange={(e) => {
-                    setGeneralInfo({
-                      ...generalInfo,
-                      content: [
-                        {
-                          _type: "block",
-                          style: "normal",
-                          children: [{ _type: "span", text: e.target.value }],
-                        },
-                      ],
-                    });
-                  }}
-                  className="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-                <div className="mt-4 text-right">
-                  <button
-                    onClick={async () => {
-                      await fetch("/api/general-info", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ content: generalInfo.content }),
-                      });
-                      setSaveStatus({
-                        message: "General Info saved",
-                        isError: false,
-                      });
-                      setTimeout(
-                        () => setSaveStatus({ message: "", isError: false }),
-                        3000,
-                      );
-                    }}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+              <button
+                onClick={() =>
+                  setExpandedSection(
+                    expandedSection === "generalInfo" ? null : "generalInfo",
+                  )
+                }
+                className="w-full px-6 py-5 border-b border-gray-200 text-left focus:outline-none"
+              >
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h2 className="text-lg font-semibold text-gray-900">
+                      Edit General Info
+                    </h2>
+                    <p className="mt-1 text-sm text-gray-500">
+                      Customize the general info section for your reseller
+                      portal
+                    </p>
+                  </div>
+                  <svg
+                    className={`h-5 w-5 text-gray-500 transform transition-transform ${
+                      expandedSection === "generalInfo" ? "rotate-180" : ""
+                    }`}
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
                   >
-                    Save
-                  </button>
+                    <path
+                      fillRule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
                 </div>
-              </div>
+              </button>
+
+              {expandedSection === "generalInfo" && (
+                <div className="px-6 py-5 transition-all duration-300 ease-in-out">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    General Info Content {generalInfo.isOverride}
+                  </label>
+                  <textarea
+                    rows={8}
+                    value={
+                      generalInfo.content
+                        ?.map(
+                          (b) => b.children?.map((c) => c.text).join("") || "",
+                        )
+                        .join("\n\n") || ""
+                    }
+                    onChange={(e) => {
+                      setGeneralInfo({
+                        ...generalInfo,
+                        content: [
+                          {
+                            _type: "block",
+                            style: "normal",
+                            children: [{ _type: "span", text: e.target.value }],
+                          },
+                        ],
+                      });
+                    }}
+                    className="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  />
+                  <div className="mt-4 text-right">
+                    <button
+                      onClick={async () => {
+                        await fetch("/api/general-info", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            content: generalInfo.content,
+                          }),
+                        });
+                        setSaveStatus({
+                          message: "General Info saved",
+                          isError: false,
+                        });
+                        setTimeout(
+                          () => setSaveStatus({ message: "", isError: false }),
+                          3000,
+                        );
+                      }}
+                      className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                    >
+                      Save
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
