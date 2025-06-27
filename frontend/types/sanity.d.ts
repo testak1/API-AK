@@ -135,6 +135,7 @@ export interface ResellerConfig {
   email: string;
   logo?: any;
   currency: string;
+  contactInfo: string;
   enableLanguageSwitcher?: boolean;
   secondaryLanguage?: string | null;
   hiddenMakes?: string[];
