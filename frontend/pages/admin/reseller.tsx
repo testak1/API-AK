@@ -1619,11 +1619,11 @@ export default function ResellerAdmin({ session }) {
                         }
                       }}
                       className="block w-full text-sm text-gray-500
-                file:mr-4 file:py-2 file:px-4
-                file:rounded-md file:border-0
-                file:text-sm file:font-semibold
-                file:bg-blue-50 file:text-blue-700
-                hover:file:bg-blue-100"
+        file:mr-4 file:py-2 file:px-4
+        file:rounded-md file:border-0
+        file:text-sm file:font-semibold
+        file:bg-blue-50 file:text-blue-700
+        hover:file:bg-blue-100"
                     />
                     <button
                       onClick={handleAktPlusLogoUpload}
@@ -1638,11 +1638,12 @@ export default function ResellerAdmin({ session }) {
 
               {/* 🔵 LOOP OVER OPTIONS BELOW */}
               {(aktPlusOverrides || []).map((item) => {
+                const [isExpanded, setIsExpanded] = useState(false);
                 const conversionRates = {
                   SEK: 1,
-                  EUR: 0.1, // 1 SEK = 0.10 EUR (⇒ 1 EUR ≈ 10 SEK)
-                  USD: 0.095, // 1 USD ≈ 10.5 SEK
-                  GBP: 0.085, // 1 GBP ≈ 11.8 SEK
+                  EUR: 0.1,
+                  USD: 0.095,
+                  GBP: 0.085,
                   NOK: 0.98,
                   DKK: 0.72,
                   CHF: 0.09,
@@ -1677,11 +1678,11 @@ export default function ResellerAdmin({ session }) {
                 };
 
                 return (
-                  <div
-                    key={item.id}
-                    className="space-y-3 border-b pb-4 last:border-b-0"
-                  >
-                    <div className="flex items-start gap-4">
+                  <div key={item.id} className="border-b pb-4 last:border-b-0">
+                    <div
+                      className="flex items-start gap-4 cursor-pointer"
+                      onClick={() => setIsExpanded(!isExpanded)}
+                    >
                       {item.imageUrl && (
                         <img
                           src={item.imageUrl}
@@ -1690,9 +1691,46 @@ export default function ResellerAdmin({ session }) {
                         />
                       )}
                       <div className="flex-1">
-                        <h3 className="text-sm font-bold text-gray-700">
-                          {item.title}
-                        </h3>
+                        <div className="flex justify-between items-start">
+                          <h3 className="text-sm font-bold text-gray-700">
+                            {item.title}
+                          </h3>
+                          <button
+                            className="text-gray-500 hover:text-gray-700"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setIsExpanded(!isExpanded);
+                            }}
+                          >
+                            {isExpanded ? (
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-5 w-5"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                            ) : (
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-5 w-5"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                            )}
+                          </button>
+                        </div>
                         {typeof item.price === "number" && (
                           <p className="text-sm text-green-600 font-medium">
                             Price:{" "}
@@ -1720,197 +1758,207 @@ export default function ResellerAdmin({ session }) {
                       </div>
                     </div>
 
-                    <label className="block text-sm font-medium text-gray-700">
-                      Custom Price ({currencySymbols[currency]})
-                    </label>
-                    <input
-                      type="number"
-                      className="w-full border border-gray-300 rounded-md p-2 text-sm"
-                      value={
-                        aktPlusInputs[item.id]?.price !== undefined
-                          ? toCurrency(aktPlusInputs[item.id].price, currency)
-                          : toCurrency(item.price ?? 0, currency)
-                      }
-                      onChange={(e) => {
-                        const inputCurrencyValue = parseFloat(e.target.value);
-                        const sekValue = isNaN(inputCurrencyValue)
-                          ? 0
-                          : fromCurrency(inputCurrencyValue, currency);
+                    {isExpanded && (
+                      <div className="mt-4 space-y-3 pl-20">
+                        {" "}
+                        {/* Added left padding to align with the image */}
+                        <label className="block text-sm font-medium text-gray-700">
+                          Custom Price ({currencySymbols[currency]})
+                        </label>
+                        <input
+                          type="number"
+                          className="w-full border border-gray-300 rounded-md p-2 text-sm"
+                          value={
+                            aktPlusInputs[item.id]?.price !== undefined
+                              ? toCurrency(
+                                  aktPlusInputs[item.id].price,
+                                  currency,
+                                )
+                              : toCurrency(item.price ?? 0, currency)
+                          }
+                          onChange={(e) => {
+                            const inputCurrencyValue = parseFloat(
+                              e.target.value,
+                            );
+                            const sekValue = isNaN(inputCurrencyValue)
+                              ? 0
+                              : fromCurrency(inputCurrencyValue, currency);
 
-                        setAktPlusInputs((prev) => ({
-                          ...prev,
-                          [item.id]: {
-                            ...prev[item.id],
-                            price: sekValue,
-                          },
-                        }));
-                      }}
-                    />
-                    {aktPlusInputs[item.id]?.price && (
-                      <small className="text-gray-500 block mt-1">
-                        ≈{" "}
-                        {Number(aktPlusInputs[item.id].price).toLocaleString(
-                          "sv-SE",
-                        )}{" "}
-                        SEK
-                      </small>
-                    )}
-
-                    <label className="block text-sm font-medium text-gray-700 mt-3">
-                      Custom Title ({language.toUpperCase()})
-                    </label>
-                    <input
-                      type="text"
-                      className="w-full border border-gray-300 rounded-md p-2 text-sm"
-                      value={aktPlusInputs[item.id]?.title ?? item.title}
-                      onChange={(e) =>
-                        setAktPlusInputs((prev) => ({
-                          ...prev,
-                          [item.id]: {
-                            ...prev[item.id],
-                            title: e.target.value,
-                          },
-                        }))
-                      }
-                    />
-
-                    <label className="block text-sm font-medium text-gray-700 mt-3">
-                      Description Override
-                    </label>
-                    <textarea
-                      value={currentInput.content
-                        .map((b) => b.children?.map((c) => c.text).join(""))
-                        .join("\n")}
-                      onChange={(e) =>
-                        setAktPlusInputs((prev) => ({
-                          ...prev,
-                          [item.id]: {
-                            ...prev[item.id],
-                            title: item.title,
-                            content: [
-                              {
-                                _type: "block",
-                                children: [
-                                  { _type: "span", text: e.target.value },
+                            setAktPlusInputs((prev) => ({
+                              ...prev,
+                              [item.id]: {
+                                ...prev[item.id],
+                                price: sekValue,
+                              },
+                            }));
+                          }}
+                        />
+                        {aktPlusInputs[item.id]?.price && (
+                          <small className="text-gray-500 block mt-1">
+                            ≈{" "}
+                            {Number(
+                              aktPlusInputs[item.id].price,
+                            ).toLocaleString("sv-SE")}{" "}
+                            SEK
+                          </small>
+                        )}
+                        <label className="block text-sm font-medium text-gray-700 mt-3">
+                          Custom Title ({language.toUpperCase()})
+                        </label>
+                        <input
+                          type="text"
+                          className="w-full border border-gray-300 rounded-md p-2 text-sm"
+                          value={aktPlusInputs[item.id]?.title ?? item.title}
+                          onChange={(e) =>
+                            setAktPlusInputs((prev) => ({
+                              ...prev,
+                              [item.id]: {
+                                ...prev[item.id],
+                                title: e.target.value,
+                              },
+                            }))
+                          }
+                        />
+                        <label className="block text-sm font-medium text-gray-700 mt-3">
+                          Description Override
+                        </label>
+                        <textarea
+                          value={currentInput.content
+                            .map((b) => b.children?.map((c) => c.text).join(""))
+                            .join("\n")}
+                          onChange={(e) =>
+                            setAktPlusInputs((prev) => ({
+                              ...prev,
+                              [item.id]: {
+                                ...prev[item.id],
+                                title: item.title,
+                                content: [
+                                  {
+                                    _type: "block",
+                                    children: [
+                                      { _type: "span", text: e.target.value },
+                                    ],
+                                  },
                                 ],
                               },
-                            ],
-                          },
-                        }))
-                      }
-                      rows={5}
-                      className="w-full border border-gray-300 rounded-md p-3 text-sm"
-                      placeholder="Write custom override..."
-                    />
-
-                    <label className="block text-sm font-medium text-gray-700 mt-3">
-                      Custom Image (optional)
-                    </label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          setAktPlusInputs((prev) => ({
-                            ...prev,
-                            [item.id]: {
-                              ...prev[item.id],
-                              imageFile: file,
-                            },
-                          }));
-                        }
-                      }}
-                      className="text-sm"
-                    />
-
-                    {/* Save Button */}
-                    <button
-                      onClick={async () => {
-                        try {
-                          const parsedPrice = parseFloat(currentInput.price);
-                          const priceInSek = isNaN(parsedPrice)
-                            ? 0
-                            : Math.round(
-                                parsedPrice / (conversionRates[currency] || 1),
-                              );
-
-                          let assetId = null;
-
-                          // 👇 Upload image if set
-                          if (aktPlusInputs[item.id]?.imageFile) {
-                            const file = aktPlusInputs[item.id].imageFile;
-                            const reader = new FileReader();
-
-                            const base64 = await new Promise(
-                              (resolve, reject) => {
-                                reader.onload = () =>
-                                  resolve(
-                                    reader.result?.toString().split(",")[1],
-                                  );
-                                reader.onerror = reject;
-                                reader.readAsDataURL(file);
-                              },
-                            );
-
-                            const uploadRes = await fetch(
-                              "/api/upload-aktplus-option-image",
-                              {
-                                method: "POST",
-                                headers: {
-                                  "Content-Type": "application/json",
-                                },
-                                body: JSON.stringify({
-                                  imageData: base64,
-                                  contentType: file.type,
-                                }),
-                              },
-                            );
-
-                            const uploadJson = await uploadRes.json();
-                            assetId = uploadJson.assetId; // ✅ get _id not url
+                            }))
                           }
+                          rows={5}
+                          className="w-full border border-gray-300 rounded-md p-3 text-sm"
+                          placeholder="Write custom override..."
+                        />
+                        <label className="block text-sm font-medium text-gray-700 mt-3">
+                          Custom Image (optional)
+                        </label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              setAktPlusInputs((prev) => ({
+                                ...prev,
+                                [item.id]: {
+                                  ...prev[item.id],
+                                  imageFile: file,
+                                },
+                              }));
+                            }
+                          }}
+                          className="text-sm"
+                        />
+                        {/* Save Button */}
+                        <button
+                          onClick={async () => {
+                            try {
+                              const parsedPrice = parseFloat(
+                                currentInput.price,
+                              );
+                              const priceInSek = isNaN(parsedPrice)
+                                ? 0
+                                : Math.round(
+                                    parsedPrice /
+                                      (conversionRates[currency] || 1),
+                                  );
 
-                          // 👇 Save the override (send assetId instead of imageUrl)
-                          await fetch("/api/aktplus-overrides", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                              aktPlusId: item.id,
-                              title: currentInput.title,
-                              description: currentInput.content,
-                              price: priceInSek,
-                              assetId, // ✅ backend expects this now
-                            }),
-                          });
+                              let assetId = null;
 
-                          const res = await fetch("/api/aktplus-overrides");
-                          const json = await res.json();
-                          setAktPlusOverrides(json.aktplus || []);
+                              // 👇 Upload image if set
+                              if (aktPlusInputs[item.id]?.imageFile) {
+                                const file = aktPlusInputs[item.id].imageFile;
+                                const reader = new FileReader();
 
-                          setSaveStatus({
-                            message: `AKTPLUS override saved (${currencySymbols[currency]}).`,
-                            isError: false,
-                          });
+                                const base64 = await new Promise(
+                                  (resolve, reject) => {
+                                    reader.onload = () =>
+                                      resolve(
+                                        reader.result?.toString().split(",")[1],
+                                      );
+                                    reader.onerror = reject;
+                                    reader.readAsDataURL(file);
+                                  },
+                                );
 
-                          setTimeout(() => {
-                            setSaveStatus({ message: "", isError: false });
-                          }, 3000);
-                        } catch (error) {
-                          console.error(
-                            "Failed to save AKTPLUS override",
-                            error,
-                          );
-                          setSaveStatus({
-                            message: "Failed to save AKTPLUS override.",
-                            isError: true,
-                          });
-                        }
-                      }}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 transition"
-                    >
-                      Save Override
-                    </button>
+                                const uploadRes = await fetch(
+                                  "/api/upload-aktplus-option-image",
+                                  {
+                                    method: "POST",
+                                    headers: {
+                                      "Content-Type": "application/json",
+                                    },
+                                    body: JSON.stringify({
+                                      imageData: base64,
+                                      contentType: file.type,
+                                    }),
+                                  },
+                                );
+
+                                const uploadJson = await uploadRes.json();
+                                assetId = uploadJson.assetId;
+                              }
+
+                              // 👇 Save the override
+                              await fetch("/api/aktplus-overrides", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({
+                                  aktPlusId: item.id,
+                                  title: currentInput.title,
+                                  description: currentInput.content,
+                                  price: priceInSek,
+                                  assetId,
+                                }),
+                              });
+
+                              const res = await fetch("/api/aktplus-overrides");
+                              const json = await res.json();
+                              setAktPlusOverrides(json.aktplus || []);
+
+                              setSaveStatus({
+                                message: `AKTPLUS override saved (${currencySymbols[currency]}).`,
+                                isError: false,
+                              });
+
+                              setTimeout(() => {
+                                setSaveStatus({ message: "", isError: false });
+                              }, 3000);
+                            } catch (error) {
+                              console.error(
+                                "Failed to save AKTPLUS override",
+                                error,
+                              );
+                              setSaveStatus({
+                                message: "Failed to save AKTPLUS override.",
+                                isError: true,
+                              });
+                            }
+                          }}
+                          className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 transition"
+                        >
+                          Save Override
+                        </button>
+                      </div>
+                    )}
                   </div>
                 );
               })}
