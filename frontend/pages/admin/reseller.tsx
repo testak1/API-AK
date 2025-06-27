@@ -3,7 +3,6 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "../api/auth/[...nextauth]";
 import { signOut } from "next-auth/react";
 import { urlFor } from "@/lib/sanity";
-import sanity from "@/lib/sanity";
 import Image from "next/image";
 
 export default function ResellerAdmin({ session }) {
@@ -140,26 +139,45 @@ export default function ResellerAdmin({ session }) {
   const handleSettingsSave = async () => {
     try {
       setIsLoading(true);
-      await fetch("/api/update-reseller-settings", {
+      console.log("Saving settings:", {
+        currency,
+        language,
+        promotionPopup,
+        hiddenMakes,
+        displaySettings,
+      });
+
+      const response = await fetch("/api/update-reseller-settings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           currency,
           language,
-          subscription,
           enableLanguageSwitcher,
           secondaryLanguage,
           promotionPopup,
           hiddenMakes,
+          displaySettings,
         }),
       });
+
+      const data = await response.json();
+      console.log("Save response:", data);
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to save settings");
+      }
+
       setSaveStatus({
         message: "Settings saved successfully!",
         isError: false,
       });
     } catch (err) {
       console.error("Error updating settings", err);
-      setSaveStatus({ message: "Failed to save settings.", isError: true });
+      setSaveStatus({
+        message: err.message || "Failed to save settings.",
+        isError: true,
+      });
     } finally {
       setIsLoading(false);
       setTimeout(() => setSaveStatus({ message: "", isError: false }), 3000);
