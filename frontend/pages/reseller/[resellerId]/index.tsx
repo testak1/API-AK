@@ -153,6 +153,17 @@ export default function TuningViewer() {
     defaultSettings.language,
   );
 
+  const [promotionPopup, setPromotionPopup] = useState({
+    enabled: false,
+    title: "",
+    message: "",
+    fontFamily: "sans-serif",
+    textColor: "#000000",
+    backgroundColor: "#ffffff",
+  });
+
+  const [showPromotionPopup, setShowPromotionPopup] = useState(false);
+
   // Stage + AKTplus (kan ligga kvar under detta)
   const [stageDescriptions, setStageDescriptions] = useState([]);
   const [aktPlusOptions, setAktPlusOptions] = useState<
@@ -248,6 +259,9 @@ export default function TuningViewer() {
       const json = await res.json();
       setSettings(json);
       setCurrentLanguage(json.language);
+      if (json.promotionPopup) {
+        setPromotionPopup(json.promotionPopup);
+      }
     };
 
     fetchSettings();
@@ -445,6 +459,21 @@ export default function TuningViewer() {
       watermarkImageRef.current = img;
     };
   }, [resellerLogo]);
+
+  useEffect(() => {
+    if (!promotionPopup.enabled) return;
+
+    // Check if user has dismissed the popup before
+    const hasDismissed = localStorage.getItem("popupDismissed");
+    if (hasDismissed) return;
+
+    // Show popup after a short delay
+    const timer = setTimeout(() => {
+      setShowPromotionPopup(true);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [promotionPopup.enabled]);
 
   // Fetch brands and models
   useEffect(() => {
@@ -798,6 +827,20 @@ export default function TuningViewer() {
 
   return (
     <>
+      <PromotionPopup
+        config={promotionPopup}
+        onClose={() => {
+          setShowPromotionPopup(false);
+          // Remember dismissal for 24 hours
+          localStorage.setItem("popupDismissed", "true");
+          const timer = setTimeout(
+            () => {
+              localStorage.removeItem("popupDismissed");
+            },
+            24 * 60 * 60 * 1000,
+          );
+        }}
+      />
       <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
         <div className="flex items-center justify-between mb-4">
           <div>
@@ -1738,6 +1781,89 @@ export default function TuningViewer() {
     </>
   );
 }
+
+// PromotionPopup component
+const PromotionPopup = ({
+  config,
+  onClose,
+}: {
+  config: typeof PromotionPopup;
+  onClose: () => void;
+}) => {
+  const popupRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    const handleClickOutside = (e: MouseEvent) => {
+      if (popupRef.current && !popupRef.current.contains(e.target as Node)) {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [onClose]);
+
+  return (
+    <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black bg-opacity-50 transition-opacity duration-300">
+      <div
+        ref={popupRef}
+        className="relative max-w-md w-full p-6 rounded-lg shadow-xl"
+        style={{
+          backgroundColor: config.backgroundColor,
+          color: config.textColor,
+          fontFamily:
+            config.fontFamily === "serif"
+              ? "serif"
+              : config.fontFamily === "monospace"
+                ? "monospace"
+                : "sans-serif",
+        }}
+      >
+        <button
+          onClick={onClose}
+          className="absolute top-2 right-2 p-1 rounded-full hover:bg-gray-200 hover:bg-opacity-20 transition"
+          aria-label="Close popup"
+        >
+          <svg
+            className="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+
+        <h2 className="text-xl font-bold mb-3">{config.title}</h2>
+        <p className="mb-4 whitespace-pre-line">{config.message}</p>
+
+        <button
+          onClick={onClose}
+          className="w-full py-2 px-4 rounded-md shadow-sm text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 transition"
+          style={{
+            backgroundColor: config.textColor,
+            color: config.backgroundColor,
+          }}
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  );
+};
 
 const InfoModal = ({
   isOpen,
