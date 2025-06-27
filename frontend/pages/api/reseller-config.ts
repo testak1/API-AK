@@ -68,11 +68,7 @@ export default async function handler(req, res) {
           backgroundColor,
           startDate,
           endDate,
-          promoImage {
-          asset-> {
-            _ref,
-            url
-            }
+          promoImage
         }
       },
         subscription,

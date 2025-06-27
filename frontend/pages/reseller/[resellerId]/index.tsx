@@ -1809,7 +1809,7 @@ export type PromotionPopupConfig = {
   headingColor: string;
   startDate?: string | null;
   endDate?: string | null;
-  promoImage?: any | null;
+  promoImage?: string | null;
 };
 
 export const PromotionPopup = ({
@@ -1820,11 +1820,12 @@ export const PromotionPopup = ({
   onClose: () => void;
 }) => {
   // Block rendering if invalid or out of date range
+  const now = new Date();
   if (
     !config ||
     !config.enabled ||
-    (config.startDate && new Date() < new Date(config.startDate)) ||
-    (config.endDate && new Date() > new Date(config.endDate))
+    (config.startDate && now < new Date(config.startDate)) ||
+    (config.endDate && now > new Date(config.endDate))
   ) {
     return null;
   }
@@ -1877,7 +1878,7 @@ export const PromotionPopup = ({
         {/* Optional Image */}
         {config.promoImage && (
           <img
-            src={urlFor(config.promoImage).url()}
+            src={config.promoImage}
             alt="Promo"
             className="mx-auto mb-4 max-h-40 object-contain"
           />
@@ -1908,7 +1909,7 @@ export const PromotionPopup = ({
             color: config.backgroundColor,
           }}
         >
-          Close
+          ❌
         </button>
       </div>
     </div>

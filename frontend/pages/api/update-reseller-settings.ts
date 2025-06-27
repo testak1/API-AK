@@ -51,11 +51,11 @@ export default async function handler(req, res) {
             message: promotionPopup.message || "",
             fontFamily: promotionPopup.fontFamily || "sans-serif",
             textColor: promotionPopup.textColor || "#000000",
-            backgroundColor: promotionPopup.backgroundColor || "#ffffff",
             headingColor: promotionPopup.headingColor || "#000000",
+            backgroundColor: promotionPopup.backgroundColor || "#ffffff",
             startDate: promotionPopup.startDate || null,
             endDate: promotionPopup.endDate || null,
-            promoImage: promotionPopup.promoImage || null,
+            promoImage: promotionPopup.promoImage || null, // ✅ string
           },
         }),
       })

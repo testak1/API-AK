@@ -126,11 +126,7 @@ export type PromotionPopupConfig = {
   textColor: string;
   headingColor: string;
   backgroundColor: string;
-  promoImage?: {
-    asset: {
-      _ref: string;
-    };
-  };
+  promoImage?: string | null;
   startDate?: string;
   endDate?: string;
 };
