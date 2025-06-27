@@ -30,6 +30,9 @@ export default function ResellerAdmin({ session }) {
 
   const [expandedSection, setExpandedSection] = useState(null);
 
+  const [allMakes, setAllMakes] = useState<string[]>([]);
+  const [hiddenMakes, setHiddenMakes] = useState<string[]>([]);
+
   const [promotionPopup, setPromotionPopup] = useState({
     enabled: false,
     title: "",
@@ -92,16 +95,15 @@ export default function ResellerAdmin({ session }) {
     fetchData();
   }, []);
 
-  const [allMakes, setAllMakes] = useState<string[]>([]);
-  const [hiddenMakes, setHiddenMakes] = useState<string[]>([]);
-
   useEffect(() => {
     const fetchMakes = async () => {
       try {
-        const makes = await sanity.fetch<string[]>(`*[_type == "brand"].name`);
+        const makes = await sanity.fetch<string[]>(
+          `*[_type == "brand"] | order(name asc)[].name`,
+        );
         setAllMakes(makes || []);
-      } catch (err) {
-        console.error("Failed to load makes", err);
+      } catch (error) {
+        console.error("Failed to fetch vehicle makes:", error);
       }
     };
 
