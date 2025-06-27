@@ -1790,12 +1790,21 @@ export default function TuningViewer() {
   );
 }
 
+type PromotionPopupConfig = {
+  enabled: boolean;
+  title: string;
+  message: string;
+  fontFamily: string;
+  textColor: string;
+  backgroundColor: string;
+};
+
 // PromotionPopup component
 const PromotionPopup = ({
   config,
   onClose,
 }: {
-  config: typeof PromotionPopup;
+  config: PromotionPopupConfig;
   onClose: () => void;
 }) => {
   if (!config) return null; // ✅ Add this line
