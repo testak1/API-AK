@@ -118,6 +118,15 @@ export interface DisplaySettings {
   showDynoChart: boolean;
 }
 
+export type PromotionPopupConfig = {
+  enabled: boolean;
+  title: string;
+  message: string;
+  fontFamily: string;
+  textColor: string;
+  backgroundColor: string;
+};
+
 export interface ResellerConfig {
   email: string;
   logo?: any;
@@ -131,6 +140,7 @@ export interface ResellerConfig {
       _ref: imageAsset._id;
     };
   };
+  promotionPopup: PromotionPopupConfig;
   subscription: {
     currency: number;
     planType: string;

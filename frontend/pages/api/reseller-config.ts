@@ -58,6 +58,14 @@ export default async function handler(req, res) {
           showStageLogo,
           showDynoChart
         },
+        promotionPopup {
+          enabled,
+          title,
+          message,
+          fontFamily,
+          textColor,
+          backgroundColor
+        },
         subscription,
         contactInfo,
         aktPlusLogo
@@ -78,6 +86,14 @@ export default async function handler(req, res) {
       aktPlusLogo: result?.aktPlusLogo ?? null,
       enableLanguageSwitcher: result?.enableLanguageSwitcher ?? false,
       secondaryLanguage: result?.secondaryLanguage ?? null,
+      promotionPopup: result?.promotionPopup ?? {
+        enabled: false,
+        title: "",
+        message: "",
+        fontFamily: "sans-serif",
+        textColor: "#000000",
+        backgroundColor: "#ffffff",
+      },
     };
 
     res.status(200).json(response);
