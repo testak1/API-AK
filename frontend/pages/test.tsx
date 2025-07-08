@@ -12,11 +12,14 @@ type Brand = {
     };
     alt?: string;
   };
+  tcmId?: string;
 };
 
 type Model = {
   name: string;
   slug: string;
+  tcmId?: string;
+  imageUrl?: string;
 };
 
 type Year = {
@@ -55,28 +58,99 @@ export default function TestPage() {
       .replace(/\s+/g, "-")
       .replace(/-+/g, "-");
 
+  // Hämta alla bilmärken
   useEffect(() => {
-    setIsLoading(prev => ({...prev, brands: true}));
-    fetch("/api/brands")
-      .then((res) => res.json())
-      .then((data) => {
-        setBrands(data.result || []);
+    const fetchBrands = async () => {
+      setIsLoading(prev => ({...prev, brands: true}));
+      try {
+        // Hämta från vårt API
+        const res = await fetch("/api/brands");
+        if (!res.ok) throw new Error("Failed to fetch brands");
+        const brandData = await res.json();
+
+        // Hämta från TCM API
+        const tcmRes = await fetch("https://tcmtuning.ro/wp-content/themes/M5/new_api/index.php");
+        const tcmBrands = await tcmRes.json();
+
+        // Kombinera data
+        const combinedBrands = brandData.result.map((brand: Brand) => {
+          const tcmBrand = tcmBrands.find((b: any) => 
+            b.name.toLowerCase() === brand.name.toLowerCase()
+          );
+          return {
+            ...brand,
+            tcmId: tcmBrand?.id,
+            logo: brand.logo || {
+              asset: {
+                url: tcmBrand?.image 
+                  ? `https://tcmtuning.ro/_alex/ximages/brands/${tcmBrand.id}_small.png`
+                  : '/default-car-brand.png'
+              },
+              alt: brand.name
+            }
+          };
+        });
+
+        setBrands(combinedBrands || []);
+      } catch (error) {
+        console.error("Error fetching brands:", error);
+      } finally {
         setIsLoading(prev => ({...prev, brands: false}));
-      });
+      }
+    };
+    fetchBrands();
   }, []);
 
+  // Hämta modeller för valt bilmärke
   useEffect(() => {
-    if (selectedBrand) {
-      setIsLoading(prev => ({...prev, models: true}));
-      fetch(`/api/models?brand=${encodeURIComponent(selectedBrand.name)}`)
-        .then((res) => res.json())
-        .then((data) => {
-          setModels(data.result || []);
+    const fetchModels = async () => {
+      if (selectedBrand) {
+        setIsLoading(prev => ({...prev, models: true}));
+        try {
+          // Hämta från vårt API
+          const res = await fetch(`/api/models?brand=${encodeURIComponent(selectedBrand.name)}`);
+          if (!res.ok) throw new Error("Failed to fetch models");
+          const modelData = await res.json();
+
+          // Hämta från TCM API om vi har ID
+          let tcmModels = [];
+          if (selectedBrand.tcmId) {
+            const tcmRes = await fetch(
+              `https://tcmtuning.ro/wp-content/themes/M5/new_api/index.php?brand=${selectedBrand.tcmId}`
+            );
+            tcmModels = await tcmRes.json();
+          }
+
+          // Kombinera data
+          const combinedModels = modelData.result.map((model: Model) => {
+            const tcmModel = tcmModels.find((m: any) => 
+              m.name.toLowerCase().includes(model.name.toLowerCase()) || 
+              model.name.toLowerCase().includes(m.name.toLowerCase())
+            );
+            
+            const imageUrl = tcmModel?.id && selectedBrand.tcmId
+              ? `https://tcmtuning.ro/_alex/ximages/models/${selectedBrand.tcmId}_${tcmModel.id}.png`
+              : undefined;
+
+            return {
+              ...model,
+              tcmId: tcmModel?.id,
+              imageUrl: imageUrl || '/default-car-model.png'
+            };
+          });
+
+          setModels(combinedModels || []);
+        } catch (error) {
+          console.error("Error fetching models:", error);
+        } finally {
           setIsLoading(prev => ({...prev, models: false}));
-        });
-    }
+        }
+      }
+    };
+    fetchModels();
   }, [selectedBrand]);
 
+  // Hämta årsmodeller
   useEffect(() => {
     if (selectedBrand && selectedModel) {
       setIsLoading(prev => ({...prev, years: true}));
@@ -93,6 +167,7 @@ export default function TestPage() {
     }
   }, [selectedModel]);
 
+  // Hämta motorer
   useEffect(() => {
     if (selectedBrand && selectedModel && selectedYear) {
       setIsLoading(prev => ({...prev, engines: true}));
@@ -139,7 +214,7 @@ export default function TestPage() {
       className={`cursor-pointer rounded-lg p-4 flex flex-col items-center justify-center transition-all duration-200
         ${isSelected ? 'bg-blue-600 text-white' : 'bg-white hover:bg-gray-50 border border-gray-200'}
         ${isLoading ? 'animate-pulse' : ''}
-        shadow-sm hover:shadow-md`}
+        shadow-sm hover:shadow-md h-full`}
     >
       {isLoading ? (
         <div className="h-16 w-16 bg-gray-200 rounded-full mb-2"></div>
@@ -149,6 +224,9 @@ export default function TestPage() {
           alt={label} 
           className="h-16 w-auto object-contain mb-2" 
           loading="lazy"
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = '/default-car-model.png';
+          }}
         />
       ) : (
         <div className="h-16 w-16 bg-gray-100 rounded-full mb-2 flex items-center justify-center">
@@ -281,6 +359,7 @@ export default function TestPage() {
                   <Card
                     key={model.slug}
                     label={model.name}
+                    imageUrl={model.imageUrl}
                     onClick={() => setSelectedModel(model)}
                   />
                 ))}
