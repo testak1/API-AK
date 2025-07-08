@@ -26,6 +26,7 @@ type Year = {
 type Engine = {
   label: string;
   slug: string;
+  fuel: string;
 };
 
 export default function TestPage() {
@@ -47,14 +48,12 @@ export default function TestPage() {
       .replace(/\s+/g, "-")
       .replace(/-+/g, "-");
 
-  // Step 1: Load brands
   useEffect(() => {
     fetch("/api/brands")
       .then((res) => res.json())
       .then((data) => setBrands(data.result || []));
   }, []);
 
-  // Step 2: Load models
   useEffect(() => {
     if (selectedBrand) {
       fetch(`/api/models?brand=${encodeURIComponent(selectedBrand.name)}`)
@@ -63,7 +62,6 @@ export default function TestPage() {
     }
   }, [selectedBrand]);
 
-  // Step 3: Load years
   useEffect(() => {
     if (selectedBrand && selectedModel) {
       fetch(
@@ -76,7 +74,6 @@ export default function TestPage() {
     }
   }, [selectedModel]);
 
-  // Step 4: Load engines
   useEffect(() => {
     if (selectedBrand && selectedModel && selectedYear) {
       fetch(
@@ -121,6 +118,26 @@ export default function TestPage() {
     </div>
   );
 
+  const BackButton = ({ onClick }: { onClick: () => void }) => (
+    <button
+      onClick={onClick}
+      className="mb-4 inline-block text-sm text-blue-600 hover:underline"
+    >
+      ← Tillbaka
+    </button>
+  );
+
+  const enginesByFuel = (fuelType: string) =>
+    engines.filter((e) =>
+      e.fuel.toLowerCase().includes(fuelType.toLowerCase()),
+    );
+
+  const enginesOther = engines.filter(
+    (e) =>
+      !e.fuel.toLowerCase().includes("diesel") &&
+      !e.fuel.toLowerCase().includes("bensin"),
+  );
+
   return (
     <div className="max-w-5xl mx-auto p-4">
       <h1 className="text-2xl font-bold mb-6">Välj din bil</h1>
@@ -142,7 +159,8 @@ export default function TestPage() {
       {/* STEP 2: MODEL */}
       {selectedBrand && !selectedModel && (
         <>
-          <h2 className="text-xl font-semibold my-4">Välj modell</h2>
+          <BackButton onClick={() => setSelectedBrand(null)} />
+          <h2 className="text-xl font-semibold mb-4">Välj modell</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {models.map((model) => (
               <Card
@@ -158,7 +176,8 @@ export default function TestPage() {
       {/* STEP 3: YEAR */}
       {selectedBrand && selectedModel && !selectedYear && (
         <>
-          <h2 className="text-xl font-semibold my-4">Välj årsmodell</h2>
+          <BackButton onClick={() => setSelectedModel(null)} />
+          <h2 className="text-xl font-semibold mb-4">Välj årsmodell</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {years.map((year) => (
               <Card
@@ -174,16 +193,62 @@ export default function TestPage() {
       {/* STEP 4: ENGINE */}
       {selectedBrand && selectedModel && selectedYear && (
         <>
-          <h2 className="text-xl font-semibold my-4">Välj motor</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {engines.map((engine) => (
-              <Card
-                key={engine.slug}
-                label={engine.label}
-                onClick={() => goToEnginePage(engine.label)}
-              />
-            ))}
-          </div>
+          <BackButton onClick={() => setSelectedYear(null)} />
+          <h2 className="text-xl font-semibold mb-4">Välj motor</h2>
+
+          {/* Diesel */}
+          {enginesByFuel("diesel").length > 0 && (
+            <>
+              <h3 className="text-md font-medium mb-2 mt-4 text-gray-600">
+                Diesel
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {enginesByFuel("diesel").map((engine) => (
+                  <Card
+                    key={engine.slug}
+                    label={engine.label}
+                    onClick={() => goToEnginePage(engine.label)}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+
+          {/* Bensin */}
+          {enginesByFuel("bensin").length > 0 && (
+            <>
+              <h3 className="text-md font-medium mb-2 mt-4 text-gray-600">
+                Bensin
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {enginesByFuel("bensin").map((engine) => (
+                  <Card
+                    key={engine.slug}
+                    label={engine.label}
+                    onClick={() => goToEnginePage(engine.label)}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+
+          {/* Other */}
+          {enginesOther.length > 0 && (
+            <>
+              <h3 className="text-md font-medium mb-2 mt-4 text-gray-600">
+                Övrigt
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {enginesOther.map((engine) => (
+                  <Card
+                    key={engine.slug}
+                    label={engine.label}
+                    onClick={() => goToEnginePage(engine.label)}
+                  />
+                ))}
+              </div>
+            </>
+          )}
         </>
       )}
     </div>
