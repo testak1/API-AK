@@ -17,8 +17,6 @@ type Brand = {
 type Model = {
   name: string;
   slug: string;
-  imageUrl?: string;
-  tcmId?: string; // Add TCM ID for fetching images
 };
 
 type Year = {
@@ -57,12 +55,6 @@ export default function TestPage() {
       .replace(/\s+/g, "-")
       .replace(/-+/g, "-");
 
-  // Function to get TCM image URL for a model
-  const getTcmModelImageUrl = (brandName: string, modelId: string) => {
-    // This matches the URL pattern from your scraping script
-    return `https://tcmtuning.ro/wp-content/themes/M5/ximages/models/${brandName.toLowerCase()}_${modelId}.png`;
-  };
-
   useEffect(() => {
     setIsLoading(prev => ({...prev, brands: true}));
     fetch("/api/brands")
@@ -79,13 +71,7 @@ export default function TestPage() {
       fetch(`/api/models?brand=${encodeURIComponent(selectedBrand.name)}`)
         .then((res) => res.json())
         .then((data) => {
-          const modelsWithImages = data.result ? data.result.map((model: any) => ({
-            ...model,
-            // Add TCM image URL if we have the necessary data
-            imageUrl: model.tcmId ? getTcmModelImageUrl(selectedBrand.name, model.tcmId) : undefined
-          })) : [];
-          
-          setModels(modelsWithImages);
+          setModels(data.result || []);
           setIsLoading(prev => ({...prev, models: false}));
         });
     }
@@ -147,38 +133,33 @@ export default function TestPage() {
     onClick: () => void;
     isSelected?: boolean;
     isLoading?: boolean;
-  }) => {
-    const [imgError, setImgError] = useState(false);
-
-    return (
-      <div
-        onClick={onClick}
-        className={`cursor-pointer rounded-lg p-4 flex flex-col items-center justify-center transition-all duration-200
-          ${isSelected ? 'bg-blue-600 text-white' : 'bg-white hover:bg-gray-50 border border-gray-200'}
-          ${isLoading ? 'animate-pulse' : ''}
-          shadow-sm hover:shadow-md`}
-      >
-        {isLoading ? (
-          <div className="h-16 w-16 bg-gray-200 rounded-full mb-2"></div>
-        ) : (imageUrl && !imgError) ? (
-          <img 
-            src={imageUrl} 
-            alt={label} 
-            className="h-16 w-auto object-contain mb-2" 
-            loading="lazy"
-            onError={() => setImgError(true)}
-          />
-        ) : (
-          <div className="h-16 w-16 bg-gray-100 rounded-full mb-2 flex items-center justify-center">
-            <span className="text-gray-400 text-2xl font-bold">{label.charAt(0)}</span>
-          </div>
-        )}
-        <p className={`text-center font-medium ${isSelected ? 'text-white' : 'text-gray-800'}`}>
-          {label}
-        </p>
-      </div>
-    );
-  };
+  }) => (
+    <div
+      onClick={onClick}
+      className={`cursor-pointer rounded-lg p-4 flex flex-col items-center justify-center transition-all duration-200
+        ${isSelected ? 'bg-blue-600 text-white' : 'bg-white hover:bg-gray-50 border border-gray-200'}
+        ${isLoading ? 'animate-pulse' : ''}
+        shadow-sm hover:shadow-md`}
+    >
+      {isLoading ? (
+        <div className="h-16 w-16 bg-gray-200 rounded-full mb-2"></div>
+      ) : imageUrl ? (
+        <img 
+          src={imageUrl} 
+          alt={label} 
+          className="h-16 w-auto object-contain mb-2" 
+          loading="lazy"
+        />
+      ) : (
+        <div className="h-16 w-16 bg-gray-100 rounded-full mb-2 flex items-center justify-center">
+          <span className="text-gray-400 text-2xl font-bold">{label.charAt(0)}</span>
+        </div>
+      )}
+      <p className={`text-center font-medium ${isSelected ? 'text-white' : 'text-gray-800'}`}>
+        {label}
+      </p>
+    </div>
+  );
 
   const BackButton = ({ onClick }: { onClick: () => void }) => (
     <button
@@ -300,7 +281,6 @@ export default function TestPage() {
                   <Card
                     key={model.slug}
                     label={model.name}
-                    imageUrl={model.imageUrl}
                     onClick={() => setSelectedModel(model)}
                   />
                 ))}
