@@ -1,23 +1,9 @@
+// pages/test.tsx
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import { useRouter } from "next/router";
+import Image from "next/image";
 
-type Engine = {
-  _id: string;
-  label: string;
-};
-
-type Year = {
-  range: string;
-  engines: Engine[];
-};
-
-type Model = {
-  name: string;
-  years: Year[];
-};
-
-type Brand = {
+interface Brand {
   _id: string;
   name: string;
   slug: string;
@@ -27,155 +13,157 @@ type Brand = {
     };
     alt?: string;
   };
-  models: Model[];
-};
+  models?: {
+    name: string;
+    years?: {
+      range: string;
+      engines?: {
+        _id: string;
+        label: string;
+        fuel: string;
+      }[];
+    }[];
+  }[];
+}
 
-export default function TestPage() {
+export default function TestFlowPage() {
   const [brands, setBrands] = useState<Brand[]>([]);
   const [selectedBrand, setSelectedBrand] = useState<Brand | null>(null);
-  const [selectedModel, setSelectedModel] = useState<Model | null>(null);
-  const [selectedYear, setSelectedYear] = useState<Year | null>(null);
-
+  const [selectedModel, setSelectedModel] = useState<string | null>(null);
+  const [selectedYear, setSelectedYear] = useState<string | null>(null);
+  const [selectedEngine, setSelectedEngine] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
-    const fetchBrands = async () => {
-      try {
-        const res = await fetch("/api/brands");
-        const data = await res.json();
-        setBrands(data.result || []);
-      } catch (error) {
-        console.error("Failed to fetch brands", error);
-      }
-    };
-
-    fetchBrands();
+    fetch("/api/brands")
+      .then((res) => res.json())
+      .then((data) => setBrands(data.result))
+      .catch((err) => console.error("Failed to fetch brands", err));
   }, []);
 
-  const resetToBrand = () => {
+  const handleBrandClick = (brand: Brand) => {
+    setSelectedBrand(brand);
     setSelectedModel(null);
     setSelectedYear(null);
+    setSelectedEngine(null);
   };
 
-  const resetToModel = () => {
+  const handleModelClick = (model: string) => {
+    setSelectedModel(model);
     setSelectedYear(null);
+    setSelectedEngine(null);
   };
 
-  const handleEngineSelect = (engineId: string, engineLabel: string) => {
-    if (!selectedBrand || !selectedModel || !selectedYear) return;
-
-    const path = `/${selectedBrand.slug}/${selectedModel.name}/${selectedYear.range}/${engineLabel}`;
-    router.push(path);
+  const handleYearClick = (year: string) => {
+    setSelectedYear(year);
+    setSelectedEngine(null);
   };
 
-  return (
-    <div className="max-w-5xl mx-auto px-4 py-10">
-      <h1 className="text-3xl font-bold mb-8 text-center">
-        {selectedBrand
-          ? selectedModel
-            ? selectedYear
-              ? "Välj motor"
-              : "Välj årsmodell"
-            : "Välj modell"
-          : "Välj bilmärke"}
-      </h1>
+  const handleEngineClick = (engineLabel: string) => {
+    setSelectedEngine(engineLabel);
 
-      {/* STEP 1: Brands */}
-      {!selectedBrand && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+    const brandSlug = selectedBrand?.slug || "";
+    const modelSlug = selectedModel || "";
+    const yearSlug = selectedYear || "";
+    const engineSlug = engineLabel;
+
+    router.push(`/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}`);
+  };
+
+  if (!selectedBrand) {
+    return (
+      <div className="max-w-4xl mx-auto p-4">
+        <h1 className="text-2xl font-bold mb-4">Välj bilmärke</h1>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {brands.map((brand) => (
             <div
               key={brand._id}
-              className="bg-white shadow rounded p-4 text-center hover:shadow-md cursor-pointer"
-              onClick={() => setSelectedBrand(brand)}
+              className="border p-2 rounded hover:shadow cursor-pointer text-center"
+              onClick={() => handleBrandClick(brand)}
             >
-              {brand.logo?.asset?.url ? (
+              {brand.logo?.asset?.url && (
                 <Image
                   src={brand.logo.asset.url}
-                  alt={brand.logo.alt || brand.name}
+                  alt={brand.logo?.alt || brand.name}
                   width={80}
                   height={80}
-                  className="mx-auto mb-2 object-contain"
+                  className="mx-auto"
                 />
-              ) : (
-                <div className="w-20 h-20 mx-auto mb-2 bg-gray-200 flex items-center justify-center text-sm font-medium rounded">
-                  {brand.name}
-                </div>
               )}
-              <h2 className="text-lg font-semibold">{brand.name}</h2>
+              <p className="mt-2 font-semibold">{brand.name}</p>
             </div>
           ))}
         </div>
-      )}
+      </div>
+    );
+  }
 
-      {/* STEP 2: Models */}
-      {selectedBrand && !selectedModel && (
-        <div>
-          <button
-            onClick={() => setSelectedBrand(null)}
-            className="mb-4 text-blue-600 hover:underline"
-          >
-            ← Tillbaka till märken
-          </button>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-            {selectedBrand.models.map((model, idx) => (
-              <div
-                key={idx}
-                className="bg-white shadow rounded p-4 text-center hover:shadow-md cursor-pointer"
-                onClick={() => setSelectedModel(model)}
-              >
-                <h3 className="text-md font-medium">{model.name}</h3>
-              </div>
-            ))}
-          </div>
+  if (!selectedModel) {
+    return (
+      <div className="max-w-4xl mx-auto p-4">
+        <h1 className="text-2xl font-bold mb-4">Välj modell</h1>
+        <button className="text-blue-600 mb-4" onClick={() => setSelectedBrand(null)}>
+          ← Tillbaka till märken
+        </button>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          {selectedBrand.models?.map((model) => (
+            <div
+              key={model.name}
+              className="border p-2 rounded hover:shadow cursor-pointer text-center"
+              onClick={() => handleModelClick(model.name)}
+            >
+              <p className="font-medium">{model.name}</p>
+            </div>
+          ))}
         </div>
-      )}
+      </div>
+    );
+  }
 
-      {/* STEP 3: Years */}
-      {selectedBrand && selectedModel && !selectedYear && (
-        <div>
-          <button
-            onClick={resetToBrand}
-            className="mb-4 text-blue-600 hover:underline"
-          >
-            ← Tillbaka till modeller
-          </button>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-            {selectedModel.years.map((year, idx) => (
-              <div
-                key={idx}
-                className="bg-white shadow rounded p-4 text-center hover:shadow-md cursor-pointer"
-                onClick={() => setSelectedYear(year)}
-              >
-                <p className="text-md font-semibold">{year.range}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+  const currentModel = selectedBrand.models?.find((m) => m.name === selectedModel);
 
-      {/* STEP 4: Engines */}
-      {selectedBrand && selectedModel && selectedYear && (
-        <div>
-          <button
-            onClick={resetToModel}
-            className="mb-4 text-blue-600 hover:underline"
-          >
-            ← Tillbaka till årsmodeller
-          </button>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {selectedYear.engines.map((engine) => (
-              <div
-                key={engine._id}
-                className="bg-white shadow rounded p-4 text-center hover:shadow-md cursor-pointer"
-                onClick={() => handleEngineSelect(engine._id, engine.label)}
-              >
-                <p className="font-medium">{engine.label}</p>
-              </div>
-            ))}
-          </div>
+  if (!selectedYear) {
+    return (
+      <div className="max-w-4xl mx-auto p-4">
+        <h1 className="text-2xl font-bold mb-4">Välj årsmodell</h1>
+        <button className="text-blue-600 mb-4" onClick={() => setSelectedModel(null)}>
+          ← Tillbaka till modeller
+        </button>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          {currentModel?.years?.map((year) => (
+            <div
+              key={year.range}
+              className="border p-2 rounded hover:shadow cursor-pointer text-center"
+              onClick={() => handleYearClick(year.range)}
+            >
+              <p className="font-medium">{year.range}</p>
+            </div>
+          ))}
         </div>
-      )}
+      </div>
+    );
+  }
+
+  const currentYear = currentModel?.years?.find((y) => y.range === selectedYear);
+
+  return (
+    <div className="max-w-4xl mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Välj motor</h1>
+      <button className="text-blue-600 mb-4" onClick={() => setSelectedYear(null)}>
+        ← Tillbaka till år
+      </button>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        {currentYear?.engines?.map((engine) => (
+          <div
+            key={engine._id}
+            className="border p-2 rounded hover:shadow cursor-pointer text-center"
+            onClick={() => handleEngineClick(engine.label)}
+          >
+            <p className="font-medium">{engine.label}</p>
+            <p className="text-sm text-gray-500">{engine.fuel}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
