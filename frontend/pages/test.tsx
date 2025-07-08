@@ -36,61 +36,9 @@ export default function TestPage() {
   const [years, setYears] = useState<Year[]>([]);
   const [engines, setEngines] = useState<Engine[]>([]);
 
-  const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
-  const [selectedModel, setSelectedModel] = useState<string | null>(null);
-  const [selectedYear, setSelectedYear] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetch("/api/brands")
-      .then((res) => res.json())
-      .then((data) => setBrands(data.result || []));
-  }, []);
-
-  useEffect(() => {
-    if (selectedBrand) {
-      fetch(`/api/models?brand=${encodeURIComponent(selectedBrand)}`)
-        .then((res) => res.json())
-        .then((data) => setModels(data.result || []));
-    } else {
-      setModels([]);
-    }
-    setYears([]);
-    setEngines([]);
-    setSelectedModel(null);
-    setSelectedYear(null);
-  }, [selectedBrand]);
-
-  useEffect(() => {
-    if (selectedBrand && selectedModel) {
-      fetch(
-        `/api/years?brand=${encodeURIComponent(
-          selectedBrand,
-        )}&model=${encodeURIComponent(selectedModel)}`,
-      )
-        .then((res) => res.json())
-        .then((data) => setYears(data.result || []));
-    } else {
-      setYears([]);
-    }
-    setEngines([]);
-    setSelectedYear(null);
-  }, [selectedModel]);
-
-  useEffect(() => {
-    if (selectedBrand && selectedModel && selectedYear) {
-      fetch(
-        `/api/engines?brand=${encodeURIComponent(
-          selectedBrand,
-        )}&model=${encodeURIComponent(
-          selectedModel,
-        )}&year=${encodeURIComponent(selectedYear)}`,
-      )
-        .then((res) => res.json())
-        .then((data) => setEngines(data.result || []));
-    } else {
-      setEngines([]);
-    }
-  }, [selectedYear]);
+  const [selectedBrand, setSelectedBrand] = useState<Brand | null>(null);
+  const [selectedModel, setSelectedModel] = useState<Model | null>(null);
+  const [selectedYear, setSelectedYear] = useState<Year | null>(null);
 
   const slugify = (str: string) =>
     str
@@ -99,83 +47,145 @@ export default function TestPage() {
       .replace(/\s+/g, "-")
       .replace(/-+/g, "-");
 
-  const navigateToEngine = (engineSlug: string) => {
+  // Step 1: Load brands
+  useEffect(() => {
+    fetch("/api/brands")
+      .then((res) => res.json())
+      .then((data) => setBrands(data.result || []));
+  }, []);
+
+  // Step 2: Load models
+  useEffect(() => {
+    if (selectedBrand) {
+      fetch(`/api/models?brand=${encodeURIComponent(selectedBrand.name)}`)
+        .then((res) => res.json())
+        .then((data) => setModels(data.result || []));
+    }
+  }, [selectedBrand]);
+
+  // Step 3: Load years
+  useEffect(() => {
+    if (selectedBrand && selectedModel) {
+      fetch(
+        `/api/years?brand=${encodeURIComponent(
+          selectedBrand.name,
+        )}&model=${encodeURIComponent(selectedModel.name)}`,
+      )
+        .then((res) => res.json())
+        .then((data) => setYears(data.result || []));
+    }
+  }, [selectedModel]);
+
+  // Step 4: Load engines
+  useEffect(() => {
+    if (selectedBrand && selectedModel && selectedYear) {
+      fetch(
+        `/api/engines?brand=${encodeURIComponent(
+          selectedBrand.name,
+        )}&model=${encodeURIComponent(
+          selectedModel.name,
+        )}&year=${encodeURIComponent(selectedYear.range)}`,
+      )
+        .then((res) => res.json())
+        .then((data) => setEngines(data.result || []));
+    }
+  }, [selectedYear]);
+
+  const goToEnginePage = (engineLabel: string) => {
     if (!selectedBrand || !selectedModel || !selectedYear) return;
+    const brandSlug = slugify(selectedBrand.slug || selectedBrand.name);
+    const modelSlug = slugify(selectedModel.slug || selectedModel.name);
+    const yearSlug = slugify(selectedYear.slug || selectedYear.range);
+    const engineSlug = slugify(engineLabel);
 
-    const brandSlug = slugify(selectedBrand);
-    const modelSlug = slugify(selectedModel);
-    const yearSlug = slugify(selectedYear);
-    const engineSlugFinal = slugify(engineSlug);
-
-    router.push(`/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlugFinal}`);
+    router.push(`/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}`);
   };
 
+  const Card = ({
+    label,
+    imageUrl,
+    onClick,
+  }: {
+    label: string;
+    imageUrl?: string;
+    onClick: () => void;
+  }) => (
+    <div
+      onClick={onClick}
+      className="cursor-pointer border rounded-lg shadow-sm hover:shadow-lg p-4 flex flex-col items-center justify-center bg-white hover:bg-gray-50 transition"
+    >
+      {imageUrl && (
+        <img src={imageUrl} alt={label} className="h-16 object-contain mb-2" />
+      )}
+      <p className="text-center text-sm font-medium">{label}</p>
+    </div>
+  );
+
   return (
-    <div className="max-w-xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Test Navigering</h1>
+    <div className="max-w-5xl mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-6">Välj din bil</h1>
 
-      <div className="space-y-4">
-        {/* Step 1: Brand */}
-        <select
-          value={selectedBrand || ""}
-          onChange={(e) => setSelectedBrand(e.target.value)}
-          className="w-full p-2 border"
-        >
-          <option value="">Välj märke</option>
-          {brands.map((b) => (
-            <option key={b.slug} value={b.name}>
-              {b.name}
-            </option>
+      {/* STEP 1: BRAND */}
+      {!selectedBrand && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+          {brands.map((brand) => (
+            <Card
+              key={brand.slug}
+              label={brand.name}
+              imageUrl={brand.logo?.asset.url}
+              onClick={() => setSelectedBrand(brand)}
+            />
           ))}
-        </select>
+        </div>
+      )}
 
-        {/* Step 2: Model */}
-        {models.length > 0 && (
-          <select
-            value={selectedModel || ""}
-            onChange={(e) => setSelectedModel(e.target.value)}
-            className="w-full p-2 border"
-          >
-            <option value="">Välj modell</option>
-            {models.map((m) => (
-              <option key={m.slug} value={m.name}>
-                {m.name}
-              </option>
+      {/* STEP 2: MODEL */}
+      {selectedBrand && !selectedModel && (
+        <>
+          <h2 className="text-xl font-semibold my-4">Välj modell</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            {models.map((model) => (
+              <Card
+                key={model.slug}
+                label={model.name}
+                onClick={() => setSelectedModel(model)}
+              />
             ))}
-          </select>
-        )}
+          </div>
+        </>
+      )}
 
-        {/* Step 3: Year */}
-        {years.length > 0 && (
-          <select
-            value={selectedYear || ""}
-            onChange={(e) => setSelectedYear(e.target.value)}
-            className="w-full p-2 border"
-          >
-            <option value="">Välj årsmodell</option>
-            {years.map((y) => (
-              <option key={y.slug} value={y.range}>
-                {y.range}
-              </option>
+      {/* STEP 3: YEAR */}
+      {selectedBrand && selectedModel && !selectedYear && (
+        <>
+          <h2 className="text-xl font-semibold my-4">Välj årsmodell</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            {years.map((year) => (
+              <Card
+                key={year.slug}
+                label={year.range}
+                onClick={() => setSelectedYear(year)}
+              />
             ))}
-          </select>
-        )}
+          </div>
+        </>
+      )}
 
-        {/* Step 4: Engine */}
-        {engines.length > 0 && (
-          <select
-            onChange={(e) => navigateToEngine(e.target.value)}
-            className="w-full p-2 border"
-          >
-            <option value="">Välj motor</option>
-            {engines.map((e) => (
-              <option key={e.slug} value={e.label}>
-                {e.label}
-              </option>
+      {/* STEP 4: ENGINE */}
+      {selectedBrand && selectedModel && selectedYear && (
+        <>
+          <h2 className="text-xl font-semibold my-4">Välj motor</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {engines.map((engine) => (
+              <Card
+                key={engine.slug}
+                label={engine.label}
+                onClick={() => goToEnginePage(engine.label)}
+              />
             ))}
-          </select>
-        )}
-      </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
