@@ -1,46 +1,44 @@
+// pages/test.tsx
 import { useEffect, useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
+import { useRouter } from "next/router";
 
-interface Brand {
+type Brand = {
   name: string;
   slug: string;
   logo?: {
-    asset: { url: string };
+    asset: {
+      url: string;
+    };
     alt?: string;
   };
-}
+};
 
-interface Model {
+type Model = {
   name: string;
   slug: string;
-}
+};
 
-interface Year {
+type Year = {
   range: string;
   slug: string;
-}
+};
 
-interface Engine {
+type Engine = {
   label: string;
   slug: string;
-  stages: {
-    name: string;
-    tunedHk?: number;
-    tunedNm?: number;
-    price?: number;
-  }[];
-}
+};
 
 export default function TestPage() {
+  const router = useRouter();
+
   const [brands, setBrands] = useState<Brand[]>([]);
   const [models, setModels] = useState<Model[]>([]);
   const [years, setYears] = useState<Year[]>([]);
   const [engines, setEngines] = useState<Engine[]>([]);
 
-  const [selectedBrand, setSelectedBrand] = useState<Brand | null>(null);
-  const [selectedModel, setSelectedModel] = useState<Model | null>(null);
-  const [selectedYear, setSelectedYear] = useState<Year | null>(null);
+  const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
+  const [selectedModel, setSelectedModel] = useState<string | null>(null);
+  const [selectedYear, setSelectedYear] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/brands")
@@ -49,137 +47,135 @@ export default function TestPage() {
   }, []);
 
   useEffect(() => {
-    if (!selectedBrand) return;
-    fetch(`/api/models?brand=${selectedBrand.slug}`)
-      .then((res) => res.json())
-      .then((data) => setModels(data.result || []));
+    if (selectedBrand) {
+      fetch(`/api/models?brand=${encodeURIComponent(selectedBrand)}`)
+        .then((res) => res.json())
+        .then((data) => setModels(data.result || []));
+    } else {
+      setModels([]);
+    }
+    setYears([]);
+    setEngines([]);
+    setSelectedModel(null);
+    setSelectedYear(null);
   }, [selectedBrand]);
 
   useEffect(() => {
-    if (!selectedBrand || !selectedModel) return;
-    fetch(`/api/years?brand=${selectedBrand.slug}&model=${selectedModel.slug}`)
-      .then((res) => res.json())
-      .then((data) => setYears(data.result || []));
+    if (selectedBrand && selectedModel) {
+      fetch(
+        `/api/years?brand=${encodeURIComponent(
+          selectedBrand,
+        )}&model=${encodeURIComponent(selectedModel)}`,
+      )
+        .then((res) => res.json())
+        .then((data) => setYears(data.result || []));
+    } else {
+      setYears([]);
+    }
+    setEngines([]);
+    setSelectedYear(null);
   }, [selectedModel]);
 
   useEffect(() => {
-    if (!selectedBrand || !selectedModel || !selectedYear) return;
-    fetch(
-      `/api/engines?brand=${selectedBrand.slug}&model=${selectedModel.slug}&year=${selectedYear.range}`,
-    )
-      .then((res) => res.json())
-      .then((data) => setEngines(data.result || []));
+    if (selectedBrand && selectedModel && selectedYear) {
+      fetch(
+        `/api/engines?brand=${encodeURIComponent(
+          selectedBrand,
+        )}&model=${encodeURIComponent(
+          selectedModel,
+        )}&year=${encodeURIComponent(selectedYear)}`,
+      )
+        .then((res) => res.json())
+        .then((data) => setEngines(data.result || []));
+    } else {
+      setEngines([]);
+    }
   }, [selectedYear]);
 
+  const slugify = (str: string) =>
+    str
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-");
+
+  const navigateToEngine = (engineSlug: string) => {
+    if (!selectedBrand || !selectedModel || !selectedYear) return;
+
+    const brandSlug = slugify(selectedBrand);
+    const modelSlug = slugify(selectedModel);
+    const yearSlug = slugify(selectedYear);
+    const engineSlugFinal = slugify(engineSlug);
+
+    router.push(`/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlugFinal}`);
+  };
+
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-8">
-      <h1 className="text-3xl font-bold">Test: Motoröversikt</h1>
+    <div className="max-w-xl mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Test Navigering</h1>
 
-      {/* Brand selection */}
       <div className="space-y-4">
-        <h2 className="text-xl font-semibold">1. Välj bilmärke</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-          {brands.map((brand) => (
-            <button
-              key={brand.slug}
-              onClick={() => {
-                setSelectedBrand(brand);
-                setSelectedModel(null);
-                setSelectedYear(null);
-                setEngines([]);
-              }}
-              className={`border rounded-md p-2 text-center hover:bg-gray-100 ${
-                selectedBrand?.slug === brand.slug ? "border-blue-500" : ""
-              }`}
-            >
-              {brand.logo?.asset?.url && (
-                <div className="relative w-full h-16 mb-1">
-                  <Image
-                    src={brand.logo.asset.url}
-                    alt={brand.logo.alt || brand.name}
-                    fill
-                    style={{ objectFit: "contain" }}
-                  />
-                </div>
-              )}
-              <p>{brand.name}</p>
-            </button>
+        {/* Step 1: Brand */}
+        <select
+          value={selectedBrand || ""}
+          onChange={(e) => setSelectedBrand(e.target.value)}
+          className="w-full p-2 border"
+        >
+          <option value="">Välj märke</option>
+          {brands.map((b) => (
+            <option key={b.slug} value={b.name}>
+              {b.name}
+            </option>
           ))}
-        </div>
+        </select>
+
+        {/* Step 2: Model */}
+        {models.length > 0 && (
+          <select
+            value={selectedModel || ""}
+            onChange={(e) => setSelectedModel(e.target.value)}
+            className="w-full p-2 border"
+          >
+            <option value="">Välj modell</option>
+            {models.map((m) => (
+              <option key={m.slug} value={m.name}>
+                {m.name}
+              </option>
+            ))}
+          </select>
+        )}
+
+        {/* Step 3: Year */}
+        {years.length > 0 && (
+          <select
+            value={selectedYear || ""}
+            onChange={(e) => setSelectedYear(e.target.value)}
+            className="w-full p-2 border"
+          >
+            <option value="">Välj årsmodell</option>
+            {years.map((y) => (
+              <option key={y.slug} value={y.range}>
+                {y.range}
+              </option>
+            ))}
+          </select>
+        )}
+
+        {/* Step 4: Engine */}
+        {engines.length > 0 && (
+          <select
+            onChange={(e) => navigateToEngine(e.target.value)}
+            className="w-full p-2 border"
+          >
+            <option value="">Välj motor</option>
+            {engines.map((e) => (
+              <option key={e.slug} value={e.label}>
+                {e.label}
+              </option>
+            ))}
+          </select>
+        )}
       </div>
-
-      {/* Model selection */}
-      {selectedBrand && (
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold">2. Välj modell</h2>
-          <div className="flex flex-wrap gap-2">
-            {models.map((model) => (
-              <button
-                key={model.slug}
-                onClick={() => {
-                  setSelectedModel(model);
-                  setSelectedYear(null);
-                  setEngines([]);
-                }}
-                className={`px-4 py-2 rounded-md border hover:bg-gray-100 ${
-                  selectedModel?.slug === model.slug ? "border-blue-500" : ""
-                }`}
-              >
-                {model.name}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Year selection */}
-      {selectedModel && (
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold">3. Välj årsmodell</h2>
-          <div className="flex flex-wrap gap-2">
-            {years.map((year) => (
-              <button
-                key={year.slug}
-                onClick={() => setSelectedYear(year)}
-                className={`px-4 py-2 rounded-md border hover:bg-gray-100 ${
-                  selectedYear?.slug === year.slug ? "border-blue-500" : ""
-                }`}
-              >
-                {year.range}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Engine output */}
-      {selectedYear && (
-        <div className="space-y-6">
-          <h2 className="text-xl font-semibold">4. Tillgängliga motorer</h2>
-          {engines.map((engine) => (
-            <div
-              key={engine.slug}
-              className="border rounded-md p-4 space-y-2 bg-white shadow"
-            >
-              <h3 className="text-lg font-semibold">{engine.label}</h3>
-              <ul className="list-disc pl-5">
-                {engine.stages?.map((stage, i) => (
-                  <li key={i}>
-                    {stage.name} – {stage.tunedHk || "?"} hk /{" "}
-                    {stage.tunedNm || "?"} Nm – {stage.price?.toLocaleString()} kr
-                  </li>
-                ))}
-              </ul>
-              <Link
-                href={`/${selectedBrand.slug}/${selectedModel.slug}/${selectedYear.slug}/${engine.slug}`}
-                className="inline-block mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500"
-              >
-                Se detaljer
-              </Link>
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 }
