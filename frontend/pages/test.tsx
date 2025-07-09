@@ -377,6 +377,7 @@ export default function TestPage() {
                   <Card
                     key={model.slug}
                     label={model.name}
+                    imageUrl={getModelImage(model.name, selectedBrand.name)}
                     onClick={() => setSelectedModel(model)}
                   />
                 ))}
