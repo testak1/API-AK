@@ -37,6 +37,7 @@ export default function TestPage() {
   const [models, setModels] = useState<Model[]>([]);
   const [years, setYears] = useState<Year[]>([]);
   const [engines, setEngines] = useState<Engine[]>([]);
+  const [allModels, setAllModels] = useState<any[]>([]);
 
   const [selectedBrand, setSelectedBrand] = useState<Brand | null>(null);
   const [selectedModel, setSelectedModel] = useState<Model | null>(null);
@@ -45,7 +46,7 @@ export default function TestPage() {
     brands: true,
     models: false,
     years: false,
-    engines: false
+    engines: false,
   });
 
   const slugify = (str: string) =>
@@ -56,30 +57,39 @@ export default function TestPage() {
       .replace(/-+/g, "-");
 
   useEffect(() => {
-    setIsLoading(prev => ({...prev, brands: true}));
+    setIsLoading((prev) => ({ ...prev, brands: true }));
     fetch("/api/brands")
       .then((res) => res.json())
       .then((data) => {
         setBrands(data.result || []);
-        setIsLoading(prev => ({...prev, brands: false}));
+        setIsLoading((prev) => ({ ...prev, brands: false }));
       });
   }, []);
 
   useEffect(() => {
+    fetch("/data/all_models.json")
+      .then((res) => res.json())
+      .then((data) => {
+        setAllModels(data);
+      })
+      .catch((err) => console.error("Fel vid inläsning av modellbilder:", err));
+  }, []);
+
+  useEffect(() => {
     if (selectedBrand) {
-      setIsLoading(prev => ({...prev, models: true}));
+      setIsLoading((prev) => ({ ...prev, models: true }));
       fetch(`/api/models?brand=${encodeURIComponent(selectedBrand.name)}`)
         .then((res) => res.json())
         .then((data) => {
           setModels(data.result || []);
-          setIsLoading(prev => ({...prev, models: false}));
+          setIsLoading((prev) => ({ ...prev, models: false }));
         });
     }
   }, [selectedBrand]);
 
   useEffect(() => {
     if (selectedBrand && selectedModel) {
-      setIsLoading(prev => ({...prev, years: true}));
+      setIsLoading((prev) => ({ ...prev, years: true }));
       fetch(
         `/api/years?brand=${encodeURIComponent(
           selectedBrand.name,
@@ -88,14 +98,14 @@ export default function TestPage() {
         .then((res) => res.json())
         .then((data) => {
           setYears(data.result || []);
-          setIsLoading(prev => ({...prev, years: false}));
+          setIsLoading((prev) => ({ ...prev, years: false }));
         });
     }
   }, [selectedModel]);
 
   useEffect(() => {
     if (selectedBrand && selectedModel && selectedYear) {
-      setIsLoading(prev => ({...prev, engines: true}));
+      setIsLoading((prev) => ({ ...prev, engines: true }));
       fetch(
         `/api/engines?brand=${encodeURIComponent(
           selectedBrand.name,
@@ -106,10 +116,24 @@ export default function TestPage() {
         .then((res) => res.json())
         .then((data) => {
           setEngines(data.result || []);
-          setIsLoading(prev => ({...prev, engines: false}));
+          setIsLoading((prev) => ({ ...prev, engines: false }));
         });
     }
   }, [selectedYear]);
+
+  const getModelImage = (
+    modelName: string,
+    brandName: string,
+  ): string | undefined => {
+    return allModels.find(
+      (m) =>
+        m.name
+          .toLowerCase()
+          .replace(/\s+/g, "")
+          .includes(modelName.toLowerCase().replace(/\s+/g, "")) &&
+        m.brand.toLowerCase() === brandName.toLowerCase(),
+    )?.image_url;
+  };
 
   const goToEnginePage = (engineLabel: string) => {
     if (!selectedBrand || !selectedModel || !selectedYear) return;
@@ -126,7 +150,7 @@ export default function TestPage() {
     imageUrl,
     onClick,
     isSelected = false,
-    isLoading = false
+    isLoading = false,
   }: {
     label: string;
     imageUrl?: string;
@@ -137,25 +161,29 @@ export default function TestPage() {
     <div
       onClick={onClick}
       className={`cursor-pointer rounded-lg p-4 flex flex-col items-center justify-center transition-all duration-200
-        ${isSelected ? 'bg-blue-600 text-white' : 'bg-white hover:bg-gray-50 border border-gray-200'}
-        ${isLoading ? 'animate-pulse' : ''}
+        ${isSelected ? "bg-blue-600 text-white" : "bg-white hover:bg-gray-50 border border-gray-200"}
+        ${isLoading ? "animate-pulse" : ""}
         shadow-sm hover:shadow-md`}
     >
       {isLoading ? (
         <div className="h-16 w-16 bg-gray-200 rounded-full mb-2"></div>
       ) : imageUrl ? (
-        <img 
-          src={imageUrl} 
-          alt={label} 
-          className="h-16 w-auto object-contain mb-2" 
+        <img
+          src={imageUrl}
+          alt={label}
+          className="h-16 w-auto object-contain mb-2"
           loading="lazy"
         />
       ) : (
         <div className="h-16 w-16 bg-gray-100 rounded-full mb-2 flex items-center justify-center">
-          <span className="text-gray-400 text-2xl font-bold">{label.charAt(0)}</span>
+          <span className="text-gray-400 text-2xl font-bold">
+            {label.charAt(0)}
+          </span>
         </div>
       )}
-      <p className={`text-center font-medium ${isSelected ? 'text-white' : 'text-gray-800'}`}>
+      <p
+        className={`text-center font-medium ${isSelected ? "text-white" : "text-gray-800"}`}
+      >
         {label}
       </p>
     </div>
@@ -166,8 +194,18 @@ export default function TestPage() {
       onClick={onClick}
       className="flex items-center text-blue-600 hover:text-blue-800 mb-4 transition-colors"
     >
-      <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+      <svg
+        className="w-5 h-5 mr-1"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M10 19l-7-7m0 0l7-7m-7 7h18"
+        />
       </svg>
       Tillbaka
     </button>
@@ -201,38 +239,86 @@ export default function TestPage() {
     <>
       <Head>
         <title>Välj din bil | AK-TUNING</title>
-        <meta name="description" content="Välj din bilmodell för att se tillgängliga optimeringsalternativ" />
+        <meta
+          name="description"
+          content="Välj din bilmodell för att se tillgängliga optimeringsalternativ"
+        />
       </Head>
 
       <div className="max-w-6xl mx-auto px-4 py-8">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">VÄLJ DIN BIL</h1>
-          <p className="text-gray-600">Välj bilmärke, modell, årsmodell och motor för att se tillgängliga optimeringsalternativ</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            VÄLJ DIN BIL
+          </h1>
+          <p className="text-gray-600">
+            Välj bilmärke, modell, årsmodell och motor för att se tillgängliga
+            optimeringsalternativ
+          </p>
         </div>
 
         {/* Breadcrumb */}
         <div className="flex items-center text-sm text-gray-500 mb-8">
-          <span className={!selectedBrand ? "font-medium text-blue-600" : ""}>Bilmärke</span>
+          <span className={!selectedBrand ? "font-medium text-blue-600" : ""}>
+            Bilmärke
+          </span>
           {selectedBrand && (
             <>
-              <svg className="w-4 h-4 mx-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              <svg
+                className="w-4 h-4 mx-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
               </svg>
-              <span className={!selectedModel ? "font-medium text-blue-600" : ""}>Modell</span>
+              <span
+                className={!selectedModel ? "font-medium text-blue-600" : ""}
+              >
+                Modell
+              </span>
             </>
           )}
           {selectedModel && (
             <>
-              <svg className="w-4 h-4 mx-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              <svg
+                className="w-4 h-4 mx-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
               </svg>
-              <span className={!selectedYear ? "font-medium text-blue-600" : ""}>Årsmodell</span>
+              <span
+                className={!selectedYear ? "font-medium text-blue-600" : ""}
+              >
+                Årsmodell
+              </span>
             </>
           )}
           {selectedYear && (
             <>
-              <svg className="w-4 h-4 mx-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              <svg
+                className="w-4 h-4 mx-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
               </svg>
               <span className="font-medium text-blue-600">Motor</span>
             </>
@@ -246,7 +332,12 @@ export default function TestPage() {
             {isLoading.brands ? (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                 {[...Array(10)].map((_, i) => (
-                  <Card key={i} label="Laddar..." isLoading={true} onClick={() => {}} />
+                  <Card
+                    key={i}
+                    label="Laddar..."
+                    isLoading={true}
+                    onClick={() => {}}
+                  />
                 ))}
               </div>
             ) : (
@@ -272,7 +363,12 @@ export default function TestPage() {
             {isLoading.models ? (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                 {[...Array(6)].map((_, i) => (
-                  <Card key={i} label="Laddar..." isLoading={true} onClick={() => {}} />
+                  <Card
+                    key={i}
+                    label="Laddar..."
+                    isLoading={true}
+                    onClick={() => {}}
+                  />
                 ))}
               </div>
             ) : (
@@ -293,11 +389,18 @@ export default function TestPage() {
         {selectedBrand && selectedModel && !selectedYear && (
           <>
             <BackButton onClick={() => setSelectedModel(null)} />
-            <SectionHeader title={`Välj årsmodell för ${selectedBrand.name} ${selectedModel.name}`} />
+            <SectionHeader
+              title={`Välj årsmodell för ${selectedBrand.name} ${selectedModel.name}`}
+            />
             {isLoading.years ? (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                 {[...Array(8)].map((_, i) => (
-                  <Card key={i} label="Laddar..." isLoading={true} onClick={() => {}} />
+                  <Card
+                    key={i}
+                    label="Laddar..."
+                    isLoading={true}
+                    onClick={() => {}}
+                  />
                 ))}
               </div>
             ) : (
@@ -318,13 +421,20 @@ export default function TestPage() {
         {selectedBrand && selectedModel && selectedYear && (
           <>
             <BackButton onClick={() => setSelectedYear(null)} />
-            <SectionHeader title={`Välj motor för ${selectedBrand.name} ${selectedModel.name} ${selectedYear.range}`} />
-            
+            <SectionHeader
+              title={`Välj motor för ${selectedBrand.name} ${selectedModel.name} ${selectedYear.range}`}
+            />
+
             {isLoading.engines ? (
               <div className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                   {[...Array(3)].map((_, i) => (
-                    <Card key={i} label="Laddar..." isLoading={true} onClick={() => {}} />
+                    <Card
+                      key={i}
+                      label="Laddar..."
+                      isLoading={true}
+                      onClick={() => {}}
+                    />
                   ))}
                 </div>
               </div>
