@@ -353,7 +353,14 @@ export default function TestPage() {
                     key={brand.slug}
                     label={brand.name}
                     imageUrl={brand.logo?.asset.url}
-                    onClick={() => setSelectedBrand(brand)}
+                    onClick={() => {
+                      setSelectedBrand(brand);
+                      setSelectedModel(null);
+                      setSelectedYear(null);
+                      setModels([]);
+                      setYears([]);
+                      setEngines([]);
+                    }}
                   />
                 ))}
               </div>
