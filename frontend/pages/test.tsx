@@ -416,6 +416,10 @@ export default function TestPage() {
                   <Card
                     key={year.slug}
                     label={year.range}
+                    imageUrl={getModelImage(
+                      selectedModel.name,
+                      selectedBrand.name,
+                    )}
                     onClick={() => setSelectedYear(year)}
                   />
                 ))}
@@ -456,6 +460,10 @@ export default function TestPage() {
                         <Card
                           key={engine.slug}
                           label={engine.label}
+                          imageUrl={getModelImage(
+                            selectedModel.name,
+                            selectedBrand.name,
+                          )}
                           onClick={() => goToEnginePage(engine.label)}
                         />
                       ))}
@@ -472,6 +480,10 @@ export default function TestPage() {
                         <Card
                           key={engine.slug}
                           label={engine.label}
+                          imageUrl={getModelImage(
+                            selectedModel.name,
+                            selectedBrand.name,
+                          )}
                           onClick={() => goToEnginePage(engine.label)}
                         />
                       ))}
@@ -488,6 +500,10 @@ export default function TestPage() {
                         <Card
                           key={engine.slug}
                           label={engine.label}
+                          imageUrl={getModelImage(
+                            selectedModel.name,
+                            selectedBrand.name,
+                          )}
                           onClick={() => goToEnginePage(engine.label)}
                         />
                       ))}
