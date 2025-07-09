@@ -77,7 +77,13 @@ export default function TestPage() {
 
   useEffect(() => {
     if (selectedBrand) {
+      // 🧹 Rensa gamla val
+      setSelectedModel(null);
+      setSelectedYear(null);
+      setEngines([]);
+      setModels([]); // Rensa innan ny fetch
       setIsLoading((prev) => ({ ...prev, models: true }));
+
       fetch(`/api/models?brand=${encodeURIComponent(selectedBrand.name)}`)
         .then((res) => res.json())
         .then((data) => {
