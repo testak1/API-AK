@@ -637,12 +637,16 @@ export default function TuningViewer() {
             onClick={() =>
               setViewMode(viewMode === "dropdown" ? "cards" : "dropdown")
             }
-            className="ml-2 p-2 rounded-full bg-gray-700 hover:bg-gray-600"
-            title={viewMode === "dropdown" ? "Visa kortvy" : "Visa dropdown"}
+            className="p-2 rounded-full bg-gray-700 hover:bg-gray-600 transition-colors"
+            title={
+              viewMode === "dropdown"
+                ? "Switch to card view"
+                : "Switch to dropdown view"
+            }
           >
             {viewMode === "dropdown" ? (
               <svg
-                className="w-5 h-5 text-white"
+                className="w-5 h-5"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -650,13 +654,13 @@ export default function TuningViewer() {
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  strokeWidth="2"
+                  strokeWidth={2}
                   d="M4 6h16M4 12h16M4 18h16"
                 />
               </svg>
             ) : (
               <svg
-                className="w-5 h-5 text-white"
+                className="w-5 h-5"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -664,8 +668,8 @@ export default function TuningViewer() {
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M3 4a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM13 4a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1V4zM3 14a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1v-3zM13 14a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3z"
+                  strokeWidth={2}
+                  d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
                 />
               </svg>
             )}
