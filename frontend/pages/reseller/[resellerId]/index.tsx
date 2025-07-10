@@ -1085,7 +1085,7 @@ export default function TuningViewer() {
             {!selected.brand && (
               <>
                 <h2 className="text-xl font-bold text-black mb-4">
-                  Välj bilmärke
+                  {translate(currentLanguage, "selectBrand")}
                 </h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                   {brands
@@ -1139,10 +1139,12 @@ export default function TuningViewer() {
                       d="M10 19l-7-7m0 0l7-7m-7 7h18"
                     />
                   </svg>
-                  Tillbaka till bilmärken
+                  {translate(currentLanguage, "BACKTO")}{" "}
+                  {translate(currentLanguage, "BILMÄRKEN")}
                 </button>
                 <h2 className="text-xl font-bold text-black mb-4">
-                  Välj {selected.brand} modell
+                  {translate(currentLanguage, "selectModel")}{" "}
+                  {selected.brand}{" "}
                 </h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                   {models.map(model => (
@@ -1208,10 +1210,12 @@ export default function TuningViewer() {
                       d="M10 19l-7-7m0 0l7-7m-7 7h18"
                     />
                   </svg>
-                  Tillbaka till modeller
+                  {translate(currentLanguage, "BACKTO")}{" "}
+                  {translate(currentLanguage, "MODELLER")}
                 </button>
                 <h2 className="text-xl font-bold text-black mb-4">
-                  Välj årsmodell för {selected.brand} {selected.model}
+                  {translate(currentLanguage, "selectModel")} {selected.brand}{" "}
+                  {selected.model}
                 </h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                   {years.map(year => (
@@ -1260,11 +1264,12 @@ export default function TuningViewer() {
                         d="M10 19l-7-7m0 0l7-7m-7 7h18"
                       />
                     </svg>
-                    Tillbaka till årsmodeller
+                    {translate(currentLanguage, "BACKTO")}{" "}
+                    {translate(currentLanguage, "ÅRSMODELLER")}
                   </button>
                   <h2 className="text-xl font-bold text-black mb-4">
-                    Välj motor för {selected.brand} {selected.model}{" "}
-                    {selected.year}
+                    {translate(currentLanguage, "selectEngine")}{" "}
+                    {selected.brand} {selected.model} {selected.year}
                   </h2>
 
                   {/* Diesel engines */}
