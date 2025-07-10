@@ -15,6 +15,7 @@ import dynamic from "next/dynamic";
 import {PortableText} from "@portabletext/react";
 import {urlFor} from "@/lib/sanity";
 import PublicLanguageDropdown from "@/components/PublicLanguageSwitcher";
+import {LayoutGrid, List} from "lucide-react";
 import {t as translate} from "@/lib/translations";
 import type {
   Brand,
@@ -74,7 +75,7 @@ export default function TuningViewer() {
     return translations[lang] || name;
   };
 
-  const [viewMode, setViewMode] = useState<"dropdown" | "cards">("dropdown");
+  const [viewMode, setViewMode] = useState<"card" | "dropdown">("card");
 
   const [isLoading, setIsLoading] = useState(true);
   const [expandedStages, setExpandedStages] = useState<Record<string, boolean>>(
@@ -155,6 +156,21 @@ export default function TuningViewer() {
           .includes(modelName.toLowerCase().replace(/\s+/g, "")) &&
         m.brand.toLowerCase() === brandName.toLowerCase()
     )?.image_url;
+  };
+
+  useEffect(() => {
+    const savedView = localStorage.getItem("viewMode");
+    if (savedView === "dropdown") {
+      setViewMode("dropdown");
+    } else {
+      setViewMode("card"); // default är kortvy
+    }
+  }, []);
+
+  const toggleViewMode = () => {
+    const newMode = viewMode === "dropdown" ? "card" : "dropdown";
+    setViewMode(newMode);
+    localStorage.setItem("viewMode", newMode);
   };
 
   const slugifyStage = (str: string) =>
@@ -659,44 +675,14 @@ export default function TuningViewer() {
           />
 
           <button
-            onClick={() =>
-              setViewMode(viewMode === "dropdown" ? "cards" : "dropdown")
-            }
-            className="p-2 rounded-full bg-gray-700 hover:bg-gray-600 transition-colors"
-            title={
-              viewMode === "dropdown"
-                ? "Switch to card view"
-                : "Switch to dropdown view"
-            }
+            onClick={toggleViewMode}
+            className="p-2 rounded-full border border-gray-300 hover:bg-gray-100 transition-all"
+            aria-label="Byt vy"
           >
-            {viewMode === "dropdown" ? (
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
+            {viewMode === "card" ? (
+              <List className="w-5 h-5 text-gray-700" />
             ) : (
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
-                />
-              </svg>
+              <LayoutGrid className="w-5 h-5 text-gray-700" />
             )}
           </button>
         </div>
