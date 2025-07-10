@@ -24,6 +24,8 @@ import type {
 } from "@/types/sanity";
 import ContactModal from "@/components/ContactModal";
 import { link } from "fs";
+import { useEffect, useState, useRef, useMemo } from "react";
+import { useRouter } from "next/router";
 
 ChartJS.register(
   CategoryScale,
@@ -40,6 +42,20 @@ interface SelectionState {
   model: string;
   year: string;
   engine: string;
+}
+
+interface ViewModeProps {
+  currentLanguage: string;
+  selected: SelectionState;
+  onBrandChange: (brand: string) => void;
+  onModelChange: (model: string) => void;
+  onYearChange: (year: string) => void;
+  onEngineChange: (engine: string) => void;
+  brands: string[];
+  models: Model[];
+  years: Year[];
+  groupedEngines: Record<string, Engine[]>;
+  isLoading: boolean;
 }
 
 interface Slug {
@@ -97,6 +113,8 @@ export default function TuningViewer() {
     stageOrOption: "",
     link: "",
   });
+
+  const [viewMode, setViewMode] = useState<"dropdown" | "cards">("dropdown");
 
   const Line = dynamic(
     () => import("react-chartjs-2").then((mod) => mod.Line),
@@ -619,168 +637,68 @@ export default function TuningViewer() {
       </Head>
 
       <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
-        <div className="flex items-center justify-between mb-4">
-          <img
-            src="/ak-logo-svart.png"
-            fetchPriority="high"
-            alt="AK-TUNING"
-            style={{ height: "80px", cursor: "pointer" }}
-            className="h-auto max-h-20 w-auto max-w-[500px] object-contain"
-            loading="lazy"
-            onClick={() => window.location.reload()}
-          />
-          <PublicLanguageDropdown
-            currentLanguage={currentLanguage}
-            setCurrentLanguage={setCurrentLanguage}
-          />
-        </div>
+  <div className="flex items-center justify-between mb-4">
+    <img
+      src="/ak-logo-svart.png"
+      fetchPriority="high"
+      alt="AK-TUNING"
+      style={{ height: "80px", cursor: "pointer" }}
+      className="h-auto max-h-20 w-auto max-w-[500px] object-contain"
+      loading="lazy"
+      onClick={() => window.location.reload()}
+    />
+    <div className="flex items-center gap-4">
+      <PublicLanguageDropdown
+        currentLanguage={currentLanguage}
+        setCurrentLanguage={setCurrentLanguage}
+      />
+      <ViewToggle
+        currentView={viewMode}
+        onToggle={() =>
+          setViewMode(viewMode === "dropdown" ? "cards" : "dropdown")
+        }
+      />
+    </div>
+  </div>
 
-        <div className="mb-4">
-          <p className="text-black text-center text-lg font-semibold">
-            {translate(currentLanguage, "headline")}
-          </p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-8">
-          <div>
-            <label
-              htmlFor="brand"
-              className="block text-sm font-bold text-black mb-1"
-            >
-              {translate(currentLanguage, "BrandValue")}
-            </label>
-            <select
-              id="brand"
-              name="brand"
-              className={`w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
-                isLoading
-                  ? "opacity-50 cursor-not-allowed"
-                  : "hover:border-gray-600"
-              }`}
-              value={selected.brand}
-              onChange={handleBrandChange}
-              disabled={isLoading}
-            >
-              <option value="">
-                {translate(currentLanguage, "selectBrand")}
-              </option>
-              {[...brands]
-                .filter((b) => !b.startsWith("[LASTBIL]"))
-                .sort((a, b) => a.localeCompare(b))
-                .concat(
-                  brands
-                    .filter((b) => b.startsWith("[LASTBIL]"))
-                    .sort((a, b) => a.localeCompare(b)),
-                )
-                .map((brand) => (
-                  <option key={brand} value={brand}>
-                    {brand}
-                  </option>
-                ))}
-            </select>
-          </div>
+  {viewMode === "dropdown" ? (
+    <div className="mb-4">
+      <p className="text-black text-center text-lg font-semibold">
+        {translate(currentLanguage, "headline")}
+      </p>
+    </div>
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-8">
+      {/* Your existing dropdown code */}
+    </div>
+  ) : (
+    <CardView
+      currentLanguage={currentLanguage}
+      selected={selected}
+      onBrandChange={(brand) =>
+        setSelected({ brand, model: "", year: "", engine: "" })
+      }
+      onModelChange={(model) =>
+        setSelected((prev) => ({
+          ...prev,
+          model,
+          year: "",
+          engine: "",
+        }))
+      }
+      onYearChange={(year) =>
+        setSelected((prev) => ({ ...prev, year, engine: "" }))
+      }
+      onEngineChange={(engine) =>
+        setSelected((prev) => ({ ...prev, engine }))
+      }
+      brands={brands}
+      models={models}
+      years={years}
+      groupedEngines={groupedEngines}
+      isLoading={isLoading}
+    />
+  )}
 
-          <div>
-            <label
-              htmlFor="model"
-              className="block text-sm font-bold text-black mb-1"
-            >
-              {translate(currentLanguage, "ModelValue")}
-            </label>
-            <select
-              id="model"
-              name="model"
-              className={`w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
-                !selected.brand
-                  ? "opacity-50 cursor-not-allowed"
-                  : "hover:border-gray-600"
-              }`}
-              value={selected.model}
-              onChange={handleModelChange}
-              disabled={!selected.brand}
-            >
-              <option value="">
-                {translate(currentLanguage, "selectModel")}
-              </option>
-              {models.map((m) => (
-                <option key={m.name} value={m.name}>
-                  {m.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label
-              htmlFor="year"
-              className="block text-sm font-bold text-black mb-1"
-            >
-              {translate(currentLanguage, "YearValue")}
-            </label>
-            <select
-              id="year"
-              name="year"
-              className={`w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
-                !selected.model
-                  ? "opacity-50 cursor-not-allowed"
-                  : "hover:border-gray-600"
-              }`}
-              value={selected.year}
-              onChange={handleYearChange}
-              disabled={!selected.model}
-            >
-              <option value="">
-                {translate(currentLanguage, "selectYear")}
-              </option>
-              {years.map((y) => (
-                <option key={y.range} value={y.range}>
-                  {y.range}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label
-              htmlFor="engine"
-              className="block text-sm font-bold text-black mb-1"
-            >
-              {translate(currentLanguage, "EngineValue")}
-            </label>
-            <select
-              id="engine"
-              name="engine"
-              className={`w-full p-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
-                !selected.year
-                  ? "opacity-50 cursor-not-allowed"
-                  : "hover:border-gray-600"
-              }`}
-              value={selected.engine}
-              onChange={handleEngineChange}
-              disabled={!selected.year}
-            >
-              <option value="">
-                {translate(currentLanguage, "selectEngine")}
-              </option>
-              {Object.entries(groupedEngines).map(([fuelType, engines]) => (
-                <optgroup
-                  label={
-                    fuelType.toLowerCase() === "bensin"
-                      ? translate(currentLanguage, "fuelPetrol")
-                      : fuelType.toLowerCase() === "diesel"
-                        ? translate(currentLanguage, "fuelDiesel")
-                        : fuelType.charAt(0).toUpperCase() + fuelType.slice(1)
-                  }
-                  key={fuelType}
-                >
-                  {engines.map((engine) => (
-                    <option key={engine.label} value={engine.label}>
-                      {engine.label}
-                    </option>
-                  ))}
-                </optgroup>
-              ))}
-            </select>
-          </div>
-        </div>
 
         {isLoading ? (
           <div className="flex justify-center py-12">
@@ -1652,6 +1570,451 @@ export default function TuningViewer() {
     </>
   );
 }
+
+const ViewToggle = ({
+  currentView,
+  onToggle,
+}: {
+  currentView: "dropdown" | "cards";
+  onToggle: () => void;
+}) => (
+  <button
+    onClick={onToggle}
+    className="flex items-center gap-2 bg-gray-800 hover:bg-gray-700 text-white px-3 py-2 rounded-lg transition-colors"
+    aria-label={`Switch to ${currentView === "dropdown" ? "card" : "dropdown"} view`}
+  >
+    {currentView === "dropdown" ? (
+      <>
+        <svg
+          className="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+          />
+        </svg>
+        <span>Card View</span>
+      </>
+    ) : (
+      <>
+        <svg
+          className="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"
+          />
+        </svg>
+        <span>Dropdown View</span>
+      </>
+    )}
+  </button>
+);
+
+// Add this component to render the card view
+const CardView = ({
+  currentLanguage,
+  selected,
+  onBrandChange,
+  onModelChange,
+  onYearChange,
+  onEngineChange,
+  brands,
+  models,
+  years,
+  groupedEngines,
+  isLoading,
+}: ViewModeProps) => {
+  const router = useRouter();
+  const [allModels, setAllModels] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch("/data/all_models.json")
+      .then((res) => res.json())
+      .then((data) => {
+        setAllModels(data);
+      })
+      .catch((err) => console.error("Fel vid inläsning av modellbilder:", err));
+  }, []);
+
+  const getModelImage = (modelName: string, brandName: string): string | undefined => {
+    return allModels.find(
+      (m) =>
+        m.name
+          .toLowerCase()
+          .replace(/\s+/g, "")
+          .includes(modelName.toLowerCase().replace(/\s+/g, "")) &&
+        m.brand.toLowerCase() === brandName.toLowerCase(),
+    )?.image_url;
+  };
+
+  const Card = ({
+    label,
+    imageUrl,
+    onClick,
+    isSelected = false,
+    isLoading = false,
+  }: {
+    label: string;
+    imageUrl?: string;
+    onClick: () => void;
+    isSelected?: boolean;
+    isLoading?: boolean;
+  }) => (
+    <div
+      onClick={onClick}
+      className={`cursor-pointer rounded-lg p-4 flex flex-col items-center justify-center transition-all duration-200
+        ${isSelected ? "bg-blue-600 text-white" : "bg-white hover:bg-gray-50 border border-gray-200"}
+        ${isLoading ? "animate-pulse" : ""}
+        shadow-sm hover:shadow-md`}
+    >
+      {isLoading ? (
+        <div className="h-16 w-16 bg-gray-200 rounded-full mb-2"></div>
+      ) : imageUrl ? (
+        <img
+          src={imageUrl}
+          alt={label}
+          className="h-16 w-auto object-contain mb-2"
+          loading="lazy"
+        />
+      ) : (
+        <div className="h-16 w-16 bg-gray-100 rounded-full mb-2 flex items-center justify-center">
+          <span className="text-gray-400 text-2xl font-bold">
+            {label.charAt(0)}
+          </span>
+        </div>
+      )}
+      <p
+        className={`text-center font-medium ${isSelected ? "text-white" : "text-gray-800"}`}
+      >
+        {label}
+      </p>
+    </div>
+  );
+
+  const BackButton = ({ onClick }: { onClick: () => void }) => (
+    <button
+      onClick={onClick}
+      className="flex items-center text-blue-600 hover:text-blue-800 mb-4 transition-colors"
+    >
+      <svg
+        className="w-5 h-5 mr-1"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M10 19l-7-7m0 0l7-7m-7 7h18"
+        />
+      </svg>
+      {translate(currentLanguage, "backButton")}
+    </button>
+  );
+
+  const SectionHeader = ({ title }: { title: string }) => (
+    <div className="flex items-center mb-4">
+      <h2 className="text-xl font-bold text-gray-800">{title}</h2>
+      <div className="ml-2 h-px bg-gray-300 flex-1"></div>
+    </div>
+  );
+
+  const FuelTypeHeader = ({ title }: { title: string }) => (
+    <h3 className="text-md font-semibold mb-3 mt-6 text-gray-700 bg-gray-100 px-3 py-2 rounded-md">
+      {title}
+    </h3>
+  );
+
+  const enginesByFuel = (fuelType: string) =>
+    Object.values(groupedEngines)
+      .flat()
+      .filter((e) => e.fuel.toLowerCase().includes(fuelType.toLowerCase()));
+
+  const enginesOther = Object.values(groupedEngines)
+    .flat()
+    .filter(
+      (e) =>
+        !e.fuel.toLowerCase().includes("diesel") &&
+        !e.fuel.toLowerCase().includes("bensin"),
+    );
+
+  return (
+    <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="mb-8 text-center">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          {translate(currentLanguage, "chooseYourCar")}
+        </h1>
+        <p className="text-gray-600">
+          {translate(currentLanguage, "carSelectionDescription")}
+        </p>
+      </div>
+
+      {/* Breadcrumb */}
+      <div className="flex items-center text-sm text-gray-500 mb-8">
+        <span className={!selected.brand ? "font-medium text-blue-600" : ""}>
+          {translate(currentLanguage, "BrandValue")}
+        </span>
+        {selected.brand && (
+          <>
+            <svg
+              className="w-4 h-4 mx-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+            <span className={!selected.model ? "font-medium text-blue-600" : ""}>
+              {translate(currentLanguage, "ModelValue")}
+            </span>
+          </>
+        )}
+        {selected.model && (
+          <>
+            <svg
+              className="w-4 h-4 mx-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+            <span className={!selected.year ? "font-medium text-blue-600" : ""}>
+              {translate(currentLanguage, "YearValue")}
+            </span>
+          </>
+        )}
+        {selected.year && (
+          <>
+            <svg
+              className="w-4 h-4 mx-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+            <span className="font-medium text-blue-600">
+              {translate(currentLanguage, "EngineValue")}
+            </span>
+          </>
+        )}
+      </div>
+
+      {/* STEP 1: BRAND */}
+      {!selected.brand && (
+        <>
+          <SectionHeader title={translate(currentLanguage, "chooseBrand")} />
+          {isLoading ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {[...Array(10)].map((_, i) => (
+                <Card
+                  key={i}
+                  label={translate(currentLanguage, "loading")}
+                  isLoading={true}
+                  onClick={() => {}}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {brands.map((brand) => {
+                const brandData = data.find((b) => b.name === brand);
+                return (
+                  <Card
+                    key={brand}
+                    label={brand}
+                    imageUrl={brandData?.logo?.asset.url}
+                    onClick={() => {
+                      onBrandChange(brand);
+                    }}
+                  />
+                );
+              })}
+            </div>
+          )}
+        </>
+      )}
+
+      {/* STEP 2: MODEL */}
+      {selected.brand && !selected.model && (
+        <>
+          <BackButton onClick={() => onBrandChange("")} />
+          <SectionHeader
+            title={`${translate(currentLanguage, "chooseModel")} ${selected.brand}`}
+          />
+          {isLoading ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              {[...Array(6)].map((_, i) => (
+                <Card
+                  key={i}
+                  label={translate(currentLanguage, "loading")}
+                  isLoading={true}
+                  onClick={() => {}}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              {models.map((model) => (
+                <Card
+                  key={model.name}
+                  label={model.name}
+                  imageUrl={getModelImage(model.name, selected.brand)}
+                  onClick={() => onModelChange(model.name)}
+                />
+              ))}
+            </div>
+          )}
+        </>
+      )}
+
+      {/* STEP 3: YEAR */}
+      {selected.brand && selected.model && !selected.year && (
+        <>
+          <BackButton onClick={() => onModelChange("")} />
+          <SectionHeader
+            title={`${translate(currentLanguage, "chooseYear")} ${selected.brand} ${selected.model}`}
+          />
+          {isLoading ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              {[...Array(8)].map((_, i) => (
+                <Card
+                  key={i}
+                  label={translate(currentLanguage, "loading")}
+                  isLoading={true}
+                  onClick={() => {}}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              {years.map((year) => (
+                <Card
+                  key={year.range}
+                  label={year.range}
+                  imageUrl={getModelImage(selected.model, selected.brand)}
+                  onClick={() => onYearChange(year.range)}
+                />
+              ))}
+            </div>
+          )}
+        </>
+      )}
+
+      {/* STEP 4: ENGINE */}
+      {selected.brand && selected.model && selected.year && (
+        <>
+          <BackButton onClick={() => onYearChange("")} />
+          <SectionHeader
+            title={`${translate(currentLanguage, "chooseEngine")} ${selected.brand} ${selected.model} ${selected.year}`}
+          />
+
+          {isLoading ? (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {[...Array(3)].map((_, i) => (
+                  <Card
+                    key={i}
+                    label={translate(currentLanguage, "loading")}
+                    isLoading={true}
+                    onClick={() => {}}
+                  />
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {/* Diesel */}
+              {enginesByFuel("diesel").length > 0 && (
+                <div>
+                  <FuelTypeHeader
+                    title={translate(currentLanguage, "fuelDiesel")}
+                  />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    {enginesByFuel("diesel").map((engine) => (
+                      <Card
+                        key={engine.label}
+                        label={engine.label}
+                        imageUrl={getModelImage(selected.model, selected.brand)}
+                        onClick={() => onEngineChange(engine.label)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Bensin */}
+              {enginesByFuel("bensin").length > 0 && (
+                <div>
+                  <FuelTypeHeader
+                    title={translate(currentLanguage, "fuelPetrol")}
+                  />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    {enginesByFuel("bensin").map((engine) => (
+                      <Card
+                        key={engine.label}
+                        label={engine.label}
+                        imageUrl={getModelImage(selected.model, selected.brand)}
+                        onClick={() => onEngineChange(engine.label)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Other */}
+              {enginesOther.length > 0 && (
+                <div>
+                  <FuelTypeHeader
+                    title={translate(currentLanguage, "otherEngines")}
+                  />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    {enginesOther.map((engine) => (
+                      <Card
+                        key={engine.label}
+                        label={engine.label}
+                        imageUrl={getModelImage(selected.model, selected.brand)}
+                        onClick={() => onEngineChange(engine.label)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+};
 
 const InfoModal = ({
   isOpen,
