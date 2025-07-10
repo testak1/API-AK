@@ -768,30 +768,10 @@ export default function TuningViewer() {
                 <option value="">
                   {translate(currentLanguage, "selectModel")}
                 </option>
-                {models.map(model => (
-                  <div
-                    key={model.name}
-                    onClick={() =>
-                      setSelected(prev => ({
-                        ...prev,
-                        model: model.name,
-                        year: "",
-                        engine: "",
-                      }))
-                    }
-                    className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
-                  >
-                    {getModelImage(model.name, selected.brand) && (
-                      <img
-                        src={getModelImage(model.name, selected.brand)}
-                        alt={model.name}
-                        className="h-16 w-auto object-contain mb-2"
-                      />
-                    )}
-                    <p className="text-center font-medium text-gray-800">
-                      {model.name}
-                    </p>
-                  </div>
+                {models.map(m => (
+                  <option key={m.name} value={m.name}>
+                    {m.name}
+                  </option>
                 ))}
               </select>
             </div>
