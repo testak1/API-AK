@@ -1087,32 +1087,87 @@ export default function TuningViewer() {
                 <h2 className="text-xl font-bold text-black mb-4">
                   {translate(currentLanguage, "selectBrand")}
                 </h2>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                  {brands
-                    .filter(b => !b.startsWith("[LASTBIL]"))
-                    .sort((a, b) => a.localeCompare(b))
-                    .map(brand => (
-                      <div
-                        key={brand}
-                        onClick={() =>
-                          setSelected({brand, model: "", year: "", engine: ""})
-                        }
-                        className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
-                      >
-                        {data.find(b => b.name === brand)?.logo?.asset && (
-                          <img
-                            src={urlFor(data.find(b => b.name === brand)?.logo)
-                              .width(100)
-                              .url()}
-                            alt={brand}
-                            className="h-16 w-auto object-contain mb-2"
-                          />
-                        )}
-                        <p className="text-center font-medium text-gray-800">
-                          {brand}
-                        </p>
-                      </div>
-                    ))}
+
+                {/* 🚗 Vanliga bilmärken */}
+                <div className="mb-6">
+                  <h3 className="text-md font-semibold text-gray-700 mb-2">
+                    {translate(currentLanguage, "Personbilar")}
+                  </h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                    {brands
+                      .filter(b => !b.startsWith("[LASTBIL]"))
+                      .sort((a, b) => a.localeCompare(b))
+                      .map(brand => (
+                        <div
+                          key={brand}
+                          onClick={() =>
+                            setSelected({
+                              brand,
+                              model: "",
+                              year: "",
+                              engine: "",
+                            })
+                          }
+                          className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
+                        >
+                          {data.find(b => b.name === brand)?.logo?.asset && (
+                            <img
+                              src={urlFor(
+                                data.find(b => b.name === brand)?.logo
+                              )
+                                .width(100)
+                                .url()}
+                              alt={brand}
+                              className="h-16 w-auto object-contain mb-2"
+                            />
+                          )}
+                          <p className="text-center font-medium text-gray-800">
+                            {brand}
+                          </p>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+
+                {/* 🚛 Lastbilar */}
+                <div>
+                  <h3 className="text-md font-semibold text-gray-700 mb-2">
+                    {translate(currentLanguage, "Lastbilar")}
+                  </h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                    {brands
+                      .filter(b => b.startsWith("[LASTBIL]"))
+                      .sort((a, b) => a.localeCompare(b))
+                      .map(brand => (
+                        <div
+                          key={brand}
+                          onClick={() =>
+                            setSelected({
+                              brand,
+                              model: "",
+                              year: "",
+                              engine: "",
+                            })
+                          }
+                          className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
+                        >
+                          {data.find(b => b.name === brand)?.logo?.asset && (
+                            <img
+                              src={urlFor(
+                                data.find(b => b.name === brand)?.logo
+                              )
+                                .width(100)
+                                .url()}
+                              alt={brand}
+                              className="h-16 w-auto object-contain mb-2"
+                            />
+                          )}
+                          <p className="text-center font-medium text-gray-800">
+                            {brand.replace("[LASTBIL] ", "")}
+                          </p>
+                        </div>
+                      ))}
+                  </div>
                 </div>
               </>
             )}

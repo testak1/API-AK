@@ -847,7 +847,7 @@ export default function TuningViewer() {
                 {/* 🚗 Vanliga bilmärken */}
                 <div className="mb-6">
                   <h3 className="text-md font-semibold text-gray-700 mb-2">
-                    Personbilar
+                    {translate(currentLanguage, "Personbilar")}
                   </h3>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                     {brands
@@ -888,7 +888,7 @@ export default function TuningViewer() {
                 {/* 🚛 Lastbilar */}
                 <div>
                   <h3 className="text-md font-semibold text-gray-700 mb-2">
-                    Lastbilar
+                    {translate(currentLanguage, "Lastbilar")}
                   </h3>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                     {brands
