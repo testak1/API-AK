@@ -4,7 +4,7 @@ export const translations = {
     skicka1: "SKICKA FÖRFRÅGAN",
     ring1: "RING OSS",
     INSELECT: "FÖRFRÅGAN FÖR:",
-    otherEngines: "ANDRA MOTORER",
+    otherEngines: "Hybrid",
     SELECTLOCATION: "VÄLJ ANLÄGGNING",
     TACKFOR: "TACK FÖR DIN FÖRFRÅGAN!",
     BESVARAR: "VI BESVARAR SÅ FORT VI KAN!",

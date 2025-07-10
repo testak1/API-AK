@@ -140,25 +140,28 @@ export default function TuningViewer() {
 
   const [allModels, setAllModels] = useState<any[]>([]);
 
-useEffect(() => {
-  fetch("/data/all_models.json")
-    .then((res) => res.json())
-    .then((data) => {
-      setAllModels(data);
-    })
-    .catch((err) => console.error("Fel vid inläsning av modellbilder:", err));
-}, []);
+  useEffect(() => {
+    fetch("/data/all_models.json")
+      .then(res => res.json())
+      .then(data => {
+        setAllModels(data);
+      })
+      .catch(err => console.error("Fel vid inläsning av modellbilder:", err));
+  }, []);
 
-  const getModelImage = (modelName: string, brandName: string): string | undefined => {
-  return allModels.find(
-    (m) =>
-      m.name
-        .toLowerCase()
-        .replace(/\s+/g, "")
-        .includes(modelName.toLowerCase().replace(/\s+/g, "")) &&
-      m.brand.toLowerCase() === brandName.toLowerCase(),
-  )?.image_url;
-};
+  const getModelImage = (
+    modelName: string,
+    brandName: string
+  ): string | undefined => {
+    return allModels.find(
+      m =>
+        m.name
+          .toLowerCase()
+          .replace(/\s+/g, "")
+          .includes(modelName.toLowerCase().replace(/\s+/g, "")) &&
+        m.brand.toLowerCase() === brandName.toLowerCase()
+    )?.image_url;
+  };
 
   const handleBookNow = (
     stageOrOptionName: string,
@@ -766,28 +769,30 @@ useEffect(() => {
                   {translate(currentLanguage, "selectModel")}
                 </option>
                 {models.map(model => (
-  <div
-    key={model.name}
-    onClick={() => setSelected(prev => ({
-      ...prev,
-      model: model.name,
-      year: "",
-      engine: "",
-    }))}
-    className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
-  >
-    {getModelImage(model.name, selected.brand) && (
-      <img 
-        src={getModelImage(model.name, selected.brand)}
-        alt={model.name}
-        className="h-16 w-auto object-contain mb-2"
-      />
-    )}
-    <p className="text-center font-medium text-gray-800">
-      {model.name}
-    </p>
-  </div>
-))}
+                  <div
+                    key={model.name}
+                    onClick={() =>
+                      setSelected(prev => ({
+                        ...prev,
+                        model: model.name,
+                        year: "",
+                        engine: "",
+                      }))
+                    }
+                    className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
+                  >
+                    {getModelImage(model.name, selected.brand) && (
+                      <img
+                        src={getModelImage(model.name, selected.brand)}
+                        alt={model.name}
+                        className="h-16 w-auto object-contain mb-2"
+                      />
+                    )}
+                    <p className="text-center font-medium text-gray-800">
+                      {model.name}
+                    </p>
+                  </div>
+                ))}
               </select>
             </div>
 
