@@ -89,6 +89,8 @@ export default function TuningViewer() {
   const watermarkImageRef = useRef<HTMLImageElement | null>(null);
   const [currentLanguage, setCurrentLanguage] = useState("sv");
 
+  const [allModels, setAllModels] = useState<any[]>([]);
+
   const [contactModalData, setContactModalData] = useState<{
     isOpen: boolean;
     stageOrOption: string;
@@ -132,14 +134,6 @@ export default function TuningViewer() {
       .replace(/\s+/g, "-")
       .replace(/-+/g, "-");
 
-  const slugifyStage = (str: string) =>
-    str
-      .toLowerCase()
-      .replace(/\s+/g, "-")
-      .replace(/[^\w-]/g, "");
-
-  const [allModels, setAllModels] = useState<any[]>([]);
-
   useEffect(() => {
     fetch("/data/all_models.json")
       .then(res => res.json())
@@ -162,6 +156,12 @@ export default function TuningViewer() {
         m.brand.toLowerCase() === brandName.toLowerCase()
     )?.image_url;
   };
+
+  const slugifyStage = (str: string) =>
+    str
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^\w-]/g, "");
 
   const handleBookNow = (
     stageOrOptionName: string,
@@ -948,6 +948,20 @@ export default function TuningViewer() {
                       }
                       className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
                     >
+                      {getModelImage(model.name, selected.brand) ? (
+                        <img
+                          src={getModelImage(model.name, selected.brand)}
+                          alt={model.name}
+                          className="h-16 w-auto object-contain mb-2"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="h-16 w-16 bg-gray-100 rounded-full mb-2 flex items-center justify-center">
+                          <span className="text-gray-400 text-xl">
+                            {model.name.charAt(0)}
+                          </span>
+                        </div>
+                      )}
                       <p className="text-center font-medium text-gray-800">
                         {model.name}
                       </p>
