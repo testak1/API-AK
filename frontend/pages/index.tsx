@@ -1104,9 +1104,7 @@ export default function TuningViewer() {
                         .toUpperCase() +
                         translate(currentLanguage, "selectModel")
                           .slice(1)
-                          .toLowerCase()}{" "}
-                      {selected.brand}
-                      {selected.model && ` ${selected.model}`}
+                          .toLowerCase()}
                     </span>
                     <span className="text-blue-600">
                       {selected.brand.replace("[LASTBIL] ", "")}
@@ -1145,11 +1143,13 @@ export default function TuningViewer() {
                     onClick={() =>
                       setSelected((prev) => ({ ...prev, year: "", engine: "" }))
                     }
-                    className="flex items-center text-blue-600 hover:text-blue-800 mb-4 transition-colors"
+                    className="group flex items-center gap-1 mb-4 text-blue-600 hover:text-blue-800 transition-colors duration-200"
                   >
-                    {translate(currentLanguage, "BACKTO")}{" "}
+                    <span className="font-medium">
+                      {translate(currentLanguage, "BACKTO")}
+                    </span>
                     <svg
-                      className="w-5 h-5 mr-1"
+                      className="w-5 h-5 transition-transform duration-200 group-hover:translate-x-1"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -1161,12 +1161,38 @@ export default function TuningViewer() {
                         d="M14 5l7 7m0 0l-7 7m7-7H3"
                       />
                     </svg>
-                    {selected.brand.replace("[LASTBIL] ", "")} {selected.model}{" "}
-                    ({selected.year})
+                    <span className="font-semibold">
+                      {selected.brand.replace("[LASTBIL] ", "")}{" "}
+                      {selected.model}
+                    </span>
                   </button>
-                  <h2 className="text-xl font-bold text-black mb-4">
-                    {translate(currentLanguage, "selectEngine")}{" "}
-                    {selected.brand} {selected.model} {selected.year}
+
+                  <h2 className="flex items-center gap-2 text-xl font-bold text-gray-900 mb-4">
+                    <svg
+                      className="w-5 h-5 text-gray-400"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                    <span className="text-gray-600 font-semibold">
+                      {translate(currentLanguage, "selectEngine")
+                        .charAt(0)
+                        .toUpperCase() +
+                        translate(currentLanguage, "selectEngine")
+                          .slice(1)
+                          .toLowerCase()}
+                    </span>
+                    <span className="text-blue-600">
+                      {selected.brand.replace("[LASTBIL] ", "")}{" "}
+                      {selected.model} ({selected.year})
+                    </span>
                   </h2>
 
                   {/* Diesel engines */}
