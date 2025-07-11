@@ -11,7 +11,7 @@ export const translations = {
     otherEngines: "Hybrid",
     MODELLER: "MODELLER",
     ÅRSMODELLER: "ÅRSMODELLER",
-    BILMÄRKEN: " BILMÄRKEN",
+    BILMÄRKEN: "BILMÄRKEN",
     SELECTLOCATION: "VÄLJ ANLÄGGNING",
     TACKFOR: "TACK FÖR DIN FÖRFRÅGAN!",
     BESVARAR: "VI BESVARAR SÅ FORT VI KAN!",
