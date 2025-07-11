@@ -112,7 +112,7 @@ export default function TuningViewer() {
     ),
   });
 
-  const logoUrl = "/ak-logo1.png";
+  const logoUrl = "/akmodell.png";
 
   const [infoModal, setInfoModal] = useState<{
     open: boolean;
@@ -983,7 +983,7 @@ export default function TuningViewer() {
                             loading="lazy"
                           />
                           <img
-                            src="/ak-logo1.png"
+                            src="/akmodell.png"
                             alt="AK-Tuning"
                             className="absolute inset-0 m-auto h-8 opacity-10 pointer-events-none"
                           />
