@@ -1107,7 +1107,8 @@ export default function TuningViewer() {
                           .toLowerCase()}
                     </span>
                     <span className="text-blue-600">
-                      {selected.brand.replace("[LASTBIL] ", "")}
+                      {selected.brand.replace("[LASTBIL] ", "")}{" "}
+                      {selected.model}
                     </span>
                   </h2>
                 </h2>
