@@ -990,7 +990,7 @@ export default function TuningViewer() {
                             <img
                               src="/akmodell.png"
                               alt="Watermark"
-                              className="absolute inset-0 m-auto h-8 opacity-10 pointer-events-none"
+                              className="absolute inset-0 m-auto h-8 opacity-50 pointer-events-none"
                             />
                           )}
                         </div>
