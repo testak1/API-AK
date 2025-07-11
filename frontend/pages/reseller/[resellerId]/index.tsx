@@ -935,7 +935,7 @@ export default function TuningViewer() {
             onClick={toggleViewMode}
             className={`p-2 rounded-full border transition-all shadow-sm ${
               viewMode === "card"
-                ? "bg-green-100 border-green-300 text-white"
+                ? "bg-green-400 border-green-400 text-white"
                 : "bg-red-600 border-red-600 text-white"
             }`}
             aria-label="Byt vy"
@@ -1164,7 +1164,7 @@ export default function TuningViewer() {
                             />
                           )}
                           <p className="text-center font-medium text-gray-800">
-                            {brand.replace("[LASTBIL] ", "")}
+                            {brand.replace("[LASTBIL] ", "TRUCK ")}
                           </p>
                         </div>
                       ))}
