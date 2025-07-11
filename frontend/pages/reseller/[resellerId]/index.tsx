@@ -933,13 +933,17 @@ export default function TuningViewer() {
 
           <button
             onClick={toggleViewMode}
-            className="p-2 rounded-full border border-gray-300 hover:bg-gray-100 transition-all"
+            className={`p-2 rounded-full border transition-all shadow-sm ${
+              viewMode === "card"
+                ? "bg-green-100 border-green-300 text-white"
+                : "bg-red-600 border-red-600 text-white"
+            }`}
             aria-label="Byt vy"
           >
             {viewMode === "card" ? (
-              <List className="w-5 h-5 text-gray-700" />
+              <List className="w-5 h-5" />
             ) : (
-              <LayoutGrid className="w-5 h-5 text-gray-700" />
+              <LayoutGrid className="w-5 h-5" />
             )}
           </button>
         </div>
@@ -1093,12 +1097,7 @@ export default function TuningViewer() {
                       .filter((b) => !b.startsWith("[LASTBIL]"))
                       .filter((b) => !settings.hiddenMakes?.includes(b))
                       .sort((a, b) => a.localeCompare(b))
-                      .concat(
-                        brands
-                          .filter((b) => b.startsWith("[LASTBIL]"))
-                          .filter((b) => !settings.hiddenMakes?.includes(b))
-                          .sort((a, b) => a.localeCompare(b)),
-                      )
+
                       .map((brand) => (
                         <div
                           key={brand}
@@ -1181,10 +1180,13 @@ export default function TuningViewer() {
                   onClick={() =>
                     setSelected({ brand: "", model: "", year: "", engine: "" })
                   }
-                  className="flex items-center text-blue-600 hover:text-blue-800 mb-4 transition-colors"
+                  className="group flex items-center gap-1 mb-4 text-blue-600 hover:text-blue-800 transition-colors duration-200"
                 >
+                  <span className="font-medium">
+                    {translate(currentLanguage, "BACKTO")}
+                  </span>
                   <svg
-                    className="w-5 h-5 mr-1"
+                    className="w-5 h-5 transition-transform duration-200 group-hover:translate-x-1"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -1193,15 +1195,40 @@ export default function TuningViewer() {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth={2}
-                      d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                      d="M14 5l7 7m0 0l-7 7m7-7H3"
                     />
                   </svg>
-                  {translate(currentLanguage, "BACKTO")}{" "}
-                  {translate(currentLanguage, "BILMÄRKEN")}
+                  <span className="font-semibold">
+                    {selected.brand.replace("[LASTBIL] ", "")}
+                  </span>
                 </button>
                 <h2 className="text-xl font-bold text-black mb-4">
-                  {translate(currentLanguage, "selectModel")}{" "}
-                  {selected.brand}{" "}
+                  <h2 className="flex items-center gap-2 text-xl font-bold text-gray-900 mb-4">
+                    <svg
+                      className="w-5 h-5 text-gray-400"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                    <span className="text-gray-600 font-semibold">
+                      {translate(currentLanguage, "selectModel")
+                        .charAt(0)
+                        .toUpperCase() +
+                        translate(currentLanguage, "selectModel")
+                          .slice(1)
+                          .toLowerCase()}
+                    </span>
+                    <span className="text-blue-600">
+                      {selected.brand.replace("[LASTBIL] ", "")}
+                    </span>
+                  </h2>
                 </h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                   {models.map((model) => (
@@ -1252,10 +1279,13 @@ export default function TuningViewer() {
                       engine: "",
                     }))
                   }
-                  className="flex items-center text-blue-600 hover:text-blue-800 mb-4 transition-colors"
+                  className="group flex items-center gap-1 mb-4 text-blue-600 hover:text-blue-800 transition-colors duration-200"
                 >
+                  <span className="font-medium">
+                    {translate(currentLanguage, "BACKTO")}{" "}
+                  </span>
                   <svg
-                    className="w-5 h-5 mr-1"
+                    className="w-5 h-5 transition-transform duration-200 group-hover:translate-x-1"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -1264,15 +1294,41 @@ export default function TuningViewer() {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth={2}
-                      d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                      d="M14 5l7 7m0 0l-7 7m7-7H3"
                     />
                   </svg>
-                  {translate(currentLanguage, "BACKTO")}{" "}
-                  {translate(currentLanguage, "MODELLER")}
+                  <span className="font-semibold">
+                    {selected.brand.replace("[LASTBIL] ", "")} {selected.model}
+                  </span>
                 </button>
                 <h2 className="text-xl font-bold text-black mb-4">
-                  {translate(currentLanguage, "selectModel")} {selected.brand}{" "}
-                  {selected.model}
+                  <h2 className="flex items-center gap-2 text-xl font-bold text-gray-900 mb-4">
+                    <svg
+                      className="w-5 h-5 text-gray-400"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                    <span className="text-gray-600 font-semibold">
+                      {translate(currentLanguage, "selectModel")
+                        .charAt(0)
+                        .toUpperCase() +
+                        translate(currentLanguage, "selectModel")
+                          .slice(1)
+                          .toLowerCase()}
+                    </span>
+                    <span className="text-blue-600">
+                      {selected.brand.replace("[LASTBIL] ", "")}{" "}
+                      {selected.model}
+                    </span>
+                  </h2>
                 </h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                   {years.map((year) => (
@@ -1306,10 +1362,13 @@ export default function TuningViewer() {
                     onClick={() =>
                       setSelected((prev) => ({ ...prev, year: "", engine: "" }))
                     }
-                    className="flex items-center text-blue-600 hover:text-blue-800 mb-4 transition-colors"
+                    className="group flex items-center gap-1 mb-4 text-blue-600 hover:text-blue-800 transition-colors duration-200"
                   >
+                    <span className="font-medium">
+                      {translate(currentLanguage, "BACKTO")}
+                    </span>
                     <svg
-                      className="w-5 h-5 mr-1"
+                      className="w-5 h-5 transition-transform duration-200 group-hover:translate-x-1"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -1318,15 +1377,41 @@ export default function TuningViewer() {
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         strokeWidth={2}
-                        d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                        d="M14 5l7 7m0 0l-7 7m7-7H3"
                       />
                     </svg>
-                    {translate(currentLanguage, "BACKTO")}{" "}
-                    {translate(currentLanguage, "ÅRSMODELLER")}
+                    <span className="font-semibold">
+                      {selected.brand.replace("[LASTBIL] ", "")}{" "}
+                      {selected.model}
+                    </span>
                   </button>
-                  <h2 className="text-xl font-bold text-black mb-4">
-                    {translate(currentLanguage, "selectEngine")}{" "}
-                    {selected.brand} {selected.model} {selected.year}
+
+                  <h2 className="flex items-center gap-2 text-xl font-bold text-gray-900 mb-4">
+                    <svg
+                      className="w-5 h-5 text-gray-400"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                    <span className="text-gray-600 font-semibold">
+                      {translate(currentLanguage, "selectEngine")
+                        .charAt(0)
+                        .toUpperCase() +
+                        translate(currentLanguage, "selectEngine")
+                          .slice(1)
+                          .toLowerCase()}
+                    </span>
+                    <span className="text-blue-600">
+                      {selected.brand.replace("[LASTBIL] ", "")}{" "}
+                      {selected.model} ({selected.year})
+                    </span>
                   </h2>
 
                   {/* Diesel engines */}
