@@ -978,7 +978,7 @@ export default function TuningViewer() {
                     />
                   </svg>
                   {translate(currentLanguage, "BACKTO")}{" "}
-                  {translate(currentLanguage, "BILMÄRKEN")}
+                  {selected.brand.replace("[LASTBIL] ", "")}
                 </button>
                 <h2 className="text-xl font-bold text-black mb-4">
                   {translate(currentLanguage, "selectModel")} {selected.brand}
