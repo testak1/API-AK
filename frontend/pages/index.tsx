@@ -145,12 +145,11 @@ export default function TuningViewer() {
   }, []);
 
   const getModelImage = (modelName: string, brandName: string): string => {
+    const normalize = (str: string) => str.toLowerCase().replace(/\s+/g, "");
+
     const match = allModels.find(
       m =>
-        m.name
-          .toLowerCase()
-          .replace(/\s+/g, "")
-          .includes(modelName.toLowerCase().replace(/\s+/g, "")) &&
+        normalize(m.name) === normalize(modelName) &&
         m.brand.toLowerCase() === brandName.toLowerCase()
     );
 
