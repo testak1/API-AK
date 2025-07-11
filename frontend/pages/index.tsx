@@ -112,6 +112,8 @@ export default function TuningViewer() {
     ),
   });
 
+  const logoUrl = "/ak-logo1.png";
+
   const [infoModal, setInfoModal] = useState<{
     open: boolean;
     type: "stage" | "general";
@@ -956,8 +958,7 @@ export default function TuningViewer() {
                   {translate(currentLanguage, "BILMÄRKEN")}
                 </button>
                 <h2 className="text-xl font-bold text-black mb-4">
-                  {translate(currentLanguage, "selectModel")}{" "}
-                  {selected.brand}{" "}
+                  {translate(currentLanguage, "selectModel")} {selected.brand}
                 </h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                   {models.map(model => (
@@ -974,12 +975,19 @@ export default function TuningViewer() {
                       className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
                     >
                       {getModelImage(model.name, selected.brand) ? (
-                        <img
-                          src={getModelImage(model.name, selected.brand)}
-                          alt={model.name}
-                          className="h-16 w-auto object-contain mb-2"
-                          loading="lazy"
-                        />
+                        <div className="relative h-16 w-auto mb-2">
+                          <img
+                            src={getModelImage(model.name, selected.brand)}
+                            alt={model.name}
+                            className="h-16 w-auto object-contain mx-auto"
+                            loading="lazy"
+                          />
+                          <img
+                            src="/ak-logo1.png"
+                            alt="AK-Tuning"
+                            className="absolute inset-0 m-auto h-8 opacity-10 pointer-events-none"
+                          />
+                        </div>
                       ) : (
                         <div className="h-16 w-16 bg-gray-100 rounded-full mb-2 flex items-center justify-center">
                           <span className="text-gray-400 text-xl">
