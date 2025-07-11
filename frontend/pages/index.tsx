@@ -1,5 +1,6 @@
 // pages/index.tsx
 import Head from "next/head";
+import Image from "next/image";
 import React, {useEffect, useState, useRef, useMemo} from "react";
 import {
   Chart as ChartJS,
@@ -147,14 +148,24 @@ export default function TuningViewer() {
   const getModelImage = (modelName: string, brandName: string): string => {
     const normalize = (str: string) => str.toLowerCase().replace(/\s+/g, "");
 
-    const match = allModels.find(
+    // Först försök exakt match
+    const exactMatch = allModels.find(
       m =>
         normalize(m.name) === normalize(modelName) &&
         m.brand.toLowerCase() === brandName.toLowerCase()
     );
 
+    if (exactMatch?.image_url) return exactMatch.image_url;
+
+    // Annars försök includes
+    const fuzzyMatch = allModels.find(
+      m =>
+        normalize(m.name).includes(normalize(modelName)) &&
+        m.brand.toLowerCase() === brandName.toLowerCase()
+    );
+
     return (
-      match?.image_url ||
+      fuzzyMatch?.image_url ||
       "https://tcmtuning.ro/_alex/ximages/models/5_10857.png"
     );
   };
@@ -251,7 +262,7 @@ export default function TuningViewer() {
 
   // Load watermark image
   useEffect(() => {
-    const img = new Image();
+    const img = new window.Image();
     img.src = "/ak-logo.png";
     img.onload = () => {
       watermarkImageRef.current = img;
@@ -858,35 +869,41 @@ export default function TuningViewer() {
                     {brands
                       .filter(b => !b.startsWith("[LASTBIL]"))
                       .sort((a, b) => a.localeCompare(b))
-                      .map(brand => (
-                        <div
-                          key={brand}
-                          onClick={() =>
-                            setSelected({
-                              brand,
-                              model: "",
-                              year: "",
-                              engine: "",
-                            })
-                          }
-                          className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
-                        >
-                          {data.find(b => b.name === brand)?.logo?.asset && (
-                            <img
-                              src={urlFor(
-                                data.find(b => b.name === brand)?.logo
-                              )
-                                .width(100)
-                                .url()}
-                              alt={brand}
-                              className="h-16 w-auto object-contain mb-2"
-                            />
-                          )}
-                          <p className="text-center font-medium text-gray-800">
-                            {brand}
-                          </p>
-                        </div>
-                      ))}
+                      .map(brand => {
+                        const brandData = data.find(b => b.name === brand);
+                        const logoUrl = brandData?.logo?.asset
+                          ? urlFor(brandData.logo).width(100).url()
+                          : null;
+
+                        return (
+                          <div
+                            key={brand}
+                            onClick={() =>
+                              setSelected({
+                                brand,
+                                model: "",
+                                year: "",
+                                engine: "",
+                              })
+                            }
+                            className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
+                          >
+                            {logoUrl ? (
+                              <Image
+                                src={logoUrl}
+                                alt={brand}
+                                width={64}
+                                height={64}
+                                className="object-contain mb-2"
+                                loading="lazy"
+                              />
+                            ) : null}
+                            <p className="text-center font-medium text-gray-800">
+                              {brand}
+                            </p>
+                          </div>
+                        );
+                      })}
                   </div>
                 </div>
 
