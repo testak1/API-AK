@@ -892,8 +892,8 @@ export default function TuningViewer() {
                               <Image
                                 src={logoUrl}
                                 alt={brand}
-                                width={100}
-                                height={100}
+                                width={80}
+                                height={80}
                                 className="object-contain mb-2"
                                 loading="lazy"
                               />
