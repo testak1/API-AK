@@ -678,13 +678,17 @@ export default function TuningViewer() {
 
           <button
             onClick={toggleViewMode}
-            className="p-2 rounded-full border border-gray-300 hover:bg-gray-100 transition-all"
+            className={`p-2 rounded-full border transition-all shadow-sm ${
+              viewMode === "card"
+                ? "bg-gray-100 border-gray-300 text-gray-700"
+                : "bg-blue-600 border-blue-600 text-white"
+            }`}
             aria-label="Byt vy"
           >
             {viewMode === "card" ? (
-              <List className="w-5 h-5 text-gray-700" />
+              <List className="w-5 h-5" />
             ) : (
-              <LayoutGrid className="w-5 h-5 text-gray-700" />
+              <LayoutGrid className="w-5 h-5" />
             )}
           </button>
         </div>
