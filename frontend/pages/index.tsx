@@ -1134,149 +1134,171 @@ export default function TuningViewer() {
               </>
             )}
 
-            {/* Engine Selection */}
+            {/* Engine selection */}
             {selected.brand &&
               selected.model &&
               selected.year &&
               !selected.engine && (
-                <div className="max-w-4xl mx-auto">
-                  {/* Back Button */}
-                  <div className="mb-8">
-                    <button
-                      onClick={() =>
-                        setSelected((prev) => ({
-                          ...prev,
-                          year: "",
-                          engine: "",
-                        }))
-                      }
-                      className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+                <>
+                  <button
+                    onClick={() =>
+                      setSelected((prev) => ({ ...prev, year: "", engine: "" }))
+                    }
+                    className="group flex items-center gap-1 mb-4 text-blue-600 hover:text-blue-800 transition-colors duration-200"
+                  >
+                    <span className="font-medium">
+                      {translate(currentLanguage, "BACKTO")}
+                    </span>
+                    <svg
+                      className="w-5 h-5 transition-transform duration-200 group-hover:translate-x-1"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
                     >
-                      <svg
-                        className="w-5 h-5 mr-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={1.5}
-                          d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                        />
-                      </svg>
-                      <span className="font-medium">
-                        {selected.brand.replace("[LASTBIL] ", "TRUCK ")}{" "}
-                        {selected.model}
-                      </span>
-                    </button>
-                  </div>
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M14 5l7 7m0 0l-7 7m7-7H3"
+                      />
+                    </svg>
+                    <span className="font-semibold">
+                      {selected.brand.replace("[LASTBIL] ", "")}{" "}
+                      {selected.model}
+                    </span>
+                  </button>
 
-                  {/* Main Header */}
-                  <div className="mb-10">
-                    <h1 className="text-2xl font-light text-gray-800 mb-2">
-                      {translate(currentLanguage, "selectEngine")}
-                    </h1>
-                    <p className="text-gray-500">
-                      {selected.brand.replace("[LASTBIL] ", "TRUCK ")}{" "}
-                      {selected.model} • {selected.year}
-                    </p>
-                  </div>
+                  <h2 className="flex items-center gap-2 text-xl font-bold text-gray-900 mb-4">
+                    <svg
+                      className="w-5 h-5 text-gray-400"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                    <span className="text-gray-600 font-semibold">
+                      {translate(currentLanguage, "selectEngine")
+                        .charAt(0)
+                        .toUpperCase() +
+                        translate(currentLanguage, "selectEngine")
+                          .slice(1)
+                          .toLowerCase()}
+                    </span>
+                    <span className="text-blue-600">
+                      {selected.brand.replace("[LASTBIL] ", "")}{" "}
+                      {selected.model} ({selected.year})
+                    </span>
+                  </h2>
 
-                  {/* Engine Categories */}
-                  <div className="space-y-10">
-                    {/* Diesel Engines */}
-                    {engines.filter((e) =>
-                      e.fuel.toLowerCase().includes("diesel"),
-                    ).length > 0 && (
-                      <div>
-                        <h2 className="text-lg font-normal text-gray-700 mb-4 border-b pb-2">
-                          {translate(currentLanguage, "fuelDiesel")}
-                        </h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          {engines
-                            .filter((e) =>
-                              e.fuel.toLowerCase().includes("diesel"),
-                            )
-                            .map((engine) => (
-                              <EngineOption
-                                key={engine.label}
-                                engine={engine}
-                                onClick={() =>
-                                  setSelected((prev) => ({
-                                    ...prev,
-                                    engine: engine.label,
-                                  }))
-                                }
-                              />
-                            ))}
-                        </div>
+                  {/* Diesel engines */}
+                  {engines.filter((e) =>
+                    e.fuel.toLowerCase().includes("diesel"),
+                  ).length > 0 && (
+                    <div className="mb-6">
+                      <h3 className="text-md font-semibold mb-3 text-gray-700 bg-gray-100 px-3 py-2 rounded-md">
+                        {translate(currentLanguage, "fuelDiesel")}
+                      </h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                        {engines
+                          .filter((e) =>
+                            e.fuel.toLowerCase().includes("diesel"),
+                          )
+                          .map((engine) => (
+                            <div
+                              key={engine.label}
+                              onClick={() =>
+                                setSelected((prev) => ({
+                                  ...prev,
+                                  engine: engine.label,
+                                }))
+                              }
+                              className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
+                            >
+                              <p className="text-center font-medium text-gray-800">
+                                {engine.label}
+                              </p>
+                            </div>
+                          ))}
                       </div>
-                    )}
+                    </div>
+                  )}
 
-                    {/* Petrol Engines */}
-                    {engines.filter((e) =>
-                      e.fuel.toLowerCase().includes("bensin"),
-                    ).length > 0 && (
-                      <div>
-                        <h2 className="text-lg font-normal text-gray-700 mb-4 border-b pb-2">
-                          {translate(currentLanguage, "fuelPetrol")}
-                        </h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          {engines
-                            .filter((e) =>
-                              e.fuel.toLowerCase().includes("bensin"),
-                            )
-                            .map((engine) => (
-                              <EngineOption
-                                key={engine.label}
-                                engine={engine}
-                                onClick={() =>
-                                  setSelected((prev) => ({
-                                    ...prev,
-                                    engine: engine.label,
-                                  }))
-                                }
-                              />
-                            ))}
-                        </div>
+                  {/* Petrol engines */}
+                  {engines.filter((e) =>
+                    e.fuel.toLowerCase().includes("bensin"),
+                  ).length > 0 && (
+                    <div className="mb-6">
+                      <h3 className="text-md font-semibold mb-3 text-gray-700 bg-gray-100 px-3 py-2 rounded-md">
+                        {translate(currentLanguage, "fuelPetrol")}
+                      </h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                        {engines
+                          .filter((e) =>
+                            e.fuel.toLowerCase().includes("bensin"),
+                          )
+                          .map((engine) => (
+                            <div
+                              key={engine.label}
+                              onClick={() =>
+                                setSelected((prev) => ({
+                                  ...prev,
+                                  engine: engine.label,
+                                }))
+                              }
+                              className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
+                            >
+                              <p className="text-center font-medium text-gray-800">
+                                {engine.label}
+                              </p>
+                            </div>
+                          ))}
                       </div>
-                    )}
+                    </div>
+                  )}
 
-                    {/* Other Engines */}
-                    {engines.filter(
-                      (e) =>
-                        !e.fuel.toLowerCase().includes("diesel") &&
-                        !e.fuel.toLowerCase().includes("bensin"),
-                    ).length > 0 && (
-                      <div>
-                        <h2 className="text-lg font-normal text-gray-700 mb-4 border-b pb-2">
-                          {translate(currentLanguage, "otherEngines")}
-                        </h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          {engines
-                            .filter(
-                              (e) =>
-                                !e.fuel.toLowerCase().includes("diesel") &&
-                                !e.fuel.toLowerCase().includes("bensin"),
-                            )
-                            .map((engine) => (
-                              <EngineOption
-                                key={engine.label}
-                                engine={engine}
-                                onClick={() =>
-                                  setSelected((prev) => ({
-                                    ...prev,
-                                    engine: engine.label,
-                                  }))
-                                }
-                              />
-                            ))}
-                        </div>
+                  {/* Other engines */}
+                  {engines.filter(
+                    (e) =>
+                      !e.fuel.toLowerCase().includes("diesel") &&
+                      !e.fuel.toLowerCase().includes("bensin"),
+                  ).length > 0 && (
+                    <div className="mb-6">
+                      <h3 className="text-md font-semibold mb-3 text-gray-700 bg-gray-100 px-3 py-2 rounded-md">
+                        {translate(currentLanguage, "otherEngines")}
+                      </h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                        {engines
+                          .filter(
+                            (e) =>
+                              !e.fuel.toLowerCase().includes("diesel") &&
+                              !e.fuel.toLowerCase().includes("bensin"),
+                          )
+                          .map((engine) => (
+                            <div
+                              key={engine.label}
+                              onClick={() =>
+                                setSelected((prev) => ({
+                                  ...prev,
+                                  engine: engine.label,
+                                }))
+                              }
+                              className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
+                            >
+                              <p className="text-center font-medium text-gray-800">
+                                {engine.label}
+                              </p>
+                            </div>
+                          ))}
                       </div>
-                    )}
-                  </div>
-                </div>
+                    </div>
+                  )}
+                </>
               )}
           </div>
         )}
@@ -2151,31 +2173,6 @@ export default function TuningViewer() {
     </>
   );
 }
-
-/* Engine Option Component */
-const EngineOption = ({ engine, onClick }) => (
-  <div
-    onClick={onClick}
-    className="p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors cursor-pointer"
-  >
-    <div className="flex justify-between items-start">
-      <h3 className="font-medium text-gray-800">{engine.label}</h3>
-      {engine.power && (
-        <span className="text-xs font-medium bg-gray-100 text-gray-600 px-2 py-1 rounded">
-          {engine.power}
-        </span>
-      )}
-    </div>
-    <div className="mt-2 text-sm text-gray-500">
-      <span>{engine.fuel}</span>
-      {engine.cylinders && (
-        <span className="before:content-['•'] before:mx-2">
-          {engine.cylinders} cylinders
-        </span>
-      )}
-    </div>
-  </div>
-);
 
 const InfoModal = ({
   isOpen,
