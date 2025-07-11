@@ -113,6 +113,8 @@ export default function TuningViewer() {
   });
 
   const logoUrl = "/akmodell.png";
+  const fallbackImageUrl =
+    "https://tcmtuning.ro/_alex/ximages/models/5_10857.png";
 
   const [infoModal, setInfoModal] = useState<{
     open: boolean;
@@ -982,11 +984,15 @@ export default function TuningViewer() {
                             className="h-16 w-auto object-contain mx-auto"
                             loading="lazy"
                           />
-                          <img
-                            src="/akmodell.png"
-                            alt="AK-Tuning"
-                            className="absolute inset-0 m-auto h-8 opacity-10 pointer-events-none"
-                          />
+
+                          {getModelImage(model.name, selected.brand) ===
+                            fallbackImageUrl && (
+                            <img
+                              src="/akmodell.png"
+                              alt="Watermark"
+                              className="absolute inset-0 m-auto h-8 opacity-10 pointer-events-none"
+                            />
+                          )}
                         </div>
                       ) : (
                         <div className="h-16 w-16 bg-gray-100 rounded-full mb-2 flex items-center justify-center">

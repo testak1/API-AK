@@ -411,18 +411,20 @@ export default function TuningViewer() {
       .catch(err => console.error("Fel vid inläsning av modellbilder:", err));
   }, []);
 
-  const getModelImage = (
-    modelName: string,
-    brandName: string
-  ): string | undefined => {
-    return allModels.find(
+  const getModelImage = (modelName: string, brandName: string): string => {
+    const match = allModels.find(
       m =>
         m.name
           .toLowerCase()
           .replace(/\s+/g, "")
           .includes(modelName.toLowerCase().replace(/\s+/g, "")) &&
         m.brand.toLowerCase() === brandName.toLowerCase()
-    )?.image_url;
+    );
+
+    return (
+      match?.image_url ||
+      "https://tcmtuning.ro/_alex/ximages/models/5_10857.png"
+    );
   };
 
   useEffect(() => {
