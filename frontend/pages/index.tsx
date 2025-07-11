@@ -946,7 +946,7 @@ export default function TuningViewer() {
                             />
                           )}
                           <p className="text-center font-medium text-gray-800">
-                            {brand.replace("[LASTBIL] ", "")}
+                            {brand.replace("[LASTBIL] ", "").replace(/^-/, "")}
                           </p>
                         </div>
                       ))}
