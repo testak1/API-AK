@@ -1,13 +1,14 @@
-import React, { useState } from "react";
+import React, {useState} from "react";
+import {t as translate} from "@/lib/translations";
 
-const langOptions: { code: string; name: string; flag: string }[] = [
-  { code: "sv", name: "SVENSKA", flag: "se" },
-  { code: "en", name: "ENGLISH", flag: "gb" },
-  { code: "no", name: "NORSK", flag: "no" },
-  { code: "da", name: "DANSK", flag: "dk" },
-  { code: "de", name: "DEUTSCH", flag: "de" },
-  { code: "fr", name: "FRANÇAIS", flag: "fr" },
-  { code: "it", name: "ITALIANO", flag: "it" },
+const langOptions: {code: string; name: string; flag: string}[] = [
+  {code: "sv", name: "SVENSKA", flag: "se"},
+  {code: "en", name: "ENGLISH", flag: "gb"},
+  {code: "no", name: "NORSK", flag: "no"},
+  {code: "da", name: "DANSK", flag: "dk"},
+  {code: "de", name: "DEUTSCH", flag: "de"},
+  {code: "fr", name: "FRANÇAIS", flag: "fr"},
+  {code: "it", name: "ITALIANO", flag: "it"},
 ];
 
 type Props = {
@@ -20,7 +21,7 @@ export default function PublicLanguageDropdown({
   setCurrentLanguage,
 }: Props) {
   const selectedLang =
-    langOptions.find((lang) => lang.code === currentLanguage) || langOptions[0];
+    langOptions.find(lang => lang.code === currentLanguage) || langOptions[0];
 
   const [open, setOpen] = useState(false);
 
@@ -58,9 +59,9 @@ export default function PublicLanguageDropdown({
         >
           <div className="py-1">
             <span className="block px-4 py-2 text-sm text-gray-400">
-              🌐 Välj språk
+              🌐 {translate(currentLanguage, "lang")}
             </span>
-            {langOptions.map((lang) => (
+            {langOptions.map(lang => (
               <button
                 key={lang.code}
                 onClick={() => {
