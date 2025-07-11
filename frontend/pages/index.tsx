@@ -1134,112 +1134,149 @@ export default function TuningViewer() {
               </>
             )}
 
-            {/* Engine selection */}
+            {/* Engine Selection */}
             {selected.brand &&
               selected.model &&
               selected.year &&
               !selected.engine && (
-                <>
-                  {/* Back button */}
-                  <button
-                    onClick={() =>
-                      setSelected((prev) => ({ ...prev, year: "", engine: "" }))
-                    }
-                    className="group flex items-center gap-2 mb-6 text-blue-600 hover:text-blue-800 transition-colors"
-                  >
-                    <svg
-                      className="w-5 h-5 transform group-hover:-translate-x-1 transition-transform"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
+                <div className="max-w-4xl mx-auto">
+                  {/* Back Button */}
+                  <div className="mb-8">
+                    <button
+                      onClick={() =>
+                        setSelected((prev) => ({
+                          ...prev,
+                          year: "",
+                          engine: "",
+                        }))
+                      }
+                      className="flex items-center text-gray-600 hover:text-gray-900 transition-colors"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                      />
-                    </svg>
-                    <span className="font-semibold">
-                      {translate(currentLanguage, "BACKTO")}{" "}
-                      {selected.brand.replace("[LASTBIL] ", "")}{" "}
-                      {selected.model}
-                    </span>
-                  </button>
+                      <svg
+                        className="w-5 h-5 mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={1.5}
+                          d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                        />
+                      </svg>
+                      <span className="font-medium">
+                        {selected.brand.replace("[LASTBIL] ", "TRUCK ")}{" "}
+                        {selected.model}
+                      </span>
+                    </button>
+                  </div>
 
-                  {/* Heading */}
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                    {translate(currentLanguage, "selectEngine")}{" "}
-                    <span className="text-blue-600">
-                      {selected.brand.replace("[LASTBIL] ", "")}{" "}
-                      {selected.model} ({selected.year})
-                    </span>
-                  </h2>
+                  {/* Main Header */}
+                  <div className="mb-10">
+                    <h1 className="text-2xl font-light text-gray-800 mb-2">
+                      {translate(currentLanguage, "selectEngine")}
+                    </h1>
+                    <p className="text-gray-500">
+                      {selected.brand.replace("[LASTBIL] ", "TRUCK ")}{" "}
+                      {selected.model} • {selected.year}
+                    </p>
+                  </div>
 
-                  {/* Engine groups */}
-                  {[
-                    {
-                      type: "diesel",
-                      label: translate(currentLanguage, "fuelDiesel"),
-                      color: "bg-blue-50",
-                      icon: "💧",
-                    },
-                    {
-                      type: "bensin",
-                      label: translate(currentLanguage, "fuelPetrol"),
-                      color: "bg-red-50",
-                      icon: "⛽",
-                    },
-                    {
-                      type: "other",
-                      label: translate(currentLanguage, "otherEngines"),
-                      color: "bg-gray-100",
-                      icon: "⚡",
-                    },
-                  ].map((group) => {
-                    const filteredEngines =
-                      group.type === "other"
-                        ? engines.filter(
-                            (e) =>
-                              !e.fuel.toLowerCase().includes("diesel") &&
-                              !e.fuel.toLowerCase().includes("bensin"),
-                          )
-                        : engines.filter((e) =>
-                            e.fuel.toLowerCase().includes(group.type),
-                          );
-
-                    return (
-                      filteredEngines.length > 0 && (
-                        <div key={group.type} className="mb-8">
-                          <h3
-                            className={`text-md font-semibold mb-4 px-4 py-2 rounded-md text-gray-800 ${group.color} inline-flex items-center gap-2`}
-                          >
-                            <span>{group.icon}</span> {group.label}
-                          </h3>
-
-                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                            {filteredEngines.map((engine) => (
-                              <div
+                  {/* Engine Categories */}
+                  <div className="space-y-10">
+                    {/* Diesel Engines */}
+                    {engines.filter((e) =>
+                      e.fuel.toLowerCase().includes("diesel"),
+                    ).length > 0 && (
+                      <div>
+                        <h2 className="text-lg font-normal text-gray-700 mb-4 border-b pb-2">
+                          {translate(currentLanguage, "fuelDiesel")}
+                        </h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {engines
+                            .filter((e) =>
+                              e.fuel.toLowerCase().includes("diesel"),
+                            )
+                            .map((engine) => (
+                              <EngineOption
                                 key={engine.label}
+                                engine={engine}
                                 onClick={() =>
                                   setSelected((prev) => ({
                                     ...prev,
                                     engine: engine.label,
                                   }))
                                 }
-                                className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center text-center"
-                              >
-                                <p className="font-medium text-gray-800">
-                                  {engine.label}
-                                </p>
-                              </div>
+                              />
                             ))}
-                          </div>
                         </div>
-                      )
-                    );
-                  })}
-                </>
+                      </div>
+                    )}
+
+                    {/* Petrol Engines */}
+                    {engines.filter((e) =>
+                      e.fuel.toLowerCase().includes("bensin"),
+                    ).length > 0 && (
+                      <div>
+                        <h2 className="text-lg font-normal text-gray-700 mb-4 border-b pb-2">
+                          {translate(currentLanguage, "fuelPetrol")}
+                        </h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {engines
+                            .filter((e) =>
+                              e.fuel.toLowerCase().includes("bensin"),
+                            )
+                            .map((engine) => (
+                              <EngineOption
+                                key={engine.label}
+                                engine={engine}
+                                onClick={() =>
+                                  setSelected((prev) => ({
+                                    ...prev,
+                                    engine: engine.label,
+                                  }))
+                                }
+                              />
+                            ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Other Engines */}
+                    {engines.filter(
+                      (e) =>
+                        !e.fuel.toLowerCase().includes("diesel") &&
+                        !e.fuel.toLowerCase().includes("bensin"),
+                    ).length > 0 && (
+                      <div>
+                        <h2 className="text-lg font-normal text-gray-700 mb-4 border-b pb-2">
+                          {translate(currentLanguage, "otherEngines")}
+                        </h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {engines
+                            .filter(
+                              (e) =>
+                                !e.fuel.toLowerCase().includes("diesel") &&
+                                !e.fuel.toLowerCase().includes("bensin"),
+                            )
+                            .map((engine) => (
+                              <EngineOption
+                                key={engine.label}
+                                engine={engine}
+                                onClick={() =>
+                                  setSelected((prev) => ({
+                                    ...prev,
+                                    engine: engine.label,
+                                  }))
+                                }
+                              />
+                            ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
               )}
           </div>
         )}
@@ -2114,6 +2151,31 @@ export default function TuningViewer() {
     </>
   );
 }
+
+/* Engine Option Component */
+const EngineOption = ({ engine, onClick }) => (
+  <div
+    onClick={onClick}
+    className="p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-colors cursor-pointer"
+  >
+    <div className="flex justify-between items-start">
+      <h3 className="font-medium text-gray-800">{engine.label}</h3>
+      {engine.power && (
+        <span className="text-xs font-medium bg-gray-100 text-gray-600 px-2 py-1 rounded">
+          {engine.power}
+        </span>
+      )}
+    </div>
+    <div className="mt-2 text-sm text-gray-500">
+      <span>{engine.fuel}</span>
+      {engine.cylinders && (
+        <span className="before:content-['•'] before:mx-2">
+          {engine.cylinders} cylinders
+        </span>
+      )}
+    </div>
+  </div>
+);
 
 const InfoModal = ({
   isOpen,
