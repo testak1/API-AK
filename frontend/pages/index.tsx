@@ -693,8 +693,8 @@ export default function TuningViewer() {
             onClick={toggleViewMode}
             className={`p-2 rounded-full border transition-all shadow-sm ${
               viewMode === "card"
-                ? "bg-gray-100 border-gray-300 text-gray-700"
-                : "bg-red-600 border-red-600 text-white"
+                ? "bg-red-600 border-red-600 text-white"
+                : "bg-red-100 border-gray-300 text-gray-700"
             }`}
             aria-label="Byt vy"
           >
