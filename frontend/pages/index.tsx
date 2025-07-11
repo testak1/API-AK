@@ -964,6 +964,7 @@ export default function TuningViewer() {
                   }
                   className="flex items-center text-blue-600 hover:text-blue-800 mb-4 transition-colors"
                 >
+                  {translate(currentLanguage, "BACKTO")}{" "}
                   <svg
                     className="w-5 h-5 mr-1"
                     fill="none"
@@ -974,10 +975,9 @@ export default function TuningViewer() {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth={2}
-                      d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                      d="M14 5l7 7m0 0l-7 7m7-7H3"
                     />
                   </svg>
-                  {translate(currentLanguage, "BACKTO")}{" "}
                   {selected.brand.replace("[LASTBIL] ", "")}
                 </button>
                 <h2 className="text-xl font-bold text-black mb-4">

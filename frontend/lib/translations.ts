@@ -7,7 +7,7 @@ export const translations = {
     lang: "VÄLJ SPRÅK",
     Lastbilar: "LASTBILAR",
     Personbilar: "BILAR",
-    BACKTO: "Tillbaka till -> ",
+    BACKTO: "Tillbaka till",
     otherEngines: "Hybrid",
     MODELLER: "MODELLER",
     ÅRSMODELLER: "ÅRSMODELLER",
