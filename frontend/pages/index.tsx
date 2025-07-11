@@ -962,11 +962,13 @@ export default function TuningViewer() {
                   onClick={() =>
                     setSelected({ brand: "", model: "", year: "", engine: "" })
                   }
-                  className="flex items-center text-blue-600 hover:text-blue-800 mb-4 transition-colors"
+                  className="group flex items-center gap-1 mb-4 text-blue-600 hover:text-blue-800 transition-colors duration-200"
                 >
-                  {translate(currentLanguage, "BACKTO")}{" "}
+                  <span className="font-medium">
+                    {translate(currentLanguage, "BACKTO")}
+                  </span>
                   <svg
-                    className="w-5 h-5 mr-1"
+                    className="w-5 h-5 transition-transform duration-200 group-hover:translate-x-1"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -978,7 +980,9 @@ export default function TuningViewer() {
                       d="M14 5l7 7m0 0l-7 7m7-7H3"
                     />
                   </svg>
-                  {selected.brand.replace("[LASTBIL] ", "")}
+                  <span className="font-semibold">
+                    {selected.brand.replace("[LASTBIL] ", "")}
+                  </span>
                 </button>
                 <h2 className="text-xl font-bold text-black mb-4">
                   {translate(currentLanguage, "selectModel")} {selected.brand}
