@@ -1048,7 +1048,7 @@ export default function TuningViewer() {
                     />
                   </svg>
                   {translate(currentLanguage, "BACKTO")}{" "}
-                  {translate(currentLanguage, "MODELLER")}
+                  {selected.brand.replace("[LASTBIL] ", "")} {selected.model}
                 </button>
                 <h2 className="text-xl font-bold text-black mb-4">
                   {translate(currentLanguage, "selectModel")} {selected.brand}{" "}
@@ -1102,7 +1102,8 @@ export default function TuningViewer() {
                       />
                     </svg>
                     {translate(currentLanguage, "BACKTO")}{" "}
-                    {translate(currentLanguage, "ÅRSMODELLER")}
+                    {selected.brand.replace("[LASTBIL] ", "")} {selected.model}{" "}
+                    ({selected.year})
                   </button>
                   <h2 className="text-xl font-bold text-black mb-4">
                     {translate(currentLanguage, "selectEngine")}{" "}
