@@ -930,14 +930,16 @@ export default function TuningViewer() {
                           className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
                         >
                           {data.find(b => b.name === brand)?.logo?.asset && (
-                            <img
+                            <Image
                               src={urlFor(
                                 data.find(b => b.name === brand)?.logo
                               )
                                 .width(100)
                                 .url()}
                               alt={brand}
-                              className="h-16 w-auto object-contain mb-2"
+                              width={70}
+                              height={80} // justera vid behov
+                              className="object-contain mb-2"
                             />
                           )}
                           <p className="text-center font-medium text-gray-800">
