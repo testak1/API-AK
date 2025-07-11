@@ -112,10 +112,6 @@ export default function TuningViewer() {
     ),
   });
 
-  const logoUrl = "/akmodell.png";
-  const fallbackImageUrl =
-    "https://tcmtuning.ro/_alex/ximages/models/5_10857.png";
-
   const [infoModal, setInfoModal] = useState<{
     open: boolean;
     type: "stage" | "general";
@@ -977,23 +973,12 @@ export default function TuningViewer() {
                       className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
                     >
                       {getModelImage(model.name, selected.brand) ? (
-                        <div className="relative h-16 w-auto mb-2">
-                          <img
-                            src={getModelImage(model.name, selected.brand)}
-                            alt={model.name}
-                            className="h-16 w-auto object-contain mx-auto"
-                            loading="lazy"
-                          />
-
-                          {getModelImage(model.name, selected.brand) ===
-                            fallbackImageUrl && (
-                            <img
-                              src="/akmodell.png"
-                              alt="Watermark"
-                              className="absolute inset-0 m-auto h-8 opacity-50 pointer-events-none"
-                            />
-                          )}
-                        </div>
+                        <img
+                          src={getModelImage(model.name, selected.brand)}
+                          alt={model.name}
+                          className="h-16 w-auto object-contain mb-2"
+                          loading="lazy"
+                        />
                       ) : (
                         <div className="h-16 w-16 bg-gray-100 rounded-full mb-2 flex items-center justify-center">
                           <span className="text-gray-400 text-xl">
