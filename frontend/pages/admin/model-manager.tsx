@@ -1,4 +1,5 @@
 import { useState } from "react";
+import ChevronDownIcon from "../../components/ChevronDownIcon";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../api/auth/[...nextauth]";
 import type { GetServerSideProps } from "next";
@@ -18,6 +19,9 @@ interface Props {
 
 export default function ModelManager({ models: initialModels }: Props) {
   const [models, setModels] = useState<Model[]>(initialModels);
+  const [expandedBrands, setExpandedBrands] = useState<Record<string, boolean>>(
+    {},
+  );
   const [newModel, setNewModel] = useState<{
     brand: string;
     name: string;
@@ -25,6 +29,16 @@ export default function ModelManager({ models: initialModels }: Props) {
     file: File | null;
   }>({ brand: "", name: "", id: "", file: null });
   const [uploading, setUploading] = useState(false);
+
+  const modelsByBrand = models.reduce<Record<string, Model[]>>((acc, m) => {
+    if (!acc[m.brand]) acc[m.brand] = [];
+    acc[m.brand].push(m);
+    return acc;
+  }, {});
+
+  const toggleBrand = (brand: string) => {
+    setExpandedBrands((prev) => ({ ...prev, [brand]: !prev[brand] }));
+  };
 
   const handleDelete = async (id: string) => {
     await fetch("/api/models", {
@@ -104,35 +118,53 @@ export default function ModelManager({ models: initialModels }: Props) {
   return (
     <div className="p-4 max-w-3xl mx-auto">
       <h1 className="text-2xl font-bold mb-4">Model Manager</h1>
-      <ul className="space-y-4">
-        {models.map((m) => (
-          <li key={m.id} className="border p-3 rounded">
-            <div className="flex items-center space-x-4">
-              <img
-                src={m.image_url}
-                alt={m.name}
-                className="w-24 h-10 object-contain"
+      <div className="space-y-4">
+        {Object.entries(modelsByBrand).map(([brand, brandModels]) => (
+          <div key={brand} className="border rounded">
+            <button
+              onClick={() => toggleBrand(brand)}
+              className="w-full flex justify-between items-center p-3 bg-gray-100"
+            >
+              <span className="font-semibold">{brand}</span>
+              <ChevronDownIcon
+                className={`w-5 h-5 transform transition-transform ${expandedBrands[brand] ? "rotate-180" : ""}`}
               />
-              <span className="flex-1">
-                {m.brand} {m.name} ({m.id})
-              </span>
-              <input
-                type="file"
-                accept=".png"
-                onChange={(e) =>
-                  e.target.files?.[0] && handleImageUpdate(m, e.target.files[0])
-                }
-              />
-              <button
-                className="text-red-600"
-                onClick={() => handleDelete(m.id)}
-              >
-                Delete
-              </button>
-            </div>
-          </li>
+            </button>
+            {expandedBrands[brand] && (
+              <ul className="space-y-4 p-3">
+                {brandModels.map((m) => (
+                  <li key={m.id} className="border p-3 rounded">
+                    <div className="flex items-center space-x-4">
+                      <img
+                        src={m.image_url}
+                        alt={m.name}
+                        className="w-24 h-10 object-contain"
+                      />
+                      <span className="flex-1">
+                        {m.name} ({m.id})
+                      </span>
+                      <input
+                        type="file"
+                        accept=".png"
+                        onChange={(e) =>
+                          e.target.files?.[0] &&
+                          handleImageUpdate(m, e.target.files[0])
+                        }
+                      />
+                      <button
+                        className="text-red-600"
+                        onClick={() => handleDelete(m.id)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         ))}
-      </ul>
+      </div>
 
       <h2 className="text-xl font-semibold mt-8 mb-2">Add New Model</h2>
       <div className="space-y-2">
