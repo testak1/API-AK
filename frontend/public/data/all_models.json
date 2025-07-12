@@ -32,7 +32,7 @@
   {
     "name": "Brennero",
     "id": "12015",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/9_12015.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Alfa Romeo"
   },
   {
@@ -68,13 +68,13 @@
   {
     "name": "Junior",
     "id": "12299",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/9_12299.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Alfa Romeo"
   },
   {
     "name": "Milano",
     "id": "12225",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/9_12225.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Alfa Romeo"
   },
   {
@@ -200,7 +200,7 @@
   {
     "name": "NOMAD",
     "id": "11189",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/10227_11189.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Ariel Motors"
   },
   {
@@ -224,7 +224,7 @@
   {
     "name": "DB12",
     "id": "11345",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/5790_11345.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Aston Martin"
   },
   {
@@ -260,13 +260,13 @@
   {
     "name": "Valour",
     "id": "11359",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/5790_11359.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Aston Martin"
   },
   {
     "name": "Valiant",
     "id": "12295",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/5790_12295.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Aston Martin"
   },
   {
@@ -278,7 +278,7 @@
   {
     "name": "Vanquish",
     "id": "12283",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/5790_12283.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Aston Martin"
   },
   {
@@ -332,7 +332,7 @@
   {
     "name": "A6 e-Tron",
     "id": "12305",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/11_12305.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Audi"
   },
   {
@@ -380,7 +380,7 @@
   {
     "name": "Q6",
     "id": "5469",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/11_5469.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Audi"
   },
   {
@@ -476,7 +476,7 @@
   {
     "name": "S6 e-Tron",
     "id": "12307",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/11_12307.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Audi"
   },
   {
@@ -506,7 +506,7 @@
   {
     "name": "SQ6",
     "id": "12231",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/11_12231.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Audi"
   },
   {
@@ -602,19 +602,19 @@
   {
     "name": "i3",
     "id": "11219",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/5_11219.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "BMW"
   },
   {
     "name": "i4",
     "id": "11221",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/5_11221.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "BMW"
   },
   {
     "name": "i7",
     "id": "11223",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/5_11223.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "BMW"
   },
   {
@@ -848,7 +848,7 @@
   {
     "name": "XM",
     "id": "11217",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/5_11217.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "BMW"
   },
   {
@@ -890,7 +890,7 @@
   {
     "name": "Tourbillon",
     "id": "12291",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/13_12291.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Bugatti"
   },
   {
@@ -938,25 +938,25 @@
   {
     "name": "ETP3",
     "id": "12233",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/10703_12233.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "BYD"
   },
   {
     "name": "Dolphin",
     "id": "11349",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/10703_11349.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "BYD"
   },
   {
     "name": "Seagull",
     "id": "11365",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/10703_11365.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "BYD"
   },
   {
     "name": "Seal U",
     "id": "12311",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/10703_12311.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "BYD"
   },
   {
@@ -980,7 +980,7 @@
   {
     "name": "Escalade",
     "id": "12215",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/14_12215.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Cadillac"
   },
   {
@@ -1130,7 +1130,7 @@
   {
     "name": "Campers Holidays",
     "id": "12221",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/17_12221.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Citroën"
   },
   {
@@ -1196,7 +1196,7 @@
   {
     "name": "C4X",
     "id": "11227",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/17_11227.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Citroën"
   },
   {
@@ -1208,7 +1208,7 @@
   {
     "name": "C5X",
     "id": "11225",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/17_11225.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Citroën"
   },
   {
@@ -1292,13 +1292,13 @@
   {
     "name": "Tavascan",
     "id": "11287",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/9916_11287.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Cupra"
   },
   {
     "name": "Terramar",
     "id": "12309",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/9916_12309.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Cupra"
   },
   {
@@ -1316,7 +1316,7 @@
   {
     "name": "Jogger",
     "id": "11207",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/18_11207.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Dacia"
   },
   {
@@ -1370,7 +1370,7 @@
   {
     "name": "Challenger",
     "id": "11191",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/20_11191.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Dodge"
   },
   {
@@ -1406,7 +1406,7 @@
   {
     "name": "Rampage",
     "id": "12393",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/20_12393.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Dodge"
   },
   {
@@ -1526,7 +1526,7 @@
   {
     "name": "BR20",
     "id": "11155",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/21_11155.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Ferrari"
   },
   {
@@ -1592,7 +1592,7 @@
   {
     "name": "Purosangue",
     "id": "11231",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/21_11231.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Ferrari"
   },
   {
@@ -1610,7 +1610,7 @@
   {
     "name": "12 Cilindri",
     "id": "12281",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/21_12281.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Ferrari"
   },
   {
@@ -1640,7 +1640,7 @@
   {
     "name": "600",
     "id": "11347",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/22_11347.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Fiat"
   },
   {
@@ -1790,7 +1790,7 @@
   {
     "name": "Topolino",
     "id": "11355",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/22_11355.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Fiat"
   },
   {
@@ -1802,7 +1802,7 @@
   {
     "name": "Ulysse",
     "id": "11153",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/22_11153.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Fiat"
   },
   {
@@ -1826,7 +1826,7 @@
   {
     "name": "Capri",
     "id": "12347",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/23_12347.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Ford"
   },
   {
@@ -1886,7 +1886,7 @@
   {
     "name": "F4000",
     "id": "12209",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/23_12209.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Ford"
   },
   {
@@ -2036,7 +2036,7 @@
   {
     "name": "E:NY1",
     "id": "11341",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/24_11341.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Honda"
   },
   {
@@ -2060,7 +2060,7 @@
   {
     "name": "Jazz",
     "id": "11193",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/24_11193.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Honda"
   },
   {
@@ -2084,7 +2084,7 @@
   {
     "name": "Z-RV",
     "id": "11339",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/24_11339.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Honda"
   },
   {
@@ -2174,7 +2174,7 @@
   {
     "name": "Inster",
     "id": "12297",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/25_12297.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Hyundai"
   },
   {
@@ -2246,7 +2246,7 @@
   {
     "name": "Staria",
     "id": "12303",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/25_12303.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Hyundai"
   },
   {
@@ -2282,7 +2282,7 @@
   {
     "name": "Grenadier",
     "id": "11363",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/10707_11363.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Ineos"
   },
   {
@@ -2336,7 +2336,7 @@
   {
     "name": "QX60",
     "id": "12277",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/26_12277.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Infiniti"
   },
   {
@@ -2474,7 +2474,7 @@
   {
     "name": "Avenger",
     "id": "11233",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/28_11233.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Jeep"
   },
   {
@@ -2498,7 +2498,7 @@
   {
     "name": "Gladiator",
     "id": "11141",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/28_11141.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Jeep"
   },
   {
@@ -2552,7 +2552,7 @@
   {
     "name": "EV3",
     "id": "12289",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/29_12289.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Kia"
   },
   {
@@ -2666,7 +2666,7 @@
   {
     "name": "LB634",
     "id": "12285",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/31_12285.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Lamborghini"
   },
   {
@@ -2714,7 +2714,7 @@
   {
     "name": "Thema",
     "id": "5022",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/32_5022.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Lancia"
   },
   {
@@ -2732,7 +2732,7 @@
   {
     "name": "Ypsilon",
     "id": "1515",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/32_1515.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Lancia"
   },
   {
@@ -2798,13 +2798,13 @@
   {
     "name": "LM",
     "id": "11235",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/6806_11235.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Lexus"
   },
   {
     "name": "LBX",
     "id": "12219",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/6806_12219.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Lexus"
   },
   {
@@ -2816,7 +2816,7 @@
   {
     "name": "RZ",
     "id": "12223",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/6806_12223.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Lexus"
   },
   {
@@ -2870,13 +2870,13 @@
   {
     "name": "3-Eleven",
     "id": "11151",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/34_11151.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Lotus"
   },
   {
     "name": "Eletre",
     "id": "11237",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/34_11237.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Lotus"
   },
   {
@@ -2888,7 +2888,7 @@
   {
     "name": "Emeya",
     "id": "12011",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/34_12011.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Lotus"
   },
   {
@@ -2972,7 +2972,7 @@
   {
     "name": "Grancabrio",
     "id": "12229",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/35_12229.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Maserati"
   },
   {
@@ -3038,7 +3038,7 @@
   {
     "name": "CX-60",
     "id": "11239",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/36_11239.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Mazda"
   },
   {
@@ -3050,7 +3050,7 @@
   {
     "name": "CX-80",
     "id": "12235",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/36_12235.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Mazda"
   },
   {
@@ -3188,7 +3188,7 @@
   {
     "name": "CLE",
     "id": "11729",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/37_11729.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Mercedes"
   },
   {
@@ -3230,7 +3230,7 @@
   {
     "name": "EQE",
     "id": "11213",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/37_11213.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Mercedes"
   },
   {
@@ -3242,13 +3242,13 @@
   {
     "name": "EQT",
     "id": "11353",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/37_11353.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Mercedes"
   },
   {
     "name": "EQV",
     "id": "12187",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/37_12187.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Mercedes"
   },
   {
@@ -3356,7 +3356,7 @@
   {
     "name": "T",
     "id": "11241",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/37_11241.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Mercedes"
   },
   {
@@ -3398,61 +3398,61 @@
   {
     "name": "Comet",
     "id": "11337",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/38_11337.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "MG"
   },
   {
     "name": "Cyberster",
     "id": "12315",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/38_12315.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "MG"
   },
   {
     "name": "EHS",
     "id": "11243",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/38_11243.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "MG"
   },
   {
     "name": "HES",
     "id": "12301",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/38_12301.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "MG"
   },
   {
     "name": "Marvel R",
     "id": "11245",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/38_11245.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "MG"
   },
   {
     "name": "MG3",
     "id": "12287",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/38_12287.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "MG"
   },
   {
     "name": "MG4",
     "id": "11247",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/38_11247.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "MG"
   },
   {
     "name": "MG5",
     "id": "11249",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/38_11249.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "MG"
   },
   {
     "name": "ZS",
     "id": "11251",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/38_11251.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "MG"
   },
   {
     "name": "Aceman",
     "id": "12293",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/39_12293.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Mini"
   },
   {
@@ -3584,19 +3584,19 @@
   {
     "name": "Plus Four",
     "id": "11201",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/10697_11201.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Morgan"
   },
   {
     "name": "Supersport",
     "id": "12355",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/10697_12355.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Morgan"
   },
   {
     "name": "Erelis",
     "id": "11285",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/10701_11285.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "MPM"
   },
   {
@@ -3764,7 +3764,7 @@
   {
     "name": "Roox",
     "id": "12275",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/41_12275.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Nissan"
   },
   {
@@ -3788,7 +3788,7 @@
   {
     "name": "Townstar",
     "id": "12217",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/41_12217.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Nissan"
   },
   {
@@ -3854,7 +3854,7 @@
   {
     "name": "Frontera",
     "id": "5874",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/42_5874.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Opel"
   },
   {
@@ -3902,7 +3902,7 @@
   {
     "name": "Rocks-e",
     "id": "11357",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/42_11357.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Opel"
   },
   {
@@ -4202,7 +4202,7 @@
   {
     "name": "Austral",
     "id": "11185",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/45_11185.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Renault"
   },
   {
@@ -4298,7 +4298,7 @@
   {
     "name": "Megane E-Tech",
     "id": "11253",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/45_11253.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Renault"
   },
   {
@@ -4310,13 +4310,13 @@
   {
     "name": "Rafale",
     "id": "12213",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/45_12213.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Renault"
   },
   {
     "name": "R5",
     "id": "12227",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/45_12227.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Renault"
   },
   {
@@ -4328,7 +4328,7 @@
   {
     "name": "Symbioz",
     "id": "12279",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/45_12279.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Renault"
   },
   {
@@ -4370,7 +4370,7 @@
   {
     "name": "Cullinan",
     "id": "11181",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/46_11181.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Rolls Royce"
   },
   {
@@ -4382,19 +4382,19 @@
   {
     "name": "Ghost",
     "id": "11159",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/46_11159.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Rolls Royce"
   },
   {
     "name": "Phantom",
     "id": "11157",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/46_11157.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Rolls Royce"
   },
   {
     "name": "Spectre",
     "id": "11255",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/46_11255.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Rolls Royce"
   },
   {
@@ -4532,7 +4532,7 @@
   {
     "name": "Elroq",
     "id": "12313",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/49_12313.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Skoda"
   },
   {
@@ -4634,13 +4634,13 @@
   {
     "name": "#1",
     "id": "11257",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/50_11257.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Smart"
   },
   {
     "name": "#3",
     "id": "11259",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/50_11259.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Smart"
   },
   {
@@ -4730,7 +4730,7 @@
   {
     "name": "Soltera",
     "id": "12013",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/51_12013.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Subaru"
   },
   {
@@ -4784,7 +4784,7 @@
   {
     "name": "Swace",
     "id": "11261",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/52_11261.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Suzuki"
   },
   {
@@ -4826,13 +4826,13 @@
   {
     "name": "Model 3",
     "id": "11515",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/10711_11515.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Tesla"
   },
   {
     "name": "Model Y",
     "id": "11517",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/10711_11517.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Tesla"
   },
   {
@@ -4856,13 +4856,13 @@
   {
     "name": "BZ4X",
     "id": "11265",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/53_11265.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Toyota"
   },
   {
     "name": "Camry",
     "id": "12267",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/53_12267.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Toyota"
   },
   {
@@ -4880,7 +4880,7 @@
   {
     "name": "GR86",
     "id": "11263",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/53_11263.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Toyota"
   },
   {
@@ -5024,7 +5024,7 @@
   {
     "name": "ID.Buzz",
     "id": "11273",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/54_11273.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Volkswagen"
   },
   {
@@ -5042,13 +5042,13 @@
   {
     "name": "ID.5",
     "id": "11271",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/54_11271.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Volkswagen"
   },
   {
     "name": "ID.7",
     "id": "11269",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/54_11269.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Volkswagen"
   },
   {
@@ -5174,7 +5174,7 @@
   {
     "name": "C40",
     "id": "11187",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/55_11187.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Volvo"
   },
   {
@@ -5186,19 +5186,19 @@
   {
     "name": "ES90",
     "id": "12353",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/55_12353.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Volvo"
   },
   {
     "name": "EX30",
     "id": "12351",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/55_12351.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Volvo"
   },
   {
     "name": "EX90",
     "id": "11267",
-    "image_url": "https://tcmtuning.ro/_alex/ximages/models/55_11267.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Volvo"
   },
   {
