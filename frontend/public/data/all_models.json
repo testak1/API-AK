@@ -192,24 +192,6 @@
     "brand": "Alpine"
   },
   {
-    "name": "Atom 4",
-    "id": "10228",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0bdcc4a3021ad6e321e60e59a6966f930ca1fac4-200x145.png",
-    "brand": "Ariel Motors"
-  },
-  {
-    "name": "NOMAD",
-    "id": "11189",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Ariel Motors"
-  },
-  {
-    "name": "GT",
-    "id": "11119",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Artega"
-  },
-  {
     "name": "DB9",
     "id": "5791",
     "image_url": "https://cdn.sanity.io/images/wensahkh/production/b94935f5a29b1ab9ddc10ffd3c7f272b00efc6f2-200x75.png",
@@ -501,12 +483,6 @@
     "name": "SQ5",
     "id": "5077",
     "image_url": "https://cdn.sanity.io/images/wensahkh/production/700e970788fd6685a0b88a4445adb76a6f2bbd0f-200x86.png",
-    "brand": "Audi"
-  },
-  {
-    "name": "SQ6",
-    "id": "12231",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Audi"
   },
   {
@@ -870,18 +846,6 @@
     "brand": "BMW"
   },
   {
-    "name": "BX5",
-    "id": "10953",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Borgward"
-  },
-  {
-    "name": "BX7 / BX7 TS",
-    "id": "10493",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Borgward"
-  },
-  {
     "name": "Chiron",
     "id": "10190",
     "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
@@ -898,66 +862,6 @@
     "id": "726",
     "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Bugatti"
-  },
-  {
-    "name": "Regal",
-    "id": "8125",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/4c23627bbdb0406dc429c4e8758e09666bc8a485-200x102.png",
-    "brand": "Buick"
-  },
-  {
-    "name": "Excelle",
-    "id": "8126",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/f9cabf4171025053313682abc18d58256e10d693-200x150.png",
-    "brand": "Buick"
-  },
-  {
-    "name": "Ankela",
-    "id": "8127",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Buick"
-  },
-  {
-    "name": "Lacrosse",
-    "id": "8128",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/fa361dd40f0131392cce5ccecea49430f504be62-200x100.png",
-    "brand": "Buick"
-  },
-  {
-    "name": "Encore",
-    "id": "8129",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/f6b34154c1fde4c68c032174bc8c6f8b3c70fc3a-200x102.png",
-    "brand": "Buick"
-  },
-  {
-    "name": "Verano",
-    "id": "9902",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0628662204ec99942a5e107c89677730bfbf4753-200x150.png",
-    "brand": "Buick"
-  },
-  {
-    "name": "ETP3",
-    "id": "12233",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "BYD"
-  },
-  {
-    "name": "Dolphin",
-    "id": "11349",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "BYD"
-  },
-  {
-    "name": "Seagull",
-    "id": "11365",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "BYD"
-  },
-  {
-    "name": "Seal U",
-    "id": "12311",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "BYD"
   },
   {
     "name": "ATS",
@@ -982,102 +886,6 @@
     "id": "12215",
     "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Cadillac"
-  },
-  {
-    "name": "Seven",
-    "id": "10975",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Caterham"
-  },
-  {
-    "name": "Aveo",
-    "id": "742",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/8e79be85550e547fab438066cc5123a56212e2c6-200x125.png",
-    "brand": "Chevrolet"
-  },
-  {
-    "name": "Captiva",
-    "id": "746",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/ed1bcf94cff6aba1d089fa04618a949bd557f763-200x133.png",
-    "brand": "Chevrolet"
-  },
-  {
-    "name": "Camaro",
-    "id": "4009",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/03d9cb234d99ee4dcc93194fbbcf2108d31096d6-200x100.png",
-    "brand": "Chevrolet"
-  },
-  {
-    "name": "Cruze",
-    "id": "752",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/5b3a6da6a9e0e897502311e31ab79b6dcf4f745d-200x100.png",
-    "brand": "Chevrolet"
-  },
-  {
-    "name": "Corvette C8",
-    "id": "10939",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Chevrolet"
-  },
-  {
-    "name": "Corvette Z06",
-    "id": "7626",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/b58f4c167b5367ab182e1a097d0d3b11468cd04b-200x100.png",
-    "brand": "Chevrolet"
-  },
-  {
-    "name": "Corvette ZR1",
-    "id": "5673",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/f8a95841a8268bca66770e87e9c711ed65f31ae1-200x100.png",
-    "brand": "Chevrolet"
-  },
-  {
-    "name": "Epica",
-    "id": "756",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/b91d8b933d124c7e27009f37c0a7a93de0bf5bac-200x108.png",
-    "brand": "Chevrolet"
-  },
-  {
-    "name": "Lacetti",
-    "id": "759",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/63fe745b6918373826a78b5eca51a0dd5d0c38a2-200x87.png",
-    "brand": "Chevrolet"
-  },
-  {
-    "name": "Lumina",
-    "id": "9107",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Chevrolet"
-  },
-  {
-    "name": "Malibu",
-    "id": "5576",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/5bb2bf1cbc68d5fa6db3c846e3e5bd836de961ed-200x100.png",
-    "brand": "Chevrolet"
-  },
-  {
-    "name": "Nubira",
-    "id": "739",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Chevrolet"
-  },
-  {
-    "name": "Orlando",
-    "id": "735",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/c7ea4ecf6e8f11381772f6154f7235d50b0d97d5-200x150.png",
-    "brand": "Chevrolet"
-  },
-  {
-    "name": "Spark",
-    "id": "8476",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/42c1058b5f5a3a8f7c7bbeb979e5d311999d2f18-200x100.png",
-    "brand": "Chevrolet"
-  },
-  {
-    "name": "Trax",
-    "id": "5522",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/32b113dbc1c1f284ae980feb8f3aea97a86f97b1-200x100.png",
-    "brand": "Chevrolet"
   },
   {
     "name": "300C",
@@ -1344,18 +1152,6 @@
     "brand": "Dacia"
   },
   {
-    "name": "Tosca",
-    "id": "915",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Daewoo"
-  },
-  {
-    "name": "Winstorm",
-    "id": "918",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Daewoo"
-  },
-  {
     "name": "Avenger",
     "id": "921",
     "image_url": "https://cdn.sanity.io/images/wensahkh/production/bb3fcebf38093831c9af414d3acf71521db18558-200x132.png",
@@ -1408,54 +1204,6 @@
     "id": "12393",
     "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Dodge"
-  },
-  {
-    "name": "DS3",
-    "id": "7099",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/ade292f92fbb002c6769605f8b10eba3322c92e5-200x133.png",
-    "brand": "DS"
-  },
-  {
-    "name": "DS3 Crossback",
-    "id": "10260",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/867b1fd2d091a295213a8f31edc0d9c416454502-200x108.png",
-    "brand": "DS"
-  },
-  {
-    "name": "DS4",
-    "id": "7100",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/6bd5de638a452b2d655521029fa97377a4e37534-200x122.png",
-    "brand": "DS"
-  },
-  {
-    "name": "DS4 Crossback",
-    "id": "10987",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "DS"
-  },
-  {
-    "name": "DS5",
-    "id": "7101",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/cf91ca7dd536cc2be948932511514cb3b03af750-200x110.png",
-    "brand": "DS"
-  },
-  {
-    "name": "DS7 Crossback",
-    "id": "9325",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/8aa7032e62967af90c552abfed8a5a22683699ec-200x77.png",
-    "brand": "DS"
-  },
-  {
-    "name": "DS8",
-    "id": "10859",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "DS"
-  },
-  {
-    "name": "DS9",
-    "id": "10951",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "DS"
   },
   {
     "name": "296 GTB",
@@ -1992,24 +1740,6 @@
     "brand": "Ford"
   },
   {
-    "name": "Boyue",
-    "id": "10623",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Geely"
-  },
-  {
-    "name": "(H5) Hover 5",
-    "id": "6360",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "GWM"
-  },
-  {
-    "name": "Colorado",
-    "id": "9104",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Holden"
-  },
-  {
     "name": "Accord",
     "id": "1235",
     "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
@@ -2280,12 +2010,6 @@
     "brand": "Hyundai"
   },
   {
-    "name": "Grenadier",
-    "id": "11363",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Ineos"
-  },
-  {
     "name": "EX",
     "id": "1330",
     "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
@@ -2386,12 +2110,6 @@
     "id": "8109",
     "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Iveco"
-  },
-  {
-    "name": "X200",
-    "id": "10843",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "JAC"
   },
   {
     "name": "E-Pace",
@@ -2640,12 +2358,6 @@
     "brand": "Kia"
   },
   {
-    "name": "X-Bow",
-    "id": "1462",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "KTM"
-  },
-  {
     "name": "Aventador",
     "id": "3994",
     "image_url": "https://cdn.sanity.io/images/wensahkh/production/a7234d86c81edc757b615963960519cdfa955577-200x80.png",
@@ -2686,54 +2398,6 @@
     "id": "10574",
     "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Lamborghini"
-  },
-  {
-    "name": "Delta",
-    "id": "1474",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Lancia"
-  },
-  {
-    "name": "Lybra",
-    "id": "1489",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Lancia"
-  },
-  {
-    "name": "Musa",
-    "id": "1497",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Lancia"
-  },
-  {
-    "name": "Phedra",
-    "id": "1503",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Lancia"
-  },
-  {
-    "name": "Thema",
-    "id": "5022",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Lancia"
-  },
-  {
-    "name": "Thesis",
-    "id": "1510",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Lancia"
-  },
-  {
-    "name": "Voyager",
-    "id": "6127",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Lancia"
-  },
-  {
-    "name": "Ypsilon",
-    "id": "1515",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Lancia"
   },
   {
     "name": "Defender",
@@ -2826,42 +2490,6 @@
     "brand": "Lexus"
   },
   {
-    "name": "Continental",
-    "id": "10598",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Lincoln"
-  },
-  {
-    "name": "MKC",
-    "id": "10602",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Lincoln"
-  },
-  {
-    "name": "MKT",
-    "id": "10606",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Lincoln"
-  },
-  {
-    "name": "MKX / Nautilus",
-    "id": "10609",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Lincoln"
-  },
-  {
-    "name": "MKZ",
-    "id": "10613",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Lincoln"
-  },
-  {
-    "name": "Navigator",
-    "id": "10617",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Lincoln"
-  },
-  {
     "name": "2-Eleven",
     "id": "1550",
     "image_url": "https://cdn.sanity.io/images/wensahkh/production/8c51359d5e55e4801ad1647e9570b4d6a7830a40-200x125.png",
@@ -2914,36 +2542,6 @@
     "id": "1565",
     "image_url": "https://cdn.sanity.io/images/wensahkh/production/d6578a0b1c8fc9256db7fb3a34f9472fb39042d0-200x125.png",
     "brand": "Lotus"
-  },
-  {
-    "name": "Genio",
-    "id": "7378",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Mahindra"
-  },
-  {
-    "name": "Thar",
-    "id": "7392",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Mahindra"
-  },
-  {
-    "name": "Quanto",
-    "id": "7382",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Mahindra"
-  },
-  {
-    "name": "XUV500 / Scorpio",
-    "id": "7375",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Mahindra"
-  },
-  {
-    "name": "Xylo",
-    "id": "7386",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Mahindra"
   },
   {
     "name": "TGE",
@@ -3390,66 +2988,6 @@
     "brand": "Mercedes"
   },
   {
-    "name": "3 SW",
-    "id": "10220",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "MG"
-  },
-  {
-    "name": "Comet",
-    "id": "11337",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "MG"
-  },
-  {
-    "name": "Cyberster",
-    "id": "12315",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "MG"
-  },
-  {
-    "name": "EHS",
-    "id": "11243",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "MG"
-  },
-  {
-    "name": "HES",
-    "id": "12301",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "MG"
-  },
-  {
-    "name": "Marvel R",
-    "id": "11245",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "MG"
-  },
-  {
-    "name": "MG3",
-    "id": "12287",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "MG"
-  },
-  {
-    "name": "MG4",
-    "id": "11247",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "MG"
-  },
-  {
-    "name": "MG5",
-    "id": "11249",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "MG"
-  },
-  {
-    "name": "ZS",
-    "id": "11251",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "MG"
-  },
-  {
     "name": "Aceman",
     "id": "12293",
     "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
@@ -3580,24 +3118,6 @@
     "id": "2009",
     "image_url": "https://cdn.sanity.io/images/wensahkh/production/a37f0417527985abd27cfbc3e51c789626d72f30-200x150.png",
     "brand": "Mitsubishi"
-  },
-  {
-    "name": "Plus Four",
-    "id": "11201",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Morgan"
-  },
-  {
-    "name": "Supersport",
-    "id": "12355",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Morgan"
-  },
-  {
-    "name": "Erelis",
-    "id": "11285",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "MPM"
   },
   {
     "name": "350Z",
@@ -4104,36 +3624,6 @@
     "brand": "Peugeot"
   },
   {
-    "name": "Cevennes",
-    "id": "5765",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "PGO"
-  },
-  {
-    "name": "Hemera",
-    "id": "5764",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "PGO"
-  },
-  {
-    "name": "Speedster",
-    "id": "5768",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "PGO"
-  },
-  {
-    "name": "Speedster II",
-    "id": "5773",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "PGO"
-  },
-  {
-    "name": "Porter Maxxi",
-    "id": "6683",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Piaggio"
-  },
-  {
     "name": "911",
     "id": "4282",
     "image_url": "https://cdn.sanity.io/images/wensahkh/production/5210005ec00bf012dbeca7fa1d9d835b6a4e34af-200x113.png",
@@ -4422,18 +3912,6 @@
     "brand": "Saab"
   },
   {
-    "name": "SM6",
-    "id": "9505",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Samsung"
-  },
-  {
-    "name": "FR-S",
-    "id": "5952",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Scion"
-  },
-  {
     "name": "Alhambra",
     "id": "2659",
     "image_url": "https://cdn.sanity.io/images/wensahkh/production/fa58df79865f53c424a576687709290ec943d168-200x91.png",
@@ -4504,24 +3982,6 @@
     "id": "5098",
     "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
     "brand": "Seat"
-  },
-  {
-    "name": "F16",
-    "id": "10969",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Secma"
-  },
-  {
-    "name": "F16 Turbo",
-    "id": "10971",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Secma"
-  },
-  {
-    "name": "Fun Buggy",
-    "id": "10973",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Secma"
   },
   {
     "name": "Citigo",
@@ -4602,96 +4062,6 @@
     "brand": "Skoda"
   },
   {
-    "name": "City",
-    "id": "3703",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Smart"
-  },
-  {
-    "name": "Crossblade",
-    "id": "2827",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Smart"
-  },
-  {
-    "name": "ForFour",
-    "id": "2830",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Smart"
-  },
-  {
-    "name": "ForTwo",
-    "id": "2834",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Smart"
-  },
-  {
-    "name": "Roadster",
-    "id": "2818",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Smart"
-  },
-  {
-    "name": "#1",
-    "id": "11257",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Smart"
-  },
-  {
-    "name": "#3",
-    "id": "11259",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Smart"
-  },
-  {
-    "name": "Actyon",
-    "id": "3737",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "SsangYong"
-  },
-  {
-    "name": "Korando",
-    "id": "5008",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/fde003f485f5f9e6f0045b9afcac911d09219dca-200x100.jpg",
-    "brand": "SsangYong"
-  },
-  {
-    "name": "Kyron",
-    "id": "3735",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "SsangYong"
-  },
-  {
-    "name": "Musso",
-    "id": "9972",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/c8b4f25de9fde6029a837182d5ea9ae01aaf6454-200x100.jpg",
-    "brand": "SsangYong"
-  },
-  {
-    "name": "Rexton",
-    "id": "3734",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/4f11dd642f2a11b159ee30fdddb9162a1d3a858f-200x100.jpg",
-    "brand": "SsangYong"
-  },
-  {
-    "name": "New Rodius",
-    "id": "6190",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "SsangYong"
-  },
-  {
-    "name": "Tivoli",
-    "id": "9438",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/c20c06b4d8b66a382748f5f8bc84bbfbeac5bf55-200x100.jpg",
-    "brand": "SsangYong"
-  },
-  {
-    "name": "XLV",
-    "id": "9441",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/18acf3bf926994918732bee29879e4f580923d96-200x100.jpg",
-    "brand": "SsangYong"
-  },
-  {
     "name": "BRZ",
     "id": "5849",
     "image_url": "https://cdn.sanity.io/images/wensahkh/production/ce63a213b64fd59b1dba16907f4107d2a49f322d-118x72.png",
@@ -4744,96 +4114,6 @@
     "id": "7240",
     "image_url": "https://cdn.sanity.io/images/wensahkh/production/549880c809590ee70c9f1058466e9cdf514cef4a-118x72.png",
     "brand": "Subaru"
-  },
-  {
-    "name": "Grand Vitara",
-    "id": "2871",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Suzuki"
-  },
-  {
-    "name": "Ignis",
-    "id": "2878",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/a4822528d799919bd7939f34667aa10718a2f2b0-200x114.png",
-    "brand": "Suzuki"
-  },
-  {
-    "name": "Baleno",
-    "id": "9700",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/d18e6cae167f6a37e24a47b13fc571eb1060aaa2-200x114.png",
-    "brand": "Suzuki"
-  },
-  {
-    "name": "Jimny",
-    "id": "2881",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Suzuki"
-  },
-  {
-    "name": "Liana",
-    "id": "2884",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Suzuki"
-  },
-  {
-    "name": "Splash",
-    "id": "2887",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Suzuki"
-  },
-  {
-    "name": "Swace",
-    "id": "11261",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Suzuki"
-  },
-  {
-    "name": "Swift",
-    "id": "2890",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/34fbebafd6b94036a3248cf1302dc88849064719-200x114.png",
-    "brand": "Suzuki"
-  },
-  {
-    "name": "SX-4",
-    "id": "2894",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Suzuki"
-  },
-  {
-    "name": "SX-4 S-Cross",
-    "id": "6167",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/60d8de2328370c5a239e07bdffd294fab81c5314-200x114.png",
-    "brand": "Suzuki"
-  },
-  {
-    "name": "Vitara",
-    "id": "8500",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/fee41ab4ff646493ada1cdbc2e68c55865e350a7-200x114.png",
-    "brand": "Suzuki"
-  },
-  {
-    "name": "Wagon-R",
-    "id": "2898",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Suzuki"
-  },
-  {
-    "name": "Safari/Xenon",
-    "id": "3728",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/d2a6afd64cd74d6d174d1f60d49300496d090859-200x115.png",
-    "brand": "Tata"
-  },
-  {
-    "name": "Model 3",
-    "id": "11515",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Tesla"
-  },
-  {
-    "name": "Model Y",
-    "id": "11517",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Tesla"
   },
   {
     "name": "Auris",
@@ -5168,7 +4448,7 @@
   {
     "name": "C30",
     "id": "3202",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
+    "image_url": "https://cdn.sanity.io/images/wensahkh/production/a53b9826798ac7c50a3e002234ecee50522f08c6-661x356.png",
     "brand": "Volvo"
   },
   {
@@ -5266,17 +4546,5 @@
     "id": "3331",
     "image_url": "https://cdn.sanity.io/images/wensahkh/production/9a8128b4ffbcf0cd7ac8c0df1401a03a19ffff71-200x72.png",
     "brand": "Volvo"
-  },
-  {
-    "name": "FW300",
-    "id": "5528",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Westfield"
-  },
-  {
-    "name": "GT / Roadster",
-    "id": "3341",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
-    "brand": "Wiesmann"
   }
 ]
