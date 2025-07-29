@@ -1097,18 +1097,22 @@ export default function TuningViewer() {
                       .filter((b) => !b.startsWith("[LASTBIL]"))
                       .filter((b) => !settings.hiddenMakes?.includes(b))
                       .sort((a, b) => a.localeCompare(b))
-
                       .map((brand) => (
                         <div
                           key={brand}
-                          onClick={() =>
+                          onClick={() => {
                             setSelected({
                               brand,
                               model: "",
                               year: "",
                               engine: "",
-                            })
-                          }
+                            });
+                            // FIX: Lade till postMessage
+                            window.parent.postMessage(
+                              { scrollToIframe: true },
+                              "*",
+                            );
+                          }}
                           className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
                         >
                           {data.find((b) => b.name === brand)?.logo?.asset && (
@@ -1142,14 +1146,19 @@ export default function TuningViewer() {
                       .map((brand) => (
                         <div
                           key={brand}
-                          onClick={() =>
+                          onClick={() => {
                             setSelected({
                               brand,
                               model: "",
                               year: "",
                               engine: "",
-                            })
-                          }
+                            });
+                            // FIX: Lade till postMessage
+                            window.parent.postMessage(
+                              { scrollToIframe: true },
+                              "*",
+                            );
+                          }}
                           className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
                         >
                           {data.find((b) => b.name === brand)?.logo?.asset && (
@@ -1177,9 +1186,11 @@ export default function TuningViewer() {
             {selected.brand && !selected.model && (
               <>
                 <button
-                  onClick={() =>
-                    setSelected({ brand: "", model: "", year: "", engine: "" })
-                  }
+                  onClick={() => {
+                    setSelected({ brand: "", model: "", year: "", engine: "" });
+                    // FIX: Lade till postMessage
+                    window.parent.postMessage({ scrollToIframe: true }, "*");
+                  }}
                   className="group flex items-center gap-1 mb-4 text-blue-600 hover:text-blue-800 transition-colors duration-200"
                 >
                   <span className="font-medium">
@@ -1234,14 +1245,19 @@ export default function TuningViewer() {
                   {models.map((model) => (
                     <div
                       key={model.name}
-                      onClick={() =>
+                      onClick={() => {
                         setSelected((prev) => ({
                           ...prev,
                           model: model.name,
                           year: "",
                           engine: "",
-                        }))
-                      }
+                        }));
+                        // FIX: Lade till postMessage
+                        window.parent.postMessage(
+                          { scrollToIframe: true },
+                          "*",
+                        );
+                      }}
                       className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
                     >
                       {getModelImage(model.name, selected.brand) ? (
@@ -1271,14 +1287,16 @@ export default function TuningViewer() {
             {selected.brand && selected.model && !selected.year && (
               <>
                 <button
-                  onClick={() =>
+                  onClick={() => {
                     setSelected((prev) => ({
                       ...prev,
                       model: "",
                       year: "",
                       engine: "",
-                    }))
-                  }
+                    }));
+                    // FIX: Lade till postMessage
+                    window.parent.postMessage({ scrollToIframe: true }, "*");
+                  }}
                   className="group flex items-center gap-1 mb-4 text-blue-600 hover:text-blue-800 transition-colors duration-200"
                 >
                   <span className="font-medium">
@@ -1334,13 +1352,18 @@ export default function TuningViewer() {
                   {years.map((year) => (
                     <div
                       key={year.range}
-                      onClick={() =>
+                      onClick={() => {
                         setSelected((prev) => ({
                           ...prev,
                           year: year.range,
                           engine: "",
-                        }))
-                      }
+                        }));
+                        // FIX: Lade till postMessage
+                        window.parent.postMessage(
+                          { scrollToIframe: true },
+                          "*",
+                        );
+                      }}
                       className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
                     >
                       <p className="text-center font-medium text-gray-800">
@@ -1359,9 +1382,15 @@ export default function TuningViewer() {
               !selected.engine && (
                 <>
                   <button
-                    onClick={() =>
-                      setSelected((prev) => ({ ...prev, year: "", engine: "" }))
-                    }
+                    onClick={() => {
+                      setSelected((prev) => ({
+                        ...prev,
+                        year: "",
+                        engine: "",
+                      }));
+                      // FIX: Lade till postMessage
+                      window.parent.postMessage({ scrollToIframe: true }, "*");
+                    }}
                     className="group flex items-center gap-1 mb-4 text-blue-600 hover:text-blue-800 transition-colors duration-200"
                   >
                     <span className="font-medium">
@@ -1430,12 +1459,17 @@ export default function TuningViewer() {
                           .map((engine) => (
                             <div
                               key={engine.label}
-                              onClick={() =>
+                              onClick={() => {
                                 setSelected((prev) => ({
                                   ...prev,
                                   engine: engine.label,
-                                }))
-                              }
+                                }));
+                                // FIX: Lade till postMessage
+                                window.parent.postMessage(
+                                  { scrollToIframe: true },
+                                  "*",
+                                );
+                              }}
                               className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
                             >
                               <p className="text-center font-medium text-gray-800">
@@ -1463,12 +1497,17 @@ export default function TuningViewer() {
                           .map((engine) => (
                             <div
                               key={engine.label}
-                              onClick={() =>
+                              onClick={() => {
                                 setSelected((prev) => ({
                                   ...prev,
                                   engine: engine.label,
-                                }))
-                              }
+                                }));
+                                // FIX: Lade till postMessage
+                                window.parent.postMessage(
+                                  { scrollToIframe: true },
+                                  "*",
+                                );
+                              }}
                               className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
                             >
                               <p className="text-center font-medium text-gray-800">
@@ -1500,12 +1539,17 @@ export default function TuningViewer() {
                           .map((engine) => (
                             <div
                               key={engine.label}
-                              onClick={() =>
+                              onClick={() => {
                                 setSelected((prev) => ({
                                   ...prev,
                                   engine: engine.label,
-                                }))
-                              }
+                                }));
+                                // FIX: Lade till postMessage
+                                window.parent.postMessage(
+                                  { scrollToIframe: true },
+                                  "*",
+                                );
+                              }}
                               className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
                             >
                               <p className="text-center font-medium text-gray-800">
