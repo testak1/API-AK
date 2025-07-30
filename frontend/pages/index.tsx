@@ -15,6 +15,7 @@ import {
 import dynamic from "next/dynamic";
 import { PortableText } from "@portabletext/react";
 import FuelSavingCalculator from "@/components/FuelSavingCalculator";
+import RegnrSearch from "@/components/RegnrSearch";
 import { urlFor } from "@/lib/sanity";
 import PublicLanguageDropdown from "@/components/PublicLanguageSwitcher";
 import { LayoutGrid, List } from "lucide-react";
@@ -75,6 +76,43 @@ export default function TuningViewer() {
     };
 
     return translations[lang] || name;
+  };
+  const [searchError, setSearchError] = useState<string | null>(null);
+
+  const handleVehicleFound = (vehicle: {
+    brand: string;
+    model: string;
+    year: string;
+  }) => {
+    setSearchError(null); // Rensa tidigare fel
+
+    const matchedBrand = brands.find(
+      (b) => b.toLowerCase() === vehicle.brand.toLowerCase(),
+    );
+
+    if (!matchedBrand) {
+      setSearchError(
+        `Vi kunde hitta en ${vehicle.brand} ${vehicle.model}, men vi har för närvarande ingen optimering för märket "${vehicle.brand}".`,
+      );
+      return;
+    }
+
+    // Försök hitta en exakt modellmatchning
+    const brandData = data.find((b) => b.name === matchedBrand);
+    const matchedModel = brandData?.models.find(
+      (m) =>
+        // Normalisera för att hantera skillnader som "A4 Avant" vs "A4"
+        m.name.toLowerCase().replace(/\s/g, "") ===
+        vehicle.model.toLowerCase().replace(/\s/g, ""),
+    );
+
+    setSelected({
+      brand: matchedBrand,
+      // Om vi hittar en exakt modell, välj den. Annars, låt användaren välja från listan.
+      model: matchedModel ? matchedModel.name : "",
+      year: "", // Låt alltid användaren välja år, eftersom det ofta är ett intervall.
+      engine: "",
+    });
   };
 
   const [viewMode, setViewMode] = useState<"card" | "dropdown">("card");
@@ -706,6 +744,18 @@ export default function TuningViewer() {
             )}
           </button>
         </div>
+
+        <RegnrSearch
+          onVehicleFound={handleVehicleFound}
+          onError={setSearchError}
+        />
+
+        {/* Visa ett centralt felmeddelande om sökningen misslyckas */}
+        {searchError && !selected.brand && (
+          <div className="text-center p-4 mb-4 bg-red-900/50 border border-red-700 rounded-lg">
+            <p className="text-white">{searchError}</p>
+          </div>
+        )}
 
         <div className="mb-4">
           <p className="text-black text-center text-lg font-semibold">
