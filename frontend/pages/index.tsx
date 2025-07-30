@@ -88,71 +88,6 @@ const isYearInRange = (scrapedYear: string, yearRange: string): boolean => {
     return false;
 };
 
-/**
- * Mappar ett skrapat märke till det namn som används i din databas.
- */
-const findBestBrandMatch = (scrapedBrand: string, availableBrands: string[]): string | null => {
-    const aliasMap: Record<string, string> = {
-        "vw": "Volkswagen",
-        "mercedes": "Mercedes-Benz"
-    };
-    const lowerScraped = scrapedBrand.toLowerCase();
-    const alias = aliasMap[lowerScraped];
-    if (alias) {
-        const aliasMatch = availableBrands.find(b => b.toLowerCase() === alias.toLowerCase());
-        if (aliasMatch) return aliasMatch;
-    }
-    return availableBrands.find(b => b.toLowerCase() === lowerScraped) || null;
-};
-
-/**
- * Den nya, smarta funktionen för att matcha modeller.
- * Innehåller specialregler för olika märken.
- */
-const findBestModelMatch = (
-  scrapedModel: string,
-  brandName: string,
-  availableModels: { name: string }[]
-): { name: string } | null => {
-  if (!scrapedModel || !availableModels || availableModels.length === 0) return null;
-
-  // Regel 1: Specifik logik för Mercedes-Benz
-  if (brandName.toLowerCase().includes('mercedes')) {
-    const firstChar = scrapedModel.trim().charAt(0).toUpperCase();
-    const classMap: Record<string, string> = { 'A': 'A-Klass', 'C': 'C-Klass', 'E': 'E-Klass', 'S': 'S-Klass', 'G': 'G-Klass' };
-    if (classMap[firstChar]) {
-      const match = availableModels.find(m => m.name === classMap[firstChar]);
-      if (match) return match;
-    }
-  }
-
-  // Regel 2: Generisk poängbaserad matchning
-  const normalizedScraped = normalize(scrapedModel);
-  let bestMatch: { name: string } | null = null;
-  let highestScore = 0;
-
-  for (const model of availableModels) {
-    const normalizedModelName = normalize(model.name);
-    let score = 0;
-
-    if (normalizedScraped.startsWith(normalizedModelName)) {
-      // Hög poäng om det skrapade namnet BÖRJAR med databasnamnet
-      // Ex: "passatalltrack" börjar med "passat"
-      score = 90 + (normalizedModelName.length / normalizedScraped.length) * 10;
-    } else if (normalizedScraped.includes(normalizedModelName)) {
-      // Lägre poäng om det bara innehåller
-      score = 70;
-    }
-
-    if (score > highestScore) {
-      highestScore = score;
-      bestMatch = model;
-    }
-  }
-  
-  // Returnera endast om vi är tillräckligt säkra
-  return highestScore > 65 ? bestMatch : null;
-};
 
 export default function TuningViewer() {
   const [data, setData] = useState<Brand[]>([]);
@@ -185,78 +120,7 @@ export default function TuningViewer() {
     return translations[lang] || name;
   };
 
-  // -- HJÄLPFUNKTIONER --
-  const normalize = (str: string | undefined | null): string => {
-    if (!str) return '';
-    return String(str).toLowerCase().replace(/[\s-]/g, '');
-  };
-
-  const isYearInRange = (scrapedYear: string, yearRange: string | undefined | null): boolean => {
-      if (!yearRange) return false;
-      const yearNum = parseInt(scrapedYear, 10);
-      const rangeParts = yearRange.split('-').map(y => parseInt(y.trim(), 10));
-      if (rangeParts.length === 2 && !isNaN(rangeParts[0]) && !isNaN(rangeParts[1])) {
-          return yearNum >= rangeParts[0] && yearNum <= rangeParts[1];
-      }
-      if (rangeParts.length === 1 && !isNaN(rangeParts[0])) {
-          return yearNum === rangeParts[0];
-      }
-      return false;
-  };
-
   
-const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year: string; fuel: string; powerHp: string; }) => {
-    console.log("Försöker matcha skrapad data:", scrapedVehicle);
-    setSearchError(null);
-
-    const scrapedHp = parseInt(scrapedVehicle.powerHp, 10);
-    const scrapedBrandNorm = normalize(scrapedVehicle.brand);
-    const scrapedModelNorm = normalize(scrapedVehicle.model);
-    
-    let candidates: { vehicle: FlatVehicle, score: number }[] = [];
-
-    // Steg 1: Filtrera listan för att bara inkludera relevanta kandidater
-    for (const vehicle of allVehicles) {
-        if (isYearInRange(scrapedVehicle.year, vehicle.yearRange) && normalize(vehicle.engineFuel) === normalize(scrapedVehicle.fuel)) {
-            let score = 0;
-            const hpDifference = Math.abs(vehicle.engineHp - scrapedHp);
-
-            if (hpDifference === 0) score += 100;
-            else if (hpDifference <= 5) score += 80; // Nästan perfekt HP
-            else continue; // För stor skillnad, gå till nästa fordon
-
-            // Poängsätt varumärke
-            const brandNorm = normalize(vehicle.brandName);
-            if(brandNorm === scrapedBrandNorm || scrapedBrandNorm.includes(brandNorm)) score += 50;
-
-            // Poängsätt modell
-            const modelNorm = normalize(vehicle.modelName);
-            if (scrapedModelNorm.startsWith(modelNorm)) score += 50; // Passat Alltrack -> Passat
-            else if(scrapedModelNorm.includes(modelNorm)) score += 20;
-
-            candidates.push({ vehicle, score });
-        }
-    }
-    
-    // Steg 2: Välj den kandidat som har högst poäng
-    if (candidates.length > 0) {
-        candidates.sort((a, b) => b.score - a.score); // Sortera med högsta poäng först
-        const bestMatch = candidates[0];
-        
-        console.log("Bästa match hittad:", bestMatch.vehicle, "Poäng:", bestMatch.score);
-
-        setSelected({
-            brand: bestMatch.vehicle.brandName,
-            model: bestMatch.vehicle.modelName,
-            year: bestMatch.vehicle.yearRange,
-            engine: bestMatch.vehicle.engineLabel
-        });
-        setSearchError(null);
-    } else {
-        console.log("Ingen match hittades.");
-        setSearchError(`Vi kunde inte hitta en exakt match för ${scrapedVehicle.brand} ${scrapedVehicle.model} med ${scrapedVehicle.powerHp}hk.`);
-    }
-  };
 
 
   const [viewMode, setViewMode] = useState<"card" | "dropdown">("card");
@@ -455,8 +319,7 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
     };
   }, []);
 
-
-useEffect(() => {
+  useEffect(() => {
     // Hämta den kompletta listan för matchning
     fetch('/api/all-vehicles')
       .then(res => res.json())
@@ -466,7 +329,7 @@ useEffect(() => {
         console.log(`Hämtat ${data.vehicles?.length || 0} fordon för matchning.`);
       })
       .catch(err => console.error("Kunde inte hämta /api/all-vehicles", err));
-  
+    
   // Fetch brands and models
   useEffect(() => {
     const fetchBrands = async () => {
@@ -562,6 +425,61 @@ useEffect(() => {
     };
     fetchEngines();
   }, [selected.brand, selected.model, selected.year]);
+
+const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year: string; fuel: string; powerHp: string; }) => {
+    console.log("Försöker matcha skrapad data:", scrapedVehicle);
+    setSearchError(null);
+
+    const scrapedHp = parseInt(scrapedVehicle.powerHp, 10);
+    const scrapedBrandNorm = normalize(scrapedVehicle.brand);
+    const scrapedModelNorm = normalize(scrapedVehicle.model);
+    
+    let candidates: { vehicle: FlatVehicle, score: number }[] = [];
+
+    // Steg 1: Filtrera listan för att bara inkludera relevanta kandidater
+    for (const vehicle of allVehicles) {
+        if (isYearInRange(scrapedVehicle.year, vehicle.yearRange) && normalize(vehicle.engineFuel) === normalize(scrapedVehicle.fuel)) {
+            let score = 0;
+            const hpDifference = Math.abs(vehicle.engineHp - scrapedHp);
+
+            if (hpDifference === 0) score += 100;
+            else if (hpDifference <= 5) score += 80; // Nästan perfekt HP
+            else continue; // För stor skillnad, gå till nästa fordon
+
+            // Poängsätt varumärke
+            const brandNorm = normalize(vehicle.brandName);
+            if(brandNorm === scrapedBrandNorm || scrapedBrandNorm.includes(brandNorm)) score += 50;
+
+            // Poängsätt modell
+            const modelNorm = normalize(vehicle.modelName);
+            if (scrapedModelNorm.startsWith(modelNorm)) score += 50; // Passat Alltrack -> Passat
+            else if(scrapedModelNorm.includes(modelNorm)) score += 20;
+
+            candidates.push({ vehicle, score });
+        }
+    }
+    
+    // Steg 2: Välj den kandidat som har högst poäng
+    if (candidates.length > 0) {
+        candidates.sort((a, b) => b.score - a.score); // Sortera med högsta poäng först
+        const bestMatch = candidates[0];
+        
+        console.log("Bästa match hittad:", bestMatch.vehicle, "Poäng:", bestMatch.score);
+
+        setSelected({
+            brand: bestMatch.vehicle.brandName,
+            model: bestMatch.vehicle.modelName,
+            year: bestMatch.vehicle.yearRange,
+            engine: bestMatch.vehicle.engineLabel
+        });
+        setSearchError(null);
+    } else {
+        console.log("Ingen match hittades.");
+        setSearchError(`Vi kunde inte hitta en exakt match för ${scrapedVehicle.brand} ${scrapedVehicle.model} med ${scrapedVehicle.powerHp}hk.`);
+    }
+  };
+
+    
   const {
     brands,
     models,
