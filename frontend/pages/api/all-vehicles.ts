@@ -1,10 +1,10 @@
 // pages/api/all-vehicles.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { sanityClient } from '../../lib/sanity.server'; // Importerar från samma ställe som dina andra API-filer
 import { groq } from 'next-sanity';
 
-// Denna GROQ-fråga är baserad på din befintliga datastruktur.
-// Den hämtar alla motorer och deras "föräldrar" (år, modell, märke) i ett svep.
+// Korrekt import baserad på dina andra API-filer
+import client from '@/lib/sanity';
+
 const allVehiclesQuery = groq`*[_type == "engine"]{
   "engineLabel": label,
   "engineFuel": fuel,
@@ -15,7 +15,7 @@ const allVehiclesQuery = groq`*[_type == "engine"]{
 }`;
 
 type Data = {
-  vehicles: any; // Du kan definiera en striktare typ här om du vill
+  vehicles: any;
 };
 
 export default async function handler(
@@ -23,10 +23,11 @@ export default async function handler(
   res: NextApiResponse<Data>
 ) {
   try {
-    const vehicles = await sanityClient.fetch(allVehiclesQuery);
+    // Använder 'client' som är korrekt namn från din import
+    const vehicles = await client.fetch(allVehiclesQuery);
     res.status(200).json({ vehicles });
   } catch (error) {
     console.error('Sanity fetch error in all-vehicles:', error);
-    res.status(500).json({ vehicles: [] }); // Returnera en tom array vid fel
+    res.status(500).json({ vehicles: [] });
   }
 }
