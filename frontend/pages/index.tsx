@@ -51,6 +51,72 @@ interface Slug {
   current: string;
 }
 
+
+// --- HJÄLPFUNKTIONER FÖR BÄTTRE MATCHNING ---
+
+/**
+ * Normaliserar en sträng för att göra jämförelser enklare.
+ * Tar bort specialtecken, gör om till gemener etc.
+ */
+const normalizeString = (str: string) => {
+  return str.toLowerCase().replace(/[\s-]/g, '');
+};
+
+/**
+ * Hitta den bästa matchningen från en lista baserat på en söksträng.
+ * Använder en enkel poängsättning för att prioritera exakta träffar.
+ * Detta är en robustare metod än `includes`.
+ */
+const findBestMatch = <T extends { name: string } | { label: string }>(
+  searchTerm: string,
+  items: T[],
+  key: 'name' | 'label'
+): T | null => {
+  if (!items || items.length === 0) return null;
+
+  const normalizedSearchTerm = normalizeString(searchTerm);
+  let bestMatch: T | null = null;
+  let highestScore = 0;
+
+  items.forEach(item => {
+    const itemValue = item[key as keyof T] as string;
+    const normalizedItemValue = normalizeString(itemValue);
+    let currentScore = 0;
+
+    if (normalizedItemValue === normalizedSearchTerm) {
+      currentScore = 100; // Perfekt match
+    } else if (normalizedItemValue.includes(normalizedSearchTerm)) {
+      currentScore = 50 + (normalizedSearchTerm.length / normalizedItemValue.length) * 50; // Belöna längre delvisa träffar
+    } else if (normalizedSearchTerm.includes(normalizedItemValue)) {
+        currentScore = 40 + (normalizedItemValue.length / normalizedSearchTerm.length) * 50; // Omvänt
+    }
+
+    if (currentScore > highestScore) {
+      highestScore = currentScore;
+      bestMatch = item;
+    }
+  });
+
+  return highestScore > 30 ? bestMatch : null; // Kräv en minsta poäng för att undvika dåliga matchningar
+};
+
+
+/**
+ * Kollar om ett specifikt år (från scraping) passar in i ett årsintervall (från din data).
+ */
+const isYearInRange = (scrapedYear: string, yearRange: string): boolean => {
+    const yearNum = parseInt(scrapedYear, 10);
+    const rangeParts = yearRange.split('-').map(y => parseInt(y, 10));
+
+    if (rangeParts.length === 2 && !isNaN(rangeParts[0]) && !isNaN(rangeParts[1])) {
+        return yearNum >= rangeParts[0] && yearNum <= rangeParts[1];
+    } else if (rangeParts.length === 1 && !isNaN(rangeParts[0])) {
+        return yearNum === rangeParts[0];
+    }
+    return false;
+};
+
+
 export default function TuningViewer() {
   const [data, setData] = useState<Brand[]>([]);
   const [selected, setSelected] = useState<SelectionState>({
@@ -59,6 +125,8 @@ export default function TuningViewer() {
     year: "",
     engine: "",
   });
+
+  const [searchError, setSearchError] = useState<string | null>(null);
 
   const translateStageName = (lang: string, name: string): string => {
     const match = name.match(/Steg\s?(\d+)/i);
@@ -77,58 +145,101 @@ export default function TuningViewer() {
 
     return translations[lang] || name;
   };
-  const [searchError, setSearchError] = useState<string | null>(null);
+
 
   
   // En hjälpfunktion för att hantera vanliga alias
-const getBrandAliasMap = (): Record<string, string> => ({
-  "mercedes-benz": "Mercedes",
-  "bmw": "BMW", // Kan behövas om scraping ger små bokstäver
-  "vw": "Volkswagen", // Om scraping skulle ge "VW"
-  // Lägg till fler alias här vid behov
-});
+  const getBrandAliasMap = (): Record<string, string> => ({
+    "mercedes-benz": "Mercedes",
+    "vw": "Volkswagen",
+    "mercedes": "Mercedes-Benz" // Bra att ha omvänt också
+    // Lägg till fler alias här vid behov
+  });
 
 const findBestBrandMatch = (scrapedBrand: string, availableBrands: string[]): string | null => {
-    const lowerScrapedBrand = scrapedBrand.toLowerCase();
-    const aliasMap = getBrandAliasMap();
+      const lowerScrapedBrand = scrapedBrand.toLowerCase();
+      const aliasMap = getBrandAliasMap();
 
-    // 1. Försök med exakt match (efter konvertering till små bokstäver)
-    const exactMatch = availableBrands.find(b => b.toLowerCase() === lowerScrapedBrand);
-    if (exactMatch) return exactMatch;
 
-    // 2. Försök med alias
-    const alias = aliasMap[lowerScrapedBrand];
-    if (alias) {
-        const aliasMatch = availableBrands.find(b => b.toLowerCase() === alias.toLowerCase());
-        if (aliasMatch) return aliasMatch;
-    }
+      // 1. Försök med exakt match
+      const exactMatch = availableBrands.find(b => b.toLowerCase() === lowerScrapedBrand);
+      if (exactMatch) return exactMatch;
 
-    // 3. Försök med "includes" (t.ex. "Mercedes-Benz" includes "Mercedes")
-    const partialMatch = availableBrands.find(b => lowerScrapedBrand.includes(b.toLowerCase()));
-    if (partialMatch) return partialMatch;
-    
-    // Om inget hittas
-    return null;
-};
+      // 2. Försök med alias
+      const alias = aliasMap[lowerScrapedBrand];
+      if (alias) {
+          const aliasMatch = availableBrands.find(b => b.toLowerCase() === alias.toLowerCase());
+          if (aliasMatch) return aliasMatch;
+      }
 
-const handleVehicleFound = (vehicle: { brand: string; model: string; year: string }) => {
+      // 3. Försök med "includes"
+      const partialMatch = availableBrands.find(b => b.toLowerCase().includes(lowerScrapedBrand) || lowerScrapedBrand.includes(b.toLowerCase()));
+      if (partialMatch) return partialMatch;
+      
+      return null;
+  };
+
+
+
+const handleVehicleFound = (vehicle: { brand: string; model: string; year: string; fuel: string; powerHp: string; }) => {
     setSearchError(null);
+    let newSelection: SelectionState = { brand: "", model: "", year: "", engine: "" };
     
-    const matchedBrand = findBestBrandMatch(vehicle.brand, brands);
-
-    if (!matchedBrand) {
-        setSearchError(`Vi kunde hitta en ${vehicle.brand} ${vehicle.model}, men vi har för närvarande ingen optimering för märket "${vehicle.brand}".`);
-        return;
+    // Steg 1: Matcha Märke
+    const matchedBrandName = findBestBrandMatch(vehicle.brand, brands);
+    if (!matchedBrandName) {
+      setSearchError(`Vi kunde hitta en ${vehicle.brand} ${vehicle.model}, men vi har för närvarande ingen optimering för märket "${vehicle.brand}".`);
+      return;
     }
+    newSelection.brand = matchedBrandName;
+    const brandData = data.find(b => b.name === matchedBrandName);
+    if (!brandData) return;
+
+    // Steg 2: Matcha Modell
+    const matchedModel = findBestMatch(vehicle.model, brandData.models || [], 'name');
+    if (!matchedModel) {
+      setSearchError(`Hittade märket ${matchedBrandName}, men kunde inte matcha modellen "${vehicle.model}". Välj modell manuellt.`);
+      setSelected(newSelection); // Uppdatera med bara märket
+      return;
+    }
+    newSelection.model = matchedModel.name;
+
+    // Steg 3: Matcha Årsmodell
+    const matchedYear = (matchedModel.years || []).find(y => isYearInRange(vehicle.year, y.range));
+    if (!matchedYear) {
+      setSearchError(`Hittade ${matchedBrandName} ${matchedModel.name}, men hittade ingen match för årsmodell ${vehicle.year}. Välj årsmodell manuellt.`);
+      setSelected(newSelection); // Uppdatera med märke och modell
+      return;
+    }
+    newSelection.year = matchedYear.range;
+
+    // Steg 4: Matcha Motor (det mest komplexa)
+    const availableEngines = matchedYear.engines || [];
+    // Filtrera först på bränsle för att minska antalet alternativ
+    const enginesWithCorrectFuel = availableEngines.filter(e => e.fuel.toLowerCase() === vehicle.fuel.toLowerCase());
     
-    // Modellen kan också behöva matchas smartare i framtiden, men vi börjar så här.
-    setSelected({
-        brand: matchedBrand,
-        model: "", // Låt användaren välja modell för att undvika fel
-        year: '', 
-        engine: '',
-    });
-};
+    // Försök hitta en motor som matchar både modellnamn och hästkrafter
+    let finalEngineMatch = null;
+    const searchTermForEngine = `${vehicle.model} ${vehicle.powerHp}`;
+    finalEngineMatch = findBestMatch(searchTermForEngine, enginesWithCorrectFuel, 'label');
+
+    // Om vi inte hittar en match, försök enbart med hästkrafter
+    if (!finalEngineMatch) {
+       const hpMatch = enginesWithCorrectFuel.find(e => e.label.includes(vehicle.powerHp));
+       if (hpMatch) finalEngineMatch = hpMatch;
+    }
+
+    if (!finalEngineMatch) {
+       setSearchError(`Hittade fordonet, men kunde inte exakt matcha motorn. Välj motor manuellt.`);
+       setSelected(newSelection); // Uppdatera med märke, modell, år
+       return;
+    }
+    newSelection.engine = finalEngineMatch.label;
+    
+    // Allt matchade! Sätt den fullständiga selection.
+    setSelected(newSelection);
+    setSearchError(null); // Rensa eventuella gamla fel
+  };
 
   const [viewMode, setViewMode] = useState<"card" | "dropdown">("card");
 
