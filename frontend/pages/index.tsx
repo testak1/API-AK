@@ -27,7 +27,6 @@ import type {
   AktPlusOptionReference,
 } from "@/types/sanity";
 import ContactModal from "@/components/ContactModal";
-import { link } from "fs";
 
 ChartJS.register(
   CategoryScale,
@@ -60,7 +59,6 @@ interface FlatVehicle {
   brandName: string;
 }
 
-
 // --- NYA, SMARTARE HJÄLPFUNKTIONER ---
 
 /**
@@ -76,18 +74,17 @@ const normalize = (str: string): string => {
  * Kollar om ett specifikt år (från scraping) passar in i ett årsintervall (från din data).
  */
 const isYearInRange = (scrapedYear: string, yearRange: string): boolean => {
-    const yearNum = parseInt(scrapedYear, 10);
-    const rangeParts = yearRange.split('-').map(y => parseInt(y.trim(), 10));
+  const yearNum = parseInt(scrapedYear, 10);
+  const rangeParts = yearRange.split('-').map(y => parseInt(y.trim(), 10));
 
-    if (rangeParts.length === 2 && !isNaN(rangeParts[0]) && !isNaN(rangeParts[1])) {
-        return yearNum >= rangeParts[0] && yearNum <= rangeParts[1];
-    } else if (rangeParts.length === 1 && !isNaN(rangeParts[0])) {
-        // Hanterar både "2018" och "2018-"
-        return yearNum === rangeParts[0];
-    }
-    return false;
+  if (rangeParts.length === 2 && !isNaN(rangeParts[0]) && !isNaN(rangeParts[1])) {
+    return yearNum >= rangeParts[0] && yearNum <= rangeParts[1];
+  } else if (rangeParts.length === 1 && !isNaN(rangeParts[0])) {
+    // Hanterar både "2018" och "2018-"
+    return yearNum === rangeParts[0];
+  }
+  return false;
 };
-
 
 export default function TuningViewer() {
   const [data, setData] = useState<Brand[]>([]);
@@ -99,32 +96,8 @@ export default function TuningViewer() {
   });
 
   const [allVehicles, setAllVehicles] = useState<FlatVehicle[]>([]);
-
   const [searchError, setSearchError] = useState<string | null>(null);
-
-  const translateStageName = (lang: string, name: string): string => {
-    const match = name.match(/Steg\s?(\d+)/i);
-    if (!match) return name;
-
-    const stageNum = match[1];
-    const translations: Record<string, string> = {
-      sv: `Steg ${stageNum}`,
-      en: `Stage ${stageNum}`,
-      de: `Stufe ${stageNum}`,
-      fr: `Niveau ${stageNum}`,
-      it: `Fase ${stageNum}`,
-      da: `Stadie ${stageNum}`,
-      no: `Trinn ${stageNum}`,
-    };
-
-    return translations[lang] || name;
-  };
-
-  
-
-
   const [viewMode, setViewMode] = useState<"card" | "dropdown">("card");
-
   const [isLoading, setIsLoading] = useState(true);
   const [expandedStages, setExpandedStages] = useState<Record<string, boolean>>(
     {},
@@ -137,7 +110,6 @@ export default function TuningViewer() {
   >({});
   const watermarkImageRef = useRef<HTMLImageElement | null>(null);
   const [currentLanguage, setCurrentLanguage] = useState("sv");
-
   const [allModels, setAllModels] = useState<any[]>([]);
 
   const [contactModalData, setContactModalData] = useState<{
@@ -169,6 +141,32 @@ export default function TuningViewer() {
     stage?: Stage;
   }>({ open: false, type: "stage" });
 
+  const [allAktPlusOptions, setAllAktPlusOptions] = useState<AktPlusOption[]>(
+    [],
+  );
+  const [expandedAktPlus, setExpandedAktPlus] = useState<
+    Record<string, boolean>
+  >({});
+
+  // --- Hjälpfunktioner ---
+  const translateStageName = (lang: string, name: string): string => {
+    const match = name.match(/Steg\s?(\d+)/i);
+    if (!match) return name;
+
+    const stageNum = match[1];
+    const translations: Record<string, string> = {
+      sv: `Steg ${stageNum}`,
+      en: `Stage ${stageNum}`,
+      de: `Stufe ${stageNum}`,
+      fr: `Niveau ${stageNum}`,
+      it: `Fase ${stageNum}`,
+      da: `Stadie ${stageNum}`,
+      no: `Trinn ${stageNum}`,
+    };
+
+    return translations[lang] || name;
+  };
+
   const getStageColor = (stageName: string) => {
     const name = stageName.toLowerCase();
     if (name.includes("steg 1")) return "text-red-500";
@@ -185,55 +183,6 @@ export default function TuningViewer() {
       .replace(/[^\w\s-]/g, "")
       .replace(/\s+/g, "-")
       .replace(/-+/g, "-");
-
-  useEffect(() => {
-    fetch("/data/all_models.json")
-      .then((res) => res.json())
-      .then((data) => {
-        setAllModels(data);
-      })
-      .catch((err) => console.error("Fel vid inläsning av modellbilder:", err));
-  }, []);
-
-  const getModelImage = (modelName: string, brandName: string): string => {
-    const normalize = (str: string) => str.toLowerCase().replace(/\s+/g, "");
-
-    // Först försök exakt match
-    const exactMatch = allModels.find(
-      (m) =>
-        normalize(m.name) === normalize(modelName) &&
-        m.brand.toLowerCase() === brandName.toLowerCase(),
-    );
-
-    if (exactMatch?.image_url) return exactMatch.image_url;
-
-    // Annars försök includes
-    const fuzzyMatch = allModels.find(
-      (m) =>
-        normalize(m.name).includes(normalize(modelName)) &&
-        m.brand.toLowerCase() === brandName.toLowerCase(),
-    );
-
-    return (
-      fuzzyMatch?.image_url ||
-      "https://tcmtuning.ro/_alex/ximages/models/5_10857.png"
-    );
-  };
-
-  useEffect(() => {
-    const savedView = localStorage.getItem("viewMode");
-    if (savedView === "dropdown") {
-      setViewMode("dropdown");
-    } else {
-      setViewMode("card"); // default är kortvy
-    }
-  }, []);
-
-  const toggleViewMode = () => {
-    const newMode = viewMode === "dropdown" ? "card" : "dropdown";
-    setViewMode(newMode);
-    localStorage.setItem("viewMode", newMode);
-  };
 
   const slugifyStage = (str: string) =>
     str
@@ -297,7 +246,71 @@ export default function TuningViewer() {
     window.parent.postMessage({ scrollToIframe: true }, "*");
   };
 
-  // Hämta språk från localStorage om det finns
+  const generateDynoCurve = (
+    peakValue: number,
+    isHp: boolean,
+    fuelType: string,
+  ) => {
+    const rpmRange = fuelType.toLowerCase().includes("diesel")
+      ? [1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000]
+      : [2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000];
+
+    const peakIndex = isHp
+      ? Math.floor(rpmRange.length * 0.6)
+      : Math.floor(rpmRange.length * 0.4);
+    const startIndex = 0;
+
+    return rpmRange.map((rpm) => {
+      const startRpm = rpmRange[startIndex];
+      const peakRpm = rpmRange[peakIndex];
+      const endRpm = rpmRange[rpmRange.length - 1];
+
+      if (rpm <= peakRpm) {
+        const progress = (rpm - startRpm) / (peakRpm - startRpm);
+        return peakValue * (0.5 + 0.5 * Math.pow(progress, 1.2));
+      } else {
+        const fallProgress = (rpm - peakRpm) / (endRpm - peakRpm);
+        return peakValue * (1 - 0.35 * Math.pow(fallProgress, 1));
+      }
+    });
+  };
+
+  const isExpandedAktPlusOption = (item: any): item is AktPlusOption => {
+    return item && "_id" in item && "title" in item;
+  };
+
+  // --- useEffect hooks för datahämtning och sidouppdateringar ---
+
+  // Ladda alla modeller för bildmatchning
+  useEffect(() => {
+    fetch("/data/all_models.json")
+      .then((res) => res.json())
+      .then((data) => {
+        setAllModels(data);
+      })
+      .catch((err) => console.error("Fel vid inläsning av modellbilder:", err));
+  }, []);
+
+  // Ladda vattenstämpelbild
+  useEffect(() => {
+    const img = new window.Image();
+    img.src = "/ak-logo.png";
+    img.onload = () => {
+      watermarkImageRef.current = img;
+    };
+  }, []);
+
+  // Ladda sparad visningsläge från localStorage
+  useEffect(() => {
+    const savedView = localStorage.getItem("viewMode");
+    if (savedView === "dropdown") {
+      setViewMode("dropdown");
+    } else {
+      setViewMode("card"); // default är kortvy
+    }
+  }, []);
+
+  // Hämta språk från localStorage vid laddning
   useEffect(() => {
     const storedLang = localStorage.getItem("lang");
     if (storedLang) {
@@ -310,27 +323,18 @@ export default function TuningViewer() {
     localStorage.setItem("lang", currentLanguage);
   }, [currentLanguage]);
 
-  // Load watermark image
+  // Hämta komplett fordonslista för matchning vid registernummersökning
   useEffect(() => {
-    const img = new window.Image();
-    img.src = "/ak-logo.png";
-    img.onload = () => {
-      watermarkImageRef.current = img;
-    };
-  }, []);
-
-  useEffect(() => {
-    // Hämta den kompletta listan för matchning
     fetch('/api/all-vehicles')
       .then(res => res.json())
       .then(data => {
         setAllVehicles(data.vehicles || []);
-        // Logga för att bekräfta att datan har laddats
         console.log(`Hämtat ${data.vehicles?.length || 0} fordon för matchning.`);
       })
       .catch(err => console.error("Kunde inte hämta /api/all-vehicles", err));
-    
-  // Fetch brands and models
+  }, []);
+
+  // Hämta märken
   useEffect(() => {
     const fetchBrands = async () => {
       try {
@@ -347,7 +351,7 @@ export default function TuningViewer() {
     fetchBrands();
   }, []);
 
-  // Fetch years
+  // Hämta år när märke och modell är valda
   useEffect(() => {
     const fetchYears = async () => {
       if (selected.brand && selected.model) {
@@ -364,13 +368,13 @@ export default function TuningViewer() {
               brand.name !== selected.brand
                 ? brand
                 : {
-                    ...brand,
-                    models: brand.models.map((model) =>
-                      model.name !== selected.model
-                        ? model
-                        : { ...model, years: years.result },
-                    ),
-                  },
+                  ...brand,
+                  models: brand.models.map((model) =>
+                    model.name !== selected.model
+                      ? model
+                      : { ...model, years: years.result },
+                  ),
+                },
             ),
           );
         } catch (error) {
@@ -383,7 +387,7 @@ export default function TuningViewer() {
     fetchYears();
   }, [selected.brand, selected.model]);
 
-  // Fetch engines
+  // Hämta motorer när märke, modell och år är valda
   useEffect(() => {
     const fetchEngines = async () => {
       if (selected.brand && selected.model && selected.year) {
@@ -400,20 +404,20 @@ export default function TuningViewer() {
               brand.name !== selected.brand
                 ? brand
                 : {
-                    ...brand,
-                    models: brand.models.map((model) =>
-                      model.name !== selected.model
-                        ? model
-                        : {
-                            ...model,
-                            years: model.years.map((year) =>
-                              year.range !== selected.year
-                                ? year
-                                : { ...year, engines: engines.result },
-                            ),
-                          },
-                    ),
-                  },
+                  ...brand,
+                  models: brand.models.map((model) =>
+                    model.name !== selected.model
+                      ? model
+                      : {
+                        ...model,
+                        years: model.years.map((year) =>
+                          year.range !== selected.year
+                            ? year
+                            : { ...year, engines: engines.result },
+                        ),
+                      },
+                  ),
+                },
             ),
           );
         } catch (error) {
@@ -424,62 +428,91 @@ export default function TuningViewer() {
       }
     };
     fetchEngines();
-  }, [selected.brand, selected.model, selected.year]);
+  }, [selected.brand, selected.model, selected.year, currentLanguage]);
 
-const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year: string; fuel: string; powerHp: string; }) => {
+  // Hämta AktPlus-alternativ
+  useEffect(() => {
+    const fetchAktPlusOptions = async () => {
+      try {
+        const res = await fetch(`/api/aktplus-options?lang=${currentLanguage}`);
+        const json = await res.json();
+        setAllAktPlusOptions(json.options || []);
+      } catch (err) {
+        console.error("Kunde inte hämta AKT+ alternativ", err);
+      }
+    };
+    fetchAktPlusOptions();
+  }, [currentLanguage]);
+
+  // Sätt initiala expanderade stadier (Steg 1) när stadier laddats
+  useEffect(() => {
+    if (stages.length > 0) {
+      const initialExpandedStates = stages.reduce(
+        (acc, stage) => {
+          acc[stage.name] = stage.name === "Steg 1";
+          return acc;
+        },
+        {} as Record<string, boolean>,
+      );
+      setExpandedStages(initialExpandedStates);
+    }
+  }, [stages]);
+
+  // --- Eventhanterare och övriga funktioner ---
+  const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year: string; fuel: string; powerHp: string; }) => {
     console.log("Försöker matcha skrapad data:", scrapedVehicle);
     setSearchError(null);
 
     const scrapedHp = parseInt(scrapedVehicle.powerHp, 10);
     const scrapedBrandNorm = normalize(scrapedVehicle.brand);
     const scrapedModelNorm = normalize(scrapedVehicle.model);
-    
+
     let candidates: { vehicle: FlatVehicle, score: number }[] = [];
 
     // Steg 1: Filtrera listan för att bara inkludera relevanta kandidater
     for (const vehicle of allVehicles) {
-        if (isYearInRange(scrapedVehicle.year, vehicle.yearRange) && normalize(vehicle.engineFuel) === normalize(scrapedVehicle.fuel)) {
-            let score = 0;
-            const hpDifference = Math.abs(vehicle.engineHp - scrapedHp);
+      if (isYearInRange(scrapedVehicle.year, vehicle.yearRange) && normalize(vehicle.engineFuel) === normalize(scrapedVehicle.fuel)) {
+        let score = 0;
+        const hpDifference = Math.abs(vehicle.engineHp - scrapedHp);
 
-            if (hpDifference === 0) score += 100;
-            else if (hpDifference <= 5) score += 80; // Nästan perfekt HP
-            else continue; // För stor skillnad, gå till nästa fordon
+        if (hpDifference === 0) score += 100;
+        else if (hpDifference <= 5) score += 80; // Nästan perfekt HP
+        else continue; // För stor skillnad, gå till nästa fordon
 
-            // Poängsätt varumärke
-            const brandNorm = normalize(vehicle.brandName);
-            if(brandNorm === scrapedBrandNorm || scrapedBrandNorm.includes(brandNorm)) score += 50;
+        // Poängsätt varumärke
+        const brandNorm = normalize(vehicle.brandName);
+        if(brandNorm === scrapedBrandNorm || scrapedBrandNorm.includes(brandNorm)) score += 50;
 
-            // Poängsätt modell
-            const modelNorm = normalize(vehicle.modelName);
-            if (scrapedModelNorm.startsWith(modelNorm)) score += 50; // Passat Alltrack -> Passat
-            else if(scrapedModelNorm.includes(modelNorm)) score += 20;
+        // Poängsätt modell
+        const modelNorm = normalize(vehicle.modelName);
+        if (scrapedModelNorm.startsWith(modelNorm)) score += 50; // Passat Alltrack -> Passat
+        else if(scrapedModelNorm.includes(modelNorm)) score += 20;
 
-            candidates.push({ vehicle, score });
-        }
+        candidates.push({ vehicle, score });
+      }
     }
-    
+
     // Steg 2: Välj den kandidat som har högst poäng
     if (candidates.length > 0) {
-        candidates.sort((a, b) => b.score - a.score); // Sortera med högsta poäng först
-        const bestMatch = candidates[0];
-        
-        console.log("Bästa match hittad:", bestMatch.vehicle, "Poäng:", bestMatch.score);
+      candidates.sort((a, b) => b.score - a.score); // Sortera med högsta poäng först
+      const bestMatch = candidates[0];
 
-        setSelected({
-            brand: bestMatch.vehicle.brandName,
-            model: bestMatch.vehicle.modelName,
-            year: bestMatch.vehicle.yearRange,
-            engine: bestMatch.vehicle.engineLabel
-        });
-        setSearchError(null);
+      console.log("Bästa match hittad:", bestMatch.vehicle, "Poäng:", bestMatch.score);
+
+      setSelected({
+        brand: bestMatch.vehicle.brandName,
+        model: bestMatch.vehicle.modelName,
+        year: bestMatch.vehicle.yearRange,
+        engine: bestMatch.vehicle.engineLabel
+      });
+      setSearchError(null);
     } else {
-        console.log("Ingen match hittades.");
-        setSearchError(`Vi kunde inte hitta en exakt match för ${scrapedVehicle.brand} ${scrapedVehicle.model} med ${scrapedVehicle.powerHp}hk.`);
+      console.log("Ingen match hittades.");
+      setSearchError(`Vi kunde inte hitta en exakt match för ${scrapedVehicle.brand} ${scrapedVehicle.model} med ${scrapedVehicle.powerHp}hk.`);
     }
   };
 
-    
+
   const {
     brands,
     models,
@@ -516,19 +549,6 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
       groupedEngines,
     };
   }, [data, selected]);
-
-  useEffect(() => {
-    if (stages.length > 0) {
-      const initialExpandedStates = stages.reduce(
-        (acc, stage) => {
-          acc[stage.name] = stage.name === "Steg 1";
-          return acc;
-        },
-        {} as Record<string, boolean>,
-      );
-      setExpandedStages(initialExpandedStates);
-    }
-  }, [stages]);
 
   const watermarkPlugin = {
     id: "watermark",
@@ -575,10 +595,6 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
     },
   };
 
-  const isExpandedAktPlusOption = (item: any): item is AktPlusOption => {
-    return item && "_id" in item && "title" in item;
-  };
-
   const getAllAktPlusOptions = useMemo(
     () => (stage: Stage) => {
       if (!selectedEngine) return [];
@@ -610,50 +626,21 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
     [selectedEngine],
   );
 
-  const generateDynoCurve = (
-    peakValue: number,
-    isHp: boolean,
-    fuelType: string,
-  ) => {
-    const rpmRange = fuelType.toLowerCase().includes("diesel")
-      ? [1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000]
-      : [2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000];
-
-    const peakIndex = isHp
-      ? Math.floor(rpmRange.length * 0.6)
-      : Math.floor(rpmRange.length * 0.4);
-    const startIndex = 0;
-
-    return rpmRange.map((rpm) => {
-      const startRpm = rpmRange[startIndex];
-      const peakRpm = rpmRange[peakIndex];
-      const endRpm = rpmRange[rpmRange.length - 1];
-
-      if (rpm <= peakRpm) {
-        const progress = (rpm - startRpm) / (peakRpm - startRpm);
-        return peakValue * (0.5 + 0.5 * Math.pow(progress, 1.2));
-      } else {
-        const fallProgress = (rpm - peakRpm) / (endRpm - peakRpm);
-        return peakValue * (1 - 0.35 * Math.pow(fallProgress, 1));
-      }
-    });
-  };
-
   const rpmLabels = selectedEngine?.fuel?.toLowerCase().includes("diesel")
     ? ["1500", "2000", "2500", "3000", "3500", "4000", "4500", "5000"]
     : [
-        "2000",
-        "2500",
-        "3000",
-        "3500",
-        "4000",
-        "4500",
-        "5000",
-        "5500",
-        "6000",
-        "6500",
-        "7000",
-      ];
+      "2000",
+      "2500",
+      "3000",
+      "3500",
+      "4000",
+      "4500",
+      "5000",
+      "5500",
+      "6000",
+      "6500",
+      "7000",
+    ];
 
   const toggleStage = (stageName: string) => {
     setExpandedStages((prev) => {
@@ -672,6 +659,7 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
       return newState;
     });
   };
+
   const handleBrandChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelected({ brand: e.target.value, model: "", year: "", engine: "" });
   };
@@ -715,34 +703,45 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
     },
   };
 
-  const [allAktPlusOptions, setAllAktPlusOptions] = useState<AktPlusOption[]>(
-    [],
-  );
-
-  useEffect(() => {
-    const fetchAktPlusOptions = async () => {
-      try {
-        const res = await fetch(`/api/aktplus-options?lang=${currentLanguage}`);
-        const json = await res.json();
-        setAllAktPlusOptions(json.options || []);
-      } catch (err) {
-        console.error("Kunde inte hämta AKT+ alternativ", err);
-      }
-    };
-
-    fetchAktPlusOptions();
-  }, [currentLanguage]);
-
-  const [expandedAktPlus, setExpandedAktPlus] = useState<
-    Record<string, boolean>
-  >({});
-
   const toggleAktPlus = (stageName: string) => {
     setExpandedAktPlus((prev) => ({
       ...prev,
       [stageName]: !prev[stageName],
     }));
   };
+
+  const getModelImage = (modelName: string, brandName: string): string => {
+    const normalize = (str: string) => str.toLowerCase().replace(/\s+/g, "");
+
+    // Först försök exakt match
+    const exactMatch = allModels.find(
+      (m) =>
+        normalize(m.name) === normalize(modelName) &&
+        m.brand.toLowerCase() === brandName.toLowerCase(),
+    );
+
+    if (exactMatch?.image_url) return exactMatch.image_url;
+
+    // Annars försök includes
+    const fuzzyMatch = allModels.find(
+      (m) =>
+        normalize(m.name).includes(normalize(modelName)) &&
+        m.brand.toLowerCase() === brandName.toLowerCase(),
+    );
+
+    return (
+      fuzzyMatch?.image_url ||
+      "https://tcmtuning.ro/_alex/ximages/models/5_10857.png"
+    );
+  };
+
+  const toggleViewMode = () => {
+    const newMode = viewMode === "dropdown" ? "card" : "dropdown";
+    setViewMode(newMode);
+    localStorage.setItem("viewMode", newMode);
+  };
+
+  
 
   return (
     <>
