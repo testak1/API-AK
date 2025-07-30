@@ -992,7 +992,7 @@ export default function TuningViewer() {
         />
       </svg>
       <span className="font-semibold">
-        Tillbaka till märkesval
+        {translate(currentLanguage, "BACKTOMARKE")}
       </span>
     </button>
     <h2 className="text-xl font-bold text-black mb-4">
