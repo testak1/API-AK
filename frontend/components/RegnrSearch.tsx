@@ -1,7 +1,6 @@
 // components/RegnrSearch.tsx
 import React, { useState } from 'react';
 
-// Uppdaterad typ för att inkludera motorinformation
 type OnVehicleFound = (vehicle: {
   brand: string;
   model: string;
@@ -40,7 +39,7 @@ export default function RegnrSearch({ onVehicleFound, onError }: { onVehicleFoun
       const iconGrid = doc.querySelector('section#summary ul.icon-grid');
 
       if (!summarySection || !iconGrid) {
-        throw new Error('Kunde inte hitta huvudinformationen på sidan. Strukturen kan ha ändrats.');
+        throw new Error('Kunde inte hitta huvudinformationen på sidan. Sidans struktur kan ha ändrats.');
       }
 
       // 1. Hämta Märke och Modell
@@ -50,38 +49,50 @@ export default function RegnrSearch({ onVehicleFound, onError }: { onVehicleFoun
       const brand = fullName.split(' ')[0];
       const model = fullName.substring(brand.length).trim();
 
-      // 2. Hämta Årsmodell, Bränsle och Effekt från informationsrutorna
+      // 2. Hämta Årsmodell, Bränsle och Effekt (med korrekta etiketter)
       let year: string | null = null;
       let fuel: string | null = null;
       let powerHp: string | null = null;
+      const foundLabels: string[] = []; 
 
       const listItems = iconGrid.querySelectorAll('li');
       listItems.forEach(item => {
-        const label = item.querySelector('span')?.innerText.trim().toLowerCase();
+        const labelElement = item.querySelector('span');
         const valueElement = item.querySelector('em');
-        if (!label || !valueElement) return;
+        if (!labelElement || !valueElement) return;
 
+        const label = labelElement.innerText.trim().toLowerCase();
         const value = valueElement.innerText.trim();
-        
-        if (label === 'modellår') {
-          year = value.match(/\d{4}/)?.[0] || null;
-        } else if (label === 'drivmedel') {
-          fuel = value;
-        } else if (label === 'motoreffekt') {
-            // Extraherar siffrorna för hästkrafter
-            const match = value.match(/(\d+)\s*hk/i);
+        foundLabels.push(label);
+
+        // Använder de korrekta etiketterna från din HTML
+        switch (label) {
+          case 'modellår':
+            year = value.match(/\d{4}/)?.[0] || null;
+            break;
+          case 'bränsle': // KORRIGERAD från 'drivmedel'
+            fuel = value;
+            break;
+          case 'hästkrafter': // KORRIGERAD från 'motoreffekt'
+            const match = value.match(/(\d+)/); // Extraherar första siffergruppen
             if (match) {
-                powerHp = match[1];
+              powerHp = match[0];
             }
+            break;
         }
       });
 
       if (!brand || !model || !year || !fuel || !powerHp) {
-        let missing = [!brand && "Märke", !model && "Modell", !year && "År", !fuel && "Bränsle", !powerHp && "Effekt"].filter(Boolean).join(', ');
-        throw new Error(`Kunde inte extrahera all nödvändig information. Saknar: ${missing}.`);
+        const missing = [
+          !brand && "Märke",
+          !model && "Modell",
+          !year && "Årsmodell",
+          !fuel && "Bränsle",
+          !powerHp && "Effekt"
+        ].filter(Boolean).join(', ');
+        throw new Error(`Kunde inte extrahera: ${missing}. (Hittade fält: ${foundLabels.join(', ') || 'inga'})`);
       }
       
-      // Allt lyckades, skicka tillbaka den utökade datan!
       onVehicleFound({ brand, model, year, fuel, powerHp });
 
     } catch (err) {
@@ -94,7 +105,7 @@ export default function RegnrSearch({ onVehicleFound, onError }: { onVehicleFoun
   };
 
   return (
-    // ... Din befintliga JSX för komponenten ...
+    // Din JSX för komponenten (ingen ändring här)
     <details className="mb-8 bg-gray-900/50 border border-gray-700 rounded-lg group">
       <summary className="p-4 cursor-pointer flex justify-between items-center list-none">
         <div className="flex items-center gap-3">
