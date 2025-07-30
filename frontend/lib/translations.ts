@@ -2213,7 +2213,9 @@ export const t = (
   key: keyof (typeof translations)["sv"],
   ...args: any[]
 ) => {
-  const translation = translations[lang]?.[key] ?? translations["sv"][key];
+  // Fallback to english if lang is not found, then to swedish if key is not found in english
+  const langTranslations = translations[lang] ?? translations["en"];
+  const translation = langTranslations[key] ?? translations["sv"][key];
 
   if (typeof translation === "function") {
     return translation(...args);
