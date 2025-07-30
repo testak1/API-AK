@@ -1118,10 +1118,10 @@ export default function TuningViewer() {
                       />
                     </svg>
                     <span className="text-gray-600 font-semibold">
-                      {translate(currentLanguage, "selectModel")
+                      {translate(currentLanguage, "selectYear")
                         .charAt(0)
                         .toUpperCase() +
-                        translate(currentLanguage, "selectModel")
+                        translate(currentLanguage, "selectYear")
                           .slice(1)
                           .toLowerCase()}
                     </span>
