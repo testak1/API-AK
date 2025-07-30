@@ -1,12 +1,14 @@
 // components/RegnrSearch.tsx
 import React, { useState } from 'react';
 
+// Uppdaterad typ för att inkludera motorvolym i cm³
 type OnVehicleFound = (vehicle: {
   brand: string;
   model: string;
   year: string;
   fuel: string;
   powerHp: string;
+  engineCm3: string; // <-- NY: Motorvolym i cm3
 }) => void;
 
 type OnError = (message: string | null) => void;
@@ -27,73 +29,50 @@ export default function RegnrSearch({ onVehicleFound, onError }: { onVehicleFoun
 
     try {
       const response = await fetch(proxyUrl);
-      if (!response.ok) {
-        throw new Error(`Nätverksfel (Status: ${response.status}). Proxyn eller målsidan kan vara nere.`);
-      }
+      if (!response.ok) throw new Error(`Nätverksfel (Status: ${response.status}).`);
       
       const htmlContent = await response.text();
       const parser = new DOMParser();
       const doc = parser.parseFromString(htmlContent, 'text/html');
       
+      // Hämta grundläggande data
       const summarySection = doc.querySelector('section#summary .bar.summary .info');
       const iconGrid = doc.querySelector('section#summary ul.icon-grid');
-
-      if (!summarySection || !iconGrid) {
-        throw new Error('Kunde inte hitta huvudinformationen på sidan. Sidans struktur kan ha ändrats.');
-      }
-
-      // 1. Hämta Märke och Modell
+      if (!summarySection || !iconGrid) throw new Error('Kunde inte hitta huvudinformationen.');
+      
       const h1 = summarySection.querySelector('h1');
-      if (!h1) throw new Error('Kunde inte hitta H1-taggen med bilens namn.');
+      if (!h1) throw new Error('Kunde inte hitta H1-taggen.');
       const fullName = h1.innerText.trim();
       const brand = fullName.split(' ')[0];
       const model = fullName.substring(brand.length).trim();
 
-      // 2. Hämta Årsmodell, Bränsle och Effekt (med korrekta etiketter)
       let year: string | null = null;
       let fuel: string | null = null;
       let powerHp: string | null = null;
-      const foundLabels: string[] = []; 
+      iconGrid.querySelectorAll('li').forEach(item => {
+        const label = item.querySelector('span')?.innerText.trim().toLowerCase();
+        const value = item.querySelector('em')?.innerText.trim();
+        if (label === 'modellår') year = value?.match(/\d{4}/)?.[0] || null;
+        if (label === 'bränsle') fuel = value || null;
+        if (label === 'hästkrafter') powerHp = value?.match(/(\d+)/)?.[0] || null;
+      });
 
-      const listItems = iconGrid.querySelectorAll('li');
-      listItems.forEach(item => {
-        const labelElement = item.querySelector('span');
-        const valueElement = item.querySelector('em');
-        if (!labelElement || !valueElement) return;
-
-        const label = labelElement.innerText.trim().toLowerCase();
-        const value = valueElement.innerText.trim();
-        foundLabels.push(label);
-
-        // Använder de korrekta etiketterna från din HTML
-        switch (label) {
-          case 'modellår':
-            year = value.match(/\d{4}/)?.[0] || null;
-            break;
-          case 'bränsle': // KORRIGERAD från 'drivmedel'
-            fuel = value;
-            break;
-          case 'hästkrafter': // KORRIGERAD från 'motoreffekt'
-            const match = value.match(/(\d+)/); // Extraherar första siffergruppen
-            if (match) {
-              powerHp = match[0];
-            }
-            break;
+      // NY LOGIK: Hämta motorvolym i cm³
+      let engineCm3: string | null = null;
+      doc.querySelectorAll('#tekniskdata .inner ul.list li').forEach(item => {
+        const label = item.querySelector('span.label')?.innerText.trim().toLowerCase();
+        if (label === 'motorvolym') {
+          const value = item.querySelector('span.value')?.innerText.trim();
+          engineCm3 = value?.match(/(\d+)/)?.[0] || null; // Extrahera "1197"
         }
       });
 
-      if (!brand || !model || !year || !fuel || !powerHp) {
-        const missing = [
-          !brand && "Märke",
-          !model && "Modell",
-          !year && "Årsmodell",
-          !fuel && "Bränsle",
-          !powerHp && "Effekt"
-        ].filter(Boolean).join(', ');
-        throw new Error(`Kunde inte extrahera: ${missing}. (Hittade fält: ${foundLabels.join(', ') || 'inga'})`);
+      if (!brand || !model || !year || !fuel || !powerHp || !engineCm3) {
+        const missing = [!year&&"År", !fuel&&"Bränsle", !powerHp&&"Effekt", !engineCm3&&"Motorvolym"].filter(Boolean).join(', ');
+        throw new Error(`Kunde inte extrahera: ${missing}.`);
       }
       
-      onVehicleFound({ brand, model, year, fuel, powerHp });
+      onVehicleFound({ brand, model, year, fuel, powerHp, engineCm3 });
 
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Ett okänt fel uppstod.';
@@ -103,7 +82,6 @@ export default function RegnrSearch({ onVehicleFound, onError }: { onVehicleFoun
       setIsLoading(false);
     }
   };
-
   return (
     // Din JSX för komponenten (ingen ändring här)
     <details className="mb-8 bg-gray-900/50 border border-gray-700 rounded-lg group">
