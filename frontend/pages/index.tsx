@@ -14,6 +14,7 @@ import {
 } from "chart.js";
 import dynamic from "next/dynamic";
 import { PortableText } from "@portabletext/react";
+import FuelSavingCalculator from "@/components/FuelSavingCalculator";
 import { urlFor } from "@/lib/sanity";
 import PublicLanguageDropdown from "@/components/PublicLanguageSwitcher";
 import { LayoutGrid, List } from "lucide-react";
@@ -854,7 +855,6 @@ export default function TuningViewer() {
             </div>
           </div>
         ) : (
-          
           // New card view
           <div className="mb-8">
             {/* Brand selection */}
@@ -966,105 +966,104 @@ export default function TuningViewer() {
               </>
             )}
 
-{/* Model selection */}
-{selected.brand && !selected.model && (
-  <>
-    <button
-      onClick={() => {
-        setSelected({ brand: "", model: "", year: "", engine: "" });
-        // Denna rad skickar meddelandet för att skrolla upp
-        window.parent.postMessage({ scrollToIframe: true }, "*");
-      }}
-      className="group flex items-center gap-1 mb-4 text-blue-600 hover:text-blue-800 transition-colors duration-200"
-    >
-      {/* FIX: Ikon och text är nu uppdaterade för att vara logiska */}
-      <svg
-        className="w-5 h-5 transition-transform duration-200 group-hover:-translate-x-1"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M11 19l-7-7 7-7m8 14l-7-7 7-7"
-        />
-      </svg>
-      <span className="font-semibold">
-        {translate(currentLanguage, "BACKTOMARKE")}
-      </span>
-    </button>
-    <h2 className="text-xl font-bold text-black mb-4">
-      <h2 className="flex items-center gap-2 text-xl font-bold text-gray-900 mb-4">
-        <svg
-          className="w-5 h-5 text-gray-400"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M19 9l-7 7-7-7"
-          />
-        </svg>
-        <span className="text-gray-600 font-semibold">
-          {translate(currentLanguage, "selectModel")
-            .charAt(0)
-            .toUpperCase() +
-            translate(currentLanguage, "selectModel")
-              .slice(1)
-              .toLowerCase()}
-        </span>
-        <span className="text-blue-600">
-          {selected.brand.replace("[LASTBIL] ", "")}
-        </span>
-      </h2>
-    </h2>
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-      {models.map((model) => (
-        <div
-          key={model.name}
-          onClick={() => {
-            setSelected((prev) => ({
-              ...prev,
-              model: model.name,
-              year: "",
-              engine: "",
-            }));
-            // FIX: Lade till postMessage här
-            window.parent.postMessage(
-              { scrollToIframe: true },
-              "*",
-            );
-          }}
-          className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
-        >
-          {getModelImage(model.name, selected.brand) ? (
-            <img
-              src={getModelImage(model.name, selected.brand)}
-              alt={model.name}
-              className="h-16 w-auto object-contain mb-2"
-              loading="lazy"
-            />
-          ) : (
-            <div className="h-16 w-16 bg-gray-100 rounded-full mb-2 flex items-center justify-center">
-              <span className="text-gray-400 text-xl">
-                {model.name.charAt(0)}
-              </span>
-            </div>
-          )}
-          <p className="text-center font-medium text-gray-800">
-            {model.name}
-          </p>
-        </div>
-      ))}
-    </div>
-  </>
-)}
-
+            {/* Model selection */}
+            {selected.brand && !selected.model && (
+              <>
+                <button
+                  onClick={() => {
+                    setSelected({ brand: "", model: "", year: "", engine: "" });
+                    // Denna rad skickar meddelandet för att skrolla upp
+                    window.parent.postMessage({ scrollToIframe: true }, "*");
+                  }}
+                  className="group flex items-center gap-1 mb-4 text-blue-600 hover:text-blue-800 transition-colors duration-200"
+                >
+                  {/* FIX: Ikon och text är nu uppdaterade för att vara logiska */}
+                  <svg
+                    className="w-5 h-5 transition-transform duration-200 group-hover:-translate-x-1"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M11 19l-7-7 7-7m8 14l-7-7 7-7"
+                    />
+                  </svg>
+                  <span className="font-semibold">
+                    {translate(currentLanguage, "BACKTOMARKE")}
+                  </span>
+                </button>
+                <h2 className="text-xl font-bold text-black mb-4">
+                  <h2 className="flex items-center gap-2 text-xl font-bold text-gray-900 mb-4">
+                    <svg
+                      className="w-5 h-5 text-gray-400"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                    <span className="text-gray-600 font-semibold">
+                      {translate(currentLanguage, "selectModel")
+                        .charAt(0)
+                        .toUpperCase() +
+                        translate(currentLanguage, "selectModel")
+                          .slice(1)
+                          .toLowerCase()}
+                    </span>
+                    <span className="text-blue-600">
+                      {selected.brand.replace("[LASTBIL] ", "")}
+                    </span>
+                  </h2>
+                </h2>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                  {models.map((model) => (
+                    <div
+                      key={model.name}
+                      onClick={() => {
+                        setSelected((prev) => ({
+                          ...prev,
+                          model: model.name,
+                          year: "",
+                          engine: "",
+                        }));
+                        // FIX: Lade till postMessage här
+                        window.parent.postMessage(
+                          { scrollToIframe: true },
+                          "*",
+                        );
+                      }}
+                      className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
+                    >
+                      {getModelImage(model.name, selected.brand) ? (
+                        <img
+                          src={getModelImage(model.name, selected.brand)}
+                          alt={model.name}
+                          className="h-16 w-auto object-contain mb-2"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="h-16 w-16 bg-gray-100 rounded-full mb-2 flex items-center justify-center">
+                          <span className="text-gray-400 text-xl">
+                            {model.name.charAt(0)}
+                          </span>
+                        </div>
+                      )}
+                      <p className="text-center font-medium text-gray-800">
+                        {model.name}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
 
             {/* Year selection */}
             {selected.brand && selected.model && !selected.year && (
@@ -1431,6 +1430,10 @@ export default function TuningViewer() {
                       </div>
                     </div>
                   </button>
+
+                  {isExpanded && selected.brand.startsWith("[LASTBIL]") && (
+                    <FuelSavingCalculator stage={stage} />
+                  )}
 
                   {isExpanded && (
                     <div className="px-6 pb-6">
