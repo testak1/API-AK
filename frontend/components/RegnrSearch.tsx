@@ -1,21 +1,11 @@
 // components/RegnrSearch.tsx
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
-type OnVehicleFound = (vehicle: {
-  brand: string;
-  model: string;
-  year: string;
-}) => void;
+type OnVehicleFound = (vehicle: { brand: string; model: string; year: string }) => void;
 type OnError = (message: string | null) => void;
 
-export default function RegnrSearch({
-  onVehicleFound,
-  onError,
-}: {
-  onVehicleFound: OnVehicleFound;
-  onError: OnError;
-}) {
-  const [regnr, setRegnr] = useState("");
+export default function RegnrSearch({ onVehicleFound, onError }: { onVehicleFound: OnVehicleFound, onError: OnError }) {
+  const [regnr, setRegnr] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -29,56 +19,52 @@ export default function RegnrSearch({
     const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
 
     try {
-      // Anropet görs nu direkt från webbläsaren, precis som i ditt felkod-projekt
+      // Anropet görs direkt från webbläsaren
       const response = await fetch(proxyUrl);
-
+      
       if (!response.ok) {
-        throw new Error(
-          `Nätverksfel: Kunde inte anropa proxyn (status: ${response.status}).`,
-        );
+        throw new Error(`Nätverksfel (Status: ${response.status}). Proxyn eller målsidan kan vara nere.`);
       }
-
+      
       const htmlContent = await response.text();
 
       // Skapa ett tillfälligt DOM-element för att tolka HTML-svaret
       const parser = new DOMParser();
-      const doc = parser.parseFromString(htmlContent, "text/html");
+      const doc = parser.parseFromString(htmlContent, 'text/html');
 
-      // Funktion för att säkert extrahera text
-      const getText = (selector: string) => {
-        const element = doc.querySelector(selector);
-        return element ? (element as HTMLElement).innerText.trim() : null;
-      };
+      // --- KORRIGERAD LOGIK BASERAT PÅ NY HTML-STRUKTUR ---
+      // Vi letar nu i en tabell istället för listor.
+      const tableRows = doc.querySelectorAll('#vehicle-data table.table-bordered tr');
+      if (tableRows.length === 0) {
+        throw new Error('Hittade ingen fordonstabell på sidan. Strukturen har troligen ändrats.');
+      }
 
-      // Hitta värdena baserat på deras rubriker (<th>)
-      const tableRows = doc.querySelectorAll("table.table-bordered tr");
       let vehicleData: { [key: string]: string } = {};
 
-      tableRows.forEach((row) => {
-        const th = row.querySelector("th");
-        const td = row.querySelector("td");
+      tableRows.forEach(row => {
+        const th = row.querySelector('th');
+        const td = row.querySelector('td');
         if (th && td) {
           const key = th.innerText.trim();
           const value = td.innerText.trim();
-          if (key === "Fabrikat") vehicleData.brand = value;
-          if (key === "Modell") vehicleData.model = value;
-          if (key === "Fordonsår") vehicleData.year = value;
+          // Matcha nyckelord för att hitta rätt data
+          if (key.includes('Fabrikat')) vehicleData.brand = value;
+          if (key.includes('Modell')) vehicleData.model = value;
+          if (key.includes('Fordonsår')) vehicleData.year = value.split('/')[0].trim(); // Ta bara första årtalet
         }
       });
-
+      
       const { brand, model, year } = vehicleData;
 
       if (!brand || !model || !year) {
-        throw new Error(
-          "Kunde inte hitta all fordonsinformation. Sidans struktur kan ha ändrats.",
-        );
+        throw new Error('Kunde inte hitta Fabrikat, Modell eller År i tabellen. Kolla källkoden igen.');
       }
-
-      // Skicka tillbaka den hittade datan
+      
+      // Allt gick bra, skicka tillbaka datan!
       onVehicleFound({ brand, model, year });
+
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Ett okänt fel uppstod.";
+      const errorMessage = err instanceof Error ? err.message : 'Ett okänt fel uppstod.';
       setError(errorMessage);
       onError(errorMessage);
     } finally {
@@ -95,12 +81,10 @@ export default function RegnrSearch({
         <input
           type="text"
           value={regnr}
-          onChange={(e) =>
-            setRegnr(e.target.value.toUpperCase().replace(/\s/g, ""))
-          }
+          onChange={(e) => setRegnr(e.target.value.toUpperCase().replace(/\s/g, ''))}
           placeholder="ABC 123"
           className="flex-grow p-3 rounded-lg bg-gray-800 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-red-500 transition-all text-center text-lg font-mono tracking-widest"
-          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+          onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
         />
         <button
           onClick={handleSearch}
@@ -110,7 +94,7 @@ export default function RegnrSearch({
           {isLoading ? (
             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
           ) : (
-            "Sök fordon"
+            'Sök fordon'
           )}
         </button>
       </div>
