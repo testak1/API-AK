@@ -175,40 +175,6 @@ export default function TuningViewer() {
   };
 
 
-  
-  // En hjälpfunktion för att hantera vanliga alias
-  const getBrandAliasMap = (): Record<string, string> => ({
-    "mercedes-benz": "Mercedes",
-    "vw": "Volkswagen",
-    "mercedes": "Mercedes-Benz" // Bra att ha omvänt också
-    // Lägg till fler alias här vid behov
-  });
-
-const findBestBrandMatch = (scrapedBrand: string, availableBrands: string[]): string | null => {
-      const lowerScrapedBrand = scrapedBrand.toLowerCase();
-      const aliasMap = getBrandAliasMap();
-
-
-      // 1. Försök med exakt match
-      const exactMatch = availableBrands.find(b => b.toLowerCase() === lowerScrapedBrand);
-      if (exactMatch) return exactMatch;
-
-      // 2. Försök med alias
-      const alias = aliasMap[lowerScrapedBrand];
-      if (alias) {
-          const aliasMatch = availableBrands.find(b => b.toLowerCase() === alias.toLowerCase());
-          if (aliasMatch) return aliasMatch;
-      }
-
-      // 3. Försök med "includes"
-      const partialMatch = availableBrands.find(b => b.toLowerCase().includes(lowerScrapedBrand) || lowerScrapedBrand.includes(b.toLowerCase()));
-      if (partialMatch) return partialMatch;
-      
-      return null;
-  };
-
-
-
 const handleVehicleFound = (vehicle: { brand: string; model: string; year: string; fuel: string; powerHp:string; }) => {
     console.log("Mottagen fordonsdata:", vehicle); // Bra för felsökning
     setSearchError(null);
