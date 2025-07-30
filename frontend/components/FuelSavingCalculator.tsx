@@ -5,7 +5,7 @@ import type { Stage } from "@/types/sanity";
 
 // Anta en bränslebesparing. Detta värde bör helst komma från din Sanity-data per steg.
 // Om du inte har det, kan du använda ett generellt värde här.
-const FUEL_SAVING_PERCENTAGE = 0.1; // 10% besparing
+const FUEL_SAVING_PERCENTAGE = 0.15; // 15% besparing
 
 export default function FuelSavingCalculator({ stage }: { stage: Stage }) {
   const [mileage, setMileage] = useState("10000"); // Årlig körsträcka i mil
