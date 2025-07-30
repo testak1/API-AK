@@ -1,11 +1,21 @@
 // components/RegnrSearch.tsx
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
-type OnVehicleFound = (vehicle: { brand: string; model: string; year: string }) => void;
+type OnVehicleFound = (vehicle: {
+  brand: string;
+  model: string;
+  year: string;
+}) => void;
 type OnError = (message: string | null) => void;
 
-export default function RegnrSearch({ onVehicleFound, onError }: { onVehicleFound: OnVehicleFound, onError: OnError }) {
-  const [regnr, setRegnr] = useState('');
+export default function RegnrSearch({
+  onVehicleFound,
+  onError,
+}: {
+  onVehicleFound: OnVehicleFound;
+  onError: OnError;
+}) {
+  const [regnr, setRegnr] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -13,58 +23,69 @@ export default function RegnrSearch({ onVehicleFound, onError }: { onVehicleFoun
     if (!regnr) return;
     setIsLoading(true);
     setError(null);
-    onError(null); // Rensa tidigare felmeddelanden
+    onError(null);
 
     const targetUrl = `https://biluppgifter.se/fordon/${regnr.toUpperCase()}`;
     const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
 
     try {
-      // Anropet görs direkt från webbläsaren
       const response = await fetch(proxyUrl);
-      
       if (!response.ok) {
-        throw new Error(`Nätverksfel (Status: ${response.status}). Proxyn eller målsidan kan vara nere.`);
+        throw new Error(`Nätverksfel (Status: ${response.status}).`);
       }
-      
+
       const htmlContent = await response.text();
-
-      // Skapa ett tillfälligt DOM-element för att tolka HTML-svaret
       const parser = new DOMParser();
-      const doc = parser.parseFromString(htmlContent, 'text/html');
+      const doc = parser.parseFromString(htmlContent, "text/html");
 
-      // --- KORRIGERAD LOGIK BASERAT PÅ NY HTML-STRUKTUR ---
-      // Vi letar nu i en tabell istället för listor.
-      const tableRows = doc.querySelectorAll('#vehicle-data table.table-bordered tr');
-      if (tableRows.length === 0) {
-        throw new Error('Hittade ingen fordonstabell på sidan. Strukturen har troligen ändrats.');
+      // --- NY, KORREKT LOGIK ---
+      // Leta efter den primära informationsrutan högst upp på sidan.
+      const summarySection = doc.querySelector(
+        "section#summary .bar.summary .info",
+      );
+      const iconGrid = doc.querySelector("section#summary ul.icon-grid");
+
+      if (!summarySection || !iconGrid) {
+        throw new Error(
+          "Kunde inte hitta huvudinformationen på sidan. Strukturen kan ha ändrats.",
+        );
       }
 
-      let vehicleData: { [key: string]: string } = {};
+      // 1. Hämta Märke och Modell från H1-taggen
+      const h1 = summarySection.querySelector("h1");
+      if (!h1) {
+        throw new Error("Kunde inte hitta H1-taggen med bilens namn.");
+      }
 
-      tableRows.forEach(row => {
-        const th = row.querySelector('th');
-        const td = row.querySelector('td');
-        if (th && td) {
-          const key = th.innerText.trim();
-          const value = td.innerText.trim();
-          // Matcha nyckelord för att hitta rätt data
-          if (key.includes('Fabrikat')) vehicleData.brand = value;
-          if (key.includes('Modell')) vehicleData.model = value;
-          if (key.includes('Fordonsår')) vehicleData.year = value.split('/')[0].trim(); // Ta bara första årtalet
+      const fullName = h1.innerText.trim();
+      const brand = fullName.split(" ")[0]; // Tar första ordet som märke (t.ex. "Volkswagen")
+      const model = fullName.substring(brand.length).trim(); // Tar resten som modell (t.ex. "Passat")
+
+      // 2. Hämta Årsmodell från informationsrutorna
+      let year = null;
+      const listItems = iconGrid.querySelectorAll("li");
+      listItems.forEach((item) => {
+        const label = item.querySelector("span");
+        if (label && label.innerText.trim().toLowerCase() === "modellår") {
+          const value = item.querySelector("em");
+          if (value) {
+            year = value.innerText.trim().match(/\d{4}/)?.[0] || null; // Extrahera bara årtalet
+          }
         }
       });
-      
-      const { brand, model, year } = vehicleData;
 
       if (!brand || !model || !year) {
-        throw new Error('Kunde inte hitta Fabrikat, Modell eller År i tabellen. Kolla källkoden igen.');
+        console.error({ brand, model, year });
+        throw new Error(
+          "Kunde inte extrahera all nödvändig information (Märke, Modell, År).",
+        );
       }
-      
-      // Allt gick bra, skicka tillbaka datan!
-      onVehicleFound({ brand, model, year });
 
+      // Allt lyckades, skicka tillbaka datan!
+      onVehicleFound({ brand, model, year });
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Ett okänt fel uppstod.';
+      const errorMessage =
+        err instanceof Error ? err.message : "Ett okänt fel uppstod.";
       setError(errorMessage);
       onError(errorMessage);
     } finally {
@@ -81,10 +102,12 @@ export default function RegnrSearch({ onVehicleFound, onError }: { onVehicleFoun
         <input
           type="text"
           value={regnr}
-          onChange={(e) => setRegnr(e.target.value.toUpperCase().replace(/\s/g, ''))}
+          onChange={(e) =>
+            setRegnr(e.target.value.toUpperCase().replace(/\s/g, ""))
+          }
           placeholder="ABC 123"
           className="flex-grow p-3 rounded-lg bg-gray-800 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-red-500 transition-all text-center text-lg font-mono tracking-widest"
-          onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
         />
         <button
           onClick={handleSearch}
@@ -94,7 +117,7 @@ export default function RegnrSearch({ onVehicleFound, onError }: { onVehicleFoun
           {isLoading ? (
             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
           ) : (
-            'Sök fordon'
+            "Sök fordon"
           )}
         </button>
       </div>
