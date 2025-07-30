@@ -1194,7 +1194,7 @@ export default function TuningViewer() {
                     </svg>
                     <span className="font-semibold">
                       {selected.brand.replace("[LASTBIL] ", "")}{" "}
-                      {selected.model}
+                      {selected.model} ({selected.year})
                     </span>
                   </button>
 
