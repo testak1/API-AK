@@ -51,21 +51,6 @@ interface Slug {
   current: string;
 }
 
-// --- HJÄLPFUNKTIONER (Placeras HÄR, utanför komponenten) ---
-const normalizeString = (str: string): string => {
-  if (!str) return "";
-  return str.toLowerCase().replace(/[^a-z0-9]/g, "");
-};
-
-const getBrandAliasMap = (): Record<string, string> => ({
-  "mercedes-benz": "mercedes",
-  bmw: "bmw", // Behåll för konsekvens
-  vw: "volkswagen",
-  // Lägg till fler alias här
-});
-
-// --- HUVUDKOMPONENTEN BÖRJAR HÄR ---
-
 export default function TuningViewer() {
   const [data, setData] = useState<Brand[]>([]);
   const [selected, setSelected] = useState<SelectionState>({
@@ -74,8 +59,6 @@ export default function TuningViewer() {
     year: "",
     engine: "",
   });
-
-    const [searchError, setSearchError] = useState<string | null>(null);
 
   const translateStageName = (lang: string, name: string): string => {
     const match = name.match(/Steg\s?(\d+)/i);
@@ -94,10 +77,58 @@ export default function TuningViewer() {
 
     return translations[lang] || name;
   };
-
+  const [searchError, setSearchError] = useState<string | null>(null);
 
   
+  // En hjälpfunktion för att hantera vanliga alias
+const getBrandAliasMap = (): Record<string, string> => ({
+  "mercedes-benz": "Mercedes",
+  "bmw": "BMW", // Kan behövas om scraping ger små bokstäver
+  "vw": "Volkswagen", // Om scraping skulle ge "VW"
+  // Lägg till fler alias här vid behov
+});
 
+const findBestBrandMatch = (scrapedBrand: string, availableBrands: string[]): string | null => {
+    const lowerScrapedBrand = scrapedBrand.toLowerCase();
+    const aliasMap = getBrandAliasMap();
+
+    // 1. Försök med exakt match (efter konvertering till små bokstäver)
+    const exactMatch = availableBrands.find(b => b.toLowerCase() === lowerScrapedBrand);
+    if (exactMatch) return exactMatch;
+
+    // 2. Försök med alias
+    const alias = aliasMap[lowerScrapedBrand];
+    if (alias) {
+        const aliasMatch = availableBrands.find(b => b.toLowerCase() === alias.toLowerCase());
+        if (aliasMatch) return aliasMatch;
+    }
+
+    // 3. Försök med "includes" (t.ex. "Mercedes-Benz" includes "Mercedes")
+    const partialMatch = availableBrands.find(b => lowerScrapedBrand.includes(b.toLowerCase()));
+    if (partialMatch) return partialMatch;
+    
+    // Om inget hittas
+    return null;
+};
+
+const handleVehicleFound = (vehicle: { brand: string; model: string; year: string }) => {
+    setSearchError(null);
+    
+    const matchedBrand = findBestBrandMatch(vehicle.brand, brands);
+
+    if (!matchedBrand) {
+        setSearchError(`Vi kunde hitta en ${vehicle.brand} ${vehicle.model}, men vi har för närvarande ingen optimering för märket "${vehicle.brand}".`);
+        return;
+    }
+    
+    // Modellen kan också behöva matchas smartare i framtiden, men vi börjar så här.
+    setSelected({
+        brand: matchedBrand,
+        model: "", // Låt användaren välja modell för att undvika fel
+        year: '', 
+        engine: '',
+    });
+};
 
   const [viewMode, setViewMode] = useState<"card" | "dropdown">("card");
 
@@ -145,47 +176,6 @@ export default function TuningViewer() {
     stage?: Stage;
   }>({ open: false, type: "stage" });
 
-    const brands = useMemo(() => data.map((b) => b.name), [data]);
-
-  const handleVehicleFound = (vehicle: { brand: string; model: string; year: string }) => {
-    setSearchError(null);
-
-    const scrapedBrandNorm = normalizeString(vehicle.brand);
-    const scrapedModelNorm = normalizeString(vehicle.model);
-
-    // Steg 1: Hitta bästa matchning för bilmärket
-    const aliasMap = getBrandAliasMap();
-    const matchedBrand = brands.find(b => {
-      const brandNorm = normalizeString(b);
-      const alias = aliasMap[scrapedBrandNorm];
-      return brandNorm === scrapedBrandNorm || (alias && brandNorm === alias);
-    });
-
-    if (!matchedBrand) {
-      setSearchError(`Vi hittade en ${vehicle.brand} ${vehicle.model}, men har ingen optimering för märket "${vehicle.brand}".`);
-      return;
-    }
-
-    // Steg 2: Hitta bästa matchning för modellen inom det funna märket
-    const brandObject = data.find(b => b.name === matchedBrand);
-    const matchedModel = brandObject?.models.find(m => {
-      const modelNorm = normalizeString(m.name);
-      return scrapedModelNorm.includes(modelNorm) || modelNorm.includes(scrapedModelNorm);
-    });
-    
-    setSelected({
-      brand: matchedBrand,
-      model: matchedModel ? matchedModel.name : "",
-      year: '',
-      engine: '',
-    });
-
-    if (matchedBrand && !matchedModel) {
-        setSearchError(`Vi hittade din ${vehicle.brand}, men kunde inte automatiskt matcha modellen "${vehicle.model}". Vänligen välj modell från listan.`);
-    }
-  };
-
-  
   const getStageColor = (stageName: string) => {
     const name = stageName.toLowerCase();
     if (name.includes("steg 1")) return "text-red-500";
