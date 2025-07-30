@@ -6,13 +6,14 @@ type OnVehicleFound = (vehicle: {
   model: string;
   year: string;
 }) => void;
+type OnError = (message: string | null) => void;
 
 export default function RegnrSearch({
   onVehicleFound,
   onError,
 }: {
   onVehicleFound: OnVehicleFound;
-  onError: (message: string) => void;
+  onError: OnError;
 }) {
   const [regnr, setRegnr] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -22,22 +23,59 @@ export default function RegnrSearch({
     if (!regnr) return;
     setIsLoading(true);
     setError(null);
-    onError(null); // Återställ eventuella tidigare fel i föräldern
+    onError(null); // Rensa tidigare felmeddelanden
+
+    const targetUrl = `https://biluppgifter.se/fordon/${regnr.toUpperCase()}`;
+    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
 
     try {
-      // ANPASSNING: Anropar din nya scraping-endpoint
-      const response = await fetch(`/api/scrape/${regnr}`);
-      const data = await response.json();
+      // Anropet görs nu direkt från webbläsaren, precis som i ditt felkod-projekt
+      const response = await fetch(proxyUrl);
 
       if (!response.ok) {
-        throw new Error(data.error || "Kunde inte hitta fordonet.");
+        throw new Error(
+          `Nätverksfel: Kunde inte anropa proxyn (status: ${response.status}).`,
+        );
       }
 
-      onVehicleFound({
-        brand: data.brand,
-        model: data.model,
-        year: data.year,
+      const htmlContent = await response.text();
+
+      // Skapa ett tillfälligt DOM-element för att tolka HTML-svaret
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(htmlContent, "text/html");
+
+      // Funktion för att säkert extrahera text
+      const getText = (selector: string) => {
+        const element = doc.querySelector(selector);
+        return element ? (element as HTMLElement).innerText.trim() : null;
+      };
+
+      // Hitta värdena baserat på deras rubriker (<th>)
+      const tableRows = doc.querySelectorAll("table.table-bordered tr");
+      let vehicleData: { [key: string]: string } = {};
+
+      tableRows.forEach((row) => {
+        const th = row.querySelector("th");
+        const td = row.querySelector("td");
+        if (th && td) {
+          const key = th.innerText.trim();
+          const value = td.innerText.trim();
+          if (key === "Fabrikat") vehicleData.brand = value;
+          if (key === "Modell") vehicleData.model = value;
+          if (key === "Fordonsår") vehicleData.year = value;
+        }
       });
+
+      const { brand, model, year } = vehicleData;
+
+      if (!brand || !model || !year) {
+        throw new Error(
+          "Kunde inte hitta all fordonsinformation. Sidans struktur kan ha ändrats.",
+        );
+      }
+
+      // Skicka tillbaka den hittade datan
+      onVehicleFound({ brand, model, year });
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Ett okänt fel uppstod.";
