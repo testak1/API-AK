@@ -14,7 +14,7 @@ const nextConfig = {
   },
   reactStrictMode: true,
   env: {
-    SANITY_PROJECT_ID: "dinSanityProjectId",
+    SANITY_PROJECT_ID: "wensahkh",
     SANITY_DATASET: "production",
     NEXT_PUBLIC_API_BASE: "https://api.aktuning.se",
   },
