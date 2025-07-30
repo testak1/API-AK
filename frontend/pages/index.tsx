@@ -1018,9 +1018,6 @@ export default function TuningViewer() {
                           .slice(1)
                           .toLowerCase()}
                     </span>
-                    <span className="text-blue-600">
-                      {selected.brand.replace("[LASTBIL] ", "")}
-                    </span>
                   </h2>
                 </h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
@@ -1124,10 +1121,6 @@ export default function TuningViewer() {
                           .slice(1)
                           .toLowerCase()}
                     </span>
-                    <span className="text-blue-600">
-                      {selected.brand.replace("[LASTBIL] ", "")}{" "}
-                      {selected.model}
-                    </span>
                   </h2>
                 </h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
@@ -1218,10 +1211,6 @@ export default function TuningViewer() {
                         translate(currentLanguage, "selectEngine")
                           .slice(1)
                           .toLowerCase()}
-                    </span>
-                    <span className="text-blue-600">
-                      {selected.brand.replace("[LASTBIL] ", "")}{" "}
-                      {selected.model} ({selected.year})
                     </span>
                   </h2>
 
