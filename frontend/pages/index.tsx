@@ -79,41 +79,56 @@ export default function TuningViewer() {
   };
   const [searchError, setSearchError] = useState<string | null>(null);
 
-  const handleVehicleFound = (vehicle: {
-    brand: string;
-    model: string;
-    year: string;
-  }) => {
-    setSearchError(null); // Rensa tidigare fel
+  
+  // En hjälpfunktion för att hantera vanliga alias
+const getBrandAliasMap = (): Record<string, string> => ({
+  "mercedes-benz": "Mercedes",
+  "bmw": "BMW", // Kan behövas om scraping ger små bokstäver
+  "vw": "Volkswagen", // Om scraping skulle ge "VW"
+  // Lägg till fler alias här vid behov
+});
 
-    const matchedBrand = brands.find(
-      (b) => b.toLowerCase() === vehicle.brand.toLowerCase(),
-    );
+const findBestBrandMatch = (scrapedBrand: string, availableBrands: string[]): string | null => {
+    const lowerScrapedBrand = scrapedBrand.toLowerCase();
+    const aliasMap = getBrandAliasMap();
 
-    if (!matchedBrand) {
-      setSearchError(
-        `Vi kunde hitta en ${vehicle.brand} ${vehicle.model}, men vi har för närvarande ingen optimering för märket "${vehicle.brand}".`,
-      );
-      return;
+    // 1. Försök med exakt match (efter konvertering till små bokstäver)
+    const exactMatch = availableBrands.find(b => b.toLowerCase() === lowerScrapedBrand);
+    if (exactMatch) return exactMatch;
+
+    // 2. Försök med alias
+    const alias = aliasMap[lowerScrapedBrand];
+    if (alias) {
+        const aliasMatch = availableBrands.find(b => b.toLowerCase() === alias.toLowerCase());
+        if (aliasMatch) return aliasMatch;
     }
 
-    // Försök hitta en exakt modellmatchning
-    const brandData = data.find((b) => b.name === matchedBrand);
-    const matchedModel = brandData?.models.find(
-      (m) =>
-        // Normalisera för att hantera skillnader som "A4 Avant" vs "A4"
-        m.name.toLowerCase().replace(/\s/g, "") ===
-        vehicle.model.toLowerCase().replace(/\s/g, ""),
-    );
+    // 3. Försök med "includes" (t.ex. "Mercedes-Benz" includes "Mercedes")
+    const partialMatch = availableBrands.find(b => lowerScrapedBrand.includes(b.toLowerCase()));
+    if (partialMatch) return partialMatch;
+    
+    // Om inget hittas
+    return null;
+};
 
+const handleVehicleFound = (vehicle: { brand: string; model: string; year: string }) => {
+    setSearchError(null);
+    
+    const matchedBrand = findBestBrandMatch(vehicle.brand, brands);
+
+    if (!matchedBrand) {
+        setSearchError(`Vi kunde hitta en ${vehicle.brand} ${vehicle.model}, men vi har för närvarande ingen optimering för märket "${vehicle.brand}".`);
+        return;
+    }
+    
+    // Modellen kan också behöva matchas smartare i framtiden, men vi börjar så här.
     setSelected({
-      brand: matchedBrand,
-      // Om vi hittar en exakt modell, välj den. Annars, låt användaren välja från listan.
-      model: matchedModel ? matchedModel.name : "",
-      year: "", // Låt alltid användaren välja år, eftersom det ofta är ett intervall.
-      engine: "",
+        brand: matchedBrand,
+        model: "", // Låt användaren välja modell för att undvika fel
+        year: '', 
+        engine: '',
     });
-  };
+};
 
   const [viewMode, setViewMode] = useState<"card" | "dropdown">("card");
 
