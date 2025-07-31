@@ -1,5 +1,5 @@
 // components/RegnrSearch.tsx
-import React, {useState} from "react";
+import React, { useState } from "react";
 
 type OnVehicleFound = (vehicle: {
   brand: string;
@@ -49,20 +49,20 @@ export default function RegnrSearch({
 
       if (!summarySection) {
         throw new Error(
-          "Kunde inte hitta sammanfattningssektionen (#summary) på sidan."
+          "Kunde inte hitta sammanfattningssektionen (#summary) på sidan.",
         );
       }
 
       // KORRIGERAD, MER SPECIFIK SELEKTOR FÖR H1
       const h1 = summarySection.querySelector<HTMLElement>(
-        ".bar.summary .info h1"
+        ".bar.summary .info h1",
       );
       const iconGrid =
         summarySection.querySelector<HTMLElement>("ul.icon-grid");
 
       if (!h1 || !iconGrid) {
         throw new Error(
-          "Kunde inte hitta H1-taggen eller ikongrid-listan inuti #summary."
+          "Kunde inte hitta H1-taggen eller ikongrid-listan inuti #summary.",
         );
       }
 
@@ -73,7 +73,7 @@ export default function RegnrSearch({
       let year: string | null = null;
       let fuel: string | null = null;
       let powerHp: string | null = null;
-      iconGrid.querySelectorAll("li").forEach(item => {
+      iconGrid.querySelectorAll("li").forEach((item) => {
         const label = item
           .querySelector<HTMLElement>("span")
           ?.innerText.trim()
@@ -89,7 +89,7 @@ export default function RegnrSearch({
       if (technicalDataSection) {
         technicalDataSection
           .querySelectorAll(".inner ul.list li")
-          .forEach(item => {
+          .forEach((item) => {
             const label = item
               .querySelector<HTMLElement>("span.label")
               ?.innerText.trim()
@@ -116,7 +116,7 @@ export default function RegnrSearch({
         throw new Error(`Kunde inte extrahera: ${missing}.`);
       }
 
-      onVehicleFound({brand, model, year, fuel, powerHp, engineCm3});
+      onVehicleFound({ brand, model, year, fuel, powerHp, engineCm3 });
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Ett okänt fel uppstod.";
@@ -128,27 +128,35 @@ export default function RegnrSearch({
   };
 
   return (
-    <details className="mb-8 bg-gray-900/50 border border-gray-700 rounded-lg group">
-      <summary className="p-4 cursor-pointer flex justify-between items-center list-none">
+    <details className="mb-8 bg-gray-900/80 border border-gray-700 rounded-xl group backdrop-blur-sm transition-all hover:bg-gray-900/90">
+      <summary className="p-5 cursor-pointer flex justify-between items-center list-none">
         <div className="flex items-center gap-3">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 text-gray-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
-          <span className="font-semibold text-white">SÖK MED REGNR (BETA)</span>
+          <div className="p-2 bg-red-600/20 rounded-lg">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6 text-red-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+          </div>
+          <div>
+            <span className="font-bold text-white text-lg">SÖK MED REGNR</span>
+
+            <span className="ml-2 px-2 py-0.5 bg-red-600/30 text-red-300 text-xs rounded-full">
+              BETA
+            </span>
+          </div>
         </div>
         <svg
-          className="w-5 h-5 text-gray-400 transform transition-transform group-open:rotate-180"
+          className="w-6 h-6 text-gray-400 transform transition-transform duration-200 group-open:rotate-180"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -162,32 +170,67 @@ export default function RegnrSearch({
           />
         </svg>
       </summary>
-      <div className="p-4 border-t border-gray-700">
-        <div className="flex flex-col sm:flex-row gap-2">
-          <input
-            type="text"
-            value={regnr}
-            onChange={e =>
-              setRegnr(e.target.value.toUpperCase().replace(/\s/g, ""))
-            }
-            placeholder={disabled ? "Laddar databas..." : "ABC 123"}
-            className="flex-grow p-3 rounded-lg bg-gray-800 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-red-500 transition-all text-center text-lg font-mono tracking-widest disabled:opacity-50"
-            onKeyDown={e => e.key === "Enter" && !disabled && handleSearch()}
-            disabled={disabled || isLoading}
-          />
+      <div className="px-5 pb-5 border-t border-gray-700/50">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-grow">
+            <input
+              type="text"
+              value={regnr}
+              onChange={(e) =>
+                setRegnr(e.target.value.toUpperCase().replace(/\s/g, ""))
+              }
+              placeholder={disabled ? "Laddar databas..." : "ABC 123"}
+              className="w-full p-4 rounded-xl bg-gray-800/70 border border-gray-600/50 text-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all text-center text-lg font-mono tracking-widest disabled:opacity-50 hover:bg-gray-800/90"
+              onKeyDown={(e) =>
+                e.key === "Enter" && !disabled && handleSearch()
+              }
+              disabled={disabled || isLoading}
+              maxLength={6}
+            />
+            {!regnr && (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <span className="text-gray-500 font-mono tracking-widest">
+                  ABC 123
+                </span>
+              </div>
+            )}
+          </div>
           <button
             onClick={handleSearch}
             disabled={disabled || isLoading}
-            className="p-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition-all shadow-md disabled:bg-gray-500 disabled:cursor-not-allowed flex items-center justify-center"
+            className="p-4 bg-gradient-to-br from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-red-500/20 disabled:bg-gray-600 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-w-[120px]"
           >
             {isLoading ? (
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+              <>
+                <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                <span>Söker...</span>
+              </>
             ) : (
-              "Sök fordon"
+              <>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+                <span>Sök fordon</span>
+              </>
             )}
           </button>
         </div>
-        {error && <p className="text-red-400 mt-3 text-center">{error}</p>}
+        {error && (
+          <div className="mt-3 p-3 bg-red-900/30 border border-red-800 rounded-lg text-red-300 text-center animate-fade-in">
+            {error}
+          </div>
+        )}
       </div>
     </details>
   );
