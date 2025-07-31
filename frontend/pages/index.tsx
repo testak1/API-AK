@@ -393,49 +393,33 @@ export default function TuningViewer() {
     let closestModel: FlatVehicle | null = null;
 
     for (const vehicle of allVehicles) {
-      // Normalisera databasens värden
-      const dbBrandNorm = normalizeBrand(vehicle.brandName);
-      const dbModelNorm = normalizeModel(vehicle.modelName);
-      const dbEngineNorm = normalizeModel(vehicle.engineLabel);
+      if (normalize(vehicle.brandName) !== scrapedBrandNorm) continue;
 
-      // 1. Kontrollera märke (med specialhantering för Mercedes)
-      if (dbBrandNorm !== scrapedBrandNorm) {
-        // Extra kontroll för Mercedes-Benz
-        if (
-          !(dbBrandNorm === "mercedes" && scrapedBrandNorm === "mercedesbenz")
-        ) {
-          continue;
-        }
-      }
+      const vehicleModelNorm = normalizeModel(vehicle.modelName);
+      const modelMatch =
+        vehicleModelNorm.includes(scrapedModelNorm) ||
+        scrapedModelNorm.includes(vehicleModelNorm);
 
-      // 2. Kontrollera modell (case-insensitive och utan specialtecken)
-      if (
-        !dbModelNorm.includes(scrapedModelNorm) &&
-        !scrapedModelNorm.includes(dbModelNorm)
-      ) {
-        continue;
-      }
+      if (!modelMatch) continue;
 
-      // 3. Kontrollera bränsletyp
       if (normalize(vehicle.engineFuel) !== scrapedFuelNorm) continue;
 
-      // 4. Kontrollera årsintervall
-      if (!isYearInRange(scrapedVehicle.year, vehicle.yearRange)) continue;
+      const yearInRange = isYearInRange(scrapedVehicle.year, vehicle.yearRange);
 
-      // 5. Extrahera motorinformation
-      // För BMW: Hantera motorer utan decimaler (t.ex. "30d" istället för "3.0d")
-      let engineVolume = 0;
-      const volumeMatch = dbEngineNorm.match(/(\d+)\s?[dl]/i);
-      if (volumeMatch) {
-        const volumeNum = volumeMatch[1];
-        engineVolume =
-          volumeNum.length === 1
-            ? parseFloat(volumeNum) // t.ex. "2d" → 2.0
-            : parseFloat(volumeNum[0] + "." + volumeNum.substring(1)); // t.ex. "30d" → 3.0
+      if (!closestModel && modelMatch) {
+        closestModel = vehicle;
       }
 
-      // Extrahera hästkrafter
-      const hpMatch = dbEngineNorm.match(/(\d+)\s*(hk|hp|ps|kw)/i);
+      if (!yearInRange) continue;
+
+      const engineLabel = vehicle.engineLabel;
+      const volumeMatch =
+        engineLabel.match(/(\d[,.]\d)\s?L?/i) || engineLabel.match(/(\d)\s?L/i);
+      if (!volumeMatch) continue;
+
+      const volume = parseFloat(volumeMatch[1].replace(",", "."));
+
+      const hpMatch = engineLabel.match(/(\d+)\s*(hk|hp|ps|kw)/i);
       if (!hpMatch) continue;
 
       let hp = parseInt(hpMatch[1], 10);
@@ -443,12 +427,10 @@ export default function TuningViewer() {
         hp = Math.round(hp * 1.36);
       }
 
-      // Beräkna matchpoäng
-      const volumeDiff = Math.abs(engineVolume - scrapedVolumeLiters);
+      const volumeDiff = Math.abs(volume - scrapedVolumeLiters);
       const hpDiff = Math.abs(hp - scrapedHp);
       const score = volumeDiff * 100 + hpDiff;
 
-      // Toleranser
       if (volumeDiff > 0.3 || hpDiff > 15) continue;
 
       if (!bestMatch || score < bestMatch.score) {
