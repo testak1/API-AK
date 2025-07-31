@@ -357,21 +357,31 @@ export default function TuningViewer() {
       return;
     }
 
+    // Förbättrad normalisering av märke
+    const normalizeBrand = (brand: string) => {
+      return brand
+        .toLowerCase()
+        .replace(/-/g, " ") // Ersätt bindestreck med mellanslag
+        .replace(/[^a-z0-9]/g, "") // Ta bort specialtecken
+        .replace("mercedesbenz", "mercedes") // Specialfall för Mercedes
+        .replace("bmw", "bmw"); // Säkerställ konsekvent formatering
+    };
+
+    // Förbättrad normalisering av modell
+    const normalizeModel = (model: string) => {
+      return model
+        .replace(/[^a-zA-Z0-9\s]/g, "") // Ta bort specialtecken
+        .replace(/\s+/g, " ") // Ersätt flera mellanslag med ett
+        .trim()
+        .toLowerCase();
+    };
+
     const scrapedHp = parseInt(scrapedVehicle.powerHp, 10);
     const scrapedFuelNorm = normalize(scrapedVehicle.fuel);
     const scrapedVolumeLiters =
       Math.round((parseInt(scrapedVehicle.engineCm3, 10) / 1000) * 10) / 10;
     const scrapedBrandNorm = normalize(scrapedVehicle.brand);
     const scrapedYear = parseInt(scrapedVehicle.year, 10);
-
-    const normalizeModel = (model: string) => {
-      return model
-        .replace(/TDI|FSI|GTI|CR|4MOTION|QUATTRO|TSI/gi, "")
-        .replace(/\(.*\)/, "")
-        .trim()
-        .replace(/\s+/g, " ");
-    };
-
     const scrapedModelNorm = normalizeModel(scrapedVehicle.model);
 
     const getGeneration = (modelName: string) => {
@@ -383,33 +393,49 @@ export default function TuningViewer() {
     let closestModel: FlatVehicle | null = null;
 
     for (const vehicle of allVehicles) {
-      if (normalize(vehicle.brandName) !== scrapedBrandNorm) continue;
+      // Normalisera databasens värden
+      const dbBrandNorm = normalizeBrand(vehicle.brandName);
+      const dbModelNorm = normalizeModel(vehicle.modelName);
+      const dbEngineNorm = normalizeModel(vehicle.engineLabel);
 
-      const vehicleModelNorm = normalizeModel(vehicle.modelName);
-      const modelMatch =
-        vehicleModelNorm.includes(scrapedModelNorm) ||
-        scrapedModelNorm.includes(vehicleModelNorm);
-
-      if (!modelMatch) continue;
-
-      if (normalize(vehicle.engineFuel) !== scrapedFuelNorm) continue;
-
-      const yearInRange = isYearInRange(scrapedVehicle.year, vehicle.yearRange);
-
-      if (!closestModel && modelMatch) {
-        closestModel = vehicle;
+      // 1. Kontrollera märke (med specialhantering för Mercedes)
+      if (dbBrandNorm !== scrapedBrandNorm) {
+        // Extra kontroll för Mercedes-Benz
+        if (
+          !(dbBrandNorm === "mercedes" && scrapedBrandNorm === "mercedesbenz")
+        ) {
+          continue;
+        }
       }
 
-      if (!yearInRange) continue;
+      // 2. Kontrollera modell (case-insensitive och utan specialtecken)
+      if (
+        !dbModelNorm.includes(scrapedModelNorm) &&
+        !scrapedModelNorm.includes(dbModelNorm)
+      ) {
+        continue;
+      }
 
-      const engineLabel = vehicle.engineLabel;
-      const volumeMatch =
-        engineLabel.match(/(\d[,.]\d)\s?L?/i) || engineLabel.match(/(\d)\s?L/i);
-      if (!volumeMatch) continue;
+      // 3. Kontrollera bränsletyp
+      if (normalize(vehicle.engineFuel) !== scrapedFuelNorm) continue;
 
-      const volume = parseFloat(volumeMatch[1].replace(",", "."));
+      // 4. Kontrollera årsintervall
+      if (!isYearInRange(scrapedVehicle.year, vehicle.yearRange)) continue;
 
-      const hpMatch = engineLabel.match(/(\d+)\s*(hk|hp|ps|kw)/i);
+      // 5. Extrahera motorinformation
+      // För BMW: Hantera motorer utan decimaler (t.ex. "30d" istället för "3.0d")
+      let engineVolume = 0;
+      const volumeMatch = dbEngineNorm.match(/(\d+)\s?[dl]/i);
+      if (volumeMatch) {
+        const volumeNum = volumeMatch[1];
+        engineVolume =
+          volumeNum.length === 1
+            ? parseFloat(volumeNum) // t.ex. "2d" → 2.0
+            : parseFloat(volumeNum[0] + "." + volumeNum.substring(1)); // t.ex. "30d" → 3.0
+      }
+
+      // Extrahera hästkrafter
+      const hpMatch = dbEngineNorm.match(/(\d+)\s*(hk|hp|ps|kw)/i);
       if (!hpMatch) continue;
 
       let hp = parseInt(hpMatch[1], 10);
@@ -417,10 +443,12 @@ export default function TuningViewer() {
         hp = Math.round(hp * 1.36);
       }
 
-      const volumeDiff = Math.abs(volume - scrapedVolumeLiters);
+      // Beräkna matchpoäng
+      const volumeDiff = Math.abs(engineVolume - scrapedVolumeLiters);
       const hpDiff = Math.abs(hp - scrapedHp);
       const score = volumeDiff * 100 + hpDiff;
 
+      // Toleranser
       if (volumeDiff > 0.3 || hpDiff > 15) continue;
 
       if (!bestMatch || score < bestMatch.score) {
