@@ -973,7 +973,7 @@ export default function TuningViewer() {
           </button>
         </div>
 
-        {isLoading ? (
+        {isDbLoading ? (
           <div className="text-gray-400 text-sm mb-4">
             Fordonsdatabasen laddas...
           </div>
@@ -981,7 +981,7 @@ export default function TuningViewer() {
           <RegnrSearch
             onVehicleFound={handleVehicleFound}
             onError={setSearchError}
-            disabled={isLoading}
+            disabled={isDbLoading}
           />
         )}
 
