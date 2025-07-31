@@ -844,7 +844,8 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
           </button>
         </div>
 
-          {isDbLoading ? (
+    {/* 
+{isDbLoading ? (
   <div className="text-gray-400 text-sm mb-4">
     Fordonsdatabasen laddas...
   </div>
@@ -855,13 +856,14 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
     disabled={isDbLoading}
   />
 )}
+*/}
 
-        {/* Visa ett centralt felmeddelande om sökningen misslyckas */}
-        {searchError && !selected.brand && (
-          <div className="text-center p-4 mb-4 bg-red-900/50 border border-red-700 rounded-lg">
-            <p className="text-white">{searchError}</p>
-          </div>
-        )}
+{/* Visa ett centralt felmeddelande om sökningen misslyckas */}
+{searchError && !selected.brand && (
+  <div className="text-center p-4 mb-4 bg-red-900/50 border border-red-700 rounded-lg">
+    <p className="text-white">{searchError}</p>
+  </div>
+)}
 
         <div className="mb-4">
           <p className="text-black text-center text-lg font-semibold">
