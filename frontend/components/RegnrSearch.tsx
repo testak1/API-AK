@@ -145,9 +145,7 @@ export default function RegnrSearch({
               d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
             />
           </svg>
-          <span className="font-semibold text-white">
-            Sök med registreringsnummer
-          </span>
+          <span className="font-semibold text-white">SÖK MED REGNR (BETA)</span>
         </div>
         <svg
           className="w-5 h-5 text-gray-400 transform transition-transform group-open:rotate-180"
