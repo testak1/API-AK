@@ -298,14 +298,23 @@ export default function TuningViewer() {
     groupedEngines,
   } = useMemo(() => {
     const brands = data.map((b) => b.name);
+
     const modelsData =
       data.find((b) => b.name === selected.brand)?.models || [];
-    const yearsData =
-      modelsData.find((m) => m.name === selected.model)?.years || [];
-    const enginesData =
-      yearsData.find((y) => y.range === selected.year)?.engines || [];
+
+    const selectedModel = modelsData.find((m) => m.name === selected.model);
+    const yearsData = Array.isArray(selectedModel?.years)
+      ? selectedModel.years
+      : [];
+
+    const selectedYear = yearsData.find((y) => y.range === selected.year);
+    const enginesData = Array.isArray(selectedYear?.engines)
+      ? selectedYear.engines
+      : [];
+
     const currentEngine = enginesData.find((e) => e.label === selected.engine);
     const currentStages = currentEngine?.stages || [];
+
     const grouped = enginesData.reduce(
       (acc, engine) => {
         const fuelType = engine.fuel;
@@ -315,6 +324,7 @@ export default function TuningViewer() {
       },
       {} as Record<string, typeof enginesData>,
     );
+
     return {
       brands,
       models: modelsData,
@@ -325,7 +335,6 @@ export default function TuningViewer() {
       groupedEngines: grouped,
     };
   }, [data, selected]);
-
   useEffect(() => {
     if (stages.length > 0) {
       const initialExpandedStates = stages.reduce(
