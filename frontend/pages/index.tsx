@@ -1,7 +1,7 @@
 // pages/index.tsx
 import Head from "next/head";
 import Image from "next/image";
-import React, { useEffect, useState, useRef, useMemo } from "react";
+import React, {useEffect, useState, useRef, useMemo} from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -13,13 +13,13 @@ import {
   Legend,
 } from "chart.js";
 import dynamic from "next/dynamic";
-import { PortableText } from "@portabletext/react";
+import {PortableText} from "@portabletext/react";
 import FuelSavingCalculator from "@/components/FuelSavingCalculator";
 import RegnrSearch from "@/components/RegnrSearch";
-import { urlFor } from "@/lib/sanity";
+import {urlFor} from "@/lib/sanity";
 import PublicLanguageDropdown from "@/components/PublicLanguageSwitcher";
-import { LayoutGrid, List } from "lucide-react";
-import { t as translate } from "@/lib/translations";
+import {LayoutGrid, List} from "lucide-react";
+import {t as translate} from "@/lib/translations";
 import type {
   Brand,
   Stage,
@@ -27,7 +27,6 @@ import type {
   AktPlusOptionReference,
 } from "@/types/sanity";
 import ContactModal from "@/components/ContactModal";
-import { link } from "fs";
 
 ChartJS.register(
   CategoryScale,
@@ -36,9 +35,10 @@ ChartJS.register(
   LineElement,
   LineController,
   Tooltip,
-  Legend,
+  Legend
 );
 
+// --- GRÄNSSNITTSTYPER ---
 interface SelectionState {
   brand: string;
   model: string;
@@ -60,51 +60,349 @@ interface FlatVehicle {
   brandName: string;
 }
 
-
-// --- NYA, SMARTARE HJÄLPFUNKTIONER ---
-
-/**
- * Normaliserar en sträng för enklare jämförelse.
- * Tar bort specialtecken, gör om till gemener etc.
- */
-const normalize = (str: string): string => {
-  if (!str) return '';
-  return str.toLowerCase().replace(/[\s-]/g, '');
+// --- HJÄLPFUNKTIONER ---
+const normalize = (str: string | undefined | null): string => {
+  if (!str) return "";
+  return String(str).toLowerCase().replace(/[\s-]/g, "");
 };
 
-/**
- * Kollar om ett specifikt år (från scraping) passar in i ett årsintervall (från din data).
- */
-const isYearInRange = (scrapedYear: string, yearRange: string): boolean => {
-    const yearNum = parseInt(scrapedYear, 10);
-    const rangeParts = yearRange.split('-').map(y => parseInt(y.trim(), 10));
-
-    if (rangeParts.length === 2 && !isNaN(rangeParts[0]) && !isNaN(rangeParts[1])) {
-        return yearNum >= rangeParts[0] && yearNum <= rangeParts[1];
-    } else if (rangeParts.length === 1 && !isNaN(rangeParts[0])) {
-        // Hanterar både "2018" och "2018-"
-        return yearNum === rangeParts[0];
-    }
-    return false;
+const isYearInRange = (
+  scrapedYear: string,
+  yearRange: string | undefined | null
+): boolean => {
+  if (!yearRange) return false;
+  const yearNum = parseInt(scrapedYear, 10);
+  const rangeParts = yearRange.split("-").map(y => parseInt(y.trim(), 10));
+  if (
+    rangeParts.length === 2 &&
+    !isNaN(rangeParts[0]) &&
+    !isNaN(rangeParts[1])
+  ) {
+    return yearNum >= rangeParts[0] && yearNum <= rangeParts[1];
+  }
+  if (rangeParts.length === 1 && !isNaN(rangeParts[0])) {
+    return yearNum === rangeParts[0];
+  }
+  return false;
 };
 
-
+// --- HUVUDKOMPONENT ---
 export default function TuningViewer() {
+  // --- STATE-VARIABLER ---
   const [data, setData] = useState<Brand[]>([]);
-  const [selected, setSelected] = useState<SelectionState>({ brand: "", model: "", year: "", engine: "" });
+  const [selected, setSelected] = useState<SelectionState>({
+    brand: "",
+    model: "",
+    year: "",
+    engine: "",
+  });
   const [allVehicles, setAllVehicles] = useState<FlatVehicle[]>([]);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"card" | "dropdown">("card");
   const [isLoading, setIsLoading] = useState(true);
+  const [isDbLoading, setIsDbLoading] = useState(true);
+  const [expandedStages, setExpandedStages] = useState<Record<string, boolean>>(
+    {}
+  );
+  const [expandedOptions, setExpandedOptions] = useState<
+    Record<string, boolean>
+  >({});
+  const watermarkImageRef = useRef<HTMLImageElement | null>(null);
+  const [currentLanguage, setCurrentLanguage] = useState("sv");
+  const [allModels, setAllModels] = useState<any[]>([]);
+  const [contactModalData, setContactModalData] = useState<{
+    isOpen: boolean;
+    stageOrOption: string;
+    link: string;
+    scrollPosition?: number;
+  }>({isOpen: false, stageOrOption: "", link: ""});
+  const [infoModal, setInfoModal] = useState<{
+    open: boolean;
+    type: "stage" | "general";
+    stage?: Stage;
+  }>({open: false, type: "stage"});
+  const [allAktPlusOptions, setAllAktPlusOptions] = useState<AktPlusOption[]>(
+    []
+  );
+  const [expandedAktPlus, setExpandedAktPlus] = useState<
+    Record<string, boolean>
+  >({});
+  const [expandedDescriptions, setExpandedDescriptions] = useState<
+    Record<string, boolean>
+  >({});
 
-  const [isDbLoading, setIsDbLoading] = useState(true); 
+  // --- DATAHÄMTNING OCH SIDEEFFEKTER ---
 
+  useEffect(() => {
+    setIsLoading(true);
+    setIsDbLoading(true);
 
+    Promise.all([
+      fetch("/api/all-vehicles").then(res => res.json()),
+      fetch("/api/brands").then(res => res.json()),
+    ])
+      .then(([vehiclesData, brandsData]) => {
+        setAllVehicles(vehiclesData.vehicles || []);
+        console.log(`Hämtat ${vehiclesData.vehicles?.length || 0} fordon.`);
+        setData(brandsData.result || []);
+      })
+      .catch(error => {
+        console.error("Fel vid hämtning av initial data:", error);
+        setSearchError("Kunde inte ladda fordonsdata.");
+      })
+      .finally(() => {
+        setIsLoading(false);
+        setIsDbLoading(false);
+      });
 
+    fetch("/data/all_models.json")
+      .then(res => res.json())
+      .then(data => setAllModels(data))
+      .catch(err => console.error("Fel vid inläsning av modellbilder:", err));
+
+    const savedView = localStorage.getItem("viewMode");
+    if (savedView === "dropdown") setViewMode("dropdown");
+
+    const storedLang = localStorage.getItem("lang");
+    if (storedLang) setCurrentLanguage(storedLang);
+
+    const img = new window.Image();
+    img.src = "/ak-logo.png";
+    img.onload = () => {
+      watermarkImageRef.current = img;
+    };
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("lang", currentLanguage);
+    const fetchAktPlusOptions = async () => {
+      try {
+        const res = await fetch(`/api/aktplus-options?lang=${currentLanguage}`);
+        const json = await res.json();
+        setAllAktPlusOptions(json.options || []);
+      } catch (err) {
+        console.error("Kunde inte hämta AKT+ alternativ", err);
+      }
+    };
+    fetchAktPlusOptions();
+  }, [currentLanguage]);
+
+  useEffect(() => {
+    const fetchYears = async () => {
+      if (selected.brand && selected.model) {
+        setIsLoading(true);
+        try {
+          const res = await fetch(
+            `/api/years?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}`
+          );
+          if (!res.ok) throw new Error("Failed to fetch years");
+          const years = await res.json();
+          setData(prev =>
+            prev.map(brand =>
+              brand.name !== selected.brand
+                ? brand
+                : {
+                    ...brand,
+                    models: brand.models.map(model =>
+                      model.name !== selected.model
+                        ? model
+                        : {...model, years: years.result}
+                    ),
+                  }
+            )
+          );
+        } catch (error) {
+          console.error("Error fetching years:", error);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+    fetchYears();
+  }, [selected.brand, selected.model]);
+
+  useEffect(() => {
+    const fetchEngines = async () => {
+      if (selected.brand && selected.model && selected.year) {
+        setIsLoading(true);
+        try {
+          const res = await fetch(
+            `/api/engines?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}&year=${encodeURIComponent(selected.year)}&lang=${currentLanguage}`
+          );
+          if (!res.ok) throw new Error("Failed to fetch engines");
+          const engines = await res.json();
+          setData(prev =>
+            prev.map(brand =>
+              brand.name !== selected.brand
+                ? brand
+                : {
+                    ...brand,
+                    models: brand.models.map(model =>
+                      model.name !== selected.model
+                        ? model
+                        : {
+                            ...model,
+                            years: model.years.map(year =>
+                              year.range !== selected.year
+                                ? year
+                                : {...year, engines: engines.result}
+                            ),
+                          }
+                    ),
+                  }
+            )
+          );
+        } catch (error) {
+          console.error("Error fetching engines:", error);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+    fetchEngines();
+  }, [selected.brand, selected.model, selected.year, currentLanguage]);
+
+  const {
+    brands,
+    models,
+    years,
+    engines,
+    selectedEngine,
+    stages,
+    groupedEngines,
+  } = useMemo(() => {
+    const brands = data.map(b => b.name);
+    const modelsData = data.find(b => b.name === selected.brand)?.models || [];
+    const yearsData =
+      modelsData.find(m => m.name === selected.model)?.years || [];
+    const enginesData =
+      yearsData.find(y => y.range === selected.year)?.engines || [];
+    const currentEngine = enginesData.find(e => e.label === selected.engine);
+    const currentStages = currentEngine?.stages || [];
+    const grouped = enginesData.reduce(
+      (acc, engine) => {
+        const fuelType = engine.fuel;
+        if (!acc[fuelType]) acc[fuelType] = [];
+        acc[fuelType].push(engine);
+        return acc;
+      },
+      {} as Record<string, typeof enginesData>
+    );
+    return {
+      brands,
+      models: modelsData,
+      years: yearsData,
+      engines: enginesData,
+      selectedEngine: currentEngine,
+      stages: currentStages,
+      groupedEngines: grouped,
+    };
+  }, [data, selected]);
+
+  useEffect(() => {
+    if (stages.length > 0) {
+      const initialExpandedStates = stages.reduce(
+        (acc, stage) => {
+          acc[stage.name] = stage.name === "Steg 1";
+          return acc;
+        },
+        {} as Record<string, boolean>
+      );
+      setExpandedStages(initialExpandedStates);
+    } else {
+      setExpandedStages({});
+    }
+  }, [stages]);
+
+  // --- REGNR-MATCHNING ---
+  const handleVehicleFound = (scrapedVehicle: {
+    brand: string;
+    model: string;
+    year: string;
+    fuel: string;
+    powerHp: string;
+    engineCm3: string;
+  }) => {
+    console.log("--- STARTAR NY SÖKNING ---");
+    console.log("Mottagen skrapad data:", scrapedVehicle);
+    setSearchError(null);
+
+    if (allVehicles.length === 0) {
+      setSearchError("Fordonsdatabasen laddas, försök igen om en liten stund.");
+      return;
+    }
+
+    const scrapedHp = parseInt(scrapedVehicle.powerHp, 10);
+    const scrapedFuelNorm = normalize(scrapedVehicle.fuel);
+    const scrapedVolumeLiters = (
+      Math.round((parseInt(scrapedVehicle.engineCm3, 10) / 1000) * 10) / 10
+    ).toString();
+
+    let bestMatch: {vehicle: FlatVehicle; score: number} | null = null;
+
+    for (const vehicle of allVehicles) {
+      if (
+        !isYearInRange(scrapedVehicle.year, vehicle.yearRange) ||
+        normalize(vehicle.engineFuel) !== scrapedFuelNorm
+      ) {
+        continue;
+      }
+
+      const sanityLabel = vehicle.engineLabel;
+      const volumeMatch = sanityLabel.match(/(\d\.\d)/);
+      const hpMatch = sanityLabel.match(/(\d+)\s*hk/i);
+
+      if (!volumeMatch || !hpMatch) continue;
+
+      const sanityVolume = volumeMatch[1];
+      const sanityHp = parseInt(hpMatch[1], 10);
+
+      let score = 0;
+      if (sanityVolume === scrapedVolumeLiters) score += 100;
+      else continue;
+
+      if (Math.abs(sanityHp - scrapedHp) <= 2) score += 100;
+      else continue;
+
+      const modelNorm = normalize(vehicle.modelName);
+      const scrapedModelNorm = normalize(scrapedVehicle.model);
+      if (
+        modelNorm.startsWith(scrapedModelNorm) ||
+        scrapedModelNorm.startsWith(modelNorm)
+      )
+        score += 50;
+
+      if (score > (bestMatch?.score || 0)) {
+        bestMatch = {vehicle, score};
+      }
+    }
+
+    if (bestMatch) {
+      console.log(
+        "Bästa match hittad:",
+        bestMatch.vehicle,
+        "Poäng:",
+        bestMatch.score
+      );
+      setSelected({
+        brand: bestMatch.vehicle.brandName,
+        model: bestMatch.vehicle.modelName,
+        year: bestMatch.vehicle.yearRange,
+        engine: bestMatch.vehicle.engineLabel,
+      });
+      setSearchError(null);
+    } else {
+      console.log("Ingen teknisk match hittades.");
+      setSearchError(
+        `Vi kunde inte hitta en teknisk match för ${scrapedVehicle.brand} ${scrapedVehicle.model} (${scrapedVolumeLiters}L, ${scrapedHp}hk).`
+      );
+    }
+  };
+
+  // --- ÖVRIGA FUNKTIONER ---
   const translateStageName = (lang: string, name: string): string => {
     const match = name.match(/Steg\s?(\d+)/i);
     if (!match) return name;
-
     const stageNum = match[1];
     const translations: Record<string, string> = {
       sv: `Steg ${stageNum}`,
@@ -115,54 +413,17 @@ export default function TuningViewer() {
       da: `Stadie ${stageNum}`,
       no: `Trinn ${stageNum}`,
     };
-
     return translations[lang] || name;
   };
 
-  
-  const [expandedStages, setExpandedStages] = useState<Record<string, boolean>>(
-    {},
-  );
-  const [expandedDescriptions, setExpandedDescriptions] = useState<
-    Record<string, boolean>
-  >({});
-  const [expandedOptions, setExpandedOptions] = useState<
-    Record<string, boolean>
-  >({});
-  const watermarkImageRef = useRef<HTMLImageElement | null>(null);
-  const [currentLanguage, setCurrentLanguage] = useState("sv");
-
-  const [allModels, setAllModels] = useState<any[]>([]);
-
-  const [contactModalData, setContactModalData] = useState<{
-    isOpen: boolean;
-    stageOrOption: string;
-    link: string;
-    scrollPosition?: number;
-  }>({
-    isOpen: false,
-    stageOrOption: "",
-    link: "",
+  const Line = dynamic(() => import("react-chartjs-2").then(mod => mod.Line), {
+    ssr: false,
+    loading: () => (
+      <div className="h-96 bg-gray-800 rounded-lg animate-pulse flex items-center justify-center">
+        <p className="text-gray-400">Laddar dynobild...</p>
+      </div>
+    ),
   });
-
-  const Line = dynamic(
-    () => import("react-chartjs-2").then((mod) => mod.Line),
-    {
-      ssr: false, // Disable server-side rendering for this component
-      loading: () => (
-        <div className="h-96 bg-gray-800 rounded-lg animate-pulse flex items-center justify-center">
-          <p className="text-gray-400">Laddar dynobild...</p>
-        </div>
-      ),
-    },
-  );
-
-  const [infoModal, setInfoModal] = useState<{
-    open: boolean;
-    type: "stage" | "general";
-    stage?: Stage;
-  }>({ open: false, type: "stage" });
-
   const getStageColor = (stageName: string) => {
     const name = stageName.toLowerCase();
     if (name.includes("steg 1")) return "text-red-500";
@@ -170,7 +431,7 @@ export default function TuningViewer() {
     if (name.includes("steg 3")) return "text-purple-400";
     if (name.includes("steg 4")) return "text-yellow-400";
     if (name.includes("dsg")) return "text-blue-400";
-    return "text-white"; // fallback
+    return "text-white";
   };
 
   const slugify = (str: string) =>
@@ -180,48 +441,24 @@ export default function TuningViewer() {
       .replace(/\s+/g, "-")
       .replace(/-+/g, "-");
 
-  useEffect(() => {
-    fetch("/data/all_models.json")
-      .then((res) => res.json())
-      .then((data) => {
-        setAllModels(data);
-      })
-      .catch((err) => console.error("Fel vid inläsning av modellbilder:", err));
-  }, []);
-
   const getModelImage = (modelName: string, brandName: string): string => {
     const normalize = (str: string) => str.toLowerCase().replace(/\s+/g, "");
-
-    // Först försök exakt match
     const exactMatch = allModels.find(
-      (m) =>
+      m =>
         normalize(m.name) === normalize(modelName) &&
-        m.brand.toLowerCase() === brandName.toLowerCase(),
+        m.brand.toLowerCase() === brandName.toLowerCase()
     );
-
     if (exactMatch?.image_url) return exactMatch.image_url;
-
-    // Annars försök includes
     const fuzzyMatch = allModels.find(
-      (m) =>
+      m =>
         normalize(m.name).includes(normalize(modelName)) &&
-        m.brand.toLowerCase() === brandName.toLowerCase(),
+        m.brand.toLowerCase() === brandName.toLowerCase()
     );
-
     return (
       fuzzyMatch?.image_url ||
       "https://tcmtuning.ro/_alex/ximages/models/5_10857.png"
     );
   };
-
-  useEffect(() => {
-    const savedView = localStorage.getItem("viewMode");
-    if (savedView === "dropdown") {
-      setViewMode("dropdown");
-    } else {
-      setViewMode("card"); // default är kortvy
-    }
-  }, []);
 
   const toggleViewMode = () => {
     const newMode = viewMode === "dropdown" ? "card" : "dropdown";
@@ -237,330 +474,55 @@ export default function TuningViewer() {
 
   const handleBookNow = (
     stageOrOptionName: string,
-    event?: React.MouseEvent,
+    event?: React.MouseEvent
   ) => {
-    const selectedBrand = data.find((b) => b.name === selected.brand);
+    const selectedBrand = data.find(b => b.name === selected.brand);
     if (!selectedBrand) return;
-
     const brandSlug =
       selectedBrand.slug?.current || slugify(selectedBrand.name);
-
     const selectedModel = selectedBrand.models?.find(
-      (m) => m.name === selected.model,
+      m => m.name === selected.model
     );
     if (!selectedModel) return;
-
     const modelSlug =
       typeof selectedModel.slug === "object"
         ? selectedModel.slug.current
         : selectedModel.slug || slugify(selectedModel.name);
-
     const selectedYear = selectedModel.years?.find(
-      (y) => y.range === selected.year,
+      y => y.range === selected.year
     );
     if (!selectedYear) return;
-
     const yearSlug = selectedYear.range.includes(" ")
       ? slugify(selectedYear.range)
       : selectedYear.range;
-
     const selectedEngine = selectedYear.engines?.find(
-      (e) => e.label === selected.engine,
+      e => e.label === selected.engine
     );
     if (!selectedEngine) return;
-
     const engineSlug = selectedEngine.label.includes(" ")
       ? slugify(selectedEngine.label)
       : selectedEngine.label;
-
     const stageSlug = slugifyStage(stageOrOptionName);
-
     const finalLink = `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}#${stageSlug}`;
-
     const clickY = event?.clientY || 0;
     const scrollY = window.scrollY + clickY;
-
     const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
-
     setContactModalData({
       isOpen: true,
       stageOrOption: stageOrOptionName,
       link: finalLink,
       scrollPosition: isMobile ? undefined : 0,
     });
-    window.parent.postMessage({ scrollToIframe: true }, "*");
+    window.parent.postMessage({scrollToIframe: true}, "*");
   };
 
-  // Hämta språk från localStorage om det finns
-  useEffect(() => {
-    const storedLang = localStorage.getItem("lang");
-    if (storedLang) {
-      setCurrentLanguage(storedLang);
-    }
-  }, []);
-
-  // Spara språk till localStorage när det ändras
-  useEffect(() => {
-    localStorage.setItem("lang", currentLanguage);
-  }, [currentLanguage]);
-
-  // Load watermark image
-  useEffect(() => {
-    const img = new window.Image();
-    img.src = "/ak-logo.png";
-    img.onload = () => {
-      watermarkImageRef.current = img;
-    };
-  }, []);
-  
-  // Hämta platt lista över fordon för matchning
-useEffect(() => {
-  setIsLoading(true);
-  fetch('/api/all-vehicles')
-    .then(res => res.json())
-    .then(data => {
-      setAllVehicles(data.vehicles || []);
-      console.log(`Hämtat ${data.vehicles?.length || 0} fordon för matchning.`);
-    })
-    .catch(err => console.error("Kunde inte hämta /api/all-vehicles", err))
-    .finally(() => {
-      setIsDbLoading(false);
-    });
-}, []);
-
-// Hämta märken
-useEffect(() => {
-  const fetchBrands = async () => {
-    try {
-      const res = await fetch("/api/brands");
-      if (!res.ok) throw new Error("Failed to fetch brands");
-      const json = await res.json();
-      setData(json.result || []);
-    } catch (error) {
-      console.error("Error fetching brands:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  fetchBrands();
-}, []);
-
-  // Fetch years
-  useEffect(() => {
-    const fetchYears = async () => {
-      if (selected.brand && selected.model) {
-        setIsLoading(true);
-        try {
-          const res = await fetch(
-            `/api/years?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}`,
-          );
-          if (!res.ok) throw new Error("Failed to fetch years");
-          const years = await res.json();
-
-          setData((prev) =>
-            prev.map((brand) =>
-              brand.name !== selected.brand
-                ? brand
-                : {
-                    ...brand,
-                    models: brand.models.map((model) =>
-                      model.name !== selected.model
-                        ? model
-                        : { ...model, years: years.result },
-                    ),
-                  },
-            ),
-          );
-        } catch (error) {
-          console.error("Error fetching years:", error);
-        } finally {
-          setIsLoading(false);
-        }
-      }
-    };
-    fetchYears();
-  }, [selected.brand, selected.model]);
-
-  // Fetch engines
-  useEffect(() => {
-    const fetchEngines = async () => {
-      if (selected.brand && selected.model && selected.year) {
-        setIsLoading(true);
-        try {
-          const res = await fetch(
-            `/api/engines?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}&year=${encodeURIComponent(selected.year)}&lang=${currentLanguage}`,
-          );
-          if (!res.ok) throw new Error("Failed to fetch engines");
-          const engines = await res.json();
-
-          setData((prev) =>
-            prev.map((brand) =>
-              brand.name !== selected.brand
-                ? brand
-                : {
-                    ...brand,
-                    models: brand.models.map((model) =>
-                      model.name !== selected.model
-                        ? model
-                        : {
-                            ...model,
-                            years: model.years.map((year) =>
-                              year.range !== selected.year
-                                ? year
-                                : { ...year, engines: engines.result },
-                            ),
-                          },
-                    ),
-                  },
-            ),
-          );
-        } catch (error) {
-          console.error("Error fetching engines:", error);
-        } finally {
-          setIsLoading(false);
-        }
-      }
-    };
-    fetchEngines();
-  }, [selected.brand, selected.model, selected.year]);
-
-const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year: string; fuel: string; powerHp: string; engineCm3: string; }) => {
-    console.log("--- STARTAR NY SÖKNING ---");
-    console.log("Mottagen skrapad data:", scrapedVehicle);
-    setSearchError(null);
-
-    if (allVehicles.length === 0) {
-      setSearchError("Fordonsdatabasen laddas, försök igen om en liten stund.");
-      return;
-    }
-
-    // Konvertera skrapad data till jämförbara format
-    const scrapedHp = parseInt(scrapedVehicle.powerHp, 10);
-    const scrapedFuelNorm = normalize(scrapedVehicle.fuel);
-    // Omvandla cm³ ("1197") till en liter-sträng ("1.2")
-    const scrapedVolumeLiters = (Math.round((parseInt(scrapedVehicle.engineCm3, 10) / 1000) * 10) / 10).toString();
-
-    let bestMatch: { vehicle: FlatVehicle, score: number } | null = null;
-
-    for (const vehicle of allVehicles) {
-        // Grundkrav: År och bränsle måste stämma.
-        if (!isYearInRange(scrapedVehicle.year, vehicle.yearRange) || normalize(vehicle.engineFuel) !== scrapedFuelNorm) {
-            continue;
-        }
-
-        // Extrahera teknisk data från Sanity-motornamnet (t.ex. "1.2 TSI 105hk")
-        const sanityLabel = vehicle.engineLabel;
-        const volumeMatch = sanityLabel.match(/(\d\.\d)/); // Hittar "1.2"
-        const hpMatch = sanityLabel.match(/(\d+)\s*hk/i);   // Hittar "105"
-
-        if (!volumeMatch || !hpMatch) {
-            continue; // Gå vidare om motornamnet saknar teknisk data
-        }
-
-        const sanityVolume = volumeMatch[1];
-        const sanityHp = parseInt(hpMatch[1], 10);
-
-        let score = 0;
-
-        // Jämför de extraherade värdena
-        if (sanityVolume === scrapedVolumeLiters) {
-            score += 100;
-        } else {
-            continue; // Fel motorvolym, hoppa över
-        }
-
-        if (Math.abs(sanityHp - scrapedHp) <= 2) { // Liten tolerans för hk
-            score += 100;
-        } else {
-            continue; // Fel effekt, hoppa över
-        }
-
-        // Om vi kommer hit har vi en stark teknisk match. Ge bonuspoäng för modellnamn.
-        const modelNorm = normalize(vehicle.modelName);
-        const scrapedModelNorm = normalize(scrapedVehicle.model);
-        if (modelNorm.startsWith(scrapedModelNorm) || scrapedModelNorm.startsWith(modelNorm)) {
-            score += 50;
-        }
-
-        if (score > bestMatch?.score || !bestMatch) {
-            bestMatch = { vehicle, score };
-        }
-    }
-
-    if (bestMatch) {
-        console.log("Bästa tekniska match hittad:", bestMatch.vehicle, "Poäng:", bestMatch.score);
-        setSelected({
-            brand: bestMatch.vehicle.brandName,
-            model: bestMatch.vehicle.modelName,
-            year: bestMatch.vehicle.yearRange,
-            engine: bestMatch.vehicle.engineLabel
-        });
-        setSearchError(null);
-    } else {
-        console.log("Inga tekniskt matchande kandidater hittades.");
-        setSearchError(`Vi kunde inte hitta en teknisk match för ${scrapedVehicle.brand} ${scrapedVehicle.model} (${scrapedVolumeLiters}L, ${scrapedHp}hk).`);
-    }
-  };
-  
- 
-
-    
-  const {
-    brands,
-    models,
-    years,
-    engines,
-    selectedEngine,
-    stages,
-    groupedEngines,
-  } = useMemo(() => {
-    const brands = data.map((b) => b.name);
-    const models = data.find((b) => b.name === selected.brand)?.models || [];
-    const years = models.find((m) => m.name === selected.model)?.years || [];
-    const engines = years.find((y) => y.range === selected.year)?.engines || [];
-    const selectedEngine = engines.find((e) => e.label === selected.engine);
-    const stages = selectedEngine?.stages || [];
-
-    const groupedEngines = engines.reduce(
-      (acc, engine) => {
-        const fuelType = engine.fuel;
-        if (!acc[fuelType]) acc[fuelType] = [];
-        acc[fuelType].push(engine);
-        return acc;
-      },
-      {} as Record<string, typeof engines>,
-    );
-
-    return {
-      brands,
-      models,
-      years,
-      engines,
-      selectedEngine,
-      stages,
-      groupedEngines,
-    };
-  }, [data, selected]);
-
-  useEffect(() => {
-    if (stages.length > 0) {
-      const initialExpandedStates = stages.reduce(
-        (acc, stage) => {
-          acc[stage.name] = stage.name === "Steg 1";
-          return acc;
-        },
-        {} as Record<string, boolean>,
-      );
-      setExpandedStages(initialExpandedStates);
-    }
-  }, [stages]);
-
+  // --- FIX: Added 'id' to plugin objects ---
   const watermarkPlugin = {
-    id: "watermark",
+    id: "watermark", // Unique ID for the watermark plugin
     beforeDraw: (chart: ChartJS) => {
       const ctx = chart.ctx;
       const {
-        chartArea: { top, left, width, height },
+        chartArea: {top, left, width, height},
       } = chart;
 
       if (watermarkImageRef.current?.complete) {
@@ -583,10 +545,11 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
       }
     },
   };
+
   const shadowPlugin = {
-    id: "shadowPlugin",
+    id: "shadowPlugin", // Unique ID for the shadow plugin
     beforeDatasetDraw(chart: ChartJS, args: any, options: any) {
-      const { ctx } = chart;
+      const {ctx} = chart;
       const dataset = chart.data.datasets[args.index];
 
       ctx.save();
@@ -599,6 +562,7 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
       chart.ctx.restore();
     },
   };
+  // --- END FIX ---
 
   const isExpandedAktPlusOption = (item: any): item is AktPlusOption => {
     return item && "_id" in item && "title" in item;
@@ -607,38 +571,34 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
   const getAllAktPlusOptions = useMemo(
     () => (stage: Stage) => {
       if (!selectedEngine) return [];
-
       const combinedOptions: AktPlusOptionReference[] = [
         ...(selectedEngine.globalAktPlusOptions || []),
         ...(stage.aktPlusOptions || []),
       ];
-
       const uniqueOptionsMap = new Map<string, AktPlusOption>();
-
       (combinedOptions as AktPlusOptionReference[])
         .filter(isExpandedAktPlusOption)
-        .forEach((opt) => {
+        .forEach(opt => {
           if (
             (opt.isUniversal ||
               opt.applicableFuelTypes?.includes(selectedEngine.fuel) ||
               opt.manualAssignments?.some(
-                (ref) => ref._ref === selectedEngine._id,
+                ref => ref._ref === selectedEngine._id
               )) &&
             (!opt.stageCompatibility || opt.stageCompatibility === stage.name)
           ) {
             uniqueOptionsMap.set(opt._id, opt);
           }
         });
-
       return Array.from(uniqueOptionsMap.values());
     },
-    [selectedEngine],
+    [selectedEngine]
   );
 
   const generateDynoCurve = (
     peakValue: number,
     isHp: boolean,
-    fuelType: string,
+    fuelType: string
   ) => {
     const rpmRange = fuelType.toLowerCase().includes("diesel")
       ? [1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000]
@@ -649,7 +609,7 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
       : Math.floor(rpmRange.length * 0.4);
     const startIndex = 0;
 
-    return rpmRange.map((rpm) => {
+    return rpmRange.map(rpm => {
       const startRpm = rpmRange[startIndex];
       const peakRpm = rpmRange[peakIndex];
       const endRpm = rpmRange[rpmRange.length - 1];
@@ -681,46 +641,42 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
       ];
 
   const toggleStage = (stageName: string) => {
-    setExpandedStages((prev) => {
+    setExpandedStages(prev => {
       const newState: Record<string, boolean> = {};
-      Object.keys(prev).forEach((key) => {
+      Object.keys(prev).forEach(key => {
         newState[key] = key === stageName ? !prev[key] : false;
       });
       return newState;
     });
   };
-
   const toggleOption = (optionId: string) => {
-    setExpandedOptions((prev) => {
+    setExpandedOptions(prev => {
       const newState: Record<string, boolean> = {};
       newState[optionId] = !prev[optionId];
       return newState;
     });
   };
   const handleBrandChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelected({ brand: e.target.value, model: "", year: "", engine: "" });
+    setSelected({brand: e.target.value, model: "", year: "", engine: ""});
   };
-
   const handleModelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelected((prev) => ({
+    setSelected(prev => ({
       ...prev,
       model: e.target.value,
       year: "",
       engine: "",
     }));
   };
-
   const handleYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelected((prev) => ({ ...prev, year: e.target.value, engine: "" }));
+    setSelected(prev => ({...prev, year: e.target.value, engine: ""}));
   };
-
   const handleEngineChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelected((prev) => ({ ...prev, engine: e.target.value }));
+    setSelected(prev => ({...prev, engine: e.target.value}));
   };
 
   const portableTextComponents = {
     types: {
-      image: ({ value }: any) => (
+      image: ({value}: any) => (
         <img
           src={urlFor(value).width(100).url()}
           alt={value.alt || ""}
@@ -729,7 +685,7 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
       ),
     },
     marks: {
-      link: ({ children, value }: any) => (
+      link: ({children, value}: any) => (
         <a
           href={value.href}
           className="text-blue-400 hover:text-blue-300 underline"
@@ -740,35 +696,9 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
     },
   };
 
-  const [allAktPlusOptions, setAllAktPlusOptions] = useState<AktPlusOption[]>(
-    [],
-  );
-
-  useEffect(() => {
-    const fetchAktPlusOptions = async () => {
-      try {
-        const res = await fetch(`/api/aktplus-options?lang=${currentLanguage}`);
-        const json = await res.json();
-        setAllAktPlusOptions(json.options || []);
-      } catch (err) {
-        console.error("Kunde inte hämta AKT+ alternativ", err);
-      }
-    };
-
-    fetchAktPlusOptions();
-  }, [currentLanguage]);
-
-  const [expandedAktPlus, setExpandedAktPlus] = useState<
-    Record<string, boolean>
-  >({});
-
   const toggleAktPlus = (stageName: string) => {
-    setExpandedAktPlus((prev) => ({
-      ...prev,
-      [stageName]: !prev[stageName],
-    }));
+    setExpandedAktPlus(prev => ({...prev, [stageName]: !prev[stageName]}));
   };
-
   return (
     <>
       <Head>
@@ -817,7 +747,7 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
             src="/ak-logo-svart.png"
             fetchPriority="high"
             alt="AK-TUNING"
-            style={{ height: "80px", cursor: "pointer" }}
+            style={{height: "80px", cursor: "pointer"}}
             className="h-auto max-h-20 w-auto max-w-[500px] object-contain"
             loading="lazy"
             onClick={() => window.location.reload()}
@@ -844,26 +774,24 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
           </button>
         </div>
 
-    {/* 
-{isDbLoading ? (
-  <div className="text-gray-400 text-sm mb-4">
-    Fordonsdatabasen laddas...
-  </div>
-) : (
-  <RegnrSearch
-    onVehicleFound={handleVehicleFound}
-    onError={setSearchError}
-    disabled={isDbLoading}
-  />
-)}
-*/}
+        {isLoading ? (
+          <div className="text-gray-400 text-sm mb-4">
+            Fordonsdatabasen laddas...
+          </div>
+        ) : (
+          <RegnrSearch
+            onVehicleFound={handleVehicleFound}
+            onError={setSearchError}
+            disabled={isLoading}
+          />
+        )}
 
-{/* Visa ett centralt felmeddelande om sökningen misslyckas */}
-{searchError && !selected.brand && (
-  <div className="text-center p-4 mb-4 bg-red-900/50 border border-red-700 rounded-lg">
-    <p className="text-white">{searchError}</p>
-  </div>
-)}
+        {/* Visa ett centralt felmeddelande om sökningen misslyckas */}
+        {searchError && !selected.brand && (
+          <div className="text-center p-4 mb-4 bg-red-900/50 border border-red-700 rounded-lg">
+            <p className="text-white">{searchError}</p>
+          </div>
+        )}
 
         <div className="mb-4">
           <p className="text-black text-center text-lg font-semibold">
@@ -895,14 +823,14 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
                   {translate(currentLanguage, "selectBrand")}
                 </option>
                 {[...brands]
-                  .filter((b) => !b.startsWith("[LASTBIL]"))
+                  .filter(b => !b.startsWith("[LASTBIL]"))
                   .sort((a, b) => a.localeCompare(b))
                   .concat(
                     brands
-                      .filter((b) => b.startsWith("[LASTBIL]"))
-                      .sort((a, b) => a.localeCompare(b)),
+                      .filter(b => b.startsWith("[LASTBIL]"))
+                      .sort((a, b) => a.localeCompare(b))
                   )
-                  .map((brand) => (
+                  .map(brand => (
                     <option key={brand} value={brand}>
                       {brand}
                     </option>
@@ -932,7 +860,7 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
                 <option value="">
                   {translate(currentLanguage, "selectModel")}
                 </option>
-                {models.map((m) => (
+                {models.map(m => (
                   <option key={m.name} value={m.name}>
                     {m.name}
                   </option>
@@ -962,7 +890,7 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
                 <option value="">
                   {translate(currentLanguage, "selectYear")}
                 </option>
-                {years.map((y) => (
+                {years.map(y => (
                   <option key={y.range} value={y.range}>
                     {y.range}
                   </option>
@@ -1002,7 +930,7 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
                     }
                     key={fuelType}
                   >
-                    {engines.map((engine) => (
+                    {engines.map(engine => (
                       <option key={engine.label} value={engine.label}>
                         {engine.label}
                       </option>
@@ -1029,10 +957,10 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
                   </h3>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                     {brands
-                      .filter((b) => !b.startsWith("[LASTBIL]"))
+                      .filter(b => !b.startsWith("[LASTBIL]"))
                       .sort((a, b) => a.localeCompare(b))
-                      .map((brand) => {
-                        const brandData = data.find((b) => b.name === brand);
+                      .map(brand => {
+                        const brandData = data.find(b => b.name === brand);
                         const logoUrl = brandData?.logo?.asset
                           ? urlFor(brandData.logo).width(100).url()
                           : null;
@@ -1049,8 +977,8 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
                               });
                               // Denna rad skickar meddelandet för att skrolla upp
                               window.parent.postMessage(
-                                { scrollToIframe: true },
-                                "*",
+                                {scrollToIframe: true},
+                                "*"
                               );
                             }}
                             className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
@@ -1081,9 +1009,9 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
                   </h3>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                     {brands
-                      .filter((b) => b.startsWith("[LASTBIL]"))
+                      .filter(b => b.startsWith("[LASTBIL]"))
                       .sort((a, b) => a.localeCompare(b))
-                      .map((brand) => (
+                      .map(brand => (
                         <div
                           key={brand}
                           onClick={() => {
@@ -1095,16 +1023,16 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
                             });
                             // FIX: Lade till postMessage här
                             window.parent.postMessage(
-                              { scrollToIframe: true },
-                              "*",
+                              {scrollToIframe: true},
+                              "*"
                             );
                           }}
                           className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
                         >
-                          {data.find((b) => b.name === brand)?.logo?.asset && (
+                          {data.find(b => b.name === brand)?.logo?.asset && (
                             <Image
                               src={urlFor(
-                                data.find((b) => b.name === brand)?.logo,
+                                data.find(b => b.name === brand)?.logo
                               )
                                 .width(100)
                                 .url()}
@@ -1129,9 +1057,9 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
               <>
                 <button
                   onClick={() => {
-                    setSelected({ brand: "", model: "", year: "", engine: "" });
+                    setSelected({brand: "", model: "", year: "", engine: ""});
                     // Denna rad skickar meddelandet för att skrolla upp
-                    window.parent.postMessage({ scrollToIframe: true }, "*");
+                    window.parent.postMessage({scrollToIframe: true}, "*");
                   }}
                   className="group flex items-center gap-1 mb-4 text-blue-600 hover:text-blue-800 transition-colors duration-200"
                 >
@@ -1179,21 +1107,18 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
                   </h2>
                 </h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                  {models.map((model) => (
+                  {models.map(model => (
                     <div
                       key={model.name}
                       onClick={() => {
-                        setSelected((prev) => ({
+                        setSelected(prev => ({
                           ...prev,
                           model: model.name,
                           year: "",
                           engine: "",
                         }));
                         // FIX: Lade till postMessage här
-                        window.parent.postMessage(
-                          { scrollToIframe: true },
-                          "*",
-                        );
+                        window.parent.postMessage({scrollToIframe: true}, "*");
                       }}
                       className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
                     >
@@ -1225,14 +1150,14 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
               <>
                 <button
                   onClick={() => {
-                    setSelected((prev) => ({
+                    setSelected(prev => ({
                       ...prev,
                       model: "",
                       year: "",
                       engine: "",
                     }));
                     // FIX: Lade till postMessage här
-                    window.parent.postMessage({ scrollToIframe: true }, "*");
+                    window.parent.postMessage({scrollToIframe: true}, "*");
                   }}
                   className="group flex items-center gap-1 mb-4 text-blue-600 hover:text-blue-800 transition-colors duration-200"
                 >
@@ -1282,20 +1207,17 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
                   </h2>
                 </h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                  {years.map((year) => (
+                  {years.map(year => (
                     <div
                       key={year.range}
                       onClick={() => {
-                        setSelected((prev) => ({
+                        setSelected(prev => ({
                           ...prev,
                           year: year.range,
                           engine: "",
                         }));
                         // FIX: Lade till postMessage här
-                        window.parent.postMessage(
-                          { scrollToIframe: true },
-                          "*",
-                        );
+                        window.parent.postMessage({scrollToIframe: true}, "*");
                       }}
                       className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
                     >
@@ -1316,13 +1238,13 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
                 <>
                   <button
                     onClick={() => {
-                      setSelected((prev) => ({
+                      setSelected(prev => ({
                         ...prev,
                         year: "",
                         engine: "",
                       }));
                       // FIX: Lade till postMessage här
-                      window.parent.postMessage({ scrollToIframe: true }, "*");
+                      window.parent.postMessage({scrollToIframe: true}, "*");
                     }}
                     className="group flex items-center gap-1 mb-4 text-blue-600 hover:text-blue-800 transition-colors duration-200"
                   >
@@ -1373,30 +1295,27 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
                   </h2>
 
                   {/* Diesel engines */}
-                  {engines.filter((e) =>
-                    e.fuel.toLowerCase().includes("diesel"),
-                  ).length > 0 && (
+                  {engines.filter(e => e.fuel.toLowerCase().includes("diesel"))
+                    .length > 0 && (
                     <div className="mb-6">
                       <h3 className="text-md font-semibold mb-3 text-gray-700 bg-gray-100 px-3 py-2 rounded-md">
                         {translate(currentLanguage, "fuelDiesel")}
                       </h3>
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                         {engines
-                          .filter((e) =>
-                            e.fuel.toLowerCase().includes("diesel"),
-                          )
-                          .map((engine) => (
+                          .filter(e => e.fuel.toLowerCase().includes("diesel"))
+                          .map(engine => (
                             <div
                               key={engine.label}
                               onClick={() => {
-                                setSelected((prev) => ({
+                                setSelected(prev => ({
                                   ...prev,
                                   engine: engine.label,
                                 }));
                                 // FIX: Lade till postMessage här
                                 window.parent.postMessage(
-                                  { scrollToIframe: true },
-                                  "*",
+                                  {scrollToIframe: true},
+                                  "*"
                                 );
                               }}
                               className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
@@ -1411,30 +1330,27 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
                   )}
 
                   {/* Petrol engines */}
-                  {engines.filter((e) =>
-                    e.fuel.toLowerCase().includes("bensin"),
-                  ).length > 0 && (
+                  {engines.filter(e => e.fuel.toLowerCase().includes("bensin"))
+                    .length > 0 && (
                     <div className="mb-6">
                       <h3 className="text-md font-semibold mb-3 text-gray-700 bg-gray-100 px-3 py-2 rounded-md">
                         {translate(currentLanguage, "fuelPetrol")}
                       </h3>
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                         {engines
-                          .filter((e) =>
-                            e.fuel.toLowerCase().includes("bensin"),
-                          )
-                          .map((engine) => (
+                          .filter(e => e.fuel.toLowerCase().includes("bensin"))
+                          .map(engine => (
                             <div
                               key={engine.label}
                               onClick={() => {
-                                setSelected((prev) => ({
+                                setSelected(prev => ({
                                   ...prev,
                                   engine: engine.label,
                                 }));
                                 // FIX: Lade till postMessage här
                                 window.parent.postMessage(
-                                  { scrollToIframe: true },
-                                  "*",
+                                  {scrollToIframe: true},
+                                  "*"
                                 );
                               }}
                               className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
@@ -1450,9 +1366,9 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
 
                   {/* Other engines */}
                   {engines.filter(
-                    (e) =>
+                    e =>
                       !e.fuel.toLowerCase().includes("diesel") &&
-                      !e.fuel.toLowerCase().includes("bensin"),
+                      !e.fuel.toLowerCase().includes("bensin")
                   ).length > 0 && (
                     <div className="mb-6">
                       <h3 className="text-md font-semibold mb-3 text-gray-700 bg-gray-100 px-3 py-2 rounded-md">
@@ -1461,22 +1377,22 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                         {engines
                           .filter(
-                            (e) =>
+                            e =>
                               !e.fuel.toLowerCase().includes("diesel") &&
-                              !e.fuel.toLowerCase().includes("bensin"),
+                              !e.fuel.toLowerCase().includes("bensin")
                           )
-                          .map((engine) => (
+                          .map(engine => (
                             <div
                               key={engine.label}
                               onClick={() => {
-                                setSelected((prev) => ({
+                                setSelected(prev => ({
                                   ...prev,
                                   engine: engine.label,
                                 }));
                                 // FIX: Lade till postMessage här
                                 window.parent.postMessage(
-                                  { scrollToIframe: true },
-                                  "*",
+                                  {scrollToIframe: true},
+                                  "*"
                                 );
                               }}
                               className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
@@ -1500,7 +1416,7 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
           </div>
         ) : stages.length > 0 ? (
           <div className="space-y-6">
-            {stages.map((stage) => {
+            {stages.map(stage => {
               const isDsgStage = stage.name.toLowerCase().includes("dsg");
               const allOptions = getAllAktPlusOptions(stage);
               const isExpanded = expandedStages[stage.name] ?? false;
@@ -1516,11 +1432,11 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
                   >
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                       <div className="flex items-center gap-4">
-                        {data.find((b) => b.name === selected.brand)?.logo
+                        {data.find(b => b.name === selected.brand)?.logo
                           ?.asset && (
                           <img
                             src={urlFor(
-                              data.find((b) => b.name === selected.brand)?.logo,
+                              data.find(b => b.name === selected.brand)?.logo
                             )
                               .width(60)
                               .url()}
@@ -1555,7 +1471,7 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
                             <br />
                             {translate(
                               currentLanguage,
-                              "stageContactForHardware",
+                              "stageContactForHardware"
                             )}
                           </p>
                         )}
@@ -1660,7 +1576,7 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
                               {translate(
                                 currentLanguage,
                                 "translateStageName",
-                                stage.name,
+                                stage.name
                               )}{" "}
                               HK
                             </p>
@@ -1684,7 +1600,7 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
                               {translate(
                                 currentLanguage,
                                 "translateStageName",
-                                stage.name,
+                                stage.name
                               )}{" "}
                               NM
                             </p>
@@ -1701,7 +1617,7 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
                       <div className="flex flex-col sm:flex-row gap-4 mt-4">
                         <button
                           onClick={() =>
-                            setInfoModal({ open: true, type: "stage", stage })
+                            setInfoModal({open: true, type: "stage", stage})
                           }
                           className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg shadow"
                         >
@@ -1709,7 +1625,7 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
                           {translate(
                             currentLanguage,
                             "translateStageName",
-                            stage.name,
+                            stage.name
                           ).toUpperCase()}{" "}
                           {translate(currentLanguage, "infoStage")}
                         </button>
@@ -1726,7 +1642,7 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
 
                         <button
                           onClick={() =>
-                            setInfoModal({ open: true, type: "general" })
+                            setInfoModal({open: true, type: "general"})
                           }
                           className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg shadow"
                         >
@@ -1774,7 +1690,7 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
                             {translate(
                               currentLanguage,
                               "translateStageName",
-                              stage.name,
+                              stage.name
                             ).toUpperCase()}{" "}
                           </h3>
                         )}
@@ -1863,7 +1779,7 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
                                     data: generateDynoCurve(
                                       stage.origHk,
                                       true,
-                                      selectedEngine.fuel,
+                                      selectedEngine.fuel
                                     ),
                                     borderColor: "#f87171",
                                     backgroundColor: "transparent",
@@ -1878,7 +1794,7 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
                                     data: generateDynoCurve(
                                       stage.tunedHk,
                                       true,
-                                      selectedEngine.fuel,
+                                      selectedEngine.fuel
                                     ),
                                     borderColor: "#f87171",
                                     backgroundColor: "#f87171",
@@ -1892,7 +1808,7 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
                                     data: generateDynoCurve(
                                       stage.origNm,
                                       false,
-                                      selectedEngine.fuel,
+                                      selectedEngine.fuel
                                     ),
                                     borderColor: "#d1d5db",
                                     backgroundColor: "transparent",
@@ -1907,7 +1823,7 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
                                     data: generateDynoCurve(
                                       stage.tunedNm,
                                       false,
-                                      selectedEngine.fuel,
+                                      selectedEngine.fuel
                                     ),
                                     borderColor: "#d1d5db",
                                     backgroundColor: "transparent",
@@ -1972,7 +1888,7 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
                                       display: true,
                                       text: "EFFEKT",
                                       color: "white",
-                                      font: { size: 14 },
+                                      font: {size: 14},
                                     },
                                     min: 0,
                                     max:
@@ -1984,7 +1900,7 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
                                     ticks: {
                                       color: "#9CA3AF",
                                       stepSize: 100,
-                                      callback: (value) => `${value}`,
+                                      callback: value => `${value}`,
                                     },
                                   },
                                   nm: {
@@ -1995,7 +1911,7 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
                                       display: true,
                                       text: "VRIDMOMENT",
                                       color: "white",
-                                      font: { size: 14 },
+                                      font: {size: 14},
                                     },
                                     min: 0,
                                     max:
@@ -2007,7 +1923,7 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
                                     ticks: {
                                       color: "#9CA3AF",
                                       stepSize: 100,
-                                      callback: (value) => `${value}`,
+                                      callback: value => `${value}`,
                                     },
                                   },
                                   x: {
@@ -2015,7 +1931,7 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
                                       display: true,
                                       text: "RPM",
                                       color: "#E5E7EB",
-                                      font: { size: 14 },
+                                      font: {size: 14},
                                     },
                                     grid: {
                                       color: "rgba(255, 255, 255, 0.1)",
@@ -2050,7 +1966,7 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
                                   {stage.name
                                     .replace(
                                       "Steg",
-                                      translate(currentLanguage, "stageLabel"),
+                                      translate(currentLanguage, "stageLabel")
                                     )
                                     .toUpperCase()}
                                 </span>
@@ -2160,7 +2076,7 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
                           {/* Expandable AKT+ Grid */}
                           {expandedAktPlus[stage.name] && (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                              {allOptions.map((option) => {
+                              {allOptions.map(option => {
                                 const translatedTitle =
                                   option.title?.[currentLanguage] ||
                                   option.title?.sv ||
@@ -2232,7 +2148,7 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
                                             <p className="font-bold text-green-400">
                                               {translate(
                                                 currentLanguage,
-                                                "priceLabel",
+                                                "priceLabel"
                                               )}
                                               : {option.price.toLocaleString()}{" "}
                                               kr
@@ -2248,7 +2164,7 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
                                             📩{" "}
                                             {translate(
                                               currentLanguage,
-                                              "contactvalue",
+                                              "contactvalue"
                                             )}
                                           </button>
                                         </div>
@@ -2273,7 +2189,7 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
         <ContactModal
           isOpen={contactModalData.isOpen}
           onClose={() =>
-            setContactModalData({ isOpen: false, stageOrOption: "", link: "" })
+            setContactModalData({isOpen: false, stageOrOption: "", link: ""})
           }
           selectedVehicle={{
             brand: selected.brand,
@@ -2287,12 +2203,12 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
         />
         <InfoModal
           isOpen={infoModal.open}
-          onClose={() => setInfoModal({ open: false, type: infoModal.type })}
+          onClose={() => setInfoModal({open: false, type: infoModal.type})}
           title={
             infoModal.type === "stage"
               ? translate(currentLanguage, "stageInfoPrefix").replace(
                   "{number}",
-                  infoModal.stage?.name.replace(/\D/g, "") || "",
+                  infoModal.stage?.name.replace(/\D/g, "") || ""
                 )
               : translate(currentLanguage, "generalInfoLabel")
           }
