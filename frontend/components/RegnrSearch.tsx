@@ -1,5 +1,5 @@
 // components/RegnrSearch.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 type OnVehicleFound = (vehicle: {
   brand: string;
@@ -26,6 +26,14 @@ export default function RegnrSearch({
   const [error, setError] = useState<string | null>(null);
   const isValidSwedishReg = (reg: string) =>
     /^[A-Z]{3}\d{2}[A-Z0-9]{1}$/.test(reg);
+
+  useEffect(() => {
+    if (regnr && !isValidSwedishReg(regnr)) {
+      setError("Ogiltigt registreringsnummer (format: ABC12D).");
+    } else {
+      setError(null);
+    }
+  }, [regnr]);
 
   const handleSearch = async () => {
     if (!regnr || disabled) return;
