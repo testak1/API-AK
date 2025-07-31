@@ -954,7 +954,7 @@ export default function TuningViewer() {
 
       <div className="w-full max-w-6xl mx-auto px-2 py-4 sm:px-4">
         {/* TOPBAR: logga, regnr, språk + vy */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between relative">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between relative mb-8">
           {/* Vänster: Logga */}
           <div className="flex justify-between items-center">
             <img
@@ -991,7 +991,7 @@ export default function TuningViewer() {
 
           {/* Mitten (desktop), under (mobil): REGNR */}
           {!selected.brand && !isDbLoading && (
-            <div className="mt-4 sm:mt-20 sm:absolute sm:top-0 sm:left-1/2 sm:-translate-x-1/2">
+            <div className="mt-4 sm:absolute sm:top-0 sm:left-1/2 sm:-translate-x-1/2">
               <div className="mx-auto max-w-md">
                 <RegnrSearch
                   onVehicleFound={handleVehicleFound}
