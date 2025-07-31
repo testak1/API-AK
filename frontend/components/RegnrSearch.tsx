@@ -54,8 +54,10 @@ export default function RegnrSearch({
         );
       }
 
-      // STEG 2: Leta *endast inuti* sammanfattningssektionen
-      const h1 = summarySection.querySelector<HTMLElement>("h1");
+      // STEG 2: Leta *endast inuti* sammanfattningssektionen med en mer specifik selektor
+      const h1 = summarySection.querySelector<HTMLElement>(
+        ".bar.summary .info h1"
+      );
       const iconGrid =
         summarySection.querySelector<HTMLElement>("ul.icon-grid");
 
