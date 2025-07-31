@@ -965,12 +965,14 @@ export default function TuningViewer() {
           />
 
           {!selected.brand && !isDbLoading && (
-            <div className="absolute left-1/2 transform -translate-x-1/2 top-0 mt-2 w-[320px]">
-              <RegnrSearch
-                onVehicleFound={handleVehicleFound}
-                onError={setSearchError}
-                disabled={false}
-              />
+            <div className="w-full flex justify-center mt-4 sm:mt-0">
+              <div className="w-full px-4 sm:w-auto sm:absolute sm:top-4 sm:left-1/2 sm:-translate-x-1/2 z-50">
+                <RegnrSearch
+                  onVehicleFound={handleVehicleFound}
+                  onError={setSearchError}
+                  disabled={isDbLoading}
+                />
+              </div>
             </div>
           )}
 

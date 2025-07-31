@@ -124,7 +124,7 @@ export default function RegnrSearch({
   };
 
   return (
-    <details className="mb-8 rounded-xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 border border-gray-700 shadow-lg group overflow-hidden">
+    <details className="max-w-md mx-auto mb-8 rounded-xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 border border-gray-700 shadow-lg group overflow-hidden">
       <summary className="p-4 flex justify-between items-center cursor-pointer list-none select-none transition-all hover:bg-gray-800">
         <div className="flex items-center gap-3">
           <svg
