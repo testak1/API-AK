@@ -58,6 +58,10 @@ interface FlatVehicle {
   yearRange: string;
   modelName: string;
   brandName: string;
+  brandSlug?: string;
+  modelSlug?: string;
+  yearSlug?: string;
+  engineSlug?: string;
 }
 
 // --- HJÄLPFUNKTIONER ---
@@ -358,21 +362,66 @@ export default function TuningViewer() {
       Math.round((parseInt(scrapedVehicle.engineCm3, 10) / 1000) * 10) / 10
     ).toString();
 
+    // Generate slugs from scraped data (similar to your engine.tsx logic)
+    const generateSlug = (str: string) =>
+      str
+        .toLowerCase()
+        .replace(/[^\w\s-]/g, "")
+        .replace(/\s+/g, "-")
+        .replace(/-+/g, "-");
+
+    const scrapedBrandSlug = generateSlug(scrapedVehicle.brand);
+    const scrapedModelSlug = generateSlug(
+      scrapedVehicle.model.replace(/tdi|fsi|gti|r|4motion|quattro|cr/gi, "")
+    );
+    const scrapedYearSlug = scrapedVehicle.year.includes(" ")
+      ? generateSlug(scrapedVehicle.year)
+      : scrapedVehicle.year;
+
     let bestMatch: {vehicle: FlatVehicle; score: number} | null = null;
 
     for (const vehicle of allVehicles) {
-      // Must match brand first - this was missing in original code
-      if (normalize(vehicle.brandName) !== normalize(scrapedVehicle.brand)) {
+      // First check if we have slugs to match against
+      const hasSlugs =
+        vehicle.brandSlug && vehicle.modelSlug && vehicle.yearSlug;
+
+      let brandMatch = false;
+      let modelMatch = false;
+      let yearMatch = isYearInRange(scrapedVehicle.year, vehicle.yearRange);
+      let fuelMatch = normalize(vehicle.engineFuel) === scrapedFuelNorm;
+
+      // Try slug matching first if available
+      if (hasSlugs) {
+        brandMatch = vehicle.brandSlug === scrapedBrandSlug;
+        modelMatch = vehicle.modelSlug === scrapedModelSlug;
+        // Year matching is already handled by isYearInRange
+      }
+      // Fallback to name matching
+      else {
+        brandMatch =
+          normalize(vehicle.brandName) === normalize(scrapedVehicle.brand);
+
+        // More flexible model matching
+        const vehicleModelNorm = normalize(vehicle.modelName).replace(
+          /tdi|fsi|gti|r|4motion|quattro|cr/gi,
+          ""
+        );
+        const scrapedModelNorm = normalize(scrapedVehicle.model).replace(
+          /tdi|fsi|gti|r|4motion|quattro|cr/gi,
+          ""
+        );
+
+        modelMatch =
+          vehicleModelNorm === scrapedModelNorm ||
+          vehicleModelNorm.includes(scrapedModelNorm) ||
+          scrapedModelNorm.includes(vehicleModelNorm);
+      }
+
+      if (!brandMatch || !modelMatch || !yearMatch || !fuelMatch) {
         continue;
       }
 
-      if (
-        !isYearInRange(scrapedVehicle.year, vehicle.yearRange) ||
-        normalize(vehicle.engineFuel) !== scrapedFuelNorm
-      ) {
-        continue;
-      }
-
+      // Engine spec matching (same as before)
       const sanityLabel = vehicle.engineLabel;
       const volumeMatch =
         sanityLabel.match(/(\d[,.]\d)/) || sanityLabel.match(/\d\s?l/i);
@@ -389,12 +438,11 @@ export default function TuningViewer() {
 
       let score = 0;
 
-      // Brand match (required) - add significant weight
-      if (normalize(vehicle.brandName) === normalize(scrapedVehicle.brand)) {
-        score += 200; // Brand match is most important
-      } else {
-        continue; // Skip if brand doesn't match
-      }
+      // Brand match is most important
+      score += 200;
+
+      // Model match - higher score if using slugs
+      score += hasSlugs ? 150 : 100;
 
       // Volume matching
       if (
@@ -410,32 +458,6 @@ export default function TuningViewer() {
       if (Math.abs(sanityHp - scrapedHp) <= 5) {
         score += 100;
       } else {
-        continue;
-      }
-
-      // Model name matching - more flexible
-      const modelNorm = normalize(vehicle.modelName);
-      const scrapedModelNorm = normalize(scrapedVehicle.model);
-
-      // Remove common suffixes
-      const cleanModelNorm = modelNorm.replace(
-        /tdi|fsi|gti|r|4motion|quattro|cr/gi,
-        ""
-      );
-      const cleanScrapedModelNorm = scrapedModelNorm.replace(
-        /tdi|fsi|gti|r|4motion|quattro|cr/gi,
-        ""
-      );
-
-      if (cleanModelNorm === cleanScrapedModelNorm) {
-        score += 150; // Exact model match
-      } else if (
-        cleanModelNorm.includes(cleanScrapedModelNorm) ||
-        cleanScrapedModelNorm.includes(cleanModelNorm)
-      ) {
-        score += 100; // Partial match
-      } else {
-        // No model match at all - skip this vehicle
         continue;
       }
 
@@ -460,20 +482,8 @@ export default function TuningViewer() {
       setSearchError(null);
     } else {
       console.log("Ingen teknisk match hittades.");
-      // Show potential matches for debugging
-      const potentialMatches = allVehicles
-        .filter(v => normalize(v.brandName) === normalize(scrapedVehicle.brand))
-        .map(v => ({
-          brand: v.brandName,
-          model: v.modelName,
-          engine: v.engineLabel,
-          year: v.yearRange,
-          fuel: v.engineFuel,
-        }));
-      console.log("Potentiella matchningar för märke:", potentialMatches);
-
       setSearchError(
-        `Vi kunde inte hitta en teknisk match för ${scrapedVehicle.brand} ${scrapedVehicle.model} (${scrapedVolumeLiters}L, ${scrapedHp}hk). Kontrollera att fordonet finns i vår databas.`
+        `Vi kunde inte hitta en teknisk match för ${scrapedVehicle.brand} ${scrapedVehicle.model} (${scrapedVolumeLiters}L, ${scrapedHp}hk).`
       );
     }
   };
