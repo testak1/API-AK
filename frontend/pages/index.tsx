@@ -985,17 +985,19 @@ export default function TuningViewer() {
           </button>
         </div>
 
-        {isDbLoading ? (
-          <div className="text-gray-400 text-sm mb-4">
-            Fordonsdatabasen laddas...
-          </div>
-        ) : (
-          <RegnrSearch
-            onVehicleFound={handleVehicleFound}
-            onError={setSearchError}
-            disabled={false} // ← viktigt, då isDbLoading redan är false
-          />
-        )}
+        {!selected.brand ? (
+          isDbLoading ? (
+            <div className="text-gray-400 text-sm mb-4">
+              Fordonsdatabasen laddas...
+            </div>
+          ) : (
+            <RegnrSearch
+              onVehicleFound={handleVehicleFound}
+              onError={setSearchError}
+              disabled={false}
+            />
+          )
+        ) : null}
 
         {/* Visa ett centralt felmeddelande om sökningen misslyckas */}
         {searchError && !selected.brand && (
