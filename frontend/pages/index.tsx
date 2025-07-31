@@ -315,15 +315,17 @@ export default function TuningViewer() {
     const currentEngine = enginesData.find((e) => e.label === selected.engine);
     const currentStages = currentEngine?.stages || [];
 
-    const grouped = enginesData.reduce(
-      (acc, engine) => {
-        const fuelType = engine.fuel;
-        if (!acc[fuelType]) acc[fuelType] = [];
-        acc[fuelType].push(engine);
-        return acc;
-      },
-      {} as Record<string, typeof enginesData>,
-    );
+    const grouped = Array.isArray(enginesData)
+      ? enginesData.reduce(
+          (acc, engine) => {
+            const fuelType = engine.fuel;
+            if (!acc[fuelType]) acc[fuelType] = [];
+            acc[fuelType].push(engine);
+            return acc;
+          },
+          {} as Record<string, typeof enginesData>,
+        )
+      : {};
 
     return {
       brands,
@@ -335,6 +337,7 @@ export default function TuningViewer() {
       groupedEngines: grouped,
     };
   }, [data, selected]);
+
   useEffect(() => {
     if (stages.length > 0) {
       const initialExpandedStates = stages.reduce(

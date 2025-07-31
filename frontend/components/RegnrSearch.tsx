@@ -48,9 +48,7 @@ export default function RegnrSearch({
       const technicalDataSection = doc.querySelector("section#technical-data");
 
       if (!summarySection) {
-        throw new Error(
-          "Kunde inte hitta sammanfattningssektionen (#summary) på sidan.",
-        );
+        throw new Error("Kunde inte hitta slutföra.");
       }
 
       // KORRIGERAD, MER SPECIFIK SELEKTOR FÖR H1
@@ -61,9 +59,7 @@ export default function RegnrSearch({
         summarySection.querySelector<HTMLElement>("ul.icon-grid");
 
       if (!h1 || !iconGrid) {
-        throw new Error(
-          "Kunde inte hitta H1-taggen eller ikongrid-listan inuti #summary.",
-        );
+        throw new Error("Kunde inte slutföra.");
       }
 
       const fullName = h1.innerText.trim();
