@@ -1,14 +1,14 @@
-// components/RegnrSearch.tsx
+// frontend/components/RegnrSearch.tsx
 import React, { useState } from 'react';
 
-// Uppdaterad typ för att inkludera motorvolym i cm³
+// Updated type to include engine displacement in cm³
 type OnVehicleFound = (vehicle: {
   brand: string;
   model: string;
   year: string;
   fuel: string;
   powerHp: string;
-  engineCm3: string; // <-- NY: Motorvolym i cm3
+  engineCm3: string; 
 }) => void;
 
 type OnError = (message: string | null) => void;
@@ -35,12 +35,12 @@ export default function RegnrSearch({ onVehicleFound, onError }: { onVehicleFoun
       const parser = new DOMParser();
       const doc = parser.parseFromString(htmlContent, 'text/html');
       
-      // Hämta grundläggande data
+      // Get basic data
       const summarySection = doc.querySelector('section#summary .bar.summary .info');
       const iconGrid = doc.querySelector('section#summary ul.icon-grid');
       if (!summarySection || !iconGrid) throw new Error('Kunde inte hitta huvudinformationen.');
       
-      const h1 = summarySection.querySelector('h1');
+      const h1 = summarySection.querySelector<HTMLElement>('h1');
       if (!h1) throw new Error('Kunde inte hitta H1-taggen.');
       const fullName = h1.innerText.trim();
       const brand = fullName.split(' ')[0];
@@ -50,20 +50,20 @@ export default function RegnrSearch({ onVehicleFound, onError }: { onVehicleFoun
       let fuel: string | null = null;
       let powerHp: string | null = null;
       iconGrid.querySelectorAll('li').forEach(item => {
-        const label = item.querySelector('span')?.innerText.trim().toLowerCase();
-        const value = item.querySelector('em')?.innerText.trim();
+        const label = item.querySelector<HTMLElement>('span')?.innerText.trim().toLowerCase();
+        const value = item.querySelector<HTMLElement>('em')?.innerText.trim();
         if (label === 'modellår') year = value?.match(/\d{4}/)?.[0] || null;
         if (label === 'bränsle') fuel = value || null;
         if (label === 'hästkrafter') powerHp = value?.match(/(\d+)/)?.[0] || null;
       });
 
-      // NY LOGIK: Hämta motorvolym i cm³
+      // Get engine displacement from technical data
       let engineCm3: string | null = null;
       doc.querySelectorAll('#tekniskdata .inner ul.list li').forEach(item => {
-        const label = item.querySelector('span.label')?.innerText.trim().toLowerCase();
+        const label = item.querySelector<HTMLElement>('span.label')?.innerText.trim().toLowerCase();
         if (label === 'motorvolym') {
-          const value = item.querySelector('span.value')?.innerText.trim();
-          engineCm3 = value?.match(/(\d+)/)?.[0] || null; // Extrahera "1197"
+          const value = item.querySelector<HTMLElement>('span.value')?.innerText.trim();
+          engineCm3 = value?.match(/(\d+)/)?.[0] || null; // Extract "1197"
         }
       });
 
@@ -82,8 +82,8 @@ export default function RegnrSearch({ onVehicleFound, onError }: { onVehicleFoun
       setIsLoading(false);
     }
   };
+
   return (
-    // Din JSX för komponenten (ingen ändring här)
     <details className="mb-8 bg-gray-900/50 border border-gray-700 rounded-lg group">
       <summary className="p-4 cursor-pointer flex justify-between items-center list-none">
         <div className="flex items-center gap-3">
@@ -91,7 +91,7 @@ export default function RegnrSearch({ onVehicleFound, onError }: { onVehicleFoun
             <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
           <span className="font-semibold text-white">
-            REGNR (BETA)
+            Sök med registreringsnummer
           </span>
         </div>
         <svg className="w-5 h-5 text-gray-400 transform transition-transform group-open:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
