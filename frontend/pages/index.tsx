@@ -360,8 +360,12 @@ export default function TuningViewer() {
 
     let bestMatch: {vehicle: FlatVehicle; score: number} | null = null;
 
-    // First pass: strict matching
     for (const vehicle of allVehicles) {
+      // Must match brand first - this was missing in original code
+      if (normalize(vehicle.brandName) !== normalize(scrapedVehicle.brand)) {
+        continue;
+      }
+
       if (
         !isYearInRange(scrapedVehicle.year, vehicle.yearRange) ||
         normalize(vehicle.engineFuel) !== scrapedFuelNorm
@@ -370,29 +374,29 @@ export default function TuningViewer() {
       }
 
       const sanityLabel = vehicle.engineLabel;
-
-      // More flexible volume matching (supports both 2.0 and 2,0 formats)
       const volumeMatch =
         sanityLabel.match(/(\d[,.]\d)/) || sanityLabel.match(/\d\s?l/i);
-      if (!volumeMatch) continue;
+      const hpMatch = sanityLabel.match(/(\d+)\s*(hk|hp|ps|kw)/i);
+
+      if (!volumeMatch || !hpMatch) continue;
 
       const sanityVolume =
-        volumeMatch[1]?.replace(",", ".") || volumeMatch[0]?.match(/\d/) + ".0"; // Handle "2L" case
-
-      // More flexible HP matching (supports hk, hp, PS, etc.)
-      const hpMatch = sanityLabel.match(/(\d+)\s*(hk|hp|ps|kw)/i);
-      if (!hpMatch) continue;
-
+        volumeMatch[1]?.replace(",", ".") || volumeMatch[0]?.match(/\d/) + ".0";
       let sanityHp = parseInt(hpMatch[1], 10);
-      // Convert KW to HP if needed
       if (hpMatch[2]?.toLowerCase() === "kw") {
         sanityHp = Math.round(sanityHp * 1.36);
       }
 
-      // More lenient matching thresholds
       let score = 0;
 
-      // Volume matching (allow small differences)
+      // Brand match (required) - add significant weight
+      if (normalize(vehicle.brandName) === normalize(scrapedVehicle.brand)) {
+        score += 200; // Brand match is most important
+      } else {
+        continue; // Skip if brand doesn't match
+      }
+
+      // Volume matching
       if (
         Math.abs(parseFloat(sanityVolume) - parseFloat(scrapedVolumeLiters)) <=
         0.2
@@ -402,105 +406,41 @@ export default function TuningViewer() {
         continue;
       }
 
-      // HP matching (wider tolerance)
+      // HP matching
       if (Math.abs(sanityHp - scrapedHp) <= 5) {
         score += 100;
       } else {
         continue;
       }
 
-      // Model name matching (more flexible)
+      // Model name matching - more flexible
       const modelNorm = normalize(vehicle.modelName);
       const scrapedModelNorm = normalize(scrapedVehicle.model);
 
-      // Remove common suffixes for comparison
+      // Remove common suffixes
       const cleanModelNorm = modelNorm.replace(
-        /tdi|fsi|gti|r|4motion|quattro/gi,
+        /tdi|fsi|gti|r|4motion|quattro|cr/gi,
         ""
       );
       const cleanScrapedModelNorm = scrapedModelNorm.replace(
-        /tdi|fsi|gti|r|4motion|quattro/gi,
+        /tdi|fsi|gti|r|4motion|quattro|cr/gi,
         ""
       );
 
-      if (
+      if (cleanModelNorm === cleanScrapedModelNorm) {
+        score += 150; // Exact model match
+      } else if (
         cleanModelNorm.includes(cleanScrapedModelNorm) ||
         cleanScrapedModelNorm.includes(cleanModelNorm)
       ) {
-        score += 50;
+        score += 100; // Partial match
+      } else {
+        // No model match at all - skip this vehicle
+        continue;
       }
 
       if (score > (bestMatch?.score || 0)) {
         bestMatch = {vehicle, score};
-      }
-    }
-
-    // Second pass: relaxed matching if no strict match found
-    if (!bestMatch) {
-      for (const vehicle of allVehicles) {
-        if (!isYearInRange(scrapedVehicle.year, vehicle.yearRange)) continue;
-
-        const sanityLabel = vehicle.engineLabel;
-        const volumeMatch =
-          sanityLabel.match(/(\d[,.]\d)/) || sanityLabel.match(/\d\s?l/i);
-        const hpMatch = sanityLabel.match(/(\d+)\s*(hk|hp|ps|kw)/i);
-
-        if (!volumeMatch || !hpMatch) continue;
-
-        const sanityVolume =
-          volumeMatch[1]?.replace(",", ".") ||
-          volumeMatch[0]?.match(/\d/) + ".0";
-        let sanityHp = parseInt(hpMatch[1], 10);
-        if (hpMatch[2]?.toLowerCase() === "kw") {
-          sanityHp = Math.round(sanityHp * 1.36);
-        }
-
-        let score = 0;
-
-        // Volume matching with wider tolerance
-        if (
-          Math.abs(
-            parseFloat(sanityVolume) - parseFloat(scrapedVolumeLiters)
-          ) <= 0.3
-        ) {
-          score += 80;
-        } else {
-          continue;
-        }
-
-        // HP matching with wider tolerance
-        if (Math.abs(sanityHp - scrapedHp) <= 10) {
-          score += 80;
-        } else {
-          continue;
-        }
-
-        // Fuel type as bonus (not requirement)
-        if (normalize(vehicle.engineFuel) === scrapedFuelNorm) {
-          score += 30;
-        }
-
-        const modelNorm = normalize(vehicle.modelName);
-        const scrapedModelNorm = normalize(scrapedVehicle.model);
-        const cleanModelNorm = modelNorm.replace(
-          /tdi|fsi|gti|r|4motion|quattro/gi,
-          ""
-        );
-        const cleanScrapedModelNorm = scrapedModelNorm.replace(
-          /tdi|fsi|gti|r|4motion|quattro/gi,
-          ""
-        );
-
-        if (
-          cleanModelNorm.includes(cleanScrapedModelNorm) ||
-          cleanScrapedModelNorm.includes(cleanModelNorm)
-        ) {
-          score += 40;
-        }
-
-        if (score > (bestMatch?.score || 0)) {
-          bestMatch = {vehicle, score};
-        }
       }
     }
 
@@ -520,24 +460,20 @@ export default function TuningViewer() {
       setSearchError(null);
     } else {
       console.log("Ingen teknisk match hittades.");
-      // Show closest matches for debugging
-      const closestMatches = allVehicles
-        .filter(v => isYearInRange(scrapedVehicle.year, v.yearRange))
-        .map(v => {
-          const volumeMatch =
-            v.engineLabel.match(/(\d[,.]\d)/) || v.engineLabel.match(/\d\s?l/i);
-          const hpMatch = v.engineLabel.match(/(\d+)\s*(hk|hp|ps|kw)/i);
-          return {
-            vehicle: v,
-            volume: volumeMatch?.[1] || volumeMatch?.[0],
-            hp: hpMatch?.[1],
-            fuel: v.engineFuel,
-          };
-        });
-      console.log("Närmaste matchningar:", closestMatches);
+      // Show potential matches for debugging
+      const potentialMatches = allVehicles
+        .filter(v => normalize(v.brandName) === normalize(scrapedVehicle.brand))
+        .map(v => ({
+          brand: v.brandName,
+          model: v.modelName,
+          engine: v.engineLabel,
+          year: v.yearRange,
+          fuel: v.engineFuel,
+        }));
+      console.log("Potentiella matchningar för märke:", potentialMatches);
 
       setSearchError(
-        `Vi kunde inte hitta en teknisk match för ${scrapedVehicle.brand} ${scrapedVehicle.model} (${scrapedVolumeLiters}L, ${scrapedHp}hk).`
+        `Vi kunde inte hitta en teknisk match för ${scrapedVehicle.brand} ${scrapedVehicle.model} (${scrapedVolumeLiters}L, ${scrapedHp}hk). Kontrollera att fordonet finns i vår databas.`
       );
     }
   };
