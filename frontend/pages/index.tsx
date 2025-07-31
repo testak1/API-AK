@@ -963,48 +963,41 @@ export default function TuningViewer() {
             loading="lazy"
             onClick={() => window.location.reload()}
           />
-          <PublicLanguageDropdown
-            currentLanguage={currentLanguage}
-            setCurrentLanguage={setCurrentLanguage}
-          />
 
-          <button
-            onClick={toggleViewMode}
-            className={`p-2 rounded-full border transition-all shadow-sm ${
-              viewMode === "card"
-                ? "bg-red-100 border-gray-300 text-gray-700"
-                : "bg-red-600 border-red-600 text-white"
-            }`}
-            aria-label="Byt vy"
-          >
-            {viewMode === "card" ? (
-              <List className="w-5 h-5" />
-            ) : (
-              <LayoutGrid className="w-5 h-5" />
-            )}
-          </button>
-        </div>
-
-        {!selected.brand ? (
-          isDbLoading ? (
-            <div className="text-gray-400 text-sm mb-4">
-              Fordonsdatabasen laddas...
+          {!selected.brand && !isDbLoading && (
+            <div className="absolute left-1/2 transform -translate-x-1/2 top-0 mt-2 w-[320px]">
+              <RegnrSearch
+                onVehicleFound={handleVehicleFound}
+                onError={setSearchError}
+                disabled={false}
+              />
             </div>
-          ) : (
-            <RegnrSearch
-              onVehicleFound={handleVehicleFound}
-              onError={setSearchError}
-              disabled={false}
-            />
-          )
-        ) : null}
+          )}
 
-        {/* Visa ett centralt felmeddelande om sökningen misslyckas */}
-        {searchError && !selected.brand && (
-          <div className="text-center p-4 mb-4 bg-red-900/50 border border-red-700 rounded-lg">
-            <p className="text-white">{searchError}</p>
+          {/* Höger: språk & vy */}
+          <div className="flex items-center gap-4">
+            <PublicLanguageDropdown
+              currentLanguage={currentLanguage}
+              setCurrentLanguage={setCurrentLanguage}
+            />
+
+            <button
+              onClick={toggleViewMode}
+              className={`p-2 rounded-full border transition-all shadow-sm ${
+                viewMode === "card"
+                  ? "bg-red-100 border-gray-300 text-gray-700"
+                  : "bg-red-600 border-red-600 text-white"
+              }`}
+              aria-label="Byt vy"
+            >
+              {viewMode === "card" ? (
+                <List className="w-5 h-5" />
+              ) : (
+                <LayoutGrid className="w-5 h-5" />
+              )}
+            </button>
           </div>
-        )}
+        </div>
 
         <div className="mb-4">
           <p className="text-black text-center text-lg font-semibold">
