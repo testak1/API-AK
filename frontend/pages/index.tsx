@@ -952,30 +952,58 @@ export default function TuningViewer() {
         />
       </Head>
 
-      <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4 sm:gap-0 relative">
-          {" "}
-          <img
-            src="/ak-logo-svart.png"
-            fetchPriority="high"
-            alt="AK-TUNING"
-            style={{ height: "80px", cursor: "pointer" }}
-            className="h-auto max-h-20 w-auto max-w-[500px] object-contain"
-            loading="lazy"
-            onClick={() => window.location.reload()}
-          />
-          {/* Mitten: RegnrSearch, syns bara om ingen bil är vald */}
-          {!selected.brand && !isDbLoading && (
-            <div className="order-3 sm:order-none sm:absolute sm:left-1/2 sm:translate-x-[-50%] w-full sm:w-auto">
-              <RegnrSearch
-                onVehicleFound={handleVehicleFound}
-                onError={setSearchError}
-                disabled={false}
+      <div className="w-full max-w-6xl mx-auto px-2 py-4 sm:px-4">
+        {/* TOPBAR: logga, regnr, språk + vy */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between relative">
+          {/* Vänster: Logga */}
+          <div className="flex justify-between items-center">
+            <img
+              src="/ak-logo-svart.png"
+              alt="AK-TUNING"
+              style={{ height: "80px", cursor: "pointer" }}
+              className="h-auto max-h-20 w-auto max-w-[500px] object-contain"
+              onClick={() => window.location.reload()}
+            />
+
+            {/* Höger på mobil: språk + vy */}
+            <div className="sm:hidden flex items-center gap-3">
+              <PublicLanguageDropdown
+                currentLanguage={currentLanguage}
+                setCurrentLanguage={setCurrentLanguage}
               />
+              <button
+                onClick={toggleViewMode}
+                className={`p-2 rounded-full border transition-all shadow-sm ${
+                  viewMode === "card"
+                    ? "bg-red-100 border-gray-300 text-gray-700"
+                    : "bg-red-600 border-red-600 text-white"
+                }`}
+                aria-label="Byt vy"
+              >
+                {viewMode === "card" ? (
+                  <List className="w-5 h-5" />
+                ) : (
+                  <LayoutGrid className="w-5 h-5" />
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Mitten (desktop), under (mobil): REGNR */}
+          {!selected.brand && !isDbLoading && (
+            <div className="mt-4 sm:mt-0 sm:absolute sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2">
+              <div className="mx-auto max-w-md">
+                <RegnrSearch
+                  onVehicleFound={handleVehicleFound}
+                  onError={setSearchError}
+                  disabled={false}
+                />
+              </div>
             </div>
           )}
-          {/* Höger: språk + vyval */}
-          <div className="flex items-center justify-end gap-4">
+
+          {/* Höger (desktop): språk + vy */}
+          <div className="hidden sm:flex items-center gap-4">
             <PublicLanguageDropdown
               currentLanguage={currentLanguage}
               setCurrentLanguage={setCurrentLanguage}
