@@ -24,14 +24,26 @@ export default function RegnrSearch({
   const [regnr, setRegnr] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const isValidSwedishReg = (reg: string) =>
+    /^[A-Z]{3}\d{2}[A-Z0-9]{1}$/.test(reg);
 
   const handleSearch = async () => {
     if (!regnr || disabled) return;
+
+    const formattedRegnr = regnr.toUpperCase().replace(/\s/g, "");
+
+    if (!isValidSwedishReg(formattedRegnr)) {
+      const message = "Ogiltigt registreringsnummer (format: ABC12D).";
+      setError(message);
+      onError(message);
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
     onError(null);
 
-    const targetUrl = `https://biluppgifter.se/fordon/${regnr.toUpperCase()}`;
+    const targetUrl = `https://biluppgifter.se/fordon/${formattedRegnr}`;
     const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
 
     try {
