@@ -970,7 +970,7 @@ export default function TuningViewer() {
                 <RegnrSearch
                   onVehicleFound={handleVehicleFound}
                   onError={setSearchError}
-                  disabled={isDbLoading}
+                  disabled={false}
                 />
               </div>
             </div>
