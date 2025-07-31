@@ -356,118 +356,117 @@ export default function TuningViewer() {
       return;
     }
 
+    // Normalize scraped data
     const scrapedHp = parseInt(scrapedVehicle.powerHp, 10);
     const scrapedFuelNorm = normalize(scrapedVehicle.fuel);
-    const scrapedVolumeLiters = (
-      Math.round((parseInt(scrapedVehicle.engineCm3, 10) / 1000) * 10) / 10
-    ).toString();
-
-    // Normalize model name by removing common suffixes
-    const normalizeModel = (model: string) => {
-      return model
-        .replace(/TDI|FSI|GTI|CR|4MOTION|QUATTRO|TSI/gi, "")
-        .trim()
-        .replace(/\s+/g, " ");
-    };
-
-    const scrapedModelNorm = normalizeModel(scrapedVehicle.model);
+    const scrapedVolumeLiters =
+      Math.round((parseInt(scrapedVehicle.engineCm3, 10) / 1000) * 10) / 10;
     const scrapedBrandNorm = normalize(scrapedVehicle.brand);
 
-    let bestMatch: {vehicle: FlatVehicle; score: number} | null = null;
+    // Special handling for model names
+    const scrapedModelNorm = scrapedVehicle.model
+      .replace(/TDI|PD|CR|FSI|TSI|GTI/gi, "")
+      .replace(/\s+/g, " ")
+      .trim();
 
-    for (const vehicle of allVehicles) {
-      // 1. Check brand match (must match exactly)
-      if (normalize(vehicle.brandName) !== scrapedBrandNorm) {
-        continue;
-      }
+    // Find all potential matches
+    const potentialMatches = allVehicles.filter(vehicle => {
+      // 1. Brand must match exactly
+      if (normalize(vehicle.brandName) !== scrapedBrandNorm) return false;
 
-      // 2. Check fuel type match
-      if (normalize(vehicle.engineFuel) !== scrapedFuelNorm) {
-        continue;
-      }
+      // 2. Model name matching (flexible)
+      const vehicleModelNorm = vehicle.modelName
+        .replace(/\/.*$/, "") // Remove variants after slash
+        .trim();
 
-      // 3. Check year range
-      if (!isYearInRange(scrapedVehicle.year, vehicle.yearRange)) {
-        continue;
-      }
-
-      // 4. Check model name (flexible matching)
-      const vehicleModelNorm = normalizeModel(vehicle.modelName);
       if (
-        !vehicleModelNorm.includes(scrapedModelNorm) &&
-        !scrapedModelNorm.includes(vehicleModelNorm)
+        !scrapedModelNorm.includes(vehicleModelNorm) &&
+        !vehicleModelNorm.includes(scrapedModelNorm)
       ) {
-        continue;
+        return false;
       }
 
-      // 5. Parse engine specs from label
+      // 3. Fuel type must match
+      if (normalize(vehicle.engineFuel) !== scrapedFuelNorm) return false;
+
+      // 4. Check year range
+      if (!isYearInRange(scrapedVehicle.year, vehicle.yearRange)) return false;
+
+      return true;
+    });
+
+    // Find the best engine match
+    let bestMatch: FlatVehicle | null = null;
+    let bestScore = Infinity;
+
+    potentialMatches.forEach(vehicle => {
       const engineLabel = vehicle.engineLabel;
 
-      // Try to extract engine volume (supports formats like 2.0, 2,0, 2L)
+      // Parse engine volume
       const volumeMatch =
         engineLabel.match(/(\d[,.]\d)\s?L?/i) || engineLabel.match(/(\d)\s?L/i);
-      if (!volumeMatch) continue;
+      if (!volumeMatch) return;
 
       const volume = parseFloat(volumeMatch[1].replace(",", "."));
 
-      // Try to extract horsepower (supports hk, hp, PS, kW)
+      // Parse horsepower
       const hpMatch = engineLabel.match(/(\d+)\s*(hk|hp|ps|kw)/i);
-      if (!hpMatch) continue;
+      if (!hpMatch) return;
 
       let hp = parseInt(hpMatch[1], 10);
       if (hpMatch[2].toLowerCase() === "kw") {
-        hp = Math.round(hp * 1.36); // Convert kW to HP
+        hp = Math.round(hp * 1.36);
       }
 
-      // Compare with scraped values (with tolerance)
-      const volumeDiff = Math.abs(volume - parseFloat(scrapedVolumeLiters));
+      // Calculate match score
+      const volumeDiff = Math.abs(volume - scrapedVolumeLiters);
       const hpDiff = Math.abs(hp - scrapedHp);
 
-      // Skip if differences are too large
-      if (volumeDiff > 0.3 || hpDiff > 10) {
-        continue;
-      }
+      if (volumeDiff > 0.3 || hpDiff > 10) return;
 
-      // Calculate match score (lower is better)
       const score = volumeDiff * 100 + hpDiff;
 
-      // Keep the best match (lowest score)
-      if (!bestMatch || score < bestMatch.score) {
-        bestMatch = {vehicle, score};
+      if (score < bestScore) {
+        bestScore = score;
+        bestMatch = vehicle;
       }
-    }
+    });
 
     if (bestMatch) {
-      console.log(
-        "Bästa match hittad:",
-        bestMatch.vehicle,
-        "Poäng:",
-        bestMatch.score
-      );
+      console.log("Bästa match hittad:", bestMatch);
       setSelected({
-        brand: bestMatch.vehicle.brandName,
-        model: bestMatch.vehicle.modelName,
-        year: bestMatch.vehicle.yearRange,
-        engine: bestMatch.vehicle.engineLabel,
+        brand: bestMatch.brandName,
+        model: bestMatch.modelName,
+        year: bestMatch.yearRange,
+        engine: bestMatch.engineLabel,
       });
       setSearchError(null);
     } else {
-      console.log("Ingen teknisk match hittades.");
-      // Show potential matches for debugging
-      const potentialMatches = allVehicles
-        .filter(v => normalize(v.brandName) === scrapedBrandNorm)
-        .map(v => ({
-          brand: v.brandName,
-          model: v.modelName,
-          engine: v.engineLabel,
-          year: v.yearRange,
-          fuel: v.engineFuel,
-        }));
-      console.log("Potentiella matchningar för märke:", potentialMatches);
+      console.log(
+        "Ingen teknisk match hittades. Potentiella modeller:",
+        potentialMatches.map(v => v.modelName)
+      );
 
       setSearchError(
-        `Vi kunde inte hitta en teknisk match för ${scrapedVehicle.brand} ${scrapedVehicle.model} (${scrapedVolumeLiters}L, ${scrapedHp}hk). Kontrollera att fordonet finns i vår databas.`
+        `Vi kunde inte hitta en teknisk match för ${scrapedVehicle.brand} ${scrapedVehicle.model} (${scrapedVolumeLiters}L, ${scrapedHp}hk).`
       );
+
+      // Fallback to closest model
+      const closestModel = allVehicles.find(
+        v =>
+          normalize(v.brandName) === scrapedBrandNorm &&
+          v.modelName.toLowerCase().includes(scrapedModelNorm.toLowerCase())
+      );
+
+      if (closestModel) {
+        console.log("Närmaste modell hittad:", closestModel);
+        setSelected({
+          brand: closestModel.brandName,
+          model: closestModel.modelName,
+          year: "",
+          engine: "",
+        });
+      }
     }
   };
 
