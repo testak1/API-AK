@@ -991,8 +991,8 @@ export default function TuningViewer() {
 
           {/* Mitten (desktop), under (mobil): REGNR */}
           {!selected.brand && !isDbLoading && (
-            <div className="mt-4 sm:mt-0 sm:absolute sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2">
-              <div className="mx-auto max-w-md">
+            <div className="hidden sm:flex sm:flex-1 sm:justify-center">
+              <div className="max-w-md w-full">
                 <RegnrSearch
                   onVehicleFound={handleVehicleFound}
                   onError={setSearchError}
