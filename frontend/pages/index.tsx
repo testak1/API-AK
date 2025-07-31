@@ -844,11 +844,17 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
           </button>
         </div>
 
-            <RegnrSearch
-        onVehicleFound={handleVehicleFound}
-          onError={setSearchError}
-          disabled={isDbLoading}
-        />
+          {isDbLoading ? (
+  <div className="text-gray-400 text-sm mb-4">
+    Fordonsdatabasen laddas...
+  </div>
+) : (
+  <RegnrSearch
+    onVehicleFound={handleVehicleFound}
+    onError={setSearchError}
+    disabled={isDbLoading}
+  />
+)}
 
         {/* Visa ett centralt felmeddelande om sökningen misslyckas */}
         {searchError && !selected.brand && (
