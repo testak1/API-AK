@@ -9,7 +9,7 @@ export const translations = {
     Personbilar: "BILAR",
     BACKTO: "Tillbaka till",
     BACKTOMARKE: "Tillbaka till början",
-    otherEngines: "Hybrid / El",
+    otherEngines: "Hybrid",
     MODELLER: "MODELLER",
     ÅRSMODELLER: "ÅRSMODELLER",
     BILMÄRKEN: "BILMÄRKEN",
