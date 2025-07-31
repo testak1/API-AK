@@ -990,7 +990,7 @@ export default function TuningViewer() {
           <RegnrSearch
             onVehicleFound={handleVehicleFound}
             onError={setSearchError}
-            disabled={isDbLoading}
+            disabled={false} // ← viktigt, då isDbLoading redan är false
           />
         )}
 
