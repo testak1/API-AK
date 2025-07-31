@@ -131,48 +131,63 @@ export default function TuningViewer() {
     Record<string, boolean>
   >({});
 
-  // --- DATAHÄMTNING OCH SIDEEFFEKTER ---
-
+  // Körs en gång när komponenten laddas för att hämta all grunddata
   useEffect(() => {
+    // Sätt båda laddnings-statusarna till true i början
     setIsLoading(true);
     setIsDbLoading(true);
 
+    // Använd Promise.all för att köra de kritiska anropen parallellt
     Promise.all([
       fetch("/api/all-vehicles").then(res => res.json()),
       fetch("/api/brands").then(res => res.json()),
     ])
       .then(([vehiclesData, brandsData]) => {
+        // Båda anropen lyckades
         setAllVehicles(vehiclesData.vehicles || []);
-        console.log(`Hämtat ${vehiclesData.vehicles?.length || 0} fordon.`);
+        console.log(
+          `Hämtat ${vehiclesData.vehicles?.length || 0} fordon för matchning.`
+        );
+
         setData(brandsData.result || []);
       })
       .catch(error => {
-        console.error("Fel vid hämtning av initial data:", error);
-        setSearchError("Kunde inte ladda fordonsdata.");
+        // Hantera fel om något av anropen misslyckas
+        console.error("Ett fel uppstod vid hämtning av initial data:", error);
+        setSearchError(
+          "Kunde inte ladda all fordonsdata. Försök ladda om sidan."
+        );
       })
       .finally(() => {
+        // Körs alltid när båda anropen är klara
         setIsLoading(false);
         setIsDbLoading(false);
       });
 
+    // Annan data som inte är kritisk för sökfunktionen kan laddas separat
     fetch("/data/all_models.json")
       .then(res => res.json())
       .then(data => setAllModels(data))
       .catch(err => console.error("Fel vid inläsning av modellbilder:", err));
 
     const savedView = localStorage.getItem("viewMode");
-    if (savedView === "dropdown") setViewMode("dropdown");
+    if (savedView === "dropdown") {
+      setViewMode("dropdown");
+    }
 
     const storedLang = localStorage.getItem("lang");
-    if (storedLang) setCurrentLanguage(storedLang);
+    if (storedLang) {
+      setCurrentLanguage(storedLang);
+    }
 
     const img = new window.Image();
     img.src = "/ak-logo.png";
     img.onload = () => {
       watermarkImageRef.current = img;
     };
-  }, []);
+  }, []); // Den tomma arrayen säkerställer att denna hook bara körs en gång
 
+  // Körs när språket ändras
   useEffect(() => {
     localStorage.setItem("lang", currentLanguage);
     const fetchAktPlusOptions = async () => {
@@ -187,6 +202,7 @@ export default function TuningViewer() {
     fetchAktPlusOptions();
   }, [currentLanguage]);
 
+  // Körs när märke OCH modell har valts
   useEffect(() => {
     const fetchYears = async () => {
       if (selected.brand && selected.model) {
@@ -221,6 +237,7 @@ export default function TuningViewer() {
     fetchYears();
   }, [selected.brand, selected.model]);
 
+  // Körs när märke, modell OCH år har valts
   useEffect(() => {
     const fetchEngines = async () => {
       if (selected.brand && selected.model && selected.year) {
