@@ -426,46 +426,71 @@ useEffect(() => {
     fetchEngines();
   }, [selected.brand, selected.model, selected.year]);
 
-const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year: string; fuel: string; powerHp: string; }) => {
-    console.log("Försöker matcha skrapad data:", scrapedVehicle);
+const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year: string; fuel: string; powerHp: string; engineCm3: string; }) => {
+    console.log("--- STARTAR NY SÖKNING ---");
+    console.log("Mottagen skrapad data:", scrapedVehicle);
     setSearchError(null);
 
+    if (allVehicles.length === 0) {
+      setSearchError("Fordonsdatabasen laddas, försök igen om en liten stund.");
+      return;
+    }
+
+    // Konvertera skrapad data till jämförbara format
     const scrapedHp = parseInt(scrapedVehicle.powerHp, 10);
-    const scrapedBrandNorm = normalize(scrapedVehicle.brand);
-    const scrapedModelNorm = normalize(scrapedVehicle.model);
-    
-    let candidates: { vehicle: FlatVehicle, score: number }[] = [];
+    const scrapedFuelNorm = normalize(scrapedVehicle.fuel);
+    // Omvandla cm³ ("1197") till en liter-sträng ("1.2")
+    const scrapedVolumeLiters = (Math.round((parseInt(scrapedVehicle.engineCm3, 10) / 1000) * 10) / 10).toString();
 
-    // Steg 1: Filtrera listan för att bara inkludera relevanta kandidater
+    let bestMatch: { vehicle: FlatVehicle, score: number } | null = null;
+
     for (const vehicle of allVehicles) {
-        if (isYearInRange(scrapedVehicle.year, vehicle.yearRange) && normalize(vehicle.engineFuel) === normalize(scrapedVehicle.fuel)) {
-            let score = 0;
-            const hpDifference = Math.abs(vehicle.engineHp - scrapedHp);
+        // Grundkrav: År och bränsle måste stämma.
+        if (!isYearInRange(scrapedVehicle.year, vehicle.yearRange) || normalize(vehicle.engineFuel) !== scrapedFuelNorm) {
+            continue;
+        }
 
-            if (hpDifference === 0) score += 100;
-            else if (hpDifference <= 5) score += 80; // Nästan perfekt HP
-            else continue; // För stor skillnad, gå till nästa fordon
+        // Extrahera teknisk data från Sanity-motornamnet (t.ex. "1.2 TSI 105hk")
+        const sanityLabel = vehicle.engineLabel;
+        const volumeMatch = sanityLabel.match(/(\d\.\d)/); // Hittar "1.2"
+        const hpMatch = sanityLabel.match(/(\d+)\s*hk/i);   // Hittar "105"
 
-            // Poängsätt varumärke
-            const brandNorm = normalize(vehicle.brandName);
-            if(brandNorm === scrapedBrandNorm || scrapedBrandNorm.includes(brandNorm)) score += 50;
+        if (!volumeMatch || !hpMatch) {
+            continue; // Gå vidare om motornamnet saknar teknisk data
+        }
 
-            // Poängsätt modell
-            const modelNorm = normalize(vehicle.modelName);
-            if (scrapedModelNorm.startsWith(modelNorm)) score += 50; // Passat Alltrack -> Passat
-            else if(scrapedModelNorm.includes(modelNorm)) score += 20;
+        const sanityVolume = volumeMatch[1];
+        const sanityHp = parseInt(hpMatch[1], 10);
 
-            candidates.push({ vehicle, score });
+        let score = 0;
+
+        // Jämför de extraherade värdena
+        if (sanityVolume === scrapedVolumeLiters) {
+            score += 100;
+        } else {
+            continue; // Fel motorvolym, hoppa över
+        }
+
+        if (Math.abs(sanityHp - scrapedHp) <= 2) { // Liten tolerans för hk
+            score += 100;
+        } else {
+            continue; // Fel effekt, hoppa över
+        }
+
+        // Om vi kommer hit har vi en stark teknisk match. Ge bonuspoäng för modellnamn.
+        const modelNorm = normalize(vehicle.modelName);
+        const scrapedModelNorm = normalize(scrapedVehicle.model);
+        if (modelNorm.startsWith(scrapedModelNorm) || scrapedModelNorm.startsWith(modelNorm)) {
+            score += 50;
+        }
+
+        if (score > bestMatch?.score || !bestMatch) {
+            bestMatch = { vehicle, score };
         }
     }
-    
-    // Steg 2: Välj den kandidat som har högst poäng
-    if (candidates.length > 0) {
-        candidates.sort((a, b) => b.score - a.score); // Sortera med högsta poäng först
-        const bestMatch = candidates[0];
-        
-        console.log("Bästa match hittad:", bestMatch.vehicle, "Poäng:", bestMatch.score);
 
+    if (bestMatch) {
+        console.log("Bästa tekniska match hittad:", bestMatch.vehicle, "Poäng:", bestMatch.score);
         setSelected({
             brand: bestMatch.vehicle.brandName,
             model: bestMatch.vehicle.modelName,
@@ -474,10 +499,12 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
         });
         setSearchError(null);
     } else {
-        console.log("Ingen match hittades.");
-        setSearchError(`Vi kunde inte hitta en exakt match för ${scrapedVehicle.brand} ${scrapedVehicle.model} med ${scrapedVehicle.powerHp}hk.`);
+        console.log("Inga tekniskt matchande kandidater hittades.");
+        setSearchError(`Vi kunde inte hitta en teknisk match för ${scrapedVehicle.brand} ${scrapedVehicle.model} (${scrapedVolumeLiters}L, ${scrapedHp}hk).`);
     }
   };
+  
+ 
 
     
   const {
