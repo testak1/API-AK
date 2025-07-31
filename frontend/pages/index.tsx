@@ -64,33 +64,35 @@ interface FlatVehicle {
   engineSlug?: string;
 }
 
-// --- HJÄLPFUNKTIONER ---
-const normalize = (str: string | undefined | null): string => {
-  if (!str) return "";
-  return String(str)
-    .toLowerCase()
-    .replace(/[\s-]/g, "")
-    .replace(/tdi|cr|fsi|tsi|gti/g, ""); // Remove common engine codes
+// HJÄLPFUNKTIONER
+const isYearInRange = (
+  year: string,
+  range: string | undefined | null
+): boolean => {
+  if (!range) return false;
+
+  const yearNum = parseInt(year, 10);
+  if (isNaN(yearNum)) return false;
+
+  const rangeMatch =
+    range.match(/(\d{4})\D*(\d{4})/) || range.match(/(\d{4})\D*[-–]/);
+  if (rangeMatch) {
+    const startYear = parseInt(rangeMatch[1], 10);
+    const endYear = rangeMatch[2] ? parseInt(rangeMatch[2], 10) : Infinity;
+    return yearNum >= startYear && yearNum <= endYear;
+  }
+
+  const singleYear = range.match(/(?:^|\D)(\d{4})(?:\D|$)/);
+  if (singleYear) {
+    return yearNum === parseInt(singleYear[1], 10);
+  }
+
+  return false;
 };
 
-const isYearInRange = (
-  scrapedYear: string,
-  yearRange: string | undefined | null
-): boolean => {
-  if (!yearRange) return false;
-  const yearNum = parseInt(scrapedYear, 10);
-  const rangeParts = yearRange.split("-").map(y => parseInt(y.trim(), 10));
-  if (
-    rangeParts.length === 2 &&
-    !isNaN(rangeParts[0]) &&
-    !isNaN(rangeParts[1])
-  ) {
-    return yearNum >= rangeParts[0] && yearNum <= rangeParts[1];
-  }
-  if (rangeParts.length === 1 && !isNaN(rangeParts[0])) {
-    return yearNum === rangeParts[0];
-  }
-  return false;
+const normalize = (str: string | undefined | null): string => {
+  if (!str) return "";
+  return str.toLowerCase().replace(/[^a-z0-9]/g, "");
 };
 
 // --- HUVUDKOMPONENT ---
@@ -338,7 +340,6 @@ export default function TuningViewer() {
     }
   }, [stages]);
 
-  // --- REGNR-MATCHNING ---
   const handleVehicleFound = (scrapedVehicle: {
     brand: string;
     model: string;
@@ -356,107 +357,103 @@ export default function TuningViewer() {
       return;
     }
 
-    // Normalize scraped data
     const scrapedHp = parseInt(scrapedVehicle.powerHp, 10);
     const scrapedFuelNorm = normalize(scrapedVehicle.fuel);
     const scrapedVolumeLiters =
       Math.round((parseInt(scrapedVehicle.engineCm3, 10) / 1000) * 10) / 10;
     const scrapedBrandNorm = normalize(scrapedVehicle.brand);
+    const scrapedYear = parseInt(scrapedVehicle.year, 10);
 
-    // Special handling for model names
-    const scrapedModelNorm = scrapedVehicle.model
-      .replace(/TDI|PD|CR|FSI|TSI|GTI/gi, "")
-      .replace(/\s+/g, " ")
-      .trim();
+    const normalizeModel = (model: string) => {
+      return model
+        .replace(/TDI|FSI|GTI|CR|4MOTION|QUATTRO|TSI/gi, "")
+        .replace(/\(.*\)/, "")
+        .trim()
+        .replace(/\s+/g, " ");
+    };
 
-    // Find all potential matches
-    const potentialMatches = allVehicles.filter(vehicle => {
-      // 1. Brand must match exactly
-      if (normalize(vehicle.brandName) !== scrapedBrandNorm) return false;
+    const scrapedModelNorm = normalizeModel(scrapedVehicle.model);
 
-      // 2. Model name matching (flexible)
-      const vehicleModelNorm = vehicle.modelName
-        .replace(/\/.*$/, "") // Remove variants after slash
-        .trim();
+    const getGeneration = (modelName: string) => {
+      const match = modelName.match(/\((MK[\d.]+|B\d+)\)/i);
+      return match ? match[1].toUpperCase() : null;
+    };
 
-      if (
-        !scrapedModelNorm.includes(vehicleModelNorm) &&
-        !vehicleModelNorm.includes(scrapedModelNorm)
-      ) {
-        return false;
+    let bestMatch: {vehicle: FlatVehicle; score: number} | null = null;
+    let closestModel: FlatVehicle | null = null;
+
+    for (const vehicle of allVehicles) {
+      if (normalize(vehicle.brandName) !== scrapedBrandNorm) continue;
+
+      const vehicleModelNorm = normalizeModel(vehicle.modelName);
+      const modelMatch =
+        vehicleModelNorm.includes(scrapedModelNorm) ||
+        scrapedModelNorm.includes(vehicleModelNorm);
+
+      if (!modelMatch) continue;
+
+      if (normalize(vehicle.engineFuel) !== scrapedFuelNorm) continue;
+
+      const yearInRange = isYearInRange(scrapedVehicle.year, vehicle.yearRange);
+
+      if (!closestModel && modelMatch) {
+        closestModel = vehicle;
       }
 
-      // 3. Fuel type must match
-      if (normalize(vehicle.engineFuel) !== scrapedFuelNorm) return false;
+      if (!yearInRange) continue;
 
-      // 4. Check year range
-      if (!isYearInRange(scrapedVehicle.year, vehicle.yearRange)) return false;
-
-      return true;
-    });
-
-    // Find the best engine match
-    let bestMatch: FlatVehicle | null = null;
-    let bestScore = Infinity;
-
-    potentialMatches.forEach(vehicle => {
       const engineLabel = vehicle.engineLabel;
-
-      // Parse engine volume
       const volumeMatch =
         engineLabel.match(/(\d[,.]\d)\s?L?/i) || engineLabel.match(/(\d)\s?L/i);
-      if (!volumeMatch) return;
+      if (!volumeMatch) continue;
 
       const volume = parseFloat(volumeMatch[1].replace(",", "."));
 
-      // Parse horsepower
       const hpMatch = engineLabel.match(/(\d+)\s*(hk|hp|ps|kw)/i);
-      if (!hpMatch) return;
+      if (!hpMatch) continue;
 
       let hp = parseInt(hpMatch[1], 10);
-      if (hpMatch[2].toLowerCase() === "kw") {
+      if (hpMatch[2]?.toLowerCase() === "kw") {
         hp = Math.round(hp * 1.36);
       }
 
-      // Calculate match score
       const volumeDiff = Math.abs(volume - scrapedVolumeLiters);
       const hpDiff = Math.abs(hp - scrapedHp);
-
-      if (volumeDiff > 0.3 || hpDiff > 10) return;
-
       const score = volumeDiff * 100 + hpDiff;
 
-      if (score < bestScore) {
-        bestScore = score;
-        bestMatch = vehicle;
+      if (volumeDiff > 0.3 || hpDiff > 15) continue;
+
+      if (!bestMatch || score < bestMatch.score) {
+        bestMatch = {vehicle, score};
       }
-    });
+    }
 
     if (bestMatch) {
-      console.log("Bästa match hittad:", bestMatch);
+      console.log(
+        "Bästa match hittad:",
+        bestMatch.vehicle,
+        "Poäng:",
+        bestMatch.score
+      );
       setSelected({
-        brand: bestMatch.brandName,
-        model: bestMatch.modelName,
-        year: bestMatch.yearRange,
-        engine: bestMatch.engineLabel,
+        brand: bestMatch.vehicle.brandName,
+        model: bestMatch.vehicle.modelName,
+        year: bestMatch.vehicle.yearRange,
+        engine: bestMatch.vehicle.engineLabel,
       });
       setSearchError(null);
     } else {
       console.log(
-        "Ingen teknisk match hittades. Potentiella modeller:",
-        potentialMatches.map(v => v.modelName)
+        "Ingen exakt match hittades. Letar efter närmaste alternativ..."
       );
 
-      setSearchError(
-        `Vi kunde inte hitta en teknisk match för ${scrapedVehicle.brand} ${scrapedVehicle.model} (${scrapedVolumeLiters}L, ${scrapedHp}hk).`
-      );
-
-      // Fallback to closest model
-      const closestModel = allVehicles.find(
-        v =>
-          normalize(v.brandName) === scrapedBrandNorm &&
-          v.modelName.toLowerCase().includes(scrapedModelNorm.toLowerCase())
-      );
+      const availableGenerations = allVehicles
+        .filter(v => normalize(v.brandName) === scrapedBrandNorm)
+        .map(v => {
+          const generation = getGeneration(v.modelName) || v.yearRange;
+          return `${generation} (${v.yearRange})`;
+        })
+        .filter((v, i, a) => a.indexOf(v) === i);
 
       if (closestModel) {
         console.log("Närmaste modell hittad:", closestModel);
@@ -467,6 +464,11 @@ export default function TuningViewer() {
           engine: "",
         });
       }
+
+      setSearchError(
+        `Exakt match saknas för ${scrapedVehicle.brand} ${scrapedVehicle.model} ${scrapedVehicle.year}.\n` +
+          `Tillgängliga generationer: ${availableGenerations.join(", ")}`
+      );
     }
   };
 
