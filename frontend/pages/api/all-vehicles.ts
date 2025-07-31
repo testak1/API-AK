@@ -15,7 +15,7 @@ const allVehiclesQuery = groq`
         "engineLabel": label,
         "engineFuel": fuel,
         // Tar original-HK från den första definierade stagen
-        "engineHp": stages[0].origHk, 
+        "engineHp": stages[0].origHk,
       }
     }
   }
@@ -48,18 +48,20 @@ export default async function handler(
     const nestedVehicles: BrandResult[] = await client.fetch(allVehiclesQuery);
 
     // Plattar ut den neslade datan till den struktur vi behöver
-    const flatVehicles = nestedVehicles.flatMap(brand =>
-      brand.models.flatMap(model =>
-        model.years.flatMap(year =>
-          year.engines.map(engine => ({
-            ...engine,
-            yearRange: year.yearRange,
-            modelName: model.modelName,
-            brandName: brand.brandName,
-          }))
+    const flatVehicles = nestedVehicles
+      .flatMap(brand =>
+        brand.models?.flatMap(model =>
+          model.years?.flatMap(year =>
+            year.engines?.map(engine => ({
+              ...engine,
+              yearRange: year.yearRange,
+              modelName: model.modelName,
+              brandName: brand.brandName,
+            }))
+          )
         )
       )
-    );
+      .filter(Boolean); // Filtrerar bort eventuella null/undefined-värden
 
     res.status(200).json({vehicles: flatVehicles});
   } catch (error) {
