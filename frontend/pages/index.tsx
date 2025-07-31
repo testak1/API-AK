@@ -91,16 +91,15 @@ const isYearInRange = (scrapedYear: string, yearRange: string): boolean => {
 
 export default function TuningViewer() {
   const [data, setData] = useState<Brand[]>([]);
-  const [selected, setSelected] = useState<SelectionState>({
-    brand: "",
-    model: "",
-    year: "",
-    engine: "",
-  });
-
+  const [selected, setSelected] = useState<SelectionState>({ brand: "", model: "", year: "", engine: "" });
   const [allVehicles, setAllVehicles] = useState<FlatVehicle[]>([]);
-
   const [searchError, setSearchError] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<"card" | "dropdown">("card");
+  const [isLoading, setIsLoading] = useState(true);
+
+  const [isDbLoading, setIsDbLoading] = useState(true); 
+
+
 
   const translateStageName = (lang: string, name: string): string => {
     const match = name.match(/Steg\s?(\d+)/i);
@@ -121,11 +120,6 @@ export default function TuningViewer() {
   };
 
   
-
-
-  const [viewMode, setViewMode] = useState<"card" | "dropdown">("card");
-
-  const [isLoading, setIsLoading] = useState(true);
   const [expandedStages, setExpandedStages] = useState<Record<string, boolean>>(
     {},
   );
@@ -318,19 +312,23 @@ export default function TuningViewer() {
       watermarkImageRef.current = img;
     };
   }, []);
-
-  // This effect handles all-vehicles fetch
+  
+  // Hämta platt lista över fordon för matchning
 useEffect(() => {
+  setIsLoading(true);
   fetch('/api/all-vehicles')
     .then(res => res.json())
     .then(data => {
       setAllVehicles(data.vehicles || []);
       console.log(`Hämtat ${data.vehicles?.length || 0} fordon för matchning.`);
     })
-    .catch(err => console.error("Kunde inte hämta /api/all-vehicles", err));
+    .catch(err => console.error("Kunde inte hämta /api/all-vehicles", err))
+    .finally(() => {
+      setIsDbLoading(false);
+    });
 }, []);
 
-// This effect fetches brand data — placed separately
+// Hämta märken
 useEffect(() => {
   const fetchBrands = async () => {
     try {
@@ -846,9 +844,10 @@ const handleVehicleFound = (scrapedVehicle: { brand: string; model: string; year
           </button>
         </div>
 
-        <RegnrSearch
-          onVehicleFound={handleVehicleFound}
+            <RegnrSearch
+        onVehicleFound={handleVehicleFound}
           onError={setSearchError}
+          disabled={isDbLoading}
         />
 
         {/* Visa ett centralt felmeddelande om sökningen misslyckas */}
