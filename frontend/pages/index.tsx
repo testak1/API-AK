@@ -357,7 +357,7 @@ export default function TuningViewer() {
       return;
     }
 
-    // Normalisera märke med specialfall för Mercedes-Benz
+    // Normalisera märke med specialfall
     const normalizeBrand = (brand: string) => {
       return brand
         .toLowerCase()
@@ -366,13 +366,25 @@ export default function TuningViewer() {
         .replace("mercedesbenz", "mercedes");
     };
 
-    // Grundläggande modellnormalisering
-    const normalizeModel = (model: string) => {
-      return model
+    // Förbättrad modellnormalisering med specialfall
+    const normalizeModel = (model: string, brand: string) => {
+      const normalizedBrand = normalizeBrand(brand);
+      let normalized = model
         .replace(/[^a-zA-Z0-9\s]/g, "")
         .replace(/\s+/g, " ")
         .trim()
         .toLowerCase();
+
+      // Specialfall för Audi RS-modeller (t.ex. "RS Q3 Sportback" → "rsq3")
+      if (normalizedBrand === "audi" && normalized.startsWith("rs ")) {
+        normalized = normalized.replace("rs ", "rs");
+      }
+      // Specialfall för BMW (ignorera versaler)
+      else if (normalizedBrand === "bmw") {
+        normalized = normalized.toLowerCase();
+      }
+
+      return normalized.replace(/\s+/g, "");
     };
 
     const scrapedHp = parseInt(scrapedVehicle.powerHp, 10);
@@ -381,17 +393,20 @@ export default function TuningViewer() {
       Math.round((parseInt(scrapedVehicle.engineCm3, 10) / 1000) * 10) / 10;
     const scrapedBrandNorm = normalizeBrand(scrapedVehicle.brand);
     const scrapedYear = parseInt(scrapedVehicle.year, 10);
-    const scrapedModelNorm = normalizeModel(scrapedVehicle.model);
+    const scrapedModelNorm = normalizeModel(
+      scrapedVehicle.model,
+      scrapedVehicle.brand
+    );
 
     let bestMatch: {vehicle: FlatVehicle; score: number} | null = null;
     let closestModel: FlatVehicle | null = null;
     let closestYearModel: FlatVehicle | null = null;
 
     for (const vehicle of allVehicles) {
-      // Jämför märke med specialhantering för Mercedes
       const vehicleBrandNorm = normalizeBrand(vehicle.brandName);
+
+      // Märkesmatchning med specialfall för Mercedes
       if (vehicleBrandNorm !== scrapedBrandNorm) {
-        // Extra kontroll för Mercedes-Benz
         if (
           !(
             vehicleBrandNorm === "mercedes" &&
@@ -402,48 +417,47 @@ export default function TuningViewer() {
         }
       }
 
-      // Jämför modell (mindre strikt för att hantera olika format)
-      const vehicleModelNorm = normalizeModel(vehicle.modelName);
+      // Modellmatchning med förbättrad logik
+      const vehicleModelNorm = normalizeModel(
+        vehicle.modelName,
+        vehicle.brandName
+      );
       const modelMatch =
-        vehicleModelNorm.includes(scrapedModelNorm) ||
+        vehicleModelNorm === scrapedModelNorm ||
         scrapedModelNorm.includes(vehicleModelNorm) ||
-        (scrapedBrandNorm === "bmw" &&
-          vehicleModelNorm.replace(/\s+/g, "") ===
-            scrapedModelNorm.replace(/\s+/g, "").toLowerCase());
+        vehicleModelNorm.includes(scrapedModelNorm);
 
       if (!modelMatch) continue;
 
-      // Spara närmaste modell om ingen exakt match hittats än
+      // Spara närmaste modell för fallback
       if (!closestModel) {
         closestModel = vehicle;
       }
 
-      // Kontrollera bränsletyp
+      // Bränsletyp
       if (normalize(vehicle.engineFuel) !== scrapedFuelNorm) continue;
 
-      // Kontrollera årsintervall
+      // Årsintervall
       const yearInRange = isYearInRange(scrapedVehicle.year, vehicle.yearRange);
 
-      // Spara närmaste modell med rätt år om ingen exakt match hittats än
+      // Spara närmaste modell med rätt år
       if (!closestYearModel && yearInRange) {
         closestYearModel = vehicle;
       }
 
       if (!yearInRange) continue;
 
-      // Förbättrad motorvolymsjämförelse
-      let volumeMatch;
+      // Motorvolymshantering med specialfall för BMW
       let volume = 0;
-
-      // Specialhantering för BMW motorer utan decimaler (t.ex. "30d" = 3.0 liter)
       if (vehicleBrandNorm === "bmw") {
-        volumeMatch = vehicle.engineLabel.match(/(\d)(\d)\s?[di]/i);
-        if (volumeMatch) {
-          volume = parseFloat(`${volumeMatch[1]}.${volumeMatch[2]}`);
+        // Hantera BMW motorer som "30d" (3.0 liter) eller "20i" (2.0 liter)
+        const bmwMatch = vehicle.engineLabel.match(/(\d)(\d)\s?[di]/i);
+        if (bmwMatch) {
+          volume = parseFloat(`${bmwMatch[1]}.${bmwMatch[2]}`);
         }
       } else {
-        // Standardvolymsjämförelse för andra märken
-        volumeMatch =
+        // Standardvolymsextrahering för andra märken
+        const volumeMatch =
           vehicle.engineLabel.match(/(\d[,.]\d)\s?L?/i) ||
           vehicle.engineLabel.match(/(\d)\s?L/i);
         if (volumeMatch) {
@@ -451,20 +465,23 @@ export default function TuningViewer() {
         }
       }
 
-      if (!volumeMatch) continue;
-
+      if (!volume) continue;
       const volumeDiff = Math.abs(volume - scrapedVolumeLiters);
       if (volumeDiff > 0.3) continue;
 
-      // Hästkraftsjämförelse
+      // Hästkraftshantering
+      let hp = 0;
       const hpMatch =
         vehicle.engineLabel.match(/(\d+)\s*(hk|hp|ps|kw)/i) ||
         (vehicleBrandNorm === "bmw" && vehicle.engineLabel.match(/(\d+)[di]/i));
-      if (!hpMatch) continue;
 
-      let hp = parseInt(hpMatch[1], 10);
-      if (hpMatch[2]?.toLowerCase() === "kw") {
-        hp = Math.round(hp * 1.36);
+      if (hpMatch) {
+        hp = parseInt(hpMatch[1], 10);
+        if (hpMatch[2]?.toLowerCase() === "kw") {
+          hp = Math.round(hp * 1.36);
+        }
+      } else {
+        continue;
       }
 
       const hpDiff = Math.abs(hp - scrapedHp);
@@ -477,17 +494,9 @@ export default function TuningViewer() {
       }
     }
 
-    // Prioritera matchning i denna ordning:
-    // 1. Exakt match (bästa poäng)
-    // 2. Modell med rätt år
-    // 3. Närmaste modell
+    // Resultathantering
     if (bestMatch) {
-      console.log(
-        "Bästa match hittad:",
-        bestMatch.vehicle,
-        "Poäng:",
-        bestMatch.score
-      );
+      console.log("Bästa match hittad:", bestMatch.vehicle);
       setSelected({
         brand: bestMatch.vehicle.brandName,
         model: bestMatch.vehicle.modelName,
