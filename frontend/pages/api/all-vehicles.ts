@@ -3,7 +3,7 @@ import type {NextApiRequest, NextApiResponse} from "next";
 import {groq} from "next-sanity";
 import client from "@/lib/sanity";
 
-// Updated query to include all necessary slug fields
+// Updated query using supported GROQ functions
 const allVehiclesQuery = groq`
 *[_type == "brand" && !(_id in path("drafts.**"))] {
   "brandName": name,
@@ -13,19 +13,19 @@ const allVehiclesQuery = groq`
     "modelSlug": select(
       defined(slug.current) => slug.current,
       defined(slug) => slug.current,
-      replace(lower(name), " ", "-")
+      lower(name)
     ),
     "years": years[] {
       "yearRange": range,
       "yearSlug": select(
         defined(slug) => slug,
-        replace(range, " ", "-")
+        range
       ),
       "engines": engines[] {
         "engineLabel": label,
         "engineSlug": select(
           defined(slug) => slug,
-          replace(lower(label), " ", "-")
+          lower(label)
         ),
         "engineFuel": fuel,
         "engineHp": stages[0].origHk,
@@ -34,27 +34,13 @@ const allVehiclesQuery = groq`
   }
 }`;
 
-// Updated type definitions
-interface Engine {
-  engineLabel: string;
-  engineSlug: string;
-  engineFuel: string;
-  engineHp: number;
-}
-interface Year {
-  yearRange: string;
-  yearSlug: string;
-  engines: Engine[];
-}
-interface Model {
-  modelName: string;
-  modelSlug: string;
-  years: Year[];
-}
-interface BrandResult {
-  brandName: string;
-  brandSlug: string;
-  models: Model[];
+// Post-process the data to clean up slugs
+function cleanSlug(str: string): string {
+  return str
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "-") // Replace special chars with -
+    .replace(/-+/g, "-") // Remove consecutive -
+    .replace(/^-|-$/g, ""); // Remove leading/trailing -
 }
 
 export default async function handler(
@@ -62,29 +48,29 @@ export default async function handler(
   res: NextApiResponse
 ) {
   try {
-    const nestedVehicles: BrandResult[] = await client.fetch(allVehiclesQuery);
+    const nestedVehicles = await client.fetch(allVehiclesQuery);
 
-    // Flatten the nested structure and include all slug fields
+    // Flatten and clean the slugs
     const flatVehicles = nestedVehicles
       .flatMap(brand =>
         brand.models?.flatMap(model =>
           model.years?.flatMap(year =>
             year.engines?.map(engine => ({
               engineLabel: engine.engineLabel,
-              engineSlug: engine.engineSlug,
+              engineSlug: cleanSlug(engine.engineSlug || engine.engineLabel),
               engineFuel: engine.engineFuel,
               engineHp: engine.engineHp,
               yearRange: year.yearRange,
-              yearSlug: year.yearSlug,
+              yearSlug: cleanSlug(year.yearSlug || year.yearRange),
               modelName: model.modelName,
-              modelSlug: model.modelSlug,
+              modelSlug: cleanSlug(model.modelSlug || model.modelName),
               brandName: brand.brandName,
-              brandSlug: brand.brandSlug,
+              brandSlug: cleanSlug(brand.brandSlug || brand.brandName),
             }))
           )
         )
       )
-      .filter(Boolean); // Filter out any null/undefined values
+      .filter(Boolean);
 
     res.status(200).json({vehicles: flatVehicles});
   } catch (error) {
