@@ -44,7 +44,6 @@ export default function RegnrSearch({
       const parser = new DOMParser();
       const doc = parser.parseFromString(htmlContent, "text/html");
 
-      // STEG 1: Hitta de specifika sektionerna vi ska leta i
       const summarySection = doc.querySelector("section#summary");
       const technicalDataSection = doc.querySelector("section#technical-data");
 
@@ -54,7 +53,7 @@ export default function RegnrSearch({
         );
       }
 
-      // STEG 2: Leta *endast inuti* sammanfattningssektionen med en mer specifik selektor
+      // KORRIGERAD, MER SPECIFIK SELEKTOR FÖR H1
       const h1 = summarySection.querySelector<HTMLElement>(
         ".bar.summary .info h1"
       );
@@ -86,7 +85,6 @@ export default function RegnrSearch({
           powerHp = value?.match(/(\d+)/)?.[0] || null;
       });
 
-      // STEG 3: Leta efter motorvolym i teknisk data-sektionen
       let engineCm3: string | null = null;
       if (technicalDataSection) {
         technicalDataSection
@@ -107,6 +105,7 @@ export default function RegnrSearch({
 
       if (!brand || !model || !year || !fuel || !powerHp || !engineCm3) {
         const missing = [
+          !brand && "Märke/Modell",
           !year && "År",
           !fuel && "Bränsle",
           !powerHp && "Effekt",
