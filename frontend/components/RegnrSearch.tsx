@@ -12,13 +12,18 @@ type OnVehicleFound = (vehicle: {
 
 type OnError = (message: string | null) => void;
 
-export default function RegnrSearch({ onVehicleFound, onError }: { onVehicleFound: OnVehicleFound, onError: OnError }) {
+// Lägg till 'disabled' i komponentens props
+export default function RegnrSearch({ onVehicleFound, onError, disabled }: { 
+  onVehicleFound: OnVehicleFound, 
+  onError: OnError, 
+  disabled: boolean 
+}) {
   const [regnr, setRegnr] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSearch = async () => {
-    if (!regnr) return;
+    if (!regnr || disabled) return;
     setIsLoading(true);
     setError(null);
     onError(null);
@@ -28,7 +33,9 @@ export default function RegnrSearch({ onVehicleFound, onError }: { onVehicleFoun
 
     try {
       const response = await fetch(proxyUrl);
-      if (!response.ok) throw new Error(`Nätverksfel (Status: ${response.status}).`);
+      if (!response.ok) {
+        throw new Error(`Nätverksfel (Status: ${response.status}).`);
+      }
       
       const htmlContent = await response.text();
       const parser = new DOMParser();
@@ -36,10 +43,14 @@ export default function RegnrSearch({ onVehicleFound, onError }: { onVehicleFoun
       
       const summarySection = doc.querySelector('section#summary .bar.summary .info');
       const iconGrid = doc.querySelector('section#summary ul.icon-grid');
-      if (!summarySection || !iconGrid) throw new Error('Kunde inte hitta huvudinformationen.');
+      if (!summarySection || !iconGrid) {
+        throw new Error('Kunde inte hitta huvudinformationen på sidan.');
+      }
       
       const h1 = doc.querySelector<HTMLElement>('h1');
-      if (!h1) throw new Error('Kunde inte hitta H1-taggen.');
+      if (!h1) {
+        throw new Error('Kunde inte hitta H1-taggen med bilens namn.');
+      }
       const fullName = h1.innerText.trim();
       const brand = fullName.split(' ')[0];
       const model = fullName.substring(brand.length).trim();
@@ -56,7 +67,6 @@ export default function RegnrSearch({ onVehicleFound, onError }: { onVehicleFoun
       });
 
       let engineCm3: string | null = null;
-      // KORRIGERAD SELEKTOR: #technical-data istället för #tekniskdata
       doc.querySelectorAll('#technical-data .inner ul.list li').forEach(item => {
         const label = item.querySelector<HTMLElement>('span.label')?.innerText.trim().toLowerCase();
         if (label === 'motorvolym') {
@@ -82,7 +92,6 @@ export default function RegnrSearch({ onVehicleFound, onError }: { onVehicleFoun
   };
 
   return (
-    // ... Din befintliga JSX för komponenten ...
     <details className="mb-8 bg-gray-900/50 border border-gray-700 rounded-lg group">
       <summary className="p-4 cursor-pointer flex justify-between items-center list-none">
         <div className="flex items-center gap-3">
@@ -90,7 +99,7 @@ export default function RegnrSearch({ onVehicleFound, onError }: { onVehicleFoun
             <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
           <span className="font-semibold text-white">
-            REGNR "(under utveckling!)"
+            Sök med registreringsnummer
           </span>
         </div>
         <svg className="w-5 h-5 text-gray-400 transform transition-transform group-open:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -103,13 +112,14 @@ export default function RegnrSearch({ onVehicleFound, onError }: { onVehicleFoun
             type="text"
             value={regnr}
             onChange={(e) => setRegnr(e.target.value.toUpperCase().replace(/\s/g, ''))}
-            placeholder="ABC 123"
-            className="flex-grow p-3 rounded-lg bg-gray-800 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-red-500 transition-all text-center text-lg font-mono tracking-widest"
-            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+            placeholder={disabled ? "Laddar databas..." : "ABC 123"}
+            className="flex-grow p-3 rounded-lg bg-gray-800 border border-gray-600 text-white focus:outline-none focus:ring-2 focus:ring-red-500 transition-all text-center text-lg font-mono tracking-widest disabled:opacity-50"
+            onKeyDown={(e) => e.key === 'Enter' && !disabled && handleSearch()}
+            disabled={disabled || isLoading}
           />
           <button
             onClick={handleSearch}
-            disabled={isLoading}
+            disabled={disabled || isLoading}
             className="p-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition-all shadow-md disabled:bg-gray-500 disabled:cursor-not-allowed flex items-center justify-center"
           >
             {isLoading ? (
