@@ -357,68 +357,22 @@ export default function TuningViewer() {
       return;
     }
 
-    // Förbättrad normalisering av märke med fler specialfall
+    // Normalisera märke med specialfall för Mercedes-Benz
     const normalizeBrand = (brand: string) => {
       return brand
         .toLowerCase()
-        .replace(/-/g, " ") // Ersätt bindestreck med mellanslag
-        .replace(/[^a-z0-9]/g, "") // Ta bort specialtecken
-        .replace("mercedesbenz", "mercedes") // Specialfall för Mercedes
-        .replace("bmw", "bmw") // Säkerställ konsekvent formatering
-        .replace("volkswagen", "vw"); // Ytterligare specialfall
+        .replace(/-/g, " ")
+        .replace(/[^a-z0-9]/g, "")
+        .replace("mercedesbenz", "mercedes");
     };
 
-    // Förbättrad normalisering av modell med BMW/Mercedes-specifika justeringar
+    // Grundläggande modellnormalisering
     const normalizeModel = (model: string) => {
-      // Specialhantering för Mercedes-modeller (t.ex. "C 250 D" → "c250")
-      if (model.includes("Mercedes")) {
-        return model
-          .replace(/[^a-zA-Z0-9\s]/g, "")
-          .replace(/\s+/g, " ")
-          .trim()
-          .toLowerCase()
-          .replace(/\s(\d+)\s?([a-z])?$/i, "$1$2") // "c 250 d" → "c250d"
-          .replace(/\s+/g, "");
-      }
-      // Specialhantering för BMW-modeller (t.ex. "123D" → "123d")
-      if (model.includes("BMW")) {
-        return model
-          .replace(/[^a-zA-Z0-9\s]/g, "")
-          .replace(/\s+/g, " ")
-          .trim()
-          .toLowerCase();
-      }
-      // Generell normalisering
       return model
         .replace(/[^a-zA-Z0-9\s]/g, "")
         .replace(/\s+/g, " ")
         .trim()
         .toLowerCase();
-    };
-
-    // Förbättrad motorjämförelse för BMW/Mercedes
-    const normalizeEngineLabel = (label: string, brand: string) => {
-      let normalized = label
-        .replace(/[^a-zA-Z0-9\s]/g, "")
-        .replace(/\s+/g, " ")
-        .trim()
-        .toLowerCase();
-
-      // Specialhantering för Mercedes motorer (t.ex. "C 250 CDI - 204 hk" → "c250cdi204")
-      if (brand.includes("mercedes")) {
-        normalized = normalized
-          .replace(/(\d+)\s?([a-z]+)/gi, "$1$2") // Ta bort mellanslag mellan siffror och bokstäver
-          .replace(/\s+/g, "")
-          .replace(/-/g, "");
-      }
-      // Specialhantering för BMW motorer (t.ex. "123d" → "123d")
-      else if (brand.includes("bmw")) {
-        normalized = normalized
-          .replace(/\s+/g, "")
-          .replace("d", "d") // Säkerställ liten 'd'
-          .replace("i", "i"); // Säkerställ liten 'i'
-      }
-      return normalized;
     };
 
     const scrapedHp = parseInt(scrapedVehicle.powerHp, 10);
@@ -431,12 +385,13 @@ export default function TuningViewer() {
 
     let bestMatch: {vehicle: FlatVehicle; score: number} | null = null;
     let closestModel: FlatVehicle | null = null;
+    let closestYearModel: FlatVehicle | null = null;
 
     for (const vehicle of allVehicles) {
       // Jämför märke med specialhantering för Mercedes
       const vehicleBrandNorm = normalizeBrand(vehicle.brandName);
       if (vehicleBrandNorm !== scrapedBrandNorm) {
-        // Ytterligare kontroll för Mercedes-Benz
+        // Extra kontroll för Mercedes-Benz
         if (
           !(
             vehicleBrandNorm === "mercedes" &&
@@ -447,64 +402,64 @@ export default function TuningViewer() {
         }
       }
 
-      // Jämför modell med förbättrad logik
+      // Jämför modell (mindre strikt för att hantera olika format)
       const vehicleModelNorm = normalizeModel(vehicle.modelName);
-      const scrapedModelForComparison = scrapedModelNorm.replace(/\s+/g, "");
-      const vehicleModelForComparison = vehicleModelNorm.replace(/\s+/g, "");
-
       const modelMatch =
-        vehicleModelForComparison.includes(scrapedModelForComparison) ||
-        scrapedModelForComparison.includes(vehicleModelForComparison) ||
-        (vehicleBrandNorm === "bmw" &&
-          vehicleModelForComparison.replace("d", "d") ===
-            scrapedModelForComparison.replace("D", "d"));
+        vehicleModelNorm.includes(scrapedModelNorm) ||
+        scrapedModelNorm.includes(vehicleModelNorm) ||
+        (scrapedBrandNorm === "bmw" &&
+          vehicleModelNorm.replace(/\s+/g, "") ===
+            scrapedModelNorm.replace(/\s+/g, "").toLowerCase());
 
       if (!modelMatch) continue;
 
-      // Jämför bränsletyp
-      if (normalize(vehicle.engineFuel) !== scrapedFuelNorm) continue;
-
       // Spara närmaste modell om ingen exakt match hittats än
-      if (!closestModel && modelMatch) {
+      if (!closestModel) {
         closestModel = vehicle;
       }
 
+      // Kontrollera bränsletyp
+      if (normalize(vehicle.engineFuel) !== scrapedFuelNorm) continue;
+
       // Kontrollera årsintervall
-      if (!isYearInRange(scrapedVehicle.year, vehicle.yearRange)) continue;
+      const yearInRange = isYearInRange(scrapedVehicle.year, vehicle.yearRange);
 
-      // Förbättrad motorjämförelse
-      const engineLabel = normalizeEngineLabel(
-        vehicle.engineLabel,
-        vehicleBrandNorm
-      );
-      const scrapedEngineForComparison =
-        `${scrapedModelNorm.replace(/\s+/g, "")}${scrapedHp}`.toLowerCase();
+      // Spara närmaste modell med rätt år om ingen exakt match hittats än
+      if (!closestYearModel && yearInRange) {
+        closestYearModel = vehicle;
+      }
 
-      // Specialhantering för BMW motorer utan decimaler
+      if (!yearInRange) continue;
+
+      // Förbättrad motorvolymsjämförelse
       let volumeMatch;
+      let volume = 0;
+
+      // Specialhantering för BMW motorer utan decimaler (t.ex. "30d" = 3.0 liter)
       if (vehicleBrandNorm === "bmw") {
-        // Hantera motorer som "30d" (3.0 liter) och "20i" (2.0 liter)
-        volumeMatch = engineLabel.match(/(\d)(\d)\s?[dl]/i);
+        volumeMatch = vehicle.engineLabel.match(/(\d)(\d)\s?[di]/i);
         if (volumeMatch) {
-          const liters = `${volumeMatch[1]}.${volumeMatch[2]}`;
-          const volumeDiff = Math.abs(parseFloat(liters) - scrapedVolumeLiters);
-          if (volumeDiff > 0.3) continue;
+          volume = parseFloat(`${volumeMatch[1]}.${volumeMatch[2]}`);
         }
       } else {
-        // Standardvolymjämförelse för andra märken
+        // Standardvolymsjämförelse för andra märken
         volumeMatch =
-          engineLabel.match(/(\d[,.]\d)\s?L?/i) ||
-          engineLabel.match(/(\d)\s?L/i);
-        if (!volumeMatch) continue;
-        const volume = parseFloat(volumeMatch[1].replace(",", "."));
-        const volumeDiff = Math.abs(volume - scrapedVolumeLiters);
-        if (volumeDiff > 0.3) continue;
+          vehicle.engineLabel.match(/(\d[,.]\d)\s?L?/i) ||
+          vehicle.engineLabel.match(/(\d)\s?L/i);
+        if (volumeMatch) {
+          volume = parseFloat(volumeMatch[1].replace(",", "."));
+        }
       }
+
+      if (!volumeMatch) continue;
+
+      const volumeDiff = Math.abs(volume - scrapedVolumeLiters);
+      if (volumeDiff > 0.3) continue;
 
       // Hästkraftsjämförelse
       const hpMatch =
-        engineLabel.match(/(\d+)\s*(hk|hp|ps|kw)/i) ||
-        (vehicleBrandNorm === "bmw" && engineLabel.match(/(\d+)[di]/i));
+        vehicle.engineLabel.match(/(\d+)\s*(hk|hp|ps|kw)/i) ||
+        (vehicleBrandNorm === "bmw" && vehicle.engineLabel.match(/(\d+)[di]/i));
       if (!hpMatch) continue;
 
       let hp = parseInt(hpMatch[1], 10);
@@ -515,13 +470,17 @@ export default function TuningViewer() {
       const hpDiff = Math.abs(hp - scrapedHp);
       if (hpDiff > 15) continue;
 
-      const score = hpDiff; // Enklare poängberäkning
+      const score = volumeDiff * 100 + hpDiff;
 
       if (!bestMatch || score < bestMatch.score) {
         bestMatch = {vehicle, score};
       }
     }
 
+    // Prioritera matchning i denna ordning:
+    // 1. Exakt match (bästa poäng)
+    // 2. Modell med rätt år
+    // 3. Närmaste modell
     if (bestMatch) {
       console.log(
         "Bästa match hittad:",
@@ -536,6 +495,15 @@ export default function TuningViewer() {
         engine: bestMatch.vehicle.engineLabel,
       });
       setSearchError(null);
+    } else if (closestYearModel) {
+      console.log("Modell med rätt år hittad:", closestYearModel);
+      setSelected({
+        brand: closestYearModel.brandName,
+        model: closestYearModel.modelName,
+        year: closestYearModel.yearRange,
+        engine: "",
+      });
+      setSearchError("Välj motor manuellt från listan");
     } else if (closestModel) {
       console.log("Närmaste modell hittad:", closestModel);
       setSelected({
@@ -544,10 +512,7 @@ export default function TuningViewer() {
         year: "",
         engine: "",
       });
-      setSearchError(
-        `Exakt match saknas för ${scrapedVehicle.brand} ${scrapedVehicle.model} ${scrapedVehicle.year}.\n` +
-          `Välj motor manuellt från listan.`
-      );
+      setSearchError("Välj år och motor manuellt från listan");
     } else {
       setSearchError(
         `Ingen match hittades för ${scrapedVehicle.brand} ${scrapedVehicle.model}.\n` +
