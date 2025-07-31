@@ -63,7 +63,10 @@ interface FlatVehicle {
 // --- HJÄLPFUNKTIONER ---
 const normalize = (str: string | undefined | null): string => {
   if (!str) return "";
-  return String(str).toLowerCase().replace(/[\s-]/g, "");
+  return String(str)
+    .toLowerCase()
+    .replace(/[\s-]/g, "")
+    .replace(/tdi|cr|fsi|tsi|gti/g, ""); // Remove common engine codes
 };
 
 const isYearInRange = (
@@ -357,6 +360,7 @@ export default function TuningViewer() {
 
     let bestMatch: {vehicle: FlatVehicle; score: number} | null = null;
 
+    // First pass: strict matching
     for (const vehicle of allVehicles) {
       if (
         !isYearInRange(scrapedVehicle.year, vehicle.yearRange) ||
@@ -366,31 +370,137 @@ export default function TuningViewer() {
       }
 
       const sanityLabel = vehicle.engineLabel;
-      const volumeMatch = sanityLabel.match(/(\d\.\d)/);
-      const hpMatch = sanityLabel.match(/(\d+)\s*hk/i);
 
-      if (!volumeMatch || !hpMatch) continue;
+      // More flexible volume matching (supports both 2.0 and 2,0 formats)
+      const volumeMatch =
+        sanityLabel.match(/(\d[,.]\d)/) || sanityLabel.match(/\d\s?l/i);
+      if (!volumeMatch) continue;
 
-      const sanityVolume = volumeMatch[1];
-      const sanityHp = parseInt(hpMatch[1], 10);
+      const sanityVolume =
+        volumeMatch[1]?.replace(",", ".") || volumeMatch[0]?.match(/\d/) + ".0"; // Handle "2L" case
 
+      // More flexible HP matching (supports hk, hp, PS, etc.)
+      const hpMatch = sanityLabel.match(/(\d+)\s*(hk|hp|ps|kw)/i);
+      if (!hpMatch) continue;
+
+      let sanityHp = parseInt(hpMatch[1], 10);
+      // Convert KW to HP if needed
+      if (hpMatch[2]?.toLowerCase() === "kw") {
+        sanityHp = Math.round(sanityHp * 1.36);
+      }
+
+      // More lenient matching thresholds
       let score = 0;
-      if (sanityVolume === scrapedVolumeLiters) score += 100;
-      else continue;
 
-      if (Math.abs(sanityHp - scrapedHp) <= 2) score += 100;
-      else continue;
+      // Volume matching (allow small differences)
+      if (
+        Math.abs(parseFloat(sanityVolume) - parseFloat(scrapedVolumeLiters)) <=
+        0.2
+      ) {
+        score += 100;
+      } else {
+        continue;
+      }
 
+      // HP matching (wider tolerance)
+      if (Math.abs(sanityHp - scrapedHp) <= 5) {
+        score += 100;
+      } else {
+        continue;
+      }
+
+      // Model name matching (more flexible)
       const modelNorm = normalize(vehicle.modelName);
       const scrapedModelNorm = normalize(scrapedVehicle.model);
+
+      // Remove common suffixes for comparison
+      const cleanModelNorm = modelNorm.replace(
+        /tdi|fsi|gti|r|4motion|quattro/gi,
+        ""
+      );
+      const cleanScrapedModelNorm = scrapedModelNorm.replace(
+        /tdi|fsi|gti|r|4motion|quattro/gi,
+        ""
+      );
+
       if (
-        modelNorm.startsWith(scrapedModelNorm) ||
-        scrapedModelNorm.startsWith(modelNorm)
-      )
+        cleanModelNorm.includes(cleanScrapedModelNorm) ||
+        cleanScrapedModelNorm.includes(cleanModelNorm)
+      ) {
         score += 50;
+      }
 
       if (score > (bestMatch?.score || 0)) {
         bestMatch = {vehicle, score};
+      }
+    }
+
+    // Second pass: relaxed matching if no strict match found
+    if (!bestMatch) {
+      for (const vehicle of allVehicles) {
+        if (!isYearInRange(scrapedVehicle.year, vehicle.yearRange)) continue;
+
+        const sanityLabel = vehicle.engineLabel;
+        const volumeMatch =
+          sanityLabel.match(/(\d[,.]\d)/) || sanityLabel.match(/\d\s?l/i);
+        const hpMatch = sanityLabel.match(/(\d+)\s*(hk|hp|ps|kw)/i);
+
+        if (!volumeMatch || !hpMatch) continue;
+
+        const sanityVolume =
+          volumeMatch[1]?.replace(",", ".") ||
+          volumeMatch[0]?.match(/\d/) + ".0";
+        let sanityHp = parseInt(hpMatch[1], 10);
+        if (hpMatch[2]?.toLowerCase() === "kw") {
+          sanityHp = Math.round(sanityHp * 1.36);
+        }
+
+        let score = 0;
+
+        // Volume matching with wider tolerance
+        if (
+          Math.abs(
+            parseFloat(sanityVolume) - parseFloat(scrapedVolumeLiters)
+          ) <= 0.3
+        ) {
+          score += 80;
+        } else {
+          continue;
+        }
+
+        // HP matching with wider tolerance
+        if (Math.abs(sanityHp - scrapedHp) <= 10) {
+          score += 80;
+        } else {
+          continue;
+        }
+
+        // Fuel type as bonus (not requirement)
+        if (normalize(vehicle.engineFuel) === scrapedFuelNorm) {
+          score += 30;
+        }
+
+        const modelNorm = normalize(vehicle.modelName);
+        const scrapedModelNorm = normalize(scrapedVehicle.model);
+        const cleanModelNorm = modelNorm.replace(
+          /tdi|fsi|gti|r|4motion|quattro/gi,
+          ""
+        );
+        const cleanScrapedModelNorm = scrapedModelNorm.replace(
+          /tdi|fsi|gti|r|4motion|quattro/gi,
+          ""
+        );
+
+        if (
+          cleanModelNorm.includes(cleanScrapedModelNorm) ||
+          cleanScrapedModelNorm.includes(cleanModelNorm)
+        ) {
+          score += 40;
+        }
+
+        if (score > (bestMatch?.score || 0)) {
+          bestMatch = {vehicle, score};
+        }
       }
     }
 
@@ -410,6 +520,22 @@ export default function TuningViewer() {
       setSearchError(null);
     } else {
       console.log("Ingen teknisk match hittades.");
+      // Show closest matches for debugging
+      const closestMatches = allVehicles
+        .filter(v => isYearInRange(scrapedVehicle.year, v.yearRange))
+        .map(v => {
+          const volumeMatch =
+            v.engineLabel.match(/(\d[,.]\d)/) || v.engineLabel.match(/\d\s?l/i);
+          const hpMatch = v.engineLabel.match(/(\d+)\s*(hk|hp|ps|kw)/i);
+          return {
+            vehicle: v,
+            volume: volumeMatch?.[1] || volumeMatch?.[0],
+            hp: hpMatch?.[1],
+            fuel: v.engineFuel,
+          };
+        });
+      console.log("Närmaste matchningar:", closestMatches);
+
       setSearchError(
         `Vi kunde inte hitta en teknisk match för ${scrapedVehicle.brand} ${scrapedVehicle.model} (${scrapedVolumeLiters}L, ${scrapedHp}hk).`
       );
