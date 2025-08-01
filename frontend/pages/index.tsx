@@ -990,7 +990,7 @@ export default function TuningViewer() {
           </div>
 
           {/* Mitten (desktop), under (mobil): REGNR */}
-          {!selected.brand && !isDbLoading && (
+          {!selected.brand && !isDbLoading && currentLanguage === "sv" && (
             <div className="mt-4 sm:absolute sm:top-0 sm:left-1/2 sm:-translate-x-1/2">
               <div className="mx-auto max-w-md">
                 <RegnrSearch
