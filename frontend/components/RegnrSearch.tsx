@@ -51,88 +51,24 @@ export default function RegnrSearch({
     setError(null);
     onError(null);
 
-    const targetUrl = `${process.env.NEXT_PUBLIC_REGNR_URL}/fordon/${formattedRegnr}`;
-    const proxyUrl = `${process.env.NEXT_PUBLIC_CORS_PROXY_URL}/?${encodeURIComponent(targetUrl)}`;
-
     try {
-      const response = await fetch(proxyUrl);
-      if (!response.ok) {
-        throw new Error(`Nätverksfel (Status: ${response.status}).`);
-      }
-
-      const htmlContent = await response.text();
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(htmlContent, "text/html");
-
-      const summarySection = doc.querySelector("section#summary");
-      const technicalDataSection = doc.querySelector("section#technical-data");
-
-      if (!summarySection) {
-        throw new Error("Kunde inte hitta slutföra.");
-      }
-
-      // KORRIGERAD, MER SPECIFIK SELEKTOR FÖR H1
-      const h1 = summarySection.querySelector<HTMLElement>(
-        ".bar.summary .info h1",
-      );
-      const iconGrid =
-        summarySection.querySelector<HTMLElement>("ul.icon-grid");
-
-      if (!h1 || !iconGrid) {
-        throw new Error("Kunde inte slutföra.");
-      }
-
-      const fullName = h1.innerText.trim();
-      const brand = fullName.split(" ")[0];
-      const model = fullName.substring(brand.length).trim();
-
-      let year: string | null = null;
-      let fuel: string | null = null;
-      let powerHp: string | null = null;
-      iconGrid.querySelectorAll("li").forEach((item) => {
-        const label = item
-          .querySelector<HTMLElement>("span")
-          ?.innerText.trim()
-          .toLowerCase();
-        const value = item.querySelector<HTMLElement>("em")?.innerText.trim();
-        if (label === "modellår") year = value?.match(/\d{4}/)?.[0] || null;
-        if (label === "bränsle") fuel = value || null;
-        if (label === "hästkrafter")
-          powerHp = value?.match(/(\d+)/)?.[0] || null;
+      const response = await fetch("/api/regnr-lookup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ regnr: formattedRegnr }),
       });
 
-      let engineCm3: string | null = null;
-      if (technicalDataSection) {
-        technicalDataSection
-          .querySelectorAll(".inner ul.list li")
-          .forEach((item) => {
-            const label = item
-              .querySelector<HTMLElement>("span.label")
-              ?.innerText.trim()
-              .toLowerCase();
-            if (label === "motorvolym") {
-              const value = item
-                .querySelector<HTMLElement>("span.value")
-                ?.innerText.trim();
-              engineCm3 = value?.match(/(\d+)/)?.[0] || null;
-            }
-          });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.error || `Nätverksfel (Status: ${response.status}).`,
+        );
       }
 
-      if (!brand || !model || !year || !fuel || !powerHp || !engineCm3) {
-        const missing = [
-          !brand && "Märke/Modell",
-          !year && "År",
-          !fuel && "Bränsle",
-          !powerHp && "Effekt",
-          !engineCm3 && "Motorvolym",
-        ]
-          .filter(Boolean)
-          .join(", ");
-        throw new Error(`Kunde inte extrahera: ${missing}.`);
-      }
-
-      onVehicleFound({ brand, model, year, fuel, powerHp, engineCm3 });
+      const vehicleData = await response.json();
+      onVehicleFound(vehicleData);
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Ett okänt fel uppstod.";
