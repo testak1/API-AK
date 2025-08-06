@@ -51,8 +51,8 @@ export default function RegnrSearch({
     setError(null);
     onError(null);
 
-    const targetUrl = `https://biluppgifter.se/fordon/${formattedRegnr}`;
-    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
+    const targetUrl = `${process.env.NEXT_PUBLIC_REGNR_URL}/fordon/${formattedRegnr}`;
+    const proxyUrl = `${process.env.NEXT_PUBLIC_CORS_PROXY_URL}/?${encodeURIComponent(targetUrl)}`;
 
     try {
       const response = await fetch(proxyUrl);
