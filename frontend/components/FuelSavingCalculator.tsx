@@ -9,7 +9,7 @@ const FUEL_SAVING_PERCENTAGE = 0.15; // 15% besparing
 
 export default function FuelSavingCalculator({ stage }: { stage: Stage }) {
   const [mileage, setMileage] = useState("10000"); // Årlig körsträcka i mil
-  const [fuelPrice, setFuelPrice] = useState("20"); // Bränslepris per liter
+  const [fuelPrice, setFuelPrice] = useState("17"); // Bränslepris per liter
   const [consumption, setConsumption] = useState("3.5"); // Nuvarande förbrukning L/mil
 
   const { savedKronor, savedLiters } = useMemo(() => {
