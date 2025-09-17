@@ -3,6 +3,7 @@ import { GetServerSideProps } from "next";
 import NextImage from "next/image";
 import { useRouter } from "next/router";
 import client from "@/lib/sanity";
+import Link from "next/link";
 import { engineByParamsQuery } from "@/src/lib/queries";
 import type {
   Brand,
@@ -808,6 +809,14 @@ export default function EnginePage({
         />
       </Head>
       <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
+        <div className="mb-6">
+          <Link href={`/${brandSlug}/${modelSlug}`}>
+            <span className="text-sm text-orange-500 hover:underline cursor-pointer">
+              ← {translate(currentLanguage, "BACKTO")} {brandData.name}{" "}
+              {modelData.name}
+            </span>
+          </Link>
+        </div>
         <div className="flex items-center justify-between mb-4">
           <NextImage
             src="/ak-logo2.png"
