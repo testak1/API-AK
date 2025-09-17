@@ -836,6 +836,27 @@ export default function EnginePage({
               const allOptions = getAllAktPlusOptions(stage);
               const isExpanded = expandedStages[stage.name] ?? false;
 
+              const descriptionObject =
+                stage.descriptionRef?.description || stage.description;
+              let rawDescription = null;
+
+              if (Array.isArray(descriptionObject)) {
+                rawDescription = descriptionObject;
+              } else if (
+                typeof descriptionObject === "object" &&
+                descriptionObject !== null
+              ) {
+                rawDescription =
+                  descriptionObject[currentLanguage] ||
+                  descriptionObject["sv"] ||
+                  [];
+              }
+
+              // Skapa den dynamiska beskrivningen EN GÅNG
+              const dynamicDescription = rawDescription
+                ? createDynamicDescription(rawDescription, stage)
+                : null;
+
               return (
                 <div
                   id={slugify(stage.name)}
@@ -1041,15 +1062,17 @@ export default function EnginePage({
                           {translate(currentLanguage, "infoStage")}
                         </button>
                         {/* Hidden SEO content for stage info */}
+                        {/* Ny, korrekt kod */}
                         <div className="sr-only" aria-hidden="false">
                           <h2>{stage.name.toUpperCase()} INFORMATION</h2>
-                          {stage.description?.[currentLanguage] && (
+                          {dynamicDescription && (
                             <PortableText
-                              value={stage.description[currentLanguage]}
+                              value={dynamicDescription}
                               components={portableTextComponents}
                             />
                           )}
                         </div>
+
                         <button
                           onClick={() =>
                             setInfoModal({ open: true, type: "general" })
@@ -1646,48 +1669,44 @@ export default function EnginePage({
               : "general-info-modal"
           }
           content={
-            infoModal.type === "stage" ? (
+            infoModal.type === "stage" && infoModal.stage ? (
               (() => {
-                const description =
+                // Centraliserad logik för att hämta och bearbeta beskrivningen
+                const descriptionObject =
                   infoModal.stage?.descriptionRef?.description ||
                   infoModal.stage?.description;
 
-                if (!description) return null;
+                let rawDescription = null;
 
-                if (Array.isArray(description)) {
-                  // ANVÄND DEN NYA FUNKTIONEN HÄR
+                if (Array.isArray(descriptionObject)) {
+                  rawDescription = descriptionObject;
+                } else if (
+                  typeof descriptionObject === "object" &&
+                  descriptionObject !== null
+                ) {
+                  rawDescription =
+                    descriptionObject[currentLanguage] ||
+                    descriptionObject["sv"] ||
+                    [];
+                }
+
+                if (rawDescription) {
                   const dynamicDescription = createDynamicDescription(
-                    description,
+                    rawDescription,
                     infoModal.stage,
                   );
                   return (
                     <PortableText
-                      value={dynamicDescription} // Använd den dynamiska texten
+                      value={dynamicDescription}
                       components={portableTextComponents}
                     />
                   );
                 }
 
-                if (typeof description === "object") {
-                  const langDesc =
-                    description[currentLanguage] || description["sv"] || [];
-
-                  // OCH ANVÄND DEN ÄVEN HÄR
-                  const dynamicLangDesc = createDynamicDescription(
-                    langDesc,
-                    infoModal.stage,
-                  );
-                  return (
-                    <PortableText
-                      value={dynamicLangDesc} // Använd den dynamiska texten
-                      components={portableTextComponents}
-                    />
-                  );
-                }
-
-                return <p>{String(description)}</p>;
+                return <p>Information saknas för detta steg.</p>; // Fallback
               })()
             ) : (
+              // Generell informationstext (oförändrad)
               <div id="general-info-content">
                 <ul className="space-y-2">
                   <li>✅ {translate(currentLanguage, "customSoftware")}</li>
@@ -1699,11 +1718,8 @@ export default function EnginePage({
                     ✅ {translate(currentLanguage, "performanceAndEconomy")}
                   </li>
                 </ul>
-
                 <div className="mt-6 text-sm text-gray-400 leading-relaxed">
-                  <p>
-                    <p>{translate(currentLanguage, "aboutUs1")}</p>
-                  </p>
+                  <p>{translate(currentLanguage, "aboutUs1")}</p>
                   <p className="mt-2">
                     {translate(currentLanguage, "aboutUs2")}
                   </p>
