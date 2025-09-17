@@ -19,6 +19,7 @@ export const translations = {
     BACK1: "TILLBAKA",
     SELECT1: "VÄLJ METOD",
     VAL1: "VAL",
+    bookNow: "BOKA NU!",
     MES1: "MEDDELANDE",
     TELNR1: "TELNR",
     NAME1: "NAMN",
@@ -100,6 +101,7 @@ export const translations = {
       "All mjukvara utvecklas in-house med fokus på kvalitet, säkerhet och lång livslängd. Välkommen till en ny nivå av bilprestanda med AK-TUNING.",
   },
   en: {
+    bookNow: "BOOK NOW!",
     skicka1: "SEND INQUIRY",
     ring1: "CALL US",
     INSELECT: "INQUIRY FOR:",

@@ -2581,9 +2581,7 @@ export default function TuningViewer() {
                 </ul>
 
                 <div className="mt-6 text-sm text-gray-400 leading-relaxed">
-                  <p>
-                    <p>{translate(currentLanguage, "aboutUs1")}</p>
-                  </p>
+                  <p>{translate(currentLanguage, "aboutUs1")}</p>
                   <p className="mt-2">
                     {translate(currentLanguage, "aboutUs2")}
                   </p>
@@ -2594,7 +2592,9 @@ export default function TuningViewer() {
               </div>
             )
           }
-          setContactModalData={setContactModalData} // 👈 skickas in här
+          setContactModalData={setContactModalData}
+          currentLanguage={currentLanguage} // 👈 skickas in
+          translate={translate} // 👈 skickas in
         />
       </div>
     </>
@@ -2607,7 +2607,9 @@ const InfoModal = ({
   title,
   content,
   id,
-  setContactModalData, // 👈 tas emot här
+  setContactModalData,
+  currentLanguage,
+  translate,
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -2622,10 +2624,11 @@ const InfoModal = ({
       scrollPosition?: number;
     }>
   >;
+  currentLanguage: string;
+  translate: (lang: string, key: string, fallback?: string) => string;
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
 
-  // Handle escape key press
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -2684,7 +2687,7 @@ const InfoModal = ({
             }}
             className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold transition focus:outline-none focus:ring-2 focus:ring-orange-500"
           >
-            📅 BOKA NU
+            📅 {translate(currentLanguage, "bookNow")}
           </button>
 
           {/* STÄNG-knapp till höger */}
@@ -2692,7 +2695,7 @@ const InfoModal = ({
             onClick={onClose}
             className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-orange-500"
           >
-            ❌ STÄNG
+            ❌ {translate(currentLanguage, "close")}
           </button>
         </div>
       </div>
