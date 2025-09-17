@@ -201,6 +201,7 @@ export const translations = {
       "All software is developed in-house with focus on quality, safety and long lifespan. Welcome to a new level of car performance with AK-TUNING.",
   },
   de: {
+    bookNow: "JETZT BUCHEN",
     skicka1: "ANFRAGE SENDEN",
     ring1: "RUFEN SIE UNS AN",
     INSELECT: "ANFRAGE FÜR:",
@@ -295,6 +296,7 @@ export const translations = {
       "Alle Software wird intern entwickelt mit Fokus auf Qualität, Sicherheit und lange Lebensdauer. Willkommen zu einem neuen Level der Fahrzeugleistung mit AK-TUNING.",
   },
   da: {
+    bookNow: "BESTIL NU",
     skicka1: "SEND FORESPØRGSEL",
     ring1: "RING TIL OS",
     INSELECT: "FORESPØRGSEL FOR:",
@@ -388,6 +390,7 @@ export const translations = {
       "Alt software udvikles in-house med fokus på kvalitet, sikkerhed og lang levetid. Velkommen til et nyt niveau af bilpræstationer med AK-TUNING.",
   },
   no: {
+    bookNow: "BESTILL NÅ",
     skicka1: "SEND FORESPØRSEL",
     ring1: "RING OSS",
     INSELECT: "FORESPØRSEL FOR:",
@@ -575,6 +578,7 @@ export const translations = {
       "Kaikki ohjelmistot kehitetään talon sisällä keskittyen laatuun, turvallisuuteen ja pitkään käyttöikään. Tervetuloa autosi suorituskyvyn uudelle tasolle AK-TUNINGin kanssa.",
   },
   fr: {
+    bookNow: "RÉSERVER",
     skicka1: "ENVOYER LA DEMANDE",
     ring1: "APPELEZ-NOUS",
     INSELECT: "DEMANDE POUR:",
@@ -859,6 +863,7 @@ export const translations = {
       "Todo el software se desarrolla internamente con un enfoque en la calidad, la seguridad y la longevidad. Bienvenido a un nuevo nivel de rendimiento automotriz con AK-TUNING.",
   },
   it: {
+    bookNow: "PRENOTA ORA",
     skicka1: "INVIA RICHIESTA",
     ring1: "CHIAMACI",
     INSELECT: "RICHIESTA PER:",
