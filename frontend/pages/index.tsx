@@ -2594,6 +2594,7 @@ export default function TuningViewer() {
               </div>
             )
           }
+          setContactModalData={setContactModalData} // 👈 skickas in här
         />
       </div>
     </>
@@ -2606,12 +2607,21 @@ const InfoModal = ({
   title,
   content,
   id,
+  setContactModalData, // 👈 tas emot här
 }: {
   isOpen: boolean;
   onClose: () => void;
   title: string;
   content: React.ReactNode;
   id: string;
+  setContactModalData: React.Dispatch<
+    React.SetStateAction<{
+      isOpen: boolean;
+      stageOrOption: string;
+      link: string;
+      scrollPosition?: number;
+    }>
+  >;
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -2623,7 +2633,6 @@ const InfoModal = ({
 
     if (isOpen) {
       document.addEventListener("keydown", handleKeyDown);
-      // Focus the modal when opened
       modalRef.current?.focus();
     }
 
@@ -2662,7 +2671,23 @@ const InfoModal = ({
         >
           {content}
         </div>
-        <div className="mt-6 text-right">
+        <div className="mt-6 flex justify-between">
+          {/* BOKA NU-knapp till vänster */}
+          <button
+            onClick={() => {
+              setContactModalData({
+                isOpen: true,
+                stageOrOption: title,
+                link: window.location.href,
+              });
+              onClose();
+            }}
+            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold transition focus:outline-none focus:ring-2 focus:ring-orange-500"
+          >
+            📅 BOKA NU
+          </button>
+
+          {/* STÄNG-knapp till höger */}
           <button
             onClick={onClose}
             className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-orange-500"
