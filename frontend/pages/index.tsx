@@ -140,6 +140,56 @@ export default function TuningViewer() {
     Record<string, boolean>
   >({});
 
+  const createDynamicDescription = (
+    description: any[],
+    stage: Stage | undefined,
+  ) => {
+    if (
+      !selected.brand ||
+      !selected.model ||
+      !selected.year ||
+      !selected.engine ||
+      !stage ||
+      !Array.isArray(description)
+    ) {
+      return description;
+    }
+
+    const hkIncrease =
+      stage.tunedHk && stage.origHk ? stage.tunedHk - stage.origHk : "?";
+    const nmIncrease =
+      stage.tunedNm && stage.origNm ? stage.tunedNm - stage.origNm : "?";
+
+    // Skapa en djup kopia för att inte mutera originaldatan
+    const newDescription = JSON.parse(JSON.stringify(description));
+
+    // Gå igenom varje block i Portable Text-datan
+    newDescription.forEach((block: any) => {
+      if (block._type === "block" && Array.isArray(block.children)) {
+        // Gå igenom varje textsegment i blocket
+        block.children.forEach((child: any) => {
+          if (child._type === "span" && typeof child.text === "string") {
+            // Ersätt platshållare
+            child.text = child.text
+              .replace(/{{brand}}/g, selected.brand)
+              .replace(/{{model}}/g, selected.model)
+              .replace(/{{year}}/g, selected.year)
+              .replace(/{{engine}}/g, selected.engine)
+              .replace(/{{stageName}}/g, stage.name)
+              .replace(/{{origHk}}/g, String(stage.origHk))
+              .replace(/{{tunedHk}}/g, String(stage.tunedHk))
+              .replace(/{{hkIncrease}}/g, String(hkIncrease))
+              .replace(/{{origNm}}/g, String(stage.origNm))
+              .replace(/{{tunedNm}}/g, String(stage.tunedNm))
+              .replace(/{{nmIncrease}}/g, String(nmIncrease));
+          }
+        });
+      }
+    });
+
+    return newDescription;
+  };
+
   // Körs en gång när komponenten laddas för att hämta all grunddata
   useEffect(() => {
     // Sätt båda laddnings-statusarna till true i början
@@ -1666,6 +1716,28 @@ export default function TuningViewer() {
               const allOptions = getAllAktPlusOptions(stage);
               const isExpanded = expandedStages[stage.name] ?? false;
 
+              // -- START PÅ NY KOD --
+              const descriptionObject =
+                stage.descriptionRef?.description || stage.description;
+              let rawDescription = null;
+
+              if (Array.isArray(descriptionObject)) {
+                rawDescription = descriptionObject;
+              } else if (
+                typeof descriptionObject === "object" &&
+                descriptionObject !== null
+              ) {
+                rawDescription =
+                  descriptionObject[currentLanguage] ||
+                  descriptionObject["sv"] ||
+                  [];
+              }
+
+              const dynamicDescription = rawDescription
+                ? createDynamicDescription(rawDescription, stage)
+                : null;
+              // -- SLUT PÅ NY KOD --
+
               return (
                 <div
                   key={stage.name}
@@ -1877,9 +1949,9 @@ export default function TuningViewer() {
                         {/* Hidden SEO content for stage info */}
                         <div className="sr-only" aria-hidden="false">
                           <h2>{stage.name.toUpperCase()} INFORMATION</h2>
-                          {stage.description?.[currentLanguage] && (
+                          {dynamicDescription && (
                             <PortableText
-                              value={stage.description[currentLanguage]}
+                              value={dynamicDescription}
                               components={portableTextComponents}
                             />
                           )}
@@ -2463,39 +2535,39 @@ export default function TuningViewer() {
               : "general-info-modal"
           }
           content={
-            infoModal.type === "stage" ? (
+            infoModal.type === "stage" && infoModal.stage ? (
               (() => {
-                const description =
+                const descriptionObject =
                   infoModal.stage?.descriptionRef?.description ||
                   infoModal.stage?.description;
 
-                if (!description) return null;
+                let rawDescription = null;
+                if (Array.isArray(descriptionObject)) {
+                  rawDescription = descriptionObject;
+                } else if (
+                  typeof descriptionObject === "object" &&
+                  descriptionObject !== null
+                ) {
+                  rawDescription =
+                    descriptionObject[currentLanguage] ||
+                    descriptionObject["sv"] ||
+                    [];
+                }
 
-                // Om det är en array ⇒ gammalt format
-                if (Array.isArray(description)) {
+                if (rawDescription) {
+                  const dynamicContent = createDynamicDescription(
+                    rawDescription,
+                    infoModal.stage,
+                  );
                   return (
                     <PortableText
-                      value={description}
+                      value={dynamicContent}
                       components={portableTextComponents}
                     />
                   );
                 }
 
-                // Om det är ett objekt ⇒ försök hämta språkbaserat innehåll
-                if (typeof description === "object") {
-                  const langDesc =
-                    description[currentLanguage] || description["sv"] || [];
-
-                  return (
-                    <PortableText
-                      value={langDesc}
-                      components={portableTextComponents}
-                    />
-                  );
-                }
-
-                // fallback ifall det är ren text eller okänt
-                return <p>{String(description)}</p>;
+                return <p>Information saknas.</p>;
               })()
             ) : (
               <div id="general-info-content">
