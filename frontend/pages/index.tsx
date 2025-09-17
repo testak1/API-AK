@@ -1720,18 +1720,25 @@ export default function TuningViewer() {
               // --- Logik för att skapa dynamisk beskrivning ---
               const descriptionObject =
                 stage.descriptionRef?.description || stage.description;
+
               let rawDescription = null;
-              if (Array.isArray(descriptionObject)) {
-                rawDescription = descriptionObject;
-              } else if (
-                typeof descriptionObject === "object" &&
-                descriptionObject !== null
-              ) {
-                rawDescription =
-                  descriptionObject[currentLanguage] ||
-                  descriptionObject["sv"] ||
-                  [];
+
+              if (descriptionObject) {
+                if (
+                  typeof descriptionObject === "object" &&
+                  !Array.isArray(descriptionObject)
+                ) {
+                  // Vi har ett språkobjekt { sv: [...], en: [...] }
+                  rawDescription =
+                    descriptionObject[currentLanguage] ||
+                    descriptionObject["sv"] || // fallback till svenska
+                    [];
+                } else if (Array.isArray(descriptionObject)) {
+                  // Vi har redan PortableText-array (ingen språknyckel)
+                  rawDescription = descriptionObject;
+                }
               }
+
               const dynamicDescription = rawDescription
                 ? createDynamicDescription(rawDescription, stage)
                 : null;
