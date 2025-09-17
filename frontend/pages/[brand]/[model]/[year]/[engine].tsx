@@ -572,6 +572,56 @@ export default function EnginePage({
     );
   }
 
+  // Funktion för att göra beskrivningar dynamiska
+  const createDynamicDescription = (
+    description: any[],
+    stage: Stage | undefined,
+  ) => {
+    if (
+      !brandData ||
+      !modelData ||
+      !engineData ||
+      !stage ||
+      !Array.isArray(description)
+    ) {
+      return description;
+    }
+
+    const hkIncrease =
+      stage.tunedHk && stage.origHk ? stage.tunedHk - stage.origHk : "?";
+    const nmIncrease =
+      stage.tunedNm && stage.origNm ? stage.tunedNm - stage.origNm : "?";
+
+    // Skapa en djup kopia för att inte mutera originaldatan
+    const newDescription = JSON.parse(JSON.stringify(description));
+
+    // Gå igenom varje block i Portable Text-datan
+    newDescription.forEach((block: any) => {
+      if (block._type === "block" && Array.isArray(block.children)) {
+        // Gå igenom varje textsegment i blocket
+        block.children.forEach((child: any) => {
+          if (child._type === "span" && typeof child.text === "string") {
+            // Ersätt platshållare
+            child.text = child.text
+              .replace(/{{brand}}/g, brandData.name)
+              .replace(/{{model}}/g, modelData.name)
+              .replace(/{{year}}/g, yearData?.range || "")
+              .replace(/{{engine}}/g, engineData.label)
+              .replace(/{{stageName}}/g, stage.name)
+              .replace(/{{origHk}}/g, String(stage.origHk))
+              .replace(/{{tunedHk}}/g, String(stage.tunedHk))
+              .replace(/{{hkIncrease}}/g, String(hkIncrease))
+              .replace(/{{origNm}}/g, String(stage.origNm))
+              .replace(/{{tunedNm}}/g, String(stage.tunedNm))
+              .replace(/{{nmIncrease}}/g, String(nmIncrease));
+          }
+        });
+      }
+    });
+
+    return newDescription;
+  };
+
   return (
     <>
       <Head>
@@ -1604,30 +1654,37 @@ export default function EnginePage({
 
                 if (!description) return null;
 
-                // Om det är en array ⇒ gammalt format
                 if (Array.isArray(description)) {
+                  // ANVÄND DEN NYA FUNKTIONEN HÄR
+                  const dynamicDescription = createDynamicDescription(
+                    description,
+                    infoModal.stage,
+                  );
                   return (
                     <PortableText
-                      value={description}
+                      value={dynamicDescription} // Använd den dynamiska texten
                       components={portableTextComponents}
                     />
                   );
                 }
 
-                // Om det är ett objekt ⇒ försök hämta språkbaserat innehåll
                 if (typeof description === "object") {
                   const langDesc =
                     description[currentLanguage] || description["sv"] || [];
 
+                  // OCH ANVÄND DEN ÄVEN HÄR
+                  const dynamicLangDesc = createDynamicDescription(
+                    langDesc,
+                    infoModal.stage,
+                  );
                   return (
                     <PortableText
-                      value={langDesc}
+                      value={dynamicLangDesc} // Använd den dynamiska texten
                       components={portableTextComponents}
                     />
                   );
                 }
 
-                // fallback ifall det är ren text eller okänt
                 return <p>{String(description)}</p>;
               })()
             ) : (
