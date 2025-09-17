@@ -239,6 +239,20 @@ export default function EnginePage({
     link: "",
   });
 
+  const handleBack = () => {
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.back();
+    } else {
+      const brandSlug = brandData.slug?.current || slugify(brandData.name);
+      const modelSlug =
+        typeof modelData.slug === "object"
+          ? modelData.slug.current
+          : modelData.slug || slugify(modelData.name);
+
+      router.push(`/${brandSlug}/${modelSlug}`);
+    }
+  };
+
   const [infoModal, setInfoModal] = useState<{
     open: boolean;
     type: "stage" | "general";
@@ -810,14 +824,13 @@ export default function EnginePage({
       </Head>
       <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
         <div className="mb-6">
-          <Link
-            href={`/${normalizeString(brandData.name)}/${normalizeString(modelData.name)}`}
+          <button
+            onClick={handleBack}
+            className="text-sm text-orange-500 hover:underline"
           >
-            <span className="text-sm text-orange-500 hover:underline cursor-pointer">
-              ← {translate(currentLanguage, "BACKTO")} {brandData.name}{" "}
-              {modelData.name}
-            </span>
-          </Link>
+            ← {translate(currentLanguage, "backToModel")} {brandData.name}{" "}
+            {modelData.name}
+          </button>
         </div>
         <div className="flex items-center justify-between mb-4">
           <NextImage
