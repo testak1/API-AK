@@ -140,56 +140,6 @@ export default function TuningViewer() {
     Record<string, boolean>
   >({});
 
-  const createDynamicDescription = (
-    description: any[],
-    stage: Stage | undefined,
-  ) => {
-    if (
-      !selected.brand ||
-      !selected.model ||
-      !selected.year ||
-      !selected.engine ||
-      !stage ||
-      !Array.isArray(description)
-    ) {
-      return description;
-    }
-
-    const hkIncrease =
-      stage.tunedHk && stage.origHk ? stage.tunedHk - stage.origHk : "?";
-    const nmIncrease =
-      stage.tunedNm && stage.origNm ? stage.tunedNm - stage.origNm : "?";
-
-    // Skapa en djup kopia för att inte mutera originaldatan
-    const newDescription = JSON.parse(JSON.stringify(description));
-
-    // Gå igenom varje block i Portable Text-datan
-    newDescription.forEach((block: any) => {
-      if (block._type === "block" && Array.isArray(block.children)) {
-        // Gå igenom varje textsegment i blocket
-        block.children.forEach((child: any) => {
-          if (child._type === "span" && typeof child.text === "string") {
-            // Ersätt platshållare
-            child.text = child.text
-              .replace(/{{brand}}/g, selected.brand)
-              .replace(/{{model}}/g, selected.model)
-              .replace(/{{year}}/g, selected.year)
-              .replace(/{{engine}}/g, selected.engine)
-              .replace(/{{stageName}}/g, stage.name)
-              .replace(/{{origHk}}/g, String(stage.origHk))
-              .replace(/{{tunedHk}}/g, String(stage.tunedHk))
-              .replace(/{{hkIncrease}}/g, String(hkIncrease))
-              .replace(/{{origNm}}/g, String(stage.origNm))
-              .replace(/{{tunedNm}}/g, String(stage.tunedNm))
-              .replace(/{{nmIncrease}}/g, String(nmIncrease));
-          }
-        });
-      }
-    });
-
-    return newDescription;
-  };
-
   // Körs en gång när komponenten laddas för att hämta all grunddata
   useEffect(() => {
     // Sätt båda laddnings-statusarna till true i början
@@ -960,6 +910,58 @@ export default function TuningViewer() {
   const toggleAktPlus = (stageName: string) => {
     setExpandedAktPlus((prev) => ({ ...prev, [stageName]: !prev[stageName] }));
   };
+
+  // Funktion för att göra beskrivningar dynamiska
+  const createDynamicDescription = (
+    description: any[],
+    stage: Stage | undefined,
+  ) => {
+    if (
+      !selected.brand ||
+      !selected.model ||
+      !selected.year ||
+      !selected.engine ||
+      !stage ||
+      !Array.isArray(description)
+    ) {
+      return description;
+    }
+
+    const hkIncrease =
+      stage.tunedHk && stage.origHk ? stage.tunedHk - stage.origHk : "?";
+    const nmIncrease =
+      stage.tunedNm && stage.origNm ? stage.tunedNm - stage.origNm : "?";
+
+    // Skapa en djup kopia för att inte mutera originaldatan
+    const newDescription = JSON.parse(JSON.stringify(description));
+
+    // Gå igenom varje block i Portable Text-datan
+    newDescription.forEach((block: any) => {
+      if (block._type === "block" && Array.isArray(block.children)) {
+        // Gå igenom varje textsegment i blocket
+        block.children.forEach((child: any) => {
+          if (child._type === "span" && typeof child.text === "string") {
+            // Ersätt platshållare
+            child.text = child.text
+              .replace(/{{brand}}/g, selected.brand)
+              .replace(/{{model}}/g, selected.model)
+              .replace(/{{year}}/g, selected.year)
+              .replace(/{{engine}}/g, selected.engine)
+              .replace(/{{stageName}}/g, stage.name)
+              .replace(/{{origHk}}/g, String(stage.origHk))
+              .replace(/{{tunedHk}}/g, String(stage.tunedHk))
+              .replace(/{{hkIncrease}}/g, String(hkIncrease))
+              .replace(/{{origNm}}/g, String(stage.origNm))
+              .replace(/{{tunedNm}}/g, String(stage.tunedNm))
+              .replace(/{{nmIncrease}}/g, String(nmIncrease));
+          }
+        });
+      }
+    });
+
+    return newDescription;
+  };
+
   return (
     <>
       <Head>
@@ -1716,11 +1718,10 @@ export default function TuningViewer() {
               const allOptions = getAllAktPlusOptions(stage);
               const isExpanded = expandedStages[stage.name] ?? false;
 
-              // -- START PÅ NY KOD --
+              // --- Logik för att skapa dynamisk beskrivning ---
               const descriptionObject =
                 stage.descriptionRef?.description || stage.description;
               let rawDescription = null;
-
               if (Array.isArray(descriptionObject)) {
                 rawDescription = descriptionObject;
               } else if (
@@ -1732,11 +1733,9 @@ export default function TuningViewer() {
                   descriptionObject["sv"] ||
                   [];
               }
-
               const dynamicDescription = rawDescription
                 ? createDynamicDescription(rawDescription, stage)
                 : null;
-              // -- SLUT PÅ NY KOD --
 
               return (
                 <div
