@@ -1705,7 +1705,26 @@ export default function EnginePage({
               })()
             ) : (
               <div id="general-info-content">
-                {/* Din general info renderas här */}
+                <ul className="space-y-2">
+                  <li>✅ {translate(currentLanguage, "customSoftware")}</li>
+                  <li>✅ {translate(currentLanguage, "prePostDiagnostics")}</li>
+                  <li>
+                    ✅ {translate(currentLanguage, "loggingForCustomization")}
+                  </li>
+                  <li>
+                    ✅ {translate(currentLanguage, "performanceAndEconomy")}
+                  </li>
+                </ul>
+
+                <div className="mt-6 text-sm text-gray-400 leading-relaxed">
+                  <p>{translate(currentLanguage, "aboutUs1")}</p>
+                  <p className="mt-2">
+                    {translate(currentLanguage, "aboutUs2")}
+                  </p>
+                  <p className="mt-2">
+                    {translate(currentLanguage, "aboutUs3")}
+                  </p>
+                </div>
               </div>
             )
           }
