@@ -2595,6 +2595,7 @@ export default function TuningViewer() {
           setContactModalData={setContactModalData}
           currentLanguage={currentLanguage} // 👈 skickas in
           translate={translate} // 👈 skickas in
+          showBookButton={infoModal.type === "stage"}
         />
       </div>
     </>
@@ -2610,6 +2611,7 @@ const InfoModal = ({
   setContactModalData,
   currentLanguage,
   translate,
+  showBookButton, // 👈 ny prop
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -2626,6 +2628,7 @@ const InfoModal = ({
   >;
   currentLanguage: string;
   translate: (lang: string, key: string, fallback?: string) => string;
+  showBookButton: boolean; // 👈 typdefinition
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -2668,32 +2671,34 @@ const InfoModal = ({
             &times;
           </button>
         </div>
+
         <div
           id={`${id}-content`}
           className="text-gray-300 text-sm max-h-[70vh] overflow-y-auto"
         >
           {content}
         </div>
-        <div className="mt-6 flex justify-between">
-          {/* BOKA NU-knapp till vänster */}
-          <button
-            onClick={() => {
-              setContactModalData({
-                isOpen: true,
-                stageOrOption: title,
-                link: window.location.href,
-              });
-              onClose();
-            }}
-            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold transition focus:outline-none focus:ring-2 focus:ring-orange-500"
-          >
-            📅 {translate(currentLanguage, "bookNow")}
-          </button>
 
-          {/* STÄNG-knapp till höger */}
+        <div className="mt-6 flex justify-between">
+          {showBookButton && (
+            <button
+              onClick={() => {
+                setContactModalData({
+                  isOpen: true,
+                  stageOrOption: title,
+                  link: window.location.href,
+                });
+                onClose();
+              }}
+              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold transition focus:outline-none focus:ring-2 focus:ring-orange-500"
+            >
+              📅 {translate(currentLanguage, "bookNow")}
+            </button>
+          )}
+
           <button
             onClick={onClose}
-            className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-orange-500"
+            className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-orange-500 ml-auto"
           >
             ❌ {translate(currentLanguage, "close")}
           </button>
