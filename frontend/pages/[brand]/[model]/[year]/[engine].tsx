@@ -248,8 +248,11 @@ export default function EnginePage({
         typeof modelData.slug === "object"
           ? modelData.slug.current
           : modelData.slug || slugify(modelData.name);
+      const yearSlug = yearData.range.includes(" ")
+        ? slugify(yearData.range)
+        : yearData.range;
 
-      router.push(`/${brandSlug}/${modelSlug}`);
+      router.push(`/${brandSlug}/${modelSlug}/${yearSlug}`);
     }
   };
 
