@@ -1671,13 +1671,11 @@ export default function EnginePage({
           content={
             infoModal.type === "stage" && infoModal.stage ? (
               (() => {
-                // Centraliserad logik för att hämta och bearbeta beskrivningen
                 const descriptionObject =
                   infoModal.stage?.descriptionRef?.description ||
                   infoModal.stage?.description;
 
                 let rawDescription = null;
-
                 if (Array.isArray(descriptionObject)) {
                   rawDescription = descriptionObject;
                 } else if (
@@ -1691,70 +1689,65 @@ export default function EnginePage({
                 }
 
                 if (rawDescription) {
-                  const dynamicDescription = createDynamicDescription(
+                  const dynamicContent = createDynamicDescription(
                     rawDescription,
                     infoModal.stage,
                   );
                   return (
                     <PortableText
-                      value={dynamicDescription}
+                      value={dynamicContent}
                       components={portableTextComponents}
                     />
                   );
                 }
 
-                return <p>Information saknas för detta steg.</p>; // Fallback
+                return;
               })()
             ) : (
-              // Generell informationstext (oförändrad)
               <div id="general-info-content">
-                <ul className="space-y-2">
-                  <li>✅ {translate(currentLanguage, "customSoftware")}</li>
-                  <li>✅ {translate(currentLanguage, "prePostDiagnostics")}</li>
-                  <li>
-                    ✅ {translate(currentLanguage, "loggingForCustomization")}
-                  </li>
-                  <li>
-                    ✅ {translate(currentLanguage, "performanceAndEconomy")}
-                  </li>
-                </ul>
-                <div className="mt-6 text-sm text-gray-400 leading-relaxed">
-                  <p>{translate(currentLanguage, "aboutUs1")}</p>
-                  <p className="mt-2">
-                    {translate(currentLanguage, "aboutUs2")}
-                  </p>
-                  <p className="mt-2">
-                    {translate(currentLanguage, "aboutUs3")}
-                  </p>
-                </div>
+                {/* Din general info renderas här */}
               </div>
             )
           }
+          setContactModalData={setContactModalData}
           currentLanguage={currentLanguage}
+          translate={translate}
+          showBookButton={infoModal.type === "stage"} // 👈 bara i stage-popup
         />
       </div>
     </>
   );
 }
-
 const InfoModal = ({
   isOpen,
   onClose,
   title,
   content,
-  currentLanguage,
   id,
+  setContactModalData,
+  currentLanguage,
+  translate,
+  showBookButton,
 }: {
   isOpen: boolean;
   onClose: () => void;
   title: string;
   content: React.ReactNode;
   id: string;
+  setContactModalData: React.Dispatch<
+    React.SetStateAction<{
+      isOpen: boolean;
+      stageOrOption: string;
+      link: string;
+      scrollPosition?: number;
+    }>
+  >;
   currentLanguage: string;
+  translate: (lang: string, key: string, fallback?: string) => string;
+  showBookButton: boolean;
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
 
-  // Handle escape key press
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -1762,7 +1755,6 @@ const InfoModal = ({
 
     if (isOpen) {
       document.addEventListener("keydown", handleKeyDown);
-      // Focus the modal when opened
       modalRef.current?.focus();
     }
 
@@ -1795,18 +1787,36 @@ const InfoModal = ({
             &times;
           </button>
         </div>
+
         <div
           id={`${id}-content`}
           className="text-gray-300 text-sm max-h-[70vh] overflow-y-auto"
         >
           {content}
         </div>
-        <div className="mt-6 text-right">
+
+        <div className="mt-6 flex justify-between">
+          {showBookButton && (
+            <button
+              onClick={() => {
+                setContactModalData({
+                  isOpen: true,
+                  stageOrOption: title,
+                  link: window.location.href,
+                });
+                onClose();
+              }}
+              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold transition focus:outline-none focus:ring-2 focus:ring-orange-500"
+            >
+              📅 {translate(currentLanguage, "bookNow")}
+            </button>
+          )}
+
           <button
             onClick={onClose}
-            className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-orange-500"
+            className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-orange-500 ml-auto"
           >
-            ❌ {translate(currentLanguage, "closeButton")}
+            ❌ {translate(currentLanguage, "close")}
           </button>
         </div>
       </div>
