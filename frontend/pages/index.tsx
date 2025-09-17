@@ -666,8 +666,7 @@ export default function TuningViewer() {
         m.brand.toLowerCase() === brandName.toLowerCase(),
     );
     return (
-      fuzzyMatch?.image_url ||
-      "https://tcmtuning.ro/_alex/ximages/models/5_10857.png"
+      fuzzyMatch?.image_url || "https://tuning.aktuning.se/logos/missing.png"
     );
   };
 
