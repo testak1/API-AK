@@ -74,7 +74,7 @@ export const translations = {
     horsepowerDisplay: (value: number) => `${value} hk`,
     requestSent: "✅ FÖRFRÅGAN SKICKAD!",
     requestNote: "📬 Vi återkommer så snart vi kan!",
-    close: "✖️ STÄNG",
+    close: "STÄNG",
     contactModalTitle: "KONTAKT",
     selectContactOption: "VÄLJ METOD",
     sendForm: "SKICKA FORMULÄR",
