@@ -3,7 +3,6 @@ import { GetServerSideProps } from "next";
 import NextImage from "next/image";
 import { useRouter } from "next/router";
 import client from "@/lib/sanity";
-import Link from "next/link";
 import { engineByParamsQuery } from "@/src/lib/queries";
 import type {
   Brand,
@@ -238,23 +237,6 @@ export default function EnginePage({
     stageOrOption: "",
     link: "",
   });
-
-  const handleBack = () => {
-    if (typeof window !== "undefined" && window.history.length > 1) {
-      router.back();
-    } else {
-      const brandSlug = brandData.slug?.current || slugify(brandData.name);
-      const modelSlug =
-        typeof modelData.slug === "object"
-          ? modelData.slug.current
-          : modelData.slug || slugify(modelData.name);
-      const yearSlug = yearData.range.includes(" ")
-        ? slugify(yearData.range)
-        : yearData.range;
-
-      router.push(`/${brandSlug}/${modelSlug}/${yearSlug}`);
-    }
-  };
 
   const [infoModal, setInfoModal] = useState<{
     open: boolean;
@@ -826,15 +808,6 @@ export default function EnginePage({
         />
       </Head>
       <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
-        <div className="mb-6">
-          <button
-            onClick={handleBack}
-            className="text-sm text-orange-500 hover:underline"
-          >
-            ← {translate(currentLanguage, "BACKTO")} {brandData.name}{" "}
-            {modelData.name}
-          </button>
-        </div>
         <div className="flex items-center justify-between mb-4">
           <NextImage
             src="/ak-logo2.png"
