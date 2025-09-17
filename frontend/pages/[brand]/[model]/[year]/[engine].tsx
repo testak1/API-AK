@@ -810,7 +810,9 @@ export default function EnginePage({
       </Head>
       <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
         <div className="mb-6">
-          <Link href={`/${brandSlug}/${modelSlug}`}>
+          <Link
+            href={`/${normalizeString(brandData.name)}/${normalizeString(modelData.name)}`}
+          >
             <span className="text-sm text-orange-500 hover:underline cursor-pointer">
               ← {translate(currentLanguage, "BACKTO")} {brandData.name}{" "}
               {modelData.name}
