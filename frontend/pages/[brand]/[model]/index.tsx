@@ -1,65 +1,64 @@
 import { GetServerSideProps } from "next";
 import Link from "next/link";
 import client from "@/lib/sanity";
-import { brandBySlugQuery } from "@/src/lib/queries";
-import { Brand, Model } from "@/types/sanity";
-import slugify from "slugify";
+import { modelBySlugQuery } from "@/src/lib/queries";
+import { Model } from "@/types/sanity";
 
 interface ModelPageProps {
-  brandData: Brand | null;
-  modelData: Model | null;
+  brandName: string;
+  brandSlug: string;
+  model: Model | null;
 }
 
-export const getServerSideProps: GetServerSideProps<ModelPageProps> = async (
-  context,
-) => {
-  const brand = decodeURIComponent((context.params?.brand as string) || "");
-  const model = decodeURIComponent((context.params?.model as string) || "");
+export const getServerSideProps: GetServerSideProps<ModelPageProps> = async ({
+  params,
+}) => {
+  const brandSlug = params?.brand as string;
+  const modelSlug = params?.model as string;
 
-  const brandData = await client.fetch(brandBySlugQuery, { brand });
+  const brandData = await client.fetch(modelBySlugQuery, { brand: brandSlug });
 
   if (!brandData) return { notFound: true };
 
-  const modelData =
+  const model =
     brandData.models?.find(
-      (m: Model) =>
-        m.slug?.current === model ||
-        slugify(m.name, { lower: true }) === slugify(model, { lower: true }),
+      (m: any) =>
+        m.slug === modelSlug ||
+        m.name.toLowerCase().replace(/\s+/g, "-") === modelSlug,
     ) || null;
 
-  if (!modelData) return { notFound: true };
+  if (!model) return { notFound: true };
 
-  return { props: { brandData, modelData } };
+  return {
+    props: {
+      brandName: brandData.name,
+      brandSlug: brandData.slug,
+      model,
+    },
+  };
 };
 
-export default function ModelPage({ brandData, modelData }: ModelPageProps) {
-  if (!brandData || !modelData) return <p>Ingen data hittades.</p>;
-
-  const brandSlug = brandData.slug?.current || slugify(brandData.name, { lower: true });
-  const modelSlug = modelData.slug?.current || slugify(modelData.name, { lower: true });
+export default function ModelPage({
+  brandName,
+  brandSlug,
+  model,
+}: ModelPageProps) {
+  if (!model) return <p>Model not found</p>;
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      {/* Tillbaka-knapp */}
-      <div className="mb-4">
-        <Link href={`/${brandSlug}`}>
-          <span className="text-sm text-orange-500 hover:underline">
-            ← Tillbaka till {brandData.name}
-          </span>
-        </Link>
-      </div>
-
+    <div className="max-w-5xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">
-        {brandData.name} {modelData.name}
+        {brandName} {model.name}
       </h1>
-      <ul className="space-y-3">
-        {modelData.years?.map((year) => (
+
+      <h2 className="text-xl font-semibold mb-4">Årsmodeller</h2>
+      <ul className="space-y-2">
+        {model.years?.map((year) => (
           <li key={year._id}>
-            <Link
-              href={`/${brandSlug}/${modelSlug}/${year.slug?.current || slugify(year.range, { lower: true })}`}
-              className="text-blue-400 hover:underline"
-            >
-              {year.range}
+            <Link href={`/${brandSlug}/${model.slug}/${year.slug}`}>
+              <span className="text-orange-500 hover:underline">
+                {year.range}
+              </span>
             </Link>
           </li>
         ))}

@@ -3,48 +3,48 @@ import Link from "next/link";
 import client from "@/lib/sanity";
 import { brandBySlugQuery } from "@/src/lib/queries";
 import { Brand } from "@/types/sanity";
-import slugify from "slugify";
 
 interface BrandPageProps {
-  brandData: Brand | null;
+  brand: Brand | null;
 }
 
-export const getServerSideProps: GetServerSideProps<BrandPageProps> = async (
-  context,
-) => {
-  const brand = decodeURIComponent((context.params?.brand as string) || "");
-  const brandData = await client.fetch(brandBySlugQuery, { brand });
+export const getServerSideProps: GetServerSideProps<BrandPageProps> = async ({
+  params,
+}) => {
+  const brandSlug = params?.brand as string;
 
-  if (!brandData) return { notFound: true };
+  const brand = await client.fetch(brandBySlugQuery, { brand: brandSlug });
 
-  return { props: { brandData } };
+  if (!brand) {
+    return { notFound: true };
+  }
+
+  return { props: { brand } };
 };
 
-export default function BrandPage({ brandData }: BrandPageProps) {
-  if (!brandData) return <p>Ingen data hittades.</p>;
-
-  const brandSlug = brandData.slug?.current || slugify(brandData.name, { lower: true });
+export default function BrandPage({ brand }: BrandPageProps) {
+  if (!brand) return <p>Brand not found</p>;
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      {/* Tillbaka-knapp */}
-      <div className="mb-4">
-        <Link href="/">
-          <span className="text-sm text-orange-500 hover:underline">
-            ← Tillbaka till alla märken
-          </span>
-        </Link>
-      </div>
+    <div className="max-w-5xl mx-auto p-6">
+      <h1 className="text-3xl font-bold mb-6">{brand.name}</h1>
 
-      <h1 className="text-3xl font-bold mb-6">{brandData.name}</h1>
-      <ul className="space-y-3">
-        {brandData.models?.map((model) => (
+      {brand.logo?.asset?.url && (
+        <img
+          src={brand.logo.asset.url}
+          alt={brand.logo.alt || brand.name}
+          className="h-16 mb-6"
+        />
+      )}
+
+      <h2 className="text-xl font-semibold mb-4">Modeller</h2>
+      <ul className="space-y-2">
+        {brand.models?.map((model) => (
           <li key={model._id}>
-            <Link
-              href={`/${brandSlug}/${model.slug?.current || slugify(model.name, { lower: true })}`}
-              className="text-blue-400 hover:underline"
-            >
-              {model.name}
+            <Link href={`/${brand.slug}/${model.slug}`}>
+              <span className="text-orange-500 hover:underline">
+                {model.name}
+              </span>
             </Link>
           </li>
         ))}
