@@ -21,6 +21,30 @@ export const brandsLightQuery = `
 }
 `;
 
+export const brandBySlugQuery = `
+  *[_type == "brand" && (slug.current == $brand || lower(name) == $brand)][0]{
+    _id,
+    name,
+    slug,
+    logo,
+    "models": models[]->{
+      _id,
+      name,
+      slug,
+      "years": years[]->{
+        _id,
+        range,
+        slug,
+        "engines": engines[]->{
+          _id,
+          label,
+          slug
+        }
+      }
+    }
+  }
+`;
+
 export const engineByParamsQuery = `
   *[_type == "brand" && slug.current == $brand][0]{
     name,
