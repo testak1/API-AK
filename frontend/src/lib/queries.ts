@@ -21,24 +21,61 @@ export const brandsLightQuery = `
 }
 `;
 
-export const brandBySlugQuery = `
+// Hämta enbart brand med models (ingen deref)
+export const brandBySlugQuery = groq`
   *[_type == "brand" && (slug.current == $brand || lower(name) == $brand)][0]{
     _id,
     name,
-    slug,
-    logo,
-    "models": models[]->{
+    "slug": slug.current,
+    logo {
+      asset->{
+        _id,
+        url
+      },
+      alt
+    },
+    models[]{
       _id,
       name,
-      slug,
-      "years": years[]->{
+      "slug": slug.current
+    }
+  }
+`;
+
+// Hämta enbart model med years
+export const modelBySlugQuery = groq`
+  *[_type == "brand" && (slug.current == $brand || lower(name) == $brand)][0]{
+    name,
+    "slug": slug.current,
+    models[]{
+      _id,
+      name,
+      "slug": slug.current,
+      years[]{
         _id,
         range,
-        slug,
-        "engines": engines[]->{
+        "slug": slug.current
+      }
+    }
+  }
+`;
+
+// Hämta enbart year med engines
+export const yearBySlugQuery = groq`
+  *[_type == "brand" && (slug.current == $brand || lower(name) == $brand)][0]{
+    name,
+    "slug": slug.current,
+    models[]{
+      name,
+      "slug": slug.current,
+      years[]{
+        _id,
+        range,
+        "slug": slug.current,
+        engines[]{
           _id,
           label,
-          slug
+          "slug": slug.current
         }
       }
     }
