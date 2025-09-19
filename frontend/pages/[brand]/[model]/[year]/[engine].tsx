@@ -414,6 +414,46 @@ export default function EnginePage({
     },
   };
 
+  // Hjälpfunktion för Mercedes-modeller
+  const formatModelName = (brand: string, model: string): string => {
+    const mercedesModels = [
+      "A",
+      "B",
+      "C",
+      "CL",
+      "CLA",
+      "CLC",
+      "CLK",
+      "CLS",
+      "E",
+      "G",
+      "GL",
+      "GLA",
+      "GLB",
+      "GLC",
+      "GLE",
+      "GLK",
+      "GLS",
+      "GT",
+      "ML",
+      "R",
+      "S",
+      "SL",
+      "SLC",
+      "SLK",
+      "SLS",
+      "V",
+      "X",
+    ];
+    if (
+      brand.toLowerCase().includes("mercedes") &&
+      mercedesModels.includes(model.toUpperCase())
+    ) {
+      return `${model}-klass`;
+    }
+    return model;
+  };
+
   const shadowPlugin = {
     id: "shadowPlugin",
     beforeDatasetDraw(chart: ChartJS, args: any, options: any) {
@@ -826,7 +866,8 @@ export default function EnginePage({
         <div className="mb-8">
           <h1 className="text-xl sm:text-3xl md:text-xl font-bold text-center">
             {translate(currentLanguage, "tuningIntro")} {brandData.name}{" "}
-            {modelData.name} {yearData.range} {engineData.label}
+            {formatModelName(brandData.name, modelData.name)} {yearData.range}{" "}
+            {engineData.label}
           </h1>
         </div>{" "}
         {engineData.stages?.length > 0 ? (

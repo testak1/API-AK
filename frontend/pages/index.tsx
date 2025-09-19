@@ -1132,9 +1132,11 @@ export default function TuningViewer() {
             </p>
           ) : (
             <div>
-              {cleanText(selected.brand)}{" "}
-              {formatModelName(selected.brand, cleanText(selected.model))}{" "}
-              {cleanText(selected.year)} – {cleanText(selected.engine)}
+              <p className="text-black text-lg font-semibold mb-2">
+                {cleanText(selected.brand)}{" "}
+                {formatModelName(selected.brand, cleanText(selected.model))}{" "}
+                {cleanText(selected.year)} – {cleanText(selected.engine)}
+              </p>
               <button
                 onClick={() => {
                   // Nollställ motorvalet men behåll brand/model/year

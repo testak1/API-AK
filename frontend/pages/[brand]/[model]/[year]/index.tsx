@@ -102,6 +102,45 @@ const groupEnginesByFuel = (engines: Engine[]) => {
   return groups;
 };
 
+const formatModelName = (brand: string, model: string): string => {
+  const mercedesModels = [
+    "A",
+    "B",
+    "C",
+    "CL",
+    "CLA",
+    "CLC",
+    "CLK",
+    "CLS",
+    "E",
+    "G",
+    "GL",
+    "GLA",
+    "GLB",
+    "GLC",
+    "GLE",
+    "GLK",
+    "GLS",
+    "GT",
+    "ML",
+    "R",
+    "S",
+    "SL",
+    "SLC",
+    "SLK",
+    "SLS",
+    "V",
+    "X",
+  ];
+  if (
+    brand.toLowerCase().includes("mercedes") &&
+    mercedesModels.includes(model.toUpperCase())
+  ) {
+    return `${model}-klass`;
+  }
+  return model;
+};
+
 export default function YearPage({
   brandData,
   modelData,
@@ -129,7 +168,7 @@ export default function YearPage({
           href={`/${brandSlug}/${modelSlug}`}
           className="text-sm text-orange-500 hover:underline"
         >
-          ← Tillbaka till {modelData.name}
+          ← Tillbaka till {formatModelName(brandData.name, modelData.name)}
         </Link>
       </div>
 
@@ -143,7 +182,8 @@ export default function YearPage({
           />
         )}
         <h1 className="text-2xl font-bold text-black">
-          {brandData.name} {modelData.name} {yearData.range}
+          {brandData.name} {formatModelName(brandData.name, modelData.name)}{" "}
+          {yearData.range}
         </h1>
       </div>
 

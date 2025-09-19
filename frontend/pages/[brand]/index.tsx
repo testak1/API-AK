@@ -16,6 +16,46 @@ const getSlug = (slug: any, fallback: string) => {
   return typeof slug === "string" ? slug : slug.current || fallback;
 };
 
+// Hjälpfunktion för Mercedes-modeller
+const formatModelName = (brand: string, model: string): string => {
+  const mercedesModels = [
+    "A",
+    "B",
+    "C",
+    "CL",
+    "CLA",
+    "CLC",
+    "CLK",
+    "CLS",
+    "E",
+    "G",
+    "GL",
+    "GLA",
+    "GLB",
+    "GLC",
+    "GLE",
+    "GLK",
+    "GLS",
+    "GT",
+    "ML",
+    "R",
+    "S",
+    "SL",
+    "SLC",
+    "SLK",
+    "SLS",
+    "V",
+    "X",
+  ];
+  if (
+    brand.toLowerCase().includes("mercedes") &&
+    mercedesModels.includes(model.toUpperCase())
+  ) {
+    return `${model}-klass`;
+  }
+  return model;
+};
+
 export const getServerSideProps: GetServerSideProps<BrandPageProps> = async (
   context,
 ) => {
@@ -66,7 +106,7 @@ export default function BrandPage({ brandData }: BrandPageProps) {
             href={`/${brandSlug}/${getSlug(model.slug, model.name)}`}
             className="p-4 bg-gray-800 hover:bg-gray-700 rounded-lg text-center text-white font-medium shadow"
           >
-            {model.name}
+            {formatModelName(brandData.name, model.name)}
           </Link>
         ))}
       </div>

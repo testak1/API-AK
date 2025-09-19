@@ -1,14 +1,10 @@
+// pages/[brand]/[model]/index.tsx
 import { GetServerSideProps } from "next";
 import Link from "next/link";
 import client from "@/lib/sanity";
 import { brandBySlugQuery } from "@/src/lib/queries";
 import { Brand, Model, Year } from "@/types/sanity";
 import { urlFor } from "@/lib/sanity";
-
-interface ModelPageProps {
-  brandData: Brand | null;
-  modelData: Model | null;
-}
 
 // --- slug helpers ---
 const slugifySafe = (str: string) => {
@@ -37,6 +33,51 @@ const getSlug = (slug: any, fallback: string, isYear = false) => {
     typeof slug === "string" ? slug : slug?.current ? slug.current : fallback;
   return isYear ? slugifyYear(val) : slugifySafe(val);
 };
+
+// --- Mercedes modellnamn fix ---
+const formatModelName = (brand: string, model: string): string => {
+  const mercedesModels = [
+    "A",
+    "B",
+    "C",
+    "CL",
+    "CLA",
+    "CLC",
+    "CLK",
+    "CLS",
+    "E",
+    "G",
+    "GL",
+    "GLA",
+    "GLB",
+    "GLC",
+    "GLE",
+    "GLK",
+    "GLS",
+    "GT",
+    "ML",
+    "R",
+    "S",
+    "SL",
+    "SLC",
+    "SLK",
+    "SLS",
+    "V",
+    "X",
+  ];
+  if (
+    brand.toLowerCase().includes("mercedes") &&
+    mercedesModels.includes(model.toUpperCase())
+  ) {
+    return `${model}-klass`;
+  }
+  return model;
+};
+
+interface ModelPageProps {
+  brandData: Brand | null;
+  modelData: Model | null;
+}
 
 export const getServerSideProps: GetServerSideProps<ModelPageProps> = async (
   context,
@@ -91,7 +132,7 @@ export default function ModelPage({ brandData, modelData }: ModelPageProps) {
           />
         )}
         <h1 className="text-2xl font-bold text-black">
-          {brandData.name} {modelData.name}
+          {brandData.name} {formatModelName(brandData.name, modelData.name)}
         </h1>
       </div>
 
