@@ -5,6 +5,13 @@ import { brandBySlugQuery } from "@/src/lib/queries";
 import type { Brand, Model, Year } from "@/types/sanity";
 import slugify from "slugify";
 
+const slugExtractor = (val: any, fallback: string): string => {
+  if (!val) return slugify(fallback, { lower: true });
+  if (typeof val === "string") return val.toLowerCase();
+  if (typeof val === "object" && val.current) return val.current.toLowerCase();
+  return slugify(fallback, { lower: true });
+};
+
 interface ModelPageProps {
   brandData: Brand | null;
   modelData: Model | null;
@@ -13,71 +20,56 @@ interface ModelPageProps {
 export const getServerSideProps: GetServerSideProps<ModelPageProps> = async (
   context,
 ) => {
-  const brand = decodeURIComponent((context.params?.brand as string) || "");
-  const model = decodeURIComponent((context.params?.model as string) || "");
+  const brand = (context.params?.brand as string)?.toLowerCase() || "";
+  const model = (context.params?.model as string)?.toLowerCase() || "";
 
-  try {
-    const brandData = await client.fetch(brandBySlugQuery, { brand });
-    if (!brandData) return { notFound: true };
+  const brandData: Brand = await client.fetch(brandBySlugQuery, { brand });
 
-    const modelData =
-      brandData.models?.find(
-        (m: Model) =>
-          m.slug?.current?.toLowerCase() === model.toLowerCase() ||
-          (typeof m.slug === "string" &&
-            m.slug.toLowerCase() === model.toLowerCase()) ||
-          slugify(m.name, { lower: true }) === model.toLowerCase(),
-      ) || null;
+  if (!brandData) return { notFound: true };
 
-    if (!modelData) return { notFound: true };
+  const modelData =
+    brandData.models?.find(
+      (m: Model) => slugExtractor(m.slug, m.name) === model,
+    ) || null;
 
-    return { props: { brandData, modelData } };
-  } catch (err) {
-    console.error("Model fetch failed:", err);
-    return { notFound: true };
-  }
+  if (!modelData) return { notFound: true };
+
+  return {
+    props: {
+      brandData,
+      modelData,
+    },
+  };
 };
 
 export default function ModelPage({ brandData, modelData }: ModelPageProps) {
-  if (!brandData || !modelData) return <p>Ingen data</p>;
+  if (!brandData || !modelData) return <p>Ingen data hittades.</p>;
 
   return (
-    <div className="max-w-5xl mx-auto p-6 text-white">
-      <button
-        onClick={() => history.back()}
-        className="text-sm text-orange-500 hover:underline mb-4"
-      >
-        ← Tillbaka till {brandData.name}
-      </button>
-
-      <h1 className="text-3xl font-bold mb-6">
+    <div className="max-w-4xl mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">
         {brandData.name} {modelData.name}
       </h1>
-      <ul className="space-y-3">
-        {modelData.years?.map((year) => {
-          const yearSlug =
-            (typeof year.slug === "string" && year.slug) ||
-            (year.slug &&
-              typeof year.slug === "object" &&
-              (year.slug.current as string)) ||
-            slugify(year.range, { lower: true });
-
-          return (
-            <li key={year._id || yearSlug}>
-              <Link
-                href={`/${brandData.slug?.current || slugify(brandData.name, {
-                  lower: true,
-                })}/${modelData.slug?.current || slugify(modelData.name, {
-                  lower: true,
-                })}/${yearSlug}`}
-                className="text-orange-500 hover:underline"
-              >
-                {year.range}
-              </Link>
-            </li>
-          );
-        })}
+      <ul className="space-y-2">
+        {modelData.years?.map((year: Year) => (
+          <li key={year._id || year.range}>
+            <Link
+              href={`/${slugExtractor(brandData.slug, brandData.name)}/${slugExtractor(modelData.slug, modelData.name)}/${slugExtractor(year.slug, year.range)}`}
+              className="text-orange-500 hover:underline"
+            >
+              {year.range}
+            </Link>
+          </li>
+        ))}
       </ul>
+      <div className="mt-6">
+        <Link
+          href={`/${slugExtractor(brandData.slug, brandData.name)}`}
+          className="text-sm text-gray-400 hover:underline"
+        >
+          ← Tillbaka till {brandData.name}
+        </Link>
+      </div>
     </div>
   );
 }
