@@ -2598,11 +2598,8 @@ export default function TuningViewer() {
           isOpen={infoModal.open}
           onClose={() => setInfoModal({ open: false, type: infoModal.type })}
           title={
-            infoModal.type === "stage"
-              ? translate(currentLanguage, "stageInfoPrefix").replace(
-                  "{number}",
-                  infoModal.stage?.name.replace(/\D/g, "") || "",
-                )
+            infoModal.type === "stage" && infoModal.stage
+              ? `${translateStageName(currentLanguage, infoModal.stage.name)}`
               : translate(currentLanguage, "generalInfoLabel")
           }
           id={
