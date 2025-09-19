@@ -142,7 +142,7 @@ export default function YearPage({
             className="h-10 object-contain"
           />
         )}
-        <h1 className="text-2xl font-bold text-white">
+        <h1 className="text-2xl font-bold text-black">
           {brandData.name} {modelData.name} {yearData.range}
         </h1>
       </div>
@@ -188,15 +188,7 @@ export default function YearPage({
                     engine.label,
                   )}`}
                   className="relative p-4 bg-gray-800 hover:bg-gray-700 rounded-lg text-center text-white font-medium shadow"
-                >
-                  {/* Fuel badge */}
-                  <span
-                    className={`absolute top-2 right-2 text-xs px-2 py-1 rounded-full ${badgeColor}`}
-                  >
-                    {heading.replace("-motorer", "")}
-                  </span>
-                  {engine.label}
-                </Link>
+                ></Link>
               ))}
             </div>
           </div>
