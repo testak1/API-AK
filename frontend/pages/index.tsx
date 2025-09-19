@@ -1627,7 +1627,7 @@ export default function TuningViewer() {
                     </svg>
                     <span className="font-semibold">
                       {selected.brand.replace("[LASTBIL] ", "")}{" "}
-                      {selected.model}
+                      {formatModelName(selected.brand, selected.model)}
                     </span>
                   </button>
 
