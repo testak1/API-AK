@@ -21,23 +21,26 @@ export const brandsLightQuery = `
 }
 `;
 
-// Hämta enbart brand med models (ingen deref)
-export const brandBySlugQuery = groq`
+export const brandBySlugQuery = `
   *[_type == "brand" && (slug.current == $brand || lower(name) == $brand)][0]{
     _id,
     name,
-    "slug": slug.current,
-    logo {
-      asset->{
-        _id,
-        url
-      },
-      alt
-    },
+    slug,
+    logo,
     models[]{
       _id,
       name,
-      "slug": slug.current
+      slug,
+      years[]{
+        _id,
+        range,
+        slug,
+        engines[]{
+          _id,
+          label,
+          slug
+        }
+      }
     }
   }
 `;
