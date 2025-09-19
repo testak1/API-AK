@@ -1,68 +1,78 @@
+// pages/[brand]/index.tsx
 import { GetServerSideProps } from "next";
 import Link from "next/link";
-import client, { urlFor } from "@/lib/sanity";
+import { useRouter } from "next/router";
+import client from "@/lib/sanity";
 import { brandBySlugQuery } from "@/src/lib/queries";
-import type { Brand } from "@/types/sanity";
+import { Brand, Model } from "@/types/sanity";
+import { urlFor } from "@/lib/sanity";
 
 interface BrandPageProps {
   brandData: Brand | null;
 }
 
+const getSlug = (slug: any, fallback: string) => {
+  if (!slug) return fallback;
+  return typeof slug === "string" ? slug : slug.current || fallback;
+};
+
 export const getServerSideProps: GetServerSideProps<BrandPageProps> = async (
   context,
 ) => {
-  const brand = context.params?.brand as string;
+  const brand = decodeURIComponent((context.params?.brand as string) || "");
+
   const brandData = await client.fetch(brandBySlugQuery, { brand });
 
-  if (!brandData) {
-    return { notFound: true };
-  }
+  if (!brandData) return { notFound: true };
 
   return { props: { brandData } };
 };
 
 export default function BrandPage({ brandData }: BrandPageProps) {
-  if (!brandData) return <p>Ingen data</p>;
+  const router = useRouter();
 
-  const brandSlug = brandData.slug?.current || "";
+  if (!brandData) {
+    return <p className="p-6 text-red-500">Ingen tillverkare hittades.</p>;
+  }
+
+  const brandSlug = getSlug(brandData.slug, brandData.name);
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
-      {/* Brand logo */}
-      <div className="flex items-center justify-between mb-4">
-        {brandData.logo?.asset?.url && (
+    <div className="max-w-5xl mx-auto p-6">
+      {/* Tillbaka-knapp */}
+      <div className="mb-4">
+        <button
+          onClick={() => router.back()}
+          className="text-sm text-orange-500 hover:underline"
+        >
+          ← Tillbaka
+        </button>
+      </div>
+
+      {/* Header med logga */}
+      <div className="flex items-center gap-4 mb-6">
+        {brandData.logo?.asset && (
           <img
-            src={urlFor(brandData.logo).width(120).url()}
-            alt={brandData.logo?.alt || brandData.name}
-            className="h-12 w-auto object-contain"
+            src={urlFor(brandData.logo).width(80).url()}
+            alt={brandData.logo.alt || brandData.name}
+            className="h-10 object-contain"
           />
         )}
+        <h1 className="text-2xl font-bold text-white">{brandData.name}</h1>
       </div>
 
-      {/* Back button */}
-      <div className="mb-6">
-        <Link href="/" className="text-sm text-orange-500 hover:underline">
-          ← Tillbaka till startsidan
-        </Link>
-      </div>
-
-      <h1 className="text-2xl font-bold mb-6 text-center">{brandData.name}</h1>
-
-      <ul className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        {brandData.models?.map((model) => (
-          <li
+      {/* Lista modeller */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        {brandData.models?.map((model: Model) => (
+          <Link
             key={model._id}
-            className="bg-gray-800 p-4 rounded-lg shadow hover:bg-gray-700"
+            href={`/${brandSlug}/${getSlug(model.slug, model.name)}`}
+            className="p-4 bg-gray-800 hover:bg-gray-700 rounded-lg text-center text-white font-medium shadow"
           >
-            <Link
-              href={`/${brandSlug}/${model.slug?.current || ""}`}
-              className="block text-center text-white font-medium"
-            >
-              {model.name}
-            </Link>
-          </li>
+            {model.name}
+          </Link>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }
