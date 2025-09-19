@@ -1,10 +1,8 @@
-// pages/[brand]/[model]/index.tsx
 import { GetServerSideProps } from "next";
+import Link from "next/link";
 import client from "@/lib/sanity";
 import { brandBySlugQuery } from "@/src/lib/queries";
-import { Brand, Model, Year } from "@/types/sanity";
-import Link from "next/link";
-import { useRouter } from "next/router";
+import type { Brand, Model, Year } from "@/types/sanity";
 import slugify from "slugify";
 
 interface ModelPageProps {
@@ -15,20 +13,19 @@ interface ModelPageProps {
 export const getServerSideProps: GetServerSideProps<ModelPageProps> = async (
   context,
 ) => {
-  const brand = context.params?.brand as string;
-  const model = context.params?.model as string;
+  const brand = decodeURIComponent((context.params?.brand as string) || "");
+  const model = decodeURIComponent((context.params?.model as string) || "");
 
   try {
-    const brandData = await client.fetch(brandBySlugQuery, {
-      brand: brand.toLowerCase(),
-    });
-
+    const brandData = await client.fetch(brandBySlugQuery, { brand });
     if (!brandData) return { notFound: true };
 
     const modelData =
       brandData.models?.find(
         (m: Model) =>
           m.slug?.current?.toLowerCase() === model.toLowerCase() ||
+          (typeof m.slug === "string" &&
+            m.slug.toLowerCase() === model.toLowerCase()) ||
           slugify(m.name, { lower: true }) === model.toLowerCase(),
       ) || null;
 
@@ -42,56 +39,37 @@ export const getServerSideProps: GetServerSideProps<ModelPageProps> = async (
 };
 
 export default function ModelPage({ brandData, modelData }: ModelPageProps) {
-  const router = useRouter();
-
-  if (!brandData || !modelData) {
-    return (
-      <div className="max-w-5xl mx-auto p-6">
-        <h1 className="text-2xl font-bold mb-4">
-          {router.query.brand} / {router.query.model}
-        </h1>
-        <p className="text-red-500">Ingen data hittades.</p>
-      </div>
-    );
-  }
-
-  const brandSlug =
-    brandData.slug?.current || slugify(brandData.name, { lower: true });
-  const modelSlug =
-    (typeof modelData.slug === "object"
-      ? (modelData.slug.current as string)
-      : (modelData.slug as unknown as string)) ||
-    slugify(modelData.name, { lower: true });
+  if (!brandData || !modelData) return <p>Ingen data</p>;
 
   return (
-    <div className="max-w-5xl mx-auto p-6">
-      {/* 🔙 Tillbaka till Märke */}
-      <div className="mb-4">
-        <Link
-          href={`/${brandSlug}`}
-          className="text-sm text-orange-500 hover:underline"
-        >
-          ← Tillbaka till {brandData.name}
-        </Link>
-      </div>
+    <div className="max-w-5xl mx-auto p-6 text-white">
+      <button
+        onClick={() => history.back()}
+        className="text-sm text-orange-500 hover:underline mb-4"
+      >
+        ← Tillbaka till {brandData.name}
+      </button>
 
-      <h1 className="text-3xl font-bold mb-4">
+      <h1 className="text-3xl font-bold mb-6">
         {brandData.name} {modelData.name}
       </h1>
-
-      <h2 className="text-xl font-semibold mb-3">Årsmodeller</h2>
-      <ul className="space-y-2">
-        {modelData.years?.map((year: Year, i: number) => {
+      <ul className="space-y-3">
+        {modelData.years?.map((year) => {
           const yearSlug =
-            (typeof year.slug === "string"
-              ? year.slug
-              : (year.slug as unknown as string)) ||
+            (typeof year.slug === "string" && year.slug) ||
+            (year.slug &&
+              typeof year.slug === "object" &&
+              (year.slug.current as string)) ||
             slugify(year.range, { lower: true });
 
           return (
-            <li key={year._id || i}>
+            <li key={year._id || yearSlug}>
               <Link
-                href={`/${brandSlug}/${modelSlug}/${yearSlug}`}
+                href={`/${brandData.slug?.current || slugify(brandData.name, {
+                  lower: true,
+                })}/${modelData.slug?.current || slugify(modelData.name, {
+                  lower: true,
+                })}/${yearSlug}`}
                 className="text-orange-500 hover:underline"
               >
                 {year.range}
