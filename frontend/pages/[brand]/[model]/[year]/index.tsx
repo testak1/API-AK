@@ -5,6 +5,13 @@ import { brandBySlugQuery } from "@/src/lib/queries";
 import type { Brand, Model, Year, Engine } from "@/types/sanity";
 import slugify from "slugify";
 
+const slugExtractor = (val: any, fallback: string): string => {
+  if (!val) return slugify(fallback, { lower: true });
+  if (typeof val === "string") return val.toLowerCase();
+  if (typeof val === "object" && val.current) return val.current.toLowerCase();
+  return slugify(fallback, { lower: true });
+};
+
 interface YearPageProps {
   brandData: Brand | null;
   modelData: Model | null;
@@ -14,41 +21,35 @@ interface YearPageProps {
 export const getServerSideProps: GetServerSideProps<YearPageProps> = async (
   context,
 ) => {
-  const brand = decodeURIComponent((context.params?.brand as string) || "");
-  const model = decodeURIComponent((context.params?.model as string) || "");
-  const year = decodeURIComponent((context.params?.year as string) || "");
+  const brand = (context.params?.brand as string)?.toLowerCase() || "";
+  const model = (context.params?.model as string)?.toLowerCase() || "";
+  const year = (context.params?.year as string)?.toLowerCase() || "";
 
-  try {
-    const brandData = await client.fetch(brandBySlugQuery, { brand });
-    if (!brandData) return { notFound: true };
+  const brandData: Brand = await client.fetch(brandBySlugQuery, { brand });
 
-    const modelData =
-      brandData.models?.find(
-        (m: Model) =>
-          slugify(m.name, { lower: true }) === model.toLowerCase() ||
-          m.slug?.current?.toLowerCase() === model.toLowerCase() ||
-          (typeof m.slug === "string" &&
-            m.slug.toLowerCase() === model.toLowerCase()),
-      ) || null;
+  if (!brandData) return { notFound: true };
 
-    if (!modelData) return { notFound: true };
+  const modelData =
+    brandData.models?.find(
+      (m: Model) => slugExtractor(m.slug, m.name) === model,
+    ) || null;
 
-    const yearData =
-      modelData.years?.find(
-        (y: Year) =>
-          slugify(y.range, { lower: true }) === year.toLowerCase() ||
-          y.slug?.current?.toLowerCase() === year.toLowerCase() ||
-          (typeof y.slug === "string" &&
-            y.slug.toLowerCase() === year.toLowerCase()),
-      ) || null;
+  if (!modelData) return { notFound: true };
 
-    if (!yearData) return { notFound: true };
+  const yearData =
+    modelData.years?.find(
+      (y: Year) => slugExtractor(y.slug, y.range) === year,
+    ) || null;
 
-    return { props: { brandData, modelData, yearData } };
-  } catch (err) {
-    console.error("Year fetch failed:", err);
-    return { notFound: true };
-  }
+  if (!yearData) return { notFound: true };
+
+  return {
+    props: {
+      brandData,
+      modelData,
+      yearData,
+    },
+  };
 };
 
 export default function YearPage({
@@ -56,47 +57,34 @@ export default function YearPage({
   modelData,
   yearData,
 }: YearPageProps) {
-  if (!brandData || !modelData || !yearData) return <p>Ingen data</p>;
+  if (!brandData || !modelData || !yearData)
+    return <p>Ingen data hittades.</p>;
 
   return (
-    <div className="max-w-5xl mx-auto p-6 text-white">
-      <button
-        onClick={() => history.back()}
-        className="text-sm text-orange-500 hover:underline mb-4"
-      >
-        ← Tillbaka till {brandData.name} {modelData.name}
-      </button>
-
-      <h1 className="text-3xl font-bold mb-6">
-        {brandData.name} {modelData.name} {yearData.range}
+    <div className="max-w-4xl mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">
+        {brandData.name} {modelData.name} ({yearData.range})
       </h1>
-      <ul className="space-y-3">
-        {yearData.engines?.map((engine, i) => {
-          const engineSlug =
-            (typeof engine.slug === "string" && engine.slug) ||
-            (engine.slug &&
-              typeof engine.slug === "object" &&
-              (engine.slug.current as string)) ||
-            slugify(engine.label || `engine-${i}`, { lower: true });
-
-          return (
-            <li key={engine._id || engineSlug}>
-              <Link
-                href={`/${brandData.slug?.current || slugify(brandData.name, {
-                  lower: true,
-                })}/${modelData.slug?.current || slugify(modelData.name, {
-                  lower: true,
-                })}/${yearData.slug?.current || slugify(yearData.range, {
-                  lower: true,
-                })}/${engineSlug}`}
-                className="text-orange-500 hover:underline"
-              >
-                {engine.label}
-              </Link>
-            </li>
-          );
-        })}
+      <ul className="space-y-2">
+        {yearData.engines?.map((engine: Engine) => (
+          <li key={engine._id || engine.label}>
+            <Link
+              href={`/${slugExtractor(brandData.slug, brandData.name)}/${slugExtractor(modelData.slug, modelData.name)}/${slugExtractor(yearData.slug, yearData.range)}/${slugExtractor(engine.slug, engine.label)}`}
+              className="text-orange-500 hover:underline"
+            >
+              {engine.label}
+            </Link>
+          </li>
+        ))}
       </ul>
+      <div className="mt-6">
+        <Link
+          href={`/${slugExtractor(brandData.slug, brandData.name)}/${slugExtractor(modelData.slug, modelData.name)}`}
+          className="text-sm text-gray-400 hover:underline"
+        >
+          ← Tillbaka till {brandData.name} {modelData.name}
+        </Link>
+      </div>
     </div>
   );
 }
