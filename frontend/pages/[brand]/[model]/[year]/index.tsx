@@ -14,12 +14,6 @@ interface YearPageProps {
   yearData: Year | null;
 }
 
-const getSlug = (slug: any, fallback: string) => {
-  if (!slug) return slugifySafe(fallback);
-  const val = typeof slug === "string" ? slug : slug.current || fallback;
-  return slugifySafe(val);
-};
-
 const slugifySafe = (str: string) => {
   return str
     .toString()
@@ -29,6 +23,13 @@ const slugifySafe = (str: string) => {
     .replace(/\s+/g, "-") // ersätt mellanslag med "-"
     .replace(/[^a-z0-9\-]/g, "") // ta bort allt som inte är a-z, 0-9 eller "-"
     .replace(/-+/g, "-"); // slå ihop flera bindestreck
+};
+
+const getSlug = (slug: any, fallback: string) => {
+  const val =
+    typeof slug === "string" ? slug : slug?.current ? slug.current : fallback;
+
+  return slugifySafe(val);
 };
 
 export const getServerSideProps: GetServerSideProps<YearPageProps> = async (

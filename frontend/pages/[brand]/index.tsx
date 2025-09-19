@@ -41,12 +41,9 @@ export default function BrandPage({ brandData }: BrandPageProps) {
     <div className="max-w-5xl mx-auto p-6">
       {/* Tillbaka-knapp */}
       <div className="mb-4">
-        <button
-          onClick={() => router.back()}
-          className="text-sm text-orange-500 hover:underline"
-        >
-          ← Tillbaka
-        </button>
+        <Link href="/" className="text-sm text-orange-500 hover:underline">
+          ← Tillbaka till startsidan
+        </Link>
       </div>
 
       {/* Header med logga */}
