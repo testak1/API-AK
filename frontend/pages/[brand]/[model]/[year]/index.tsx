@@ -2,14 +2,12 @@ import { GetServerSideProps } from "next";
 import Link from "next/link";
 import client from "@/lib/sanity";
 import { brandBySlugQuery } from "@/src/lib/queries";
-import type { Brand, Model, Year, Engine } from "@/types/sanity";
-import slugify from "slugify";
+import type { Brand, Model, Year } from "@/types/sanity";
 
-const slugExtractor = (val: any, fallback: string): string => {
-  if (!val) return slugify(fallback, { lower: true });
-  if (typeof val === "string") return val.toLowerCase();
-  if (typeof val === "object" && val.current) return val.current.toLowerCase();
-  return slugify(fallback, { lower: true });
+// Helper för slug
+const getSlug = (slug: any, fallback: string) => {
+  if (!slug) return fallback;
+  return typeof slug === "string" ? slug : slug.current || fallback;
 };
 
 interface YearPageProps {
@@ -21,35 +19,23 @@ interface YearPageProps {
 export const getServerSideProps: GetServerSideProps<YearPageProps> = async (
   context,
 ) => {
-  const brand = (context.params?.brand as string)?.toLowerCase() || "";
-  const model = (context.params?.model as string)?.toLowerCase() || "";
-  const year = (context.params?.year as string)?.toLowerCase() || "";
+  const brand = context.params?.brand as string;
+  const model = context.params?.model as string;
+  const year = context.params?.year as string;
 
-  const brandData: Brand = await client.fetch(brandBySlugQuery, { brand });
-
-  if (!brandData) return { notFound: true };
-
+  const brandData = await client.fetch(brandBySlugQuery, { brand });
   const modelData =
-    brandData.models?.find(
-      (m: Model) => slugExtractor(m.slug, m.name) === model,
-    ) || null;
-
-  if (!modelData) return { notFound: true };
-
+    brandData?.models?.find((m: any) => getSlug(m.slug, m.name) === model) ||
+    null;
   const yearData =
-    modelData.years?.find(
-      (y: Year) => slugExtractor(y.slug, y.range) === year,
-    ) || null;
+    modelData?.years?.find((y: any) => getSlug(y.slug, y.range) === year) ||
+    null;
 
-  if (!yearData) return { notFound: true };
+  if (!brandData || !modelData || !yearData) {
+    return { notFound: true };
+  }
 
-  return {
-    props: {
-      brandData,
-      modelData,
-      yearData,
-    },
-  };
+  return { props: { brandData, modelData, yearData } };
 };
 
 export default function YearPage({
@@ -57,34 +43,54 @@ export default function YearPage({
   modelData,
   yearData,
 }: YearPageProps) {
-  if (!brandData || !modelData || !yearData)
-    return <p>Ingen data hittades.</p>;
+  if (!brandData || !modelData || !yearData) return <p>Ingen data</p>;
+
+  const brandSlug = getSlug(brandData.slug, brandData.name);
+  const modelSlug = getSlug(modelData.slug, modelData.name);
+  const yearSlug = getSlug(yearData.slug, yearData.range);
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">
-        {brandData.name} {modelData.name} ({yearData.range})
+    <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
+      {/* Brand logo */}
+      <div className="flex items-center justify-between mb-4">
+        {brandData.logo?.asset?.url && (
+          <img
+            src={brandData.logo.asset.url}
+            alt={brandData.logo?.alt || brandData.name}
+            className="h-12 w-auto object-contain"
+          />
+        )}
+      </div>
+
+      {/* Back button */}
+      <div className="mb-6">
+        <Link
+          href={`/${brandSlug}/${modelSlug}`}
+          className="text-sm text-orange-500 hover:underline"
+        >
+          ← Tillbaka till {modelData.name}
+        </Link>
+      </div>
+
+      <h1 className="text-2xl font-bold mb-6 text-center">
+        {brandData.name} {modelData.name} {yearData.range}
       </h1>
-      <ul className="space-y-2">
-        {yearData.engines?.map((engine: Engine) => (
-          <li key={engine._id || engine.label}>
+
+      <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {yearData.engines?.map((engine) => (
+          <li
+            key={engine._id}
+            className="bg-gray-800 p-4 rounded-lg shadow hover:bg-gray-700"
+          >
             <Link
-              href={`/${slugExtractor(brandData.slug, brandData.name)}/${slugExtractor(modelData.slug, modelData.name)}/${slugExtractor(yearData.slug, yearData.range)}/${slugExtractor(engine.slug, engine.label)}`}
-              className="text-orange-500 hover:underline"
+              href={`/${brandSlug}/${modelSlug}/${yearSlug}/${getSlug(engine.slug, engine.label)}`}
+              className="block text-center text-white font-medium"
             >
               {engine.label}
             </Link>
           </li>
         ))}
       </ul>
-      <div className="mt-6">
-        <Link
-          href={`/${slugExtractor(brandData.slug, brandData.name)}/${slugExtractor(modelData.slug, modelData.name)}`}
-          className="text-sm text-gray-400 hover:underline"
-        >
-          ← Tillbaka till {brandData.name} {modelData.name}
-        </Link>
-      </div>
     </div>
   );
 }
