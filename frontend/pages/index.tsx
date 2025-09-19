@@ -654,11 +654,50 @@ export default function TuningViewer() {
       .trim();
   };
 
+  // Hjälpfunktion för Mercedes-modeller
+  const formatModelName = (brand: string, model: string): string => {
+    const mercedesModels = [
+      "A",
+      "B",
+      "C",
+      "CL",
+      "CLA",
+      "CLC",
+      "CLK",
+      "CLS",
+      "E",
+      "G",
+      "GL",
+      "GLA",
+      "GLB",
+      "GLC",
+      "GLE",
+      "GLK",
+      "GLS",
+      "GT",
+      "ML",
+      "R",
+      "S",
+      "SL",
+      "SLC",
+      "SLK",
+      "SLS",
+      "V",
+      "X",
+    ];
+    if (
+      brand.toLowerCase().includes("mercedes") &&
+      mercedesModels.includes(model.toUpperCase())
+    ) {
+      return `${model}-klass`;
+    }
+    return model;
+  };
+
   const slugify = (str: string) =>
     str
       .toLowerCase()
       .replace(/[^\w\s-]/g, "")
-      .replace(/\s+/g, "-")
       .replace(/-+/g, "-");
 
   const getModelImage = (modelName: string, brandName: string): string => {
@@ -1093,10 +1132,9 @@ export default function TuningViewer() {
             </p>
           ) : (
             <div>
-              <p className="text-black text-lg font-semibold mb-2">
-                {cleanText(selected.brand)} {cleanText(selected.model)}{" "}
-                {cleanText(selected.year)} – {cleanText(selected.engine)}
-              </p>
+              {cleanText(selected.brand)}{" "}
+              {formatModelName(selected.brand, cleanText(selected.model))}{" "}
+              {cleanText(selected.year)} – {cleanText(selected.engine)}
               <button
                 onClick={() => {
                   // Nollställ motorvalet men behåll brand/model/year
@@ -1177,7 +1215,7 @@ export default function TuningViewer() {
                 </option>
                 {models.map((m) => (
                   <option key={m.name} value={m.name}>
-                    {m.name}
+                    {formatModelName(selected.brand, m.name)}
                   </option>
                 ))}
               </select>
@@ -1455,7 +1493,7 @@ export default function TuningViewer() {
                         </div>
                       )}
                       <p className="text-center font-medium text-gray-800">
-                        {model.name}
+                        {formatModelName(selected.brand, model.name)}
                       </p>
                     </div>
                   ))}
