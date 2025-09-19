@@ -46,7 +46,7 @@ export default function BrandPage({ brandData }: BrandPageProps) {
   }
 
   const brandSlug =
-    brandData.slug?.current || slugify(brandData.name, { lower: true });
+    brandData?.slug?.current || slugify(brandData.name, { lower: true });
 
   return (
     <div className="max-w-5xl mx-auto p-6">
@@ -62,15 +62,17 @@ export default function BrandPage({ brandData }: BrandPageProps) {
 
       <h2 className="text-xl font-semibold mb-3">Modeller</h2>
       <ul className="space-y-2">
-        {brandData.models?.map((model: Model) => {
-          // ✅ fallback till slugify om model.slug saknas
+        {brandData.models?.map((model: Model, i: number) => {
+          // ✅ skydd: hantera både slug-objekt, string eller null
           const modelSlug =
-            typeof model.slug === "object"
+            typeof model.slug === "object" && model.slug?.current
               ? model.slug.current
-              : model.slug || slugify(model.name, { lower: true });
+              : typeof model.slug === "string"
+                ? model.slug
+                : slugify(model.name || `modell-${i}`, { lower: true });
 
           return (
-            <li key={model._id}>
+            <li key={model._id || i}>
               <Link
                 href={`/${brandSlug}/${modelSlug}`}
                 className="text-orange-500 hover:underline"
