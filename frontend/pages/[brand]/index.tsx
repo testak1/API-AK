@@ -1,53 +1,85 @@
+// pages/[brand]/index.tsx
+
 import { GetServerSideProps } from "next";
-import Link from "next/link";
 import client from "@/lib/sanity";
 import { brandBySlugQuery } from "@/src/lib/queries";
-import { Brand } from "@/types/sanity";
+import { Brand, Model } from "@/types/sanity";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import slugify from "slugify";
 
 interface BrandPageProps {
-  brand: Brand | null;
+  brandData: Brand | null;
 }
 
-export const getServerSideProps: GetServerSideProps<BrandPageProps> = async ({
-  params,
-}) => {
-  const brandSlug = params?.brand as string;
+export const getServerSideProps: GetServerSideProps<BrandPageProps> = async (
+  context,
+) => {
+  const brand = context.params?.brand as string;
 
-  const brand = await client.fetch(brandBySlugQuery, { brand: brandSlug });
+  try {
+    const brandData = await client.fetch(brandBySlugQuery, {
+      brand: brand.toLowerCase(),
+    });
 
-  if (!brand) {
+    if (!brandData) return { notFound: true };
+
+    return { props: { brandData } };
+  } catch (err) {
+    console.error("Brand fetch failed:", err);
     return { notFound: true };
   }
-
-  return { props: { brand } };
 };
 
-export default function BrandPage({ brand }: BrandPageProps) {
-  if (!brand) return <p>Brand not found</p>;
+export default function BrandPage({ brandData }: BrandPageProps) {
+  const router = useRouter();
+
+  if (!brandData) {
+    return (
+      <div className="max-w-5xl mx-auto p-6">
+        <h1 className="text-2xl font-bold mb-4">
+          {router.query.brand} – Märke saknas
+        </h1>
+        <p className="text-red-500">Ingen data hittades för detta bilmärke.</p>
+      </div>
+    );
+  }
+
+  const brandSlug =
+    brandData.slug?.current || slugify(brandData.name, { lower: true });
 
   return (
     <div className="max-w-5xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">{brand.name}</h1>
+      <h1 className="text-3xl font-bold mb-4">{brandData.name}</h1>
 
-      {brand.logo?.asset?.url && (
+      {brandData.logo?.asset?.url && (
         <img
-          src={brand.logo.asset.url}
-          alt={brand.logo.alt || brand.name}
+          src={brandData.logo.asset.url}
+          alt={brandData.logo.alt || brandData.name}
           className="h-16 mb-6"
         />
       )}
 
-      <h2 className="text-xl font-semibold mb-4">Modeller</h2>
+      <h2 className="text-xl font-semibold mb-3">Modeller</h2>
       <ul className="space-y-2">
-        {brand.models?.map((model) => (
-          <li key={model._id}>
-            <Link href={`/${brand.slug}/${model.slug}`}>
-              <span className="text-orange-500 hover:underline">
+        {brandData.models?.map((model: Model) => {
+          // ✅ fallback till slugify om model.slug saknas
+          const modelSlug =
+            typeof model.slug === "object"
+              ? model.slug.current
+              : model.slug || slugify(model.name, { lower: true });
+
+          return (
+            <li key={model._id}>
+              <Link
+                href={`/${brandSlug}/${modelSlug}`}
+                className="text-orange-500 hover:underline"
+              >
                 {model.name}
-              </span>
-            </Link>
-          </li>
-        ))}
+              </Link>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
