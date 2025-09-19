@@ -15,8 +15,20 @@ interface YearPageProps {
 }
 
 const getSlug = (slug: any, fallback: string) => {
-  if (!slug) return fallback;
-  return typeof slug === "string" ? slug : slug.current || fallback;
+  if (!slug) return slugifySafe(fallback);
+  const val = typeof slug === "string" ? slug : slug.current || fallback;
+  return slugifySafe(val);
+};
+
+const slugifySafe = (str: string) => {
+  return str
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\//g, "-") // ersätt "/" med "-"
+    .replace(/\s+/g, "-") // ersätt mellanslag med "-"
+    .replace(/[^a-z0-9\-]/g, "") // ta bort allt som inte är a-z, 0-9 eller "-"
+    .replace(/-+/g, "-"); // slå ihop flera bindestreck
 };
 
 export const getServerSideProps: GetServerSideProps<YearPageProps> = async (
@@ -163,6 +175,15 @@ export default function YearPage({
 
         return (
           <div key={fuelKey} className="mb-8">
+            <div className="flex items-center gap-4 mb-6">
+              {brandData.logo?.asset?.url && (
+                <img
+                  src={urlFor(brandData.logo).width(80).url()}
+                  alt={brandData.logo.alt || brandData.name}
+                  className="h-10 object-contain"
+                />
+              )}
+            </div>
             <h2 className="text-xl font-bold text-orange-400 mb-4">
               {heading}
             </h2>
