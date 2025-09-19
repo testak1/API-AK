@@ -645,6 +645,16 @@ export default function TuningViewer() {
     return "text-white";
   };
 
+  const cleanText = (str: string | null | undefined) => {
+    if (!str) return "";
+    return str
+      .replace(/->/g, "-")
+      .replace(/\.\.\./g, "")
+      .replace(/\//g, "-")
+      .replace(/\s+/g, " ")
+      .trim();
+  };
+
   const slugify = (str: string) =>
     str
       .toLowerCase()
@@ -1077,31 +1087,32 @@ export default function TuningViewer() {
           </div>
         </div>
 
-       <div className="mb-4 text-center">
-  {!selected.engine ? (
-    <p className="text-black text-lg font-semibold">
-      {translate(currentLanguage, "headline")}
-    </p>
-  ) : (
-    <div>
-      <p className="text-black text-lg font-semibold mb-2">
-        {selected.brand} {selected.model} {selected.year} – {selected.engine}
-      </p>
-      <button
-        onClick={() => {
-          // Nollställ motorvalet men behåll brand/model/year
-          setSelected((prev) => ({
-            ...prev,
-            engine: null,
-          }));
-        }}
-        className="text-sm text-orange-500 hover:underline"
-      >
-        ← Tillbaka till {selected.year}
-      </button>
-    </div>
-  )}
-</div>
+        <div className="mb-4 text-center">
+          {!selected.engine ? (
+            <p className="text-black text-lg font-semibold">
+              {translate(currentLanguage, "headline")}
+            </p>
+          ) : (
+            <div>
+              <p className="text-black text-lg font-semibold mb-2">
+                {cleanText(selected.brand)} {cleanText(selected.model)}{" "}
+                {cleanText(selected.year)} – {cleanText(selected.engine)}
+              </p>
+              <button
+                onClick={() => {
+                  // Nollställ motorvalet men behåll brand/model/year
+                  setSelected((prev) => ({
+                    ...prev,
+                    engine: null,
+                  }));
+                }}
+                className="text-sm text-orange-500 hover:underline"
+              >
+                ← Tillbaka till {selected.year}
+              </button>
+            </div>
+          )}
+        </div>
 
         {viewMode === "dropdown" ? (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-8">
