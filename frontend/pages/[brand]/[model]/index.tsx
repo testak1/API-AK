@@ -90,7 +90,7 @@ export default function ModelPage({ brandData, modelData }: ModelPageProps) {
             className="h-10 object-contain"
           />
         )}
-        <h1 className="text-2xl font-bold text-white">
+        <h1 className="text-2xl font-bold text-black">
           {brandData.name} {modelData.name}
         </h1>
       </div>

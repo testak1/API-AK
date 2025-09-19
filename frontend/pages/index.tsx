@@ -1077,11 +1077,13 @@ export default function TuningViewer() {
           </div>
         </div>
 
-        <div className="mb-4">
-          <p className="text-black text-center text-lg font-semibold">
-            {translate(currentLanguage, "headline")}
-          </p>
-        </div>
+        {!selected.engine && (
+          <div className="mb-4">
+            <p className="text-black text-center text-lg font-semibold">
+              {translate(currentLanguage, "headline")}
+            </p>
+          </div>
+        )}
         {viewMode === "dropdown" ? (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-8">
             <div>

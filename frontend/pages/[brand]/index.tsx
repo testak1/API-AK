@@ -55,7 +55,7 @@ export default function BrandPage({ brandData }: BrandPageProps) {
             className="h-10 object-contain"
           />
         )}
-        <h1 className="text-2xl font-bold text-white">{brandData.name}</h1>
+        <h1 className="text-2xl font-bold text-black">{brandData.name}</h1>
       </div>
 
       {/* Lista modeller */}
