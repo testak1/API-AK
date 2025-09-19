@@ -2599,7 +2599,7 @@ export default function TuningViewer() {
           onClose={() => setInfoModal({ open: false, type: infoModal.type })}
           title={
             infoModal.type === "stage" && infoModal.stage
-              ? `${translateStageName(currentLanguage, infoModal.stage.name)}`
+              ? infoModal.stage.name.replace(/^steg/i, "STEG").toUpperCase()
               : translate(currentLanguage, "generalInfoLabel")
           }
           id={

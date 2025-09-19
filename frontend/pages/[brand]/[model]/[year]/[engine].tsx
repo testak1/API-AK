@@ -1697,11 +1697,8 @@ export default function EnginePage({
           isOpen={infoModal.open}
           onClose={() => setInfoModal({ open: false, type: infoModal.type })}
           title={
-            infoModal.type === "stage"
-              ? translate(currentLanguage, "stageInfoPrefix").replace(
-                  "{number}",
-                  infoModal.stage?.name.replace(/\D/g, "") || "",
-                )
+            infoModal.type === "stage" && infoModal.stage
+              ? infoModal.stage.name.replace(/^steg/i, "STEG").toUpperCase()
               : translate(currentLanguage, "generalInfoLabel")
           }
           id={
