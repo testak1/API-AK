@@ -26,7 +26,13 @@ export const brandBySlugQuery = `
     _id,
     name,
     slug,
-    logo,
+    logo {
+      alt,
+      "asset": asset->{
+        _id,
+        url
+      }
+    },
     models[]{
       _id,
       name,

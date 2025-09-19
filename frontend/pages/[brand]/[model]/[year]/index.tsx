@@ -1,36 +1,43 @@
-// pages/[brand]/[model]/[year]/index.tsx
 import { GetServerSideProps } from "next";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import client from "@/lib/sanity";
 import { brandBySlugQuery } from "@/src/lib/queries";
 import { Brand, Model, Year, Engine } from "@/types/sanity";
 import { urlFor } from "@/lib/sanity";
-import slugify from "slugify";
+
+// --- slug helpers ---
+const slugifySafe = (str: string) => {
+  return str
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\//g, "-")
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9\-]/g, "")
+    .replace(/-+/g, "-");
+};
+
+const slugifyYear = (range: string) => {
+  return range
+    .toLowerCase()
+    .trim()
+    .replace(/->/g, "-")
+    .replace(/\//g, "-")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+};
+
+const getSlug = (slug: any, fallback: string, isYear = false) => {
+  const val =
+    typeof slug === "string" ? slug : slug?.current ? slug.current : fallback;
+  return isYear ? slugifyYear(val) : slugifySafe(val);
+};
 
 interface YearPageProps {
   brandData: Brand | null;
   modelData: Model | null;
   yearData: Year | null;
 }
-
-const slugifySafe = (str: string) => {
-  return str
-    .toString()
-    .toLowerCase()
-    .trim()
-    .replace(/\//g, "-") // ersätt "/" med "-"
-    .replace(/\s+/g, "-") // ersätt mellanslag med "-"
-    .replace(/[^a-z0-9\-]/g, "") // ta bort allt som inte är a-z, 0-9 eller "-"
-    .replace(/-+/g, "-"); // slå ihop flera bindestreck
-};
-
-const getSlug = (slug: any, fallback: string) => {
-  const val =
-    typeof slug === "string" ? slug : slug?.current ? slug.current : fallback;
-
-  return slugifySafe(val);
-};
 
 export const getServerSideProps: GetServerSideProps<YearPageProps> = async (
   context,
@@ -40,7 +47,6 @@ export const getServerSideProps: GetServerSideProps<YearPageProps> = async (
   const year = decodeURIComponent((context.params?.year as string) || "");
 
   const brandData = await client.fetch(brandBySlugQuery, { brand });
-
   if (!brandData) return { notFound: true };
 
   const modelData =
@@ -55,22 +61,16 @@ export const getServerSideProps: GetServerSideProps<YearPageProps> = async (
   const yearData =
     modelData.years?.find(
       (y: Year) =>
-        getSlug(y.slug, y.range).toLowerCase() ===
-        getSlug(year, year).toLowerCase(),
+        getSlug(y.slug, y.range, true).toLowerCase() ===
+        getSlug(year, year, true).toLowerCase(),
     ) || null;
 
   if (!yearData) return { notFound: true };
 
-  return {
-    props: {
-      brandData,
-      modelData,
-      yearData,
-    },
-  };
+  return { props: { brandData, modelData, yearData } };
 };
 
-// Normalisera bränsle (fallback till label om fuel saknas)
+// --- fuel grouping helpers ---
 const normalizeFuel = (
   fuelRaw: string | undefined,
   labelRaw: string | undefined,
@@ -107,8 +107,6 @@ export default function YearPage({
   modelData,
   yearData,
 }: YearPageProps) {
-  const router = useRouter();
-
   if (!brandData || !modelData || !yearData) {
     return (
       <p className="p-6 text-red-500">
@@ -119,7 +117,7 @@ export default function YearPage({
 
   const brandSlug = getSlug(brandData.slug, brandData.name);
   const modelSlug = getSlug(modelData.slug, modelData.name);
-  const yearSlug = getSlug(yearData.slug, yearData.range);
+  const yearSlug = getSlug(yearData.slug, yearData.range, true);
 
   const enginesGrouped = groupEnginesByFuel(yearData.engines || []);
 
@@ -178,15 +176,6 @@ export default function YearPage({
 
         return (
           <div key={fuelKey} className="mb-8">
-            <div className="flex items-center gap-4 mb-6">
-              {brandData.logo?.asset?.url && (
-                <img
-                  src={urlFor(brandData.logo).width(80).url()}
-                  alt={brandData.logo.alt || brandData.name}
-                  className="h-10 object-contain"
-                />
-              )}
-            </div>
             <h2 className="text-xl font-bold text-orange-400 mb-4">
               {heading}
             </h2>
