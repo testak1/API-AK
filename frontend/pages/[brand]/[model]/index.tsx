@@ -54,12 +54,12 @@ export default function ModelPage({ brandData, modelData }: ModelPageProps) {
     <div className="max-w-5xl mx-auto p-6">
       {/* Tillbaka-knapp */}
       <div className="mb-4">
-        <button
-          onClick={() => router.back()}
+        <Link
+          href={`/${getSlug(brandData.slug, brandData.name)}`}
           className="text-sm text-orange-500 hover:underline"
         >
           ← Tillbaka till {brandData.name}
-        </button>
+        </Link>
       </div>
 
       {/* Header med logga */}

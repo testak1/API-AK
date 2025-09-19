@@ -55,6 +55,38 @@ export const getServerSideProps: GetServerSideProps<YearPageProps> = async (
   };
 };
 
+// Normalisera bränsle (fallback till label om fuel saknas)
+const normalizeFuel = (
+  fuelRaw: string | undefined,
+  labelRaw: string | undefined,
+) => {
+  const fuel = (fuelRaw || "").toLowerCase().trim();
+  const label = (labelRaw || "").toLowerCase();
+
+  if (/\bdiesel\b/.test(fuel)) return "diesel";
+  if (/\bbensin\b|\bpetrol\b|\bgasoline\b/.test(fuel)) return "bensin";
+  if (/\bhybrid\b|\bphev\b|\bmhev\b|\bhev\b|\bplug-?in\b/.test(fuel))
+    return "hybrid";
+  if (/\bel\b|\belectric\b|\bev\b|\bbev\b/.test(fuel)) return "el";
+
+  if (/\btdi\b/.test(label) || /\bd\b/.test(label)) return "diesel";
+  if (/\btsi\b|\btfsi\b|\bfsi\b|\bmpi\b/.test(label)) return "bensin";
+  if (/\bhybrid\b|\bphev\b|\bmhev\b|\bhev\b/.test(label)) return "hybrid";
+  if (/\belectric\b|\bev\b|\bbev\b|\bel\b/.test(label)) return "el";
+
+  return "other";
+};
+
+const groupEnginesByFuel = (engines: Engine[]) => {
+  const groups: Record<string, Engine[]> = {};
+  engines.forEach((e) => {
+    const key = normalizeFuel(e.fuel as any, e.label as any);
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(e);
+  });
+  return groups;
+};
+
 export default function YearPage({
   brandData,
   modelData,
@@ -74,22 +106,11 @@ export default function YearPage({
   const modelSlug = getSlug(modelData.slug, modelData.name);
   const yearSlug = getSlug(yearData.slug, yearData.range);
 
-  // Gruppindelning av motorer
-  const groupEnginesByFuel = (engines: Engine[]) => {
-    const groups: Record<string, Engine[]> = {};
-    engines.forEach((engine) => {
-      const fuel = engine.fuel?.toLowerCase() || "other";
-      if (!groups[fuel]) groups[fuel] = [];
-      groups[fuel].push(engine);
-    });
-    return groups;
-  };
-
   const enginesGrouped = groupEnginesByFuel(yearData.engines || []);
 
   return (
     <div className="max-w-5xl mx-auto p-6">
-      {/* Back button */}
+      {/* Tillbaka-knapp */}
       <div className="mb-4">
         <Link
           href={`/${brandSlug}/${modelSlug}`}
@@ -114,29 +135,60 @@ export default function YearPage({
       </div>
 
       {/* Engines grouped by fuel */}
-      {Object.entries(enginesGrouped).map(([fuel, engines]) => (
-        <div key={fuel} className="mb-8">
-          <h2 className="text-xl font-bold text-orange-400 mb-4">
-            {fuel === "diesel" && "Diesel-motorer"}
-            {fuel === "bensin" && "Bensin-motorer"}
-            {fuel === "hybrid" && "Hybrid-motorer"}
-            {fuel === "el" && "El-motorer"}
-            {fuel === "other" && "Övriga motorer"}
-          </h2>
+      {["diesel", "bensin", "hybrid", "el", "other"].map((fuelKey) => {
+        const engines = enginesGrouped[fuelKey] || [];
+        if (!engines.length) return null;
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {engines.map((engine) => (
-              <Link
-                key={engine._id}
-                href={`/${brandSlug}/${modelSlug}/${yearSlug}/${getSlug(engine.slug, engine.label)}`}
-                className="p-4 bg-gray-800 hover:bg-gray-700 rounded-lg text-center text-white font-medium shadow"
-              >
-                {engine.label}
-              </Link>
-            ))}
+        const heading =
+          fuelKey === "diesel"
+            ? "Diesel-motorer"
+            : fuelKey === "bensin"
+              ? "Bensin-motorer"
+              : fuelKey === "hybrid"
+                ? "Hybrid-motorer"
+                : fuelKey === "el"
+                  ? "El-motorer"
+                  : "Övriga motorer";
+
+        const badgeColor =
+          fuelKey === "diesel"
+            ? "bg-blue-600"
+            : fuelKey === "bensin"
+              ? "bg-red-600"
+              : fuelKey === "hybrid"
+                ? "bg-green-600"
+                : fuelKey === "el"
+                  ? "bg-yellow-500"
+                  : "bg-gray-500";
+
+        return (
+          <div key={fuelKey} className="mb-8">
+            <h2 className="text-xl font-bold text-orange-400 mb-4">
+              {heading}
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {engines.map((engine) => (
+                <Link
+                  key={engine._id}
+                  href={`/${brandSlug}/${modelSlug}/${yearSlug}/${getSlug(
+                    engine.slug,
+                    engine.label,
+                  )}`}
+                  className="relative p-4 bg-gray-800 hover:bg-gray-700 rounded-lg text-center text-white font-medium shadow"
+                >
+                  {/* Fuel badge */}
+                  <span
+                    className={`absolute top-2 right-2 text-xs px-2 py-1 rounded-full ${badgeColor}`}
+                  >
+                    {heading.replace("-motorer", "")}
+                  </span>
+                  {engine.label}
+                </Link>
+              ))}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

@@ -38,7 +38,8 @@ export const brandBySlugQuery = `
         engines[]{
           _id,
           label,
-          slug
+          slug,
+          fuel
         }
       }
     }
