@@ -1,7 +1,5 @@
-// pages/[brand]/[model]/index.tsx
 import { GetServerSideProps } from "next";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import client from "@/lib/sanity";
 import { brandBySlugQuery } from "@/src/lib/queries";
 import { Brand, Model, Year } from "@/types/sanity";
@@ -12,9 +10,32 @@ interface ModelPageProps {
   modelData: Model | null;
 }
 
-const getSlug = (slug: any, fallback: string) => {
-  if (!slug) return fallback;
-  return typeof slug === "string" ? slug : slug.current || fallback;
+// --- slug helpers ---
+const slugifySafe = (str: string) => {
+  return str
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\//g, "-")
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9\-]/g, "")
+    .replace(/-+/g, "-");
+};
+
+const slugifyYear = (range: string) => {
+  return range
+    .toLowerCase()
+    .trim()
+    .replace(/->/g, "-")
+    .replace(/\//g, "-")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+};
+
+const getSlug = (slug: any, fallback: string, isYear = false) => {
+  const val =
+    typeof slug === "string" ? slug : slug?.current ? slug.current : fallback;
+  return isYear ? slugifyYear(val) : slugifySafe(val);
 };
 
 export const getServerSideProps: GetServerSideProps<ModelPageProps> = async (
@@ -24,15 +45,15 @@ export const getServerSideProps: GetServerSideProps<ModelPageProps> = async (
   const model = decodeURIComponent((context.params?.model as string) || "");
 
   const brandData = await client.fetch(brandBySlugQuery, { brand });
-
   if (!brandData) return { notFound: true };
 
   const modelData =
     brandData.models?.find(
       (m: Model) =>
+        getSlug(m.slug, m.name).toLowerCase() ===
+          getSlug(model, model).toLowerCase() ||
         m.name.toLowerCase().replace(/\s+/g, "-") ===
-          model.toLowerCase().replace(/\s+/g, "-") ||
-        getSlug(m.slug, m.name).toLowerCase() === model.toLowerCase(),
+          model.toLowerCase().replace(/\s+/g, "-"),
     ) || null;
 
   if (!modelData) return { notFound: true };
@@ -41,8 +62,6 @@ export const getServerSideProps: GetServerSideProps<ModelPageProps> = async (
 };
 
 export default function ModelPage({ brandData, modelData }: ModelPageProps) {
-  const router = useRouter();
-
   if (!brandData || !modelData) {
     return <p className="p-6 text-red-500">Ingen modell hittades.</p>;
   }
@@ -55,7 +74,7 @@ export default function ModelPage({ brandData, modelData }: ModelPageProps) {
       {/* Tillbaka-knapp */}
       <div className="mb-4">
         <Link
-          href={`/${getSlug(brandData.slug, brandData.name)}`}
+          href={`/${brandSlug}`}
           className="text-sm text-orange-500 hover:underline"
         >
           ← Tillbaka till {brandData.name}
@@ -81,7 +100,11 @@ export default function ModelPage({ brandData, modelData }: ModelPageProps) {
         {modelData.years?.map((year: Year) => (
           <Link
             key={year._id}
-            href={`/${brandSlug}/${modelSlug}/${getSlug(year.slug, year.range)}`}
+            href={`/${brandSlug}/${modelSlug}/${getSlug(
+              year.slug,
+              year.range,
+              true,
+            )}`}
             className="p-4 bg-gray-800 hover:bg-gray-700 rounded-lg text-center text-white font-medium shadow"
           >
             {year.range}
