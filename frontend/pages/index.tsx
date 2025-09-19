@@ -648,7 +648,6 @@ export default function TuningViewer() {
   const cleanText = (str: string | null | undefined) => {
     if (!str) return "";
     return str
-      .replace(/->/g, "-")
       .replace(/\.\.\./g, "")
       .replace(/\//g, "-")
       .replace(/\s+/g, " ")
