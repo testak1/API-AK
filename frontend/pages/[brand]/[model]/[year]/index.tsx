@@ -46,7 +46,8 @@ export const getServerSideProps: GetServerSideProps<YearPageProps> = async (
   const modelData =
     brandData.models?.find(
       (m: Model) =>
-        getSlug(m.slug, m.name).toLowerCase() === model.toLowerCase(),
+        getSlug(m.slug, m.name).toLowerCase() ===
+        getSlug(model, model).toLowerCase(),
     ) || null;
 
   if (!modelData) return { notFound: true };
@@ -54,7 +55,8 @@ export const getServerSideProps: GetServerSideProps<YearPageProps> = async (
   const yearData =
     modelData.years?.find(
       (y: Year) =>
-        getSlug(y.slug, y.range).toLowerCase() === year.toLowerCase(),
+        getSlug(y.slug, y.range).toLowerCase() ===
+        getSlug(year, year).toLowerCase(),
     ) || null;
 
   if (!yearData) return { notFound: true };
