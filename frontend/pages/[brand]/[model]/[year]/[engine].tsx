@@ -2,6 +2,7 @@
 import {GetServerSideProps} from "next";
 import NextImage from "next/image";
 import {useRouter} from "next/router";
+import Link from "next/link";
 import client from "@/lib/sanity";
 import {engineByParamsQuery} from "@/src/lib/queries";
 import type {
@@ -500,6 +501,10 @@ export default function EnginePage({
     return Array.from(uniqueMap.values());
   };
 
+  const getSlugValue = (slug: any, fallback: string) => {
+    return typeof slug === "string" ? slug : slug?.current || fallback;
+  };
+
   const toggleOption = (optionId: string) => {
     setExpandedOptions(prev => {
       const newState: Record<string, boolean> = {};
@@ -863,11 +868,23 @@ export default function EnginePage({
           />
         </div>
         <div className="mb-8">
-          <h1 className="text-xl sm:text-3xl md:text-xl font-bold text-center">
-            {translate(currentLanguage, "tuningIntro")} {brandData.name}{" "}
-            {formatModelName(brandData.name, modelData.name)} {yearData.range}{" "}
-            {engineData.label}
-          </h1>
+          {!engineData ? (
+            <h1 className="text-xl sm:text-3xl md:text-xl font-bold text-center">
+              {" "}
+              {translate(currentLanguage, "tuningIntro")} {brandData.name}{" "}
+              {formatModelName(brandData.name, modelData.name)} {yearData.range}{" "}
+              {engineData.label}{" "}
+            </h1>
+          ) : (
+            <div>
+              <Link
+                href={`/${getSlugValue(brandData.slug, brandData.name)}/${getSlugValue(modelData.slug, modelData.name)}/${getSlugValue(yearData.slug, yearData.range)}`}
+                className="text-sm text-orange-500 hover:underline"
+              >
+                ← Tillbaka till {yearData.range}
+              </Link>
+            </div>
+          )}
         </div>{" "}
         {engineData.stages?.length > 0 ? (
           <div className="space-y-6">
