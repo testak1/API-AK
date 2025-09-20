@@ -1,11 +1,11 @@
 // pages/[brand]/index.tsx
-import { GetServerSideProps } from "next";
+import {GetServerSideProps} from "next";
 import Link from "next/link";
-import { useRouter } from "next/router";
+import {useRouter} from "next/router";
 import client from "@/lib/sanity";
-import { brandBySlugQuery } from "@/src/lib/queries";
-import { Brand, Model } from "@/types/sanity";
-import { urlFor } from "@/lib/sanity";
+import {brandBySlugQuery} from "@/src/lib/queries";
+import {Brand, Model} from "@/types/sanity";
+import {urlFor} from "@/lib/sanity";
 
 interface BrandPageProps {
   brandData: Brand | null;
@@ -56,19 +56,19 @@ const formatModelName = (brand: string, model: string): string => {
   return model;
 };
 
-export const getServerSideProps: GetServerSideProps<BrandPageProps> = async (
-  context,
-) => {
+export const getServerSideProps: GetServerSideProps<
+  BrandPageProps
+> = async context => {
   const brand = decodeURIComponent((context.params?.brand as string) || "");
 
-  const brandData = await client.fetch(brandBySlugQuery, { brand });
+  const brandData = await client.fetch(brandBySlugQuery, {brand});
 
-  if (!brandData) return { notFound: true };
+  if (!brandData) return {notFound: true};
 
-  return { props: { brandData } };
+  return {props: {brandData}};
 };
 
-export default function BrandPage({ brandData }: BrandPageProps) {
+export default function BrandPage({brandData}: BrandPageProps) {
   const router = useRouter();
 
   if (!brandData) {
@@ -79,13 +79,6 @@ export default function BrandPage({ brandData }: BrandPageProps) {
 
   return (
     <div className="max-w-5xl mx-auto p-6">
-      {/* Tillbaka-knapp */}
-      <div className="mb-4">
-        <Link href="/" className="text-sm text-orange-500 hover:underline">
-          ← Tillbaka till startsidan
-        </Link>
-      </div>
-
       {/* Header med logga */}
       <div className="flex items-center gap-4 mb-6">
         {brandData.logo?.asset && (
@@ -96,6 +89,13 @@ export default function BrandPage({ brandData }: BrandPageProps) {
           />
         )}
         <h1 className="text-2xl font-bold text-black">{brandData.name}</h1>
+      </div>
+
+      {/* Tillbaka-knapp */}
+      <div className="mb-4">
+        <Link href="/" className="text-sm text-orange-500 hover:underline">
+          ← Tillbaka till startsidan
+        </Link>
       </div>
 
       {/* Lista modeller */}

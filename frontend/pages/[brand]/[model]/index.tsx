@@ -1,10 +1,10 @@
 // pages/[brand]/[model]/index.tsx
-import { GetServerSideProps } from "next";
+import {GetServerSideProps} from "next";
 import Link from "next/link";
 import client from "@/lib/sanity";
-import { brandBySlugQuery } from "@/src/lib/queries";
-import { Brand, Model, Year } from "@/types/sanity";
-import { urlFor } from "@/lib/sanity";
+import {brandBySlugQuery} from "@/src/lib/queries";
+import {Brand, Model, Year} from "@/types/sanity";
+import {urlFor} from "@/lib/sanity";
 
 // --- slug helpers ---
 const slugifySafe = (str: string) => {
@@ -79,14 +79,14 @@ interface ModelPageProps {
   modelData: Model | null;
 }
 
-export const getServerSideProps: GetServerSideProps<ModelPageProps> = async (
-  context,
-) => {
+export const getServerSideProps: GetServerSideProps<
+  ModelPageProps
+> = async context => {
   const brand = decodeURIComponent((context.params?.brand as string) || "");
   const model = decodeURIComponent((context.params?.model as string) || "");
 
-  const brandData = await client.fetch(brandBySlugQuery, { brand });
-  if (!brandData) return { notFound: true };
+  const brandData = await client.fetch(brandBySlugQuery, {brand});
+  if (!brandData) return {notFound: true};
 
   const modelData =
     brandData.models?.find(
@@ -94,15 +94,15 @@ export const getServerSideProps: GetServerSideProps<ModelPageProps> = async (
         getSlug(m.slug, m.name).toLowerCase() ===
           getSlug(model, model).toLowerCase() ||
         m.name.toLowerCase().replace(/\s+/g, "-") ===
-          model.toLowerCase().replace(/\s+/g, "-"),
+          model.toLowerCase().replace(/\s+/g, "-")
     ) || null;
 
-  if (!modelData) return { notFound: true };
+  if (!modelData) return {notFound: true};
 
-  return { props: { brandData, modelData } };
+  return {props: {brandData, modelData}};
 };
 
-export default function ModelPage({ brandData, modelData }: ModelPageProps) {
+export default function ModelPage({brandData, modelData}: ModelPageProps) {
   if (!brandData || !modelData) {
     return <p className="p-6 text-red-500">Ingen modell hittades.</p>;
   }
@@ -112,16 +112,6 @@ export default function ModelPage({ brandData, modelData }: ModelPageProps) {
 
   return (
     <div className="max-w-5xl mx-auto p-6">
-      {/* Tillbaka-knapp */}
-      <div className="mb-4">
-        <Link
-          href={`/${brandSlug}`}
-          className="text-sm text-orange-500 hover:underline"
-        >
-          ← Tillbaka till {brandData.name}
-        </Link>
-      </div>
-
       {/* Header med logga */}
       <div className="flex items-center gap-4 mb-6">
         {brandData.logo?.asset && (
@@ -136,6 +126,16 @@ export default function ModelPage({ brandData, modelData }: ModelPageProps) {
         </h1>
       </div>
 
+      {/* Tillbaka-knapp */}
+      <div className="mb-4">
+        <Link
+          href={`/${brandSlug}`}
+          className="text-sm text-orange-500 hover:underline"
+        >
+          ← Tillbaka till {brandData.name}
+        </Link>
+      </div>
+
       {/* Lista år */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
         {modelData.years?.map((year: Year) => (
@@ -144,7 +144,7 @@ export default function ModelPage({ brandData, modelData }: ModelPageProps) {
             href={`/${brandSlug}/${modelSlug}/${getSlug(
               year.slug,
               year.range,
-              true,
+              true
             )}`}
             className="p-4 bg-gray-800 hover:bg-gray-700 rounded-lg text-center text-white font-medium shadow"
           >

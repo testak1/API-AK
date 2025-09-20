@@ -1,9 +1,12 @@
-import { GetServerSideProps } from "next";
+import {GetServerSideProps} from "next";
 import Link from "next/link";
 import client from "@/lib/sanity";
-import { brandBySlugQuery } from "@/src/lib/queries";
-import { Brand, Model, Year, Engine } from "@/types/sanity";
-import { urlFor } from "@/lib/sanity";
+import {brandBySlugQuery} from "@/src/lib/queries";
+import {Brand, Model, Year, Engine} from "@/types/sanity";
+import {urlFor} from "@/lib/sanity";
+import NextImage from "next/image";
+import React, {useState} from "react";
+import PublicLanguageDropdown from "@/components/PublicLanguageSwitcher";
 
 // --- slug helpers ---
 const slugifySafe = (str: string) => {
@@ -39,41 +42,43 @@ interface YearPageProps {
   yearData: Year | null;
 }
 
-export const getServerSideProps: GetServerSideProps<YearPageProps> = async (
-  context,
-) => {
+export const getServerSideProps: GetServerSideProps<
+  YearPageProps
+> = async context => {
   const brand = decodeURIComponent((context.params?.brand as string) || "");
   const model = decodeURIComponent((context.params?.model as string) || "");
   const year = decodeURIComponent((context.params?.year as string) || "");
 
-  const brandData = await client.fetch(brandBySlugQuery, { brand });
-  if (!brandData) return { notFound: true };
+  const brandData = await client.fetch(brandBySlugQuery, {brand});
+  if (!brandData) return {notFound: true};
 
   const modelData =
     brandData.models?.find(
       (m: Model) =>
         getSlug(m.slug, m.name).toLowerCase() ===
-        getSlug(model, model).toLowerCase(),
+        getSlug(model, model).toLowerCase()
     ) || null;
 
-  if (!modelData) return { notFound: true };
+  if (!modelData) return {notFound: true};
 
   const yearData =
     modelData.years?.find(
       (y: Year) =>
         getSlug(y.slug, y.range, true).toLowerCase() ===
-        getSlug(year, year, true).toLowerCase(),
+        getSlug(year, year, true).toLowerCase()
     ) || null;
 
-  if (!yearData) return { notFound: true };
+  if (!yearData) return {notFound: true};
 
-  return { props: { brandData, modelData, yearData } };
+  return {props: {brandData, modelData, yearData}};
 };
+
+const [currentLanguage, setCurrentLanguage] = useState("sv");
 
 // --- fuel grouping helpers ---
 const normalizeFuel = (
   fuelRaw: string | undefined,
-  labelRaw: string | undefined,
+  labelRaw: string | undefined
 ) => {
   const fuel = (fuelRaw || "").toLowerCase().trim();
   const label = (labelRaw || "").toLowerCase();
@@ -94,7 +99,7 @@ const normalizeFuel = (
 
 const groupEnginesByFuel = (engines: Engine[]) => {
   const groups: Record<string, Engine[]> = {};
-  engines.forEach((e) => {
+  engines.forEach(e => {
     const key = normalizeFuel(e.fuel as any, e.label as any);
     if (!groups[key]) groups[key] = [];
     groups[key].push(e);
@@ -161,17 +166,22 @@ export default function YearPage({
   const enginesGrouped = groupEnginesByFuel(yearData.engines || []);
 
   return (
-    <div className="max-w-5xl mx-auto p-6">
-      {/* Tillbaka-knapp */}
-      <div className="mb-4">
-        <Link
-          href={`/${brandSlug}/${modelSlug}`}
-          className="text-sm text-orange-500 hover:underline"
-        >
-          ← Tillbaka till {formatModelName(brandData.name, modelData.name)}
-        </Link>
+    <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
+      <div className="flex items-center justify-between mb-4">
+        <NextImage
+          src="/ak-logo2.png"
+          alt="AK-TUNING MOTOROPTIMERING"
+          width={110}
+          height={120}
+          className="h-full object-contain cursor-pointer hover:opacity-90"
+          onClick={() => (window.location.href = "/")}
+          priority
+        />
+        <PublicLanguageDropdown
+          currentLanguage={currentLanguage}
+          setCurrentLanguage={setCurrentLanguage}
+        />
       </div>
-
       {/* Header */}
       <div className="flex items-center gap-4 mb-6">
         {brandData.logo?.asset?.url && (
@@ -187,8 +197,18 @@ export default function YearPage({
         </h1>
       </div>
 
+      {/* Tillbaka-knapp */}
+      <div className="mb-4">
+        <Link
+          href={`/${brandSlug}/${modelSlug}`}
+          className="text-sm text-orange-500 hover:underline"
+        >
+          ← Tillbaka till {formatModelName(brandData.name, modelData.name)}
+        </Link>
+      </div>
+
       {/* Engines grouped by fuel */}
-      {["diesel", "bensin", "hybrid", "el", "other"].map((fuelKey) => {
+      {["diesel", "bensin", "hybrid", "el", "other"].map(fuelKey => {
         const engines = enginesGrouped[fuelKey] || [];
         if (!engines.length) return null;
 
@@ -220,12 +240,12 @@ export default function YearPage({
               {heading}
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              {engines.map((engine) => (
+              {engines.map(engine => (
                 <Link
                   key={engine._id}
                   href={`/${brandSlug}/${modelSlug}/${yearSlug}/${getSlug(
                     engine.slug,
-                    engine.label,
+                    engine.label
                   )}`}
                   className="relative p-4 bg-gray-800 hover:bg-gray-700 rounded-lg text-center text-white font-medium shadow"
                 >
