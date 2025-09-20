@@ -1,9 +1,9 @@
 // pages/[brand]/[model]/[year]/[engine].tsx
-import { GetServerSideProps } from "next";
+import {GetServerSideProps} from "next";
 import NextImage from "next/image";
-import { useRouter } from "next/router";
+import {useRouter} from "next/router";
 import client from "@/lib/sanity";
-import { engineByParamsQuery } from "@/src/lib/queries";
+import {engineByParamsQuery} from "@/src/lib/queries";
 import type {
   Brand,
   Model,
@@ -13,12 +13,13 @@ import type {
   AktPlusOption,
   AktPlusOptionReference,
 } from "@/types/sanity";
-import { urlFor } from "@/lib/sanity";
-import { PortableText } from "@portabletext/react";
+import {urlFor} from "@/lib/sanity";
+import {PortableText} from "@portabletext/react";
 import PublicLanguageDropdown from "@/components/PublicLanguageSwitcher";
-import { t as translate } from "@/lib/translations";
+import {t as translate} from "@/lib/translations";
+import FuelSavingCalculator from "@/components/FuelSavingCalculator";
 import Head from "next/head";
-import React, { useEffect, useState, useRef, useMemo } from "react";
+import React, {useEffect, useState, useRef, useMemo} from "react";
 import ContactModal from "@/components/ContactModal";
 import {
   Chart as ChartJS,
@@ -39,7 +40,7 @@ ChartJS.register(
   LineElement,
   LineController,
   Tooltip,
-  Legend,
+  Legend
 );
 
 interface EnginePageProps {
@@ -49,7 +50,7 @@ interface EnginePageProps {
   engineData: Engine | null;
 }
 
-const Line = dynamic(() => import("react-chartjs-2").then((mod) => mod.Line), {
+const Line = dynamic(() => import("react-chartjs-2").then(mod => mod.Line), {
   ssr: false, // Disable server-side rendering for this component
   loading: () => (
     <div className="h-96 bg-gray-800 rounded-lg animate-pulse flex items-center justify-center">
@@ -61,9 +62,9 @@ const Line = dynamic(() => import("react-chartjs-2").then((mod) => mod.Line), {
 const normalizeString = (str: string) =>
   str.toLowerCase().replace(/[^a-z0-9]/g, "");
 
-export const getServerSideProps: GetServerSideProps<EnginePageProps> = async (
-  context,
-) => {
+export const getServerSideProps: GetServerSideProps<
+  EnginePageProps
+> = async context => {
   const brand = decodeURIComponent((context.params?.brand as string) || "");
   const model = decodeURIComponent((context.params?.model as string) || "");
   const year = decodeURIComponent((context.params?.year as string) || "");
@@ -78,7 +79,7 @@ export const getServerSideProps: GetServerSideProps<EnginePageProps> = async (
       lang,
     });
 
-    if (!brandData) return { notFound: true };
+    if (!brandData) return {notFound: true};
 
     const modelData =
       brandData.models?.find(
@@ -86,29 +87,29 @@ export const getServerSideProps: GetServerSideProps<EnginePageProps> = async (
           normalizeString(m.name) === normalizeString(model) ||
           (m.slug &&
             normalizeString(
-              typeof m.slug === "string" ? m.slug : m.slug.current,
-            ) === normalizeString(model)),
+              typeof m.slug === "string" ? m.slug : m.slug.current
+            ) === normalizeString(model))
       ) || null;
 
-    if (!modelData) return { notFound: true };
+    if (!modelData) return {notFound: true};
 
     const yearData =
       modelData.years?.find(
         (y: Year) =>
           normalizeString(y.range) === normalizeString(year) ||
-          (y.slug && normalizeString(y.slug) === normalizeString(year)),
+          (y.slug && normalizeString(y.slug) === normalizeString(year))
       ) || null;
 
-    if (!yearData) return { notFound: true };
+    if (!yearData) return {notFound: true};
 
     const engineData =
       yearData.engines?.find(
         (e: Engine) =>
           normalizeString(e.label) === normalizeString(engine) ||
-          (e.slug && normalizeString(e.slug) === normalizeString(engine)),
+          (e.slug && normalizeString(e.slug) === normalizeString(engine))
       ) || null;
 
-    if (!engineData) return { notFound: true };
+    if (!engineData) return {notFound: true};
 
     return {
       props: {
@@ -120,7 +121,7 @@ export const getServerSideProps: GetServerSideProps<EnginePageProps> = async (
     };
   } catch (err) {
     console.error("Engine fetch failed:", err);
-    return { notFound: true };
+    return {notFound: true};
   }
 };
 
@@ -128,10 +129,10 @@ function extractPlainTextFromDescription(description: any): string {
   if (!Array.isArray(description)) return "";
 
   return description
-    .map((block) => {
+    .map(block => {
       if (block._type === "block" && Array.isArray(block.children)) {
         return block.children
-          .map((child) => (typeof child.text === "string" ? child.text : ""))
+          .map(child => (typeof child.text === "string" ? child.text : ""))
           .join("");
       }
       // Handle custom block types with simple 'text' field fallback
@@ -147,7 +148,7 @@ function extractPlainTextFromDescription(description: any): string {
 
 const portableTextComponents = {
   types: {
-    image: ({ value }: any) => (
+    image: ({value}: any) => (
       <img
         src={urlFor(value).width(600).url()}
         alt={value.alt || ""}
@@ -156,7 +157,7 @@ const portableTextComponents = {
     ),
   },
   marks: {
-    link: ({ children, value }: any) => (
+    link: ({children, value}: any) => (
       <a
         href={value.href}
         className="text-blue-400 hover:text-blue-300 underline"
@@ -170,7 +171,7 @@ const portableTextComponents = {
 const generateDynoCurve = (
   peakValue: number,
   isHp: boolean,
-  fuelType: string,
+  fuelType: string
 ) => {
   // Välj RPM range beroende på motor
   const rpmRange = fuelType.toLowerCase().includes("diesel")
@@ -217,7 +218,7 @@ export default function EnginePage({
   const stageParam = router.query.stage;
   const stage = typeof stageParam === "string" ? stageParam : "";
   const [expandedStages, setExpandedStages] = useState<Record<string, boolean>>(
-    {},
+    {}
   );
   const [expandedDescriptions, setExpandedDescriptions] = useState<
     Record<string, boolean>
@@ -242,7 +243,7 @@ export default function EnginePage({
     open: boolean;
     type: "stage" | "general";
     stage?: Stage;
-  }>({ open: false, type: "stage" });
+  }>({open: false, type: "stage"});
 
   const slugify = (str: string) =>
     str
@@ -259,7 +260,7 @@ export default function EnginePage({
 
   const handleBookNow = (
     stageOrOptionName: string,
-    event?: React.MouseEvent,
+    event?: React.MouseEvent
   ) => {
     if (!brandData || !modelData || !yearData || !engineData) return;
 
@@ -322,7 +323,7 @@ export default function EnginePage({
           acc[stageObj.name] = stage ? isMatch : stageObj.name === "Steg 1";
           return acc;
         },
-        {} as Record<string, boolean>,
+        {} as Record<string, boolean>
       );
       setExpandedStages(initialExpanded);
     }
@@ -331,12 +332,12 @@ export default function EnginePage({
   const getAllAktPlusOptions = (stage: Stage): AktPlusOption[] => {
     if (!engineData) return [];
 
-    const options = allAktOptions.filter((opt) => {
+    const options = allAktOptions.filter(opt => {
       const isFuelMatch =
         opt.isUniversal || opt.applicableFuelTypes?.includes(engineData.fuel);
 
       const isManualMatch = opt.manualAssignments?.some(
-        (ref) => ref._ref === engineData._id,
+        ref => ref._ref === engineData._id
       );
 
       const isStageMatch =
@@ -346,15 +347,15 @@ export default function EnginePage({
     });
 
     const unique = new Map<string, AktPlusOption>();
-    options.forEach((opt) => unique.set(opt._id, opt));
+    options.forEach(opt => unique.set(opt._id, opt));
     return Array.from(unique.values());
   };
 
   const mergedAktPlusOptions = useMemo(() => {
     const optionMap = new Map<string, AktPlusOption>();
 
-    engineData?.stages?.forEach((stage) => {
-      getAllAktPlusOptions(stage).forEach((opt) => {
+    engineData?.stages?.forEach(stage => {
+      getAllAktPlusOptions(stage).forEach(opt => {
         if (!optionMap.has(opt._id)) {
           optionMap.set(opt._id, opt);
         }
@@ -381,7 +382,7 @@ export default function EnginePage({
   useEffect(() => {
     if (stage) {
       const el = document.getElementById(slugify(stage));
-      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (el) el.scrollIntoView({behavior: "smooth", block: "start"});
     }
   }, [stage]);
 
@@ -390,7 +391,7 @@ export default function EnginePage({
     beforeDraw: (chart: ChartJS) => {
       const ctx = chart.ctx;
       const {
-        chartArea: { top, left, width, height },
+        chartArea: {top, left, width, height},
       } = chart;
 
       if (watermarkImageRef.current?.complete) {
@@ -457,7 +458,7 @@ export default function EnginePage({
   const shadowPlugin = {
     id: "shadowPlugin",
     beforeDatasetDraw(chart: ChartJS, args: any, options: any) {
-      const { ctx } = chart;
+      const {ctx} = chart;
       const dataset = chart.data.datasets[args.index];
 
       ctx.save();
@@ -475,9 +476,9 @@ export default function EnginePage({
   };
 
   const toggleStage = (stageName: string) => {
-    setExpandedStages((prev) => {
+    setExpandedStages(prev => {
       const newState: Record<string, boolean> = {};
-      Object.keys(prev).forEach((key) => {
+      Object.keys(prev).forEach(key => {
         newState[key] = key === stageName ? !prev[key] : false;
       });
       return newState;
@@ -487,12 +488,12 @@ export default function EnginePage({
   const getUniqueAktPlusOptions = () => {
     if (!engineData || !engineData.stages?.length) return [];
 
-    const allOptions = engineData.stages.flatMap((stage) =>
-      getAllAktPlusOptions(stage),
+    const allOptions = engineData.stages.flatMap(stage =>
+      getAllAktPlusOptions(stage)
     );
 
     const uniqueMap = new Map<string, AktPlusOption>();
-    allOptions.forEach((opt) => {
+    allOptions.forEach(opt => {
       if (!uniqueMap.has(opt._id)) uniqueMap.set(opt._id, opt);
     });
 
@@ -500,7 +501,7 @@ export default function EnginePage({
   };
 
   const toggleOption = (optionId: string) => {
-    setExpandedOptions((prev) => {
+    setExpandedOptions(prev => {
       const newState: Record<string, boolean> = {};
       newState[optionId] = !prev[optionId];
       return newState;
@@ -530,7 +531,7 @@ export default function EnginePage({
   >({});
 
   const toggleAktPlus = (stageName: string) => {
-    setExpandedAktPlus((prev) => ({
+    setExpandedAktPlus(prev => ({
       ...prev,
       [stageName]: !prev[stageName],
     }));
@@ -552,7 +553,7 @@ export default function EnginePage({
         "7000",
       ];
 
-  const selectedStage = engineData?.stages?.find((s) => expandedStages[s.name]);
+  const selectedStage = engineData?.stages?.find(s => expandedStages[s.name]);
   const selectedStep = selectedStage?.name?.toUpperCase() || "MJUKVARA";
   const hp = selectedStage?.tunedHk ?? "?";
   const nm = selectedStage?.tunedNm ?? "?";
@@ -586,9 +587,7 @@ export default function EnginePage({
     ? slugify(engineData.label)
     : engineData.label;
 
-  const stageRefs = engineData.stages
-    .map((s) => (s as any)?._id)
-    .filter(Boolean);
+  const stageRefs = engineData.stages.map(s => (s as any)?._id).filter(Boolean);
 
   const canonicalUrl = `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}`;
 
@@ -615,7 +614,7 @@ export default function EnginePage({
   // Funktion för att göra beskrivningar dynamiska
   const createDynamicDescription = (
     description: any[],
-    stage: Stage | undefined,
+    stage: Stage | undefined
   ) => {
     if (
       !brandData ||
@@ -718,7 +717,7 @@ export default function EnginePage({
                     const baseDescription = extractPlainTextFromDescription(
                       stage.descriptionRef?.description ||
                         stage.description?.["sv"] ||
-                        "",
+                        ""
                     );
 
                     const fullDescription =
@@ -761,14 +760,14 @@ export default function EnginePage({
 
                 // Sedan: AKT+ alternativ (sorterat alfabetiskt)
                 ...mergedAktPlusOptions
-                  .filter((opt) => {
+                  .filter(opt => {
                     const isLinkedToStage =
-                      opt.manualAssignments?.some((ref) =>
+                      opt.manualAssignments?.some(ref =>
                         engineData.stages?.some(
-                          (stage) =>
+                          stage =>
                             ref._ref === (stage as any)._id ||
-                            ref._ref === stage.name,
-                        ),
+                            ref._ref === stage.name
+                        )
                       ) ?? false;
 
                     const title =
@@ -799,7 +798,7 @@ export default function EnginePage({
                         description: extractPlainTextFromDescription(
                           typeof opt.description === "string"
                             ? opt.description
-                            : opt.description?.sv || "",
+                            : opt.description?.sv || ""
                         ),
                       }),
                       ...(opt.gallery?.[0]?.asset?.url && {
@@ -872,7 +871,7 @@ export default function EnginePage({
         </div>{" "}
         {engineData.stages?.length > 0 ? (
           <div className="space-y-6">
-            {engineData.stages.map((stage) => {
+            {engineData.stages.map(stage => {
               const isDsgStage = stage.name.toLowerCase().includes("dsg");
               const allOptions = getAllAktPlusOptions(stage);
               const isExpanded = expandedStages[stage.name] ?? false;
@@ -948,7 +947,7 @@ export default function EnginePage({
                             <br />
                             {translate(
                               currentLanguage,
-                              "stageContactForHardware",
+                              "stageContactForHardware"
                             )}
                           </p>
                         )}
@@ -970,6 +969,10 @@ export default function EnginePage({
                       </div>
                     </div>
                   </button>
+
+                  {isExpanded && brandData.name.startsWith("[LASTBIL]") && (
+                    <FuelSavingCalculator stage={stage} />
+                  )}
 
                   {isExpanded && (
                     <div className="px-6 pb-6">
@@ -1049,7 +1052,7 @@ export default function EnginePage({
                               {translate(
                                 currentLanguage,
                                 "translateStageName",
-                                stage.name,
+                                stage.name
                               )}{" "}
                               HK
                             </p>
@@ -1073,7 +1076,7 @@ export default function EnginePage({
                               {translate(
                                 currentLanguage,
                                 "translateStageName",
-                                stage.name,
+                                stage.name
                               )}{" "}
                               NM
                             </p>
@@ -1090,7 +1093,7 @@ export default function EnginePage({
                       <div className="flex flex-col sm:flex-row gap-4 mt-4">
                         <button
                           onClick={() =>
-                            setInfoModal({ open: true, type: "stage", stage })
+                            setInfoModal({open: true, type: "stage", stage})
                           }
                           className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg shadow"
                         >
@@ -1098,7 +1101,7 @@ export default function EnginePage({
                           {translate(
                             currentLanguage,
                             "translateStageName",
-                            stage.name,
+                            stage.name
                           ).toUpperCase()}{" "}
                           {translate(currentLanguage, "infoStage")}
                         </button>
@@ -1116,7 +1119,7 @@ export default function EnginePage({
 
                         <button
                           onClick={() =>
-                            setInfoModal({ open: true, type: "general" })
+                            setInfoModal({open: true, type: "general"})
                           }
                           className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg shadow"
                         >
@@ -1164,7 +1167,7 @@ export default function EnginePage({
                             {translate(
                               currentLanguage,
                               "translateStageName",
-                              stage.name,
+                              stage.name
                             ).toUpperCase()}{" "}
                           </h3>
                         )}
@@ -1182,7 +1185,7 @@ export default function EnginePage({
                                 {translate(
                                   currentLanguage,
                                   "translateStageName",
-                                  stage.name,
+                                  stage.name
                                 )
                                   .replace("Steg", "ST")
                                   .toUpperCase()}{" "}
@@ -1199,7 +1202,7 @@ export default function EnginePage({
                                 {translate(
                                   currentLanguage,
                                   "translateStageName",
-                                  stage.name,
+                                  stage.name
                                 )
                                   .replace("Steg", "ST")
                                   .toUpperCase()}{" "}
@@ -1258,7 +1261,7 @@ export default function EnginePage({
                                     data: generateDynoCurve(
                                       stage.origHk,
                                       true,
-                                      engineData.fuel,
+                                      engineData.fuel
                                     ),
                                     borderColor: "#f87171",
                                     backgroundColor: "transparent",
@@ -1273,7 +1276,7 @@ export default function EnginePage({
                                     data: generateDynoCurve(
                                       stage.tunedHk,
                                       true,
-                                      engineData.fuel,
+                                      engineData.fuel
                                     ),
                                     borderColor: "#f87171",
                                     backgroundColor: "#f87171",
@@ -1287,7 +1290,7 @@ export default function EnginePage({
                                     data: generateDynoCurve(
                                       stage.origNm,
                                       false,
-                                      engineData.fuel,
+                                      engineData.fuel
                                     ),
                                     borderColor: "#d1d5db",
                                     backgroundColor: "transparent",
@@ -1302,7 +1305,7 @@ export default function EnginePage({
                                     data: generateDynoCurve(
                                       stage.tunedNm,
                                       false,
-                                      engineData.fuel,
+                                      engineData.fuel
                                     ),
                                     borderColor: "#d1d5db",
                                     backgroundColor: "transparent",
@@ -1367,10 +1370,10 @@ export default function EnginePage({
                                       display: true,
                                       text: translate(
                                         currentLanguage,
-                                        "powerLabel",
+                                        "powerLabel"
                                       ),
                                       color: "white",
-                                      font: { size: 14 },
+                                      font: {size: 14},
                                     },
                                     min: 0,
                                     max:
@@ -1382,7 +1385,7 @@ export default function EnginePage({
                                     ticks: {
                                       color: "#9CA3AF",
                                       stepSize: 100,
-                                      callback: (value) => `${value}`,
+                                      callback: value => `${value}`,
                                     },
                                   },
                                   nm: {
@@ -1393,10 +1396,10 @@ export default function EnginePage({
                                       display: true,
                                       text: translate(
                                         currentLanguage,
-                                        "torqueLabel",
+                                        "torqueLabel"
                                       ),
                                       color: "white",
-                                      font: { size: 14 },
+                                      font: {size: 14},
                                     },
                                     min: 0,
                                     max:
@@ -1408,7 +1411,7 @@ export default function EnginePage({
                                     ticks: {
                                       color: "#9CA3AF",
                                       stepSize: 100,
-                                      callback: (value) => `${value}`,
+                                      callback: value => `${value}`,
                                     },
                                   },
                                   x: {
@@ -1416,7 +1419,7 @@ export default function EnginePage({
                                       display: true,
                                       text: "RPM",
                                       color: "#E5E7EB",
-                                      font: { size: 14 },
+                                      font: {size: 14},
                                     },
                                     grid: {
                                       color: "rgba(255, 255, 255, 0.1)",
@@ -1451,7 +1454,7 @@ export default function EnginePage({
                                   {stage.name
                                     .replace(
                                       "Steg",
-                                      translate(currentLanguage, "stageLabel"),
+                                      translate(currentLanguage, "stageLabel")
                                     )
                                     .toUpperCase()}
                                 </span>
@@ -1564,7 +1567,7 @@ export default function EnginePage({
                           {/* Expandable AKT+ Grid */}
                           {expandedAktPlus[stage.name] && (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                              {allOptions.map((option) => {
+                              {allOptions.map(option => {
                                 const translatedTitle =
                                   option.title?.[currentLanguage] ||
                                   option.title?.sv ||
@@ -1636,7 +1639,7 @@ export default function EnginePage({
                                             <p className="font-bold text-green-400">
                                               {translate(
                                                 currentLanguage,
-                                                "priceLabel",
+                                                "priceLabel"
                                               )}
                                               : {option.price.toLocaleString()}{" "}
                                               kr
@@ -1652,7 +1655,7 @@ export default function EnginePage({
                                             📩{" "}
                                             {translate(
                                               currentLanguage,
-                                              "contactvalue",
+                                              "contactvalue"
                                             )}
                                           </button>
                                         </div>
@@ -1681,7 +1684,7 @@ export default function EnginePage({
         <ContactModal
           isOpen={contactModalData.isOpen}
           onClose={() =>
-            setContactModalData({ isOpen: false, stageOrOption: "", link: "" })
+            setContactModalData({isOpen: false, stageOrOption: "", link: ""})
           }
           selectedVehicle={{
             brand: brandData.name,
@@ -1695,7 +1698,7 @@ export default function EnginePage({
         />
         <InfoModal
           isOpen={infoModal.open}
-          onClose={() => setInfoModal({ open: false, type: infoModal.type })}
+          onClose={() => setInfoModal({open: false, type: infoModal.type})}
           title={
             infoModal.type === "stage" && infoModal.stage
               ? infoModal.stage.name.replace(/^steg/i, "STEG").toUpperCase()
@@ -1729,7 +1732,7 @@ export default function EnginePage({
                 if (rawDescription) {
                   const dynamicContent = createDynamicDescription(
                     rawDescription,
-                    infoModal.stage,
+                    infoModal.stage
                   );
                   return (
                     <PortableText
