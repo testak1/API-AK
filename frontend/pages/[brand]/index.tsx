@@ -144,7 +144,7 @@ export default function BrandPage({brandData}: BrandPageProps) {
       <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
         <div className="flex items-center justify-between mb-4">
           <NextImage
-            src="/ak-logo2.png"
+            src="/ak-logo1.png"
             alt="AK-TUNING MOTOROPTIMERING"
             width={110}
             height={120}
