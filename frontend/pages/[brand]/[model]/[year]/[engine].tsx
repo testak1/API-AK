@@ -867,16 +867,18 @@ export default function EnginePage({
             setCurrentLanguage={setCurrentLanguage}
           />
         </div>
-        <div className="mb-8">
+        <div className="mb-8 text-center">
           {!engineData ? (
-            <h1 className="text-xl sm:text-3xl md:text-xl font-bold text-center">
-              {" "}
-              {translate(currentLanguage, "tuningIntro")} {brandData.name}{" "}
-              {formatModelName(brandData.name, modelData.name)} {yearData.range}{" "}
-              {engineData.label}{" "}
+            <h1 className="text-xl sm:text-3xl md:text-xl font-bold">
+              {translate(currentLanguage, "tuningIntro")}
             </h1>
           ) : (
             <div>
+              <h1 className="text-xl sm:text-3xl md:text-xl font-bold mb-2">
+                {translate(currentLanguage, "tuningIntro")}{" "}
+                {formatModelName(brandData.name, modelData.name)}{" "}
+                {yearData.range} – {engineData.label}
+              </h1>
               <Link
                 href={`/${getSlugValue(brandData.slug, brandData.name)}/${getSlugValue(modelData.slug, modelData.name)}/${getSlugValue(yearData.slug, yearData.range)}`}
                 className="text-sm text-orange-500 hover:underline"
@@ -885,7 +887,7 @@ export default function EnginePage({
               </Link>
             </div>
           )}
-        </div>{" "}
+        </div>
         {engineData.stages?.length > 0 ? (
           <div className="space-y-6">
             {engineData.stages.map(stage => {
