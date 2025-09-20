@@ -6,6 +6,10 @@ import client from "@/lib/sanity";
 import {brandBySlugQuery} from "@/src/lib/queries";
 import {Brand, Model} from "@/types/sanity";
 import {urlFor} from "@/lib/sanity";
+import NextImage from "next/image";
+import {useState} from "react";
+import {t as translate} from "@/lib/translations";
+import PublicLanguageDropdown from "@/components/PublicLanguageSwitcher";
 
 interface BrandPageProps {
   brandData: Brand | null;
@@ -69,6 +73,7 @@ export const getServerSideProps: GetServerSideProps<
 };
 
 export default function BrandPage({brandData}: BrandPageProps) {
+  const [currentLanguage, setCurrentLanguage] = useState("sv");
   const router = useRouter();
 
   if (!brandData) {
@@ -78,7 +83,22 @@ export default function BrandPage({brandData}: BrandPageProps) {
   const brandSlug = getSlug(brandData.slug, brandData.name);
 
   return (
-    <div className="max-w-5xl mx-auto p-6">
+    <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
+      <div className="flex items-center justify-between mb-4">
+        <NextImage
+          src="/ak-logo2.png"
+          alt="AK-TUNING MOTOROPTIMERING"
+          width={110}
+          height={120}
+          className="h-full object-contain cursor-pointer hover:opacity-90"
+          onClick={() => (window.location.href = "/")}
+          priority
+        />
+        <PublicLanguageDropdown
+          currentLanguage={currentLanguage}
+          setCurrentLanguage={setCurrentLanguage}
+        />
+      </div>
       {/* Header med logga */}
       <div className="flex items-center gap-4 mb-6">
         {brandData.logo?.asset && (
@@ -94,7 +114,7 @@ export default function BrandPage({brandData}: BrandPageProps) {
       {/* Tillbaka-knapp */}
       <div className="mb-4">
         <Link href="/" className="text-sm text-orange-500 hover:underline">
-          ← Tillbaka till startsidan
+          ← {translate(currentLanguage, "backtostart")}
         </Link>
       </div>
 

@@ -5,6 +5,10 @@ import client from "@/lib/sanity";
 import {brandBySlugQuery} from "@/src/lib/queries";
 import {Brand, Model, Year} from "@/types/sanity";
 import {urlFor} from "@/lib/sanity";
+import NextImage from "next/image";
+import {useState} from "react";
+import {t as translate} from "@/lib/translations";
+import PublicLanguageDropdown from "@/components/PublicLanguageSwitcher";
 
 // --- slug helpers ---
 const slugifySafe = (str: string) => {
@@ -103,6 +107,7 @@ export const getServerSideProps: GetServerSideProps<
 };
 
 export default function ModelPage({brandData, modelData}: ModelPageProps) {
+  const [currentLanguage, setCurrentLanguage] = useState("sv");
   if (!brandData || !modelData) {
     return <p className="p-6 text-red-500">Ingen modell hittades.</p>;
   }
@@ -111,7 +116,22 @@ export default function ModelPage({brandData, modelData}: ModelPageProps) {
   const modelSlug = getSlug(modelData.slug, modelData.name);
 
   return (
-    <div className="max-w-5xl mx-auto p-6">
+    <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
+      <div className="flex items-center justify-between mb-4">
+        <NextImage
+          src="/ak-logo2.png"
+          alt="AK-TUNING MOTOROPTIMERING"
+          width={110}
+          height={120}
+          className="h-full object-contain cursor-pointer hover:opacity-90"
+          onClick={() => (window.location.href = "/")}
+          priority
+        />
+        <PublicLanguageDropdown
+          currentLanguage={currentLanguage}
+          setCurrentLanguage={setCurrentLanguage}
+        />
+      </div>
       {/* Header med logga */}
       <div className="flex items-center gap-4 mb-6">
         {brandData.logo?.asset && (
@@ -132,7 +152,7 @@ export default function ModelPage({brandData, modelData}: ModelPageProps) {
           href={`/${brandSlug}`}
           className="text-sm text-orange-500 hover:underline"
         >
-          ← Tillbaka till {brandData.name}
+          ← {translate(currentLanguage, "BACKTO")} {brandData.name}
         </Link>
       </div>
 

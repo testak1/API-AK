@@ -6,6 +6,7 @@ import {Brand, Model, Year, Engine} from "@/types/sanity";
 import {urlFor} from "@/lib/sanity";
 import NextImage from "next/image";
 import {useState} from "react";
+import {t as translate} from "@/lib/translations";
 import PublicLanguageDropdown from "@/components/PublicLanguageSwitcher";
 
 // --- slug helpers ---
@@ -202,7 +203,8 @@ export default function YearPage({
           href={`/${brandSlug}/${modelSlug}`}
           className="text-sm text-orange-500 hover:underline"
         >
-          ← Tillbaka till {formatModelName(brandData.name, modelData.name)}
+          ← {translate(currentLanguage, "BACKTO")}{" "}
+          {formatModelName(brandData.name, modelData.name)}
         </Link>
       </div>
 
