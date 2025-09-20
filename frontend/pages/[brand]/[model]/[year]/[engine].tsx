@@ -259,6 +259,19 @@ export default function EnginePage({
       .replace(/\s+/g, "-")
       .replace(/[^\w-]/g, "");
 
+  const slugifySafe = (str: string) => {
+    return str
+      .toString()
+      .toLowerCase()
+      .trim()
+      .replace(/->/g, "-")
+      .replace(/>/g, "-")
+      .replace(/\//g, "-")
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9\-]/g, "")
+      .replace(/-+/g, "-");
+  };
+
   const slugifyYear = (range: string) => {
     return range
       .toLowerCase()
@@ -892,7 +905,7 @@ export default function EnginePage({
                 {yearData.range} – {engineData.label}
               </h1>
               <Link
-                href={`/${slugify(brandData.slug?.current || brandData.name)}/${slugify(modelData.slug?.current || modelData.name)}/${slugifyYear(yearData.range)}`}
+                href={`/${slugifySafe(brandData.slug?.current || brandData.name)}/${slugifySafe(modelData.slug?.current || modelData.name)}/${slugifyYear(yearData.range)}`}
                 className="text-sm text-orange-500 hover:underline"
               >
                 ← {translate(currentLanguage, "BACKTO")} {yearData.range}
