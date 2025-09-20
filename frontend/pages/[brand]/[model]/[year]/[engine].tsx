@@ -883,7 +883,7 @@ export default function EnginePage({
                 href={`/${getSlugValue(brandData.slug, brandData.name)}/${getSlugValue(modelData.slug, modelData.name)}/${getSlugValue(yearData.slug, yearData.range)}`}
                 className="text-sm text-orange-500 hover:underline"
               >
-                ← {translate(currentLanguage, "BACKTO")} {yearData.range}
+                ← Tillbaka till {yearData.range}
               </Link>
             </div>
           )}
