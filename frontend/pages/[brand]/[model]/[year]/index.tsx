@@ -24,6 +24,7 @@ const slugifyYear = (range: string) => {
     .toLowerCase()
     .trim()
     .replace(/->/g, "-")
+    .replace(/>/g, "-")
     .replace(/\//g, "-")
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-");

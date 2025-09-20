@@ -8,13 +8,25 @@ import {Brand, Model} from "@/types/sanity";
 import {urlFor} from "@/lib/sanity";
 import NextImage from "next/image";
 
+const slugifySafe = (str: string) => {
+  return str
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\//g, "-")
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9\-]/g, "")
+    .replace(/-+/g, "-");
+};
+
 interface BrandPageProps {
   brandData: Brand | null;
 }
 
 const getSlug = (slug: any, fallback: string) => {
-  if (!slug) return fallback;
-  return typeof slug === "string" ? slug : slug.current || fallback;
+  const val =
+    typeof slug === "string" ? slug : slug?.current ? slug.current : fallback;
+  return slugifySafe(val);
 };
 
 // Hjälpfunktion för Mercedes-modeller
