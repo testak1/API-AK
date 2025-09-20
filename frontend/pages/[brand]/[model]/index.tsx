@@ -6,9 +6,6 @@ import {brandBySlugQuery} from "@/src/lib/queries";
 import {Brand, Model, Year} from "@/types/sanity";
 import {urlFor} from "@/lib/sanity";
 import NextImage from "next/image";
-import {useState} from "react";
-import {t as translate} from "@/lib/translations";
-import PublicLanguageDropdown from "@/components/PublicLanguageSwitcher";
 
 // --- slug helpers ---
 const slugifySafe = (str: string) => {
@@ -107,7 +104,6 @@ export const getServerSideProps: GetServerSideProps<
 };
 
 export default function ModelPage({brandData, modelData}: ModelPageProps) {
-  const [currentLanguage, setCurrentLanguage] = useState("sv");
   if (!brandData || !modelData) {
     return <p className="p-6 text-red-500">Ingen modell hittades.</p>;
   }
@@ -126,10 +122,6 @@ export default function ModelPage({brandData, modelData}: ModelPageProps) {
           className="h-full object-contain cursor-pointer hover:opacity-90"
           onClick={() => (window.location.href = "/")}
           priority
-        />
-        <PublicLanguageDropdown
-          currentLanguage={currentLanguage}
-          setCurrentLanguage={setCurrentLanguage}
         />
       </div>
       {/* Header med logga */}
@@ -152,7 +144,7 @@ export default function ModelPage({brandData, modelData}: ModelPageProps) {
           href={`/${brandSlug}`}
           className="text-sm text-orange-500 hover:underline"
         >
-          ← {translate(currentLanguage, "BACKTO")} {brandData.name}
+          ← Tillbaka till {brandData.name}
         </Link>
       </div>
 

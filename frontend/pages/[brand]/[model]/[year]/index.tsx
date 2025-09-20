@@ -5,9 +5,6 @@ import {brandBySlugQuery} from "@/src/lib/queries";
 import {Brand, Model, Year, Engine} from "@/types/sanity";
 import {urlFor} from "@/lib/sanity";
 import NextImage from "next/image";
-import {useState} from "react";
-import {t as translate} from "@/lib/translations";
-import PublicLanguageDropdown from "@/components/PublicLanguageSwitcher";
 
 // --- slug helpers ---
 const slugifySafe = (str: string) => {
@@ -150,7 +147,6 @@ export default function YearPage({
   modelData,
   yearData,
 }: YearPageProps) {
-  const [currentLanguage, setCurrentLanguage] = useState("sv");
   if (!brandData || !modelData || !yearData) {
     return (
       <p className="p-6 text-red-500">
@@ -177,10 +173,6 @@ export default function YearPage({
           onClick={() => (window.location.href = "/")}
           priority
         />
-        <PublicLanguageDropdown
-          currentLanguage={currentLanguage}
-          setCurrentLanguage={setCurrentLanguage}
-        />
       </div>
       {/* Header */}
       <div className="flex items-center gap-4 mb-6">
@@ -203,8 +195,7 @@ export default function YearPage({
           href={`/${brandSlug}/${modelSlug}`}
           className="text-sm text-orange-500 hover:underline"
         >
-          ← {translate(currentLanguage, "BACKTO")}{" "}
-          {formatModelName(brandData.name, modelData.name)}
+          ← Tillbaka till {formatModelName(brandData.name, modelData.name)}
         </Link>
       </div>
 

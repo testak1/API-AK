@@ -7,9 +7,6 @@ import {brandBySlugQuery} from "@/src/lib/queries";
 import {Brand, Model} from "@/types/sanity";
 import {urlFor} from "@/lib/sanity";
 import NextImage from "next/image";
-import {useState} from "react";
-import {t as translate} from "@/lib/translations";
-import PublicLanguageDropdown from "@/components/PublicLanguageSwitcher";
 
 interface BrandPageProps {
   brandData: Brand | null;
@@ -73,7 +70,6 @@ export const getServerSideProps: GetServerSideProps<
 };
 
 export default function BrandPage({brandData}: BrandPageProps) {
-  const [currentLanguage, setCurrentLanguage] = useState("sv");
   const router = useRouter();
 
   if (!brandData) {
@@ -94,10 +90,6 @@ export default function BrandPage({brandData}: BrandPageProps) {
           onClick={() => (window.location.href = "/")}
           priority
         />
-        <PublicLanguageDropdown
-          currentLanguage={currentLanguage}
-          setCurrentLanguage={setCurrentLanguage}
-        />
       </div>
       {/* Header med logga */}
       <div className="flex items-center gap-4 mb-6">
@@ -114,7 +106,7 @@ export default function BrandPage({brandData}: BrandPageProps) {
       {/* Tillbaka-knapp */}
       <div className="mb-4">
         <Link href="/" className="text-sm text-orange-500 hover:underline">
-          ← {translate(currentLanguage, "backtostart")}
+          ← Tillbaka till startsidan
         </Link>
       </div>
 
