@@ -456,6 +456,10 @@ export default function EnginePage({
     return model;
   };
 
+  const getSlugValue = (slug: any, fallback: string) => {
+    return typeof slug === "string" ? slug : slug?.current || fallback;
+  };
+
   const shadowPlugin = {
     id: "shadowPlugin",
     beforeDatasetDraw(chart: ChartJS, args: any, options: any) {
@@ -499,11 +503,6 @@ export default function EnginePage({
     });
 
     return Array.from(uniqueMap.values());
-  };
-
-  const getSlugValue = (slug: any, fallback: string) => {
-    if (!slug) return fallback;
-    return typeof slug === "string" ? slug : slug.current || fallback;
   };
 
   const toggleOption = (optionId: string) => {
