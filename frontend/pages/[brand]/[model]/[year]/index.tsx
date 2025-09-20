@@ -73,8 +73,6 @@ export const getServerSideProps: GetServerSideProps<
   return {props: {brandData, modelData, yearData}};
 };
 
-const [currentLanguage, setCurrentLanguage] = useState("sv");
-
 // --- fuel grouping helpers ---
 const normalizeFuel = (
   fuelRaw: string | undefined,
@@ -151,6 +149,7 @@ export default function YearPage({
   modelData,
   yearData,
 }: YearPageProps) {
+  const [currentLanguage, setCurrentLanguage] = useState("sv");
   if (!brandData || !modelData || !yearData) {
     return (
       <p className="p-6 text-red-500">
