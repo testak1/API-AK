@@ -502,7 +502,8 @@ export default function EnginePage({
   };
 
   const getSlugValue = (slug: any, fallback: string) => {
-    return typeof slug === "string" ? slug : slug?.current || fallback;
+    if (!slug) return fallback;
+    return typeof slug === "string" ? slug : slug.current || fallback;
   };
 
   const toggleOption = (optionId: string) => {
@@ -880,7 +881,7 @@ export default function EnginePage({
                 {yearData.range} – {engineData.label}
               </h1>
               <Link
-                href={`/${brandSlug}/${modelSlug}/${yearSlug}`}
+                href={`/${getSlugValue(brandData.slug, brandData.name)}/${getSlugValue(modelData.slug, modelData.name)}/${getSlugValue(yearData.slug, yearData.range)}`}
                 className="text-sm text-orange-500 hover:underline"
               >
                 ← Tillbaka till {yearData.range}

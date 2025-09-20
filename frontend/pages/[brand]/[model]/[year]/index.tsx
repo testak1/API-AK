@@ -1,3 +1,4 @@
+// pages/[brand]/[model]/[year]/index.tsx
 import {GetServerSideProps} from "next";
 import Link from "next/link";
 import client from "@/lib/sanity";
