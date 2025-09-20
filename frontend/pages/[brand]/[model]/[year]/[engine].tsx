@@ -880,7 +880,7 @@ export default function EnginePage({
                 {yearData.range} – {engineData.label}
               </h1>
               <Link
-                href={`/${getSlugValue(brandData.slug, brandData.name)}/${getSlugValue(modelData.slug, modelData.name)}/${getSlugValue(yearData.slug, yearData.range)}`}
+                href={`/${brandSlug}/${modelSlug}/${yearSlug}`}
                 className="text-sm text-orange-500 hover:underline"
               >
                 ← Tillbaka till {yearData.range}
