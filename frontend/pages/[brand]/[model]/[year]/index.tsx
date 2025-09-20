@@ -188,19 +188,18 @@ export default function YearPage({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "ProductGroup",
-              name: `${brandData.name} ${modelName} ${yearData.range}`,
-              brand: {
+              "name": `${brandData.name} ${modelName} ${yearData.range}`,
+              "brand": {
                 "@type": "Brand",
-                name: brandData.name,
+                "name": brandData.name,
               },
-              model: modelName,
-              url: `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}`,
-              mainEntityOfPage: `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}`,
-              hasVariant: yearData.engines?.map((engine, index) => ({
+              "model": modelName,
+              "url": `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}`,
+              "mainEntityOfPage": `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}`,
+              "hasVariant": yearData.engines?.map(engine => ({
                 "@type": "Product",
-                name: `${brandData.name} ${modelName} ${yearData.range} ${engine.label}`,
-                url: `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${getSlug(engine.slug, engine.label)}`,
-                position: index + 1,
+                "name": `${brandData.name} ${modelName} ${yearData.range} ${engine.label}`,
+                "url": `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${getSlug(engine.slug, engine.label)}`,
               })),
             }),
           }}

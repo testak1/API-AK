@@ -109,14 +109,14 @@ export default function BrandPage({brandData}: BrandPageProps) {
         <meta property="og:type" content="website" />
         <meta
           property="og:url"
-          content={`https://tuning.aktuning.se/${brandData.slug?.current || brandName}`}
+          content={`https://tuning.aktuning.se/${brandSlug}`}
         />
         <meta property="og:image" content="/ak-logo1.png" />
 
         {/* Canonical */}
         <link
           rel="canonical"
-          href={`https://tuning.aktuning.se/${brandData.slug?.current || brandName}`}
+          href={`https://tuning.aktuning.se/${brandSlug}`}
         />
 
         <script
@@ -124,19 +124,27 @@ export default function BrandPage({brandData}: BrandPageProps) {
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
-              "@type": "Brand",
-              name: brandData.name,
-              logo:
-                brandData.logo?.asset?.url ||
-                "https://tuning.aktuning.se/ak-logo1.png",
-              url: `https://tuning.aktuning.se/${brandSlug}`,
-              mainEntityOfPage: `https://tuning.aktuning.se/${brandSlug}`,
-              itemListElement: brandData.models?.map((model, index) => ({
-                "@type": "ListItem",
-                position: index + 1,
-                url: `https://tuning.aktuning.se/${brandSlug}/${getSlug(model.slug, model.name)}`,
-                name: model.name,
-              })),
+              "@graph": [
+                {
+                  "@type": "Brand",
+                  "name": brandData.name,
+                  "logo":
+                    brandData.logo?.asset?.url ||
+                    "https://tuning.aktuning.se/ak-logo1.png",
+                  "url": `https://tuning.aktuning.se/${brandSlug}`,
+                  "mainEntityOfPage": `https://tuning.aktuning.se/${brandSlug}`,
+                },
+                {
+                  "@type": "ItemList",
+                  "name": `${brandData.name} modeller`,
+                  "itemListElement": brandData.models?.map((model, index) => ({
+                    "@type": "ListItem",
+                    "position": index + 1,
+                    "url": `https://tuning.aktuning.se/${brandSlug}/${slugifySafe(model.slug?.current || model.name)}`,
+                    "name": model.name,
+                  })),
+                },
+              ],
             }),
           }}
         />

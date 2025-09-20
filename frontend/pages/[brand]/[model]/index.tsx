@@ -133,20 +133,28 @@ export default function ModelPage({brandData, modelData}: ModelPageProps) {
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
-              "@type": "ProductModel",
-              name: `${brandData.name} ${modelData.name}`,
-              brand: {
-                "@type": "Brand",
-                name: brandData.name,
-              },
-              url: `https://tuning.aktuning.se/${brandSlug}/${modelSlug}`,
-              mainEntityOfPage: `https://tuning.aktuning.se/${brandSlug}/${modelSlug}`,
-              itemListElement: modelData.years?.map((year, index) => ({
-                "@type": "ListItem",
-                position: index + 1,
-                url: `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${getSlug(year.slug, year.range, true)}`,
-                name: year.range,
-              })),
+              "@graph": [
+                {
+                  "@type": "ProductModel",
+                  "name": `${brandData.name} ${modelData.name}`,
+                  "brand": {
+                    "@type": "Brand",
+                    "name": brandData.name,
+                  },
+                  "url": `https://tuning.aktuning.se/${brandSlug}/${modelSlug}`,
+                  "mainEntityOfPage": `https://tuning.aktuning.se/${brandSlug}/${modelSlug}`,
+                },
+                {
+                  "@type": "ItemList",
+                  "name": `${brandData.name} ${modelData.name} årsmodeller`,
+                  "itemListElement": modelData.years?.map((year, index) => ({
+                    "@type": "ListItem",
+                    "position": index + 1,
+                    "url": `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${getSlug(year.slug, year.range, true)}`,
+                    "name": year.range,
+                  })),
+                },
+              ],
             }),
           }}
         />
