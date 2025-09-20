@@ -5,7 +5,7 @@ import {brandBySlugQuery} from "@/src/lib/queries";
 import {Brand, Model, Year, Engine} from "@/types/sanity";
 import {urlFor} from "@/lib/sanity";
 import NextImage from "next/image";
-import React, {useState} from "react";
+import {useState} from "react";
 import PublicLanguageDropdown from "@/components/PublicLanguageSwitcher";
 
 // --- slug helpers ---
