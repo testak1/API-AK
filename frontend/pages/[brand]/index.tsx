@@ -1,4 +1,5 @@
 // pages/[brand]/index.tsx
+import Head from "next/head";
 import {GetServerSideProps} from "next";
 import Link from "next/link";
 import {useRouter} from "next/router";
@@ -86,6 +87,10 @@ export const getServerSideProps: GetServerSideProps<
 export default function BrandPage({brandData}: BrandPageProps) {
   const router = useRouter();
 
+  const brandName = brandData.name;
+  const pageTitle = `${brandName} Motoroptimering | AK-Tuning`;
+  const pageDescription = `Motoroptimering för ${brandName}. Mer effekt, högre vridmoment och bättre körglädje. | AK-Tuning`;
+
   if (!brandData) {
     return <p className="p-6 text-red-500">Ingen tillverkare hittades.</p>;
   }
@@ -93,49 +98,71 @@ export default function BrandPage({brandData}: BrandPageProps) {
   const brandSlug = getSlug(brandData.slug, brandData.name);
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
-      <div className="flex items-center justify-between mb-4">
-        <NextImage
-          src="/ak-logo2.png"
-          alt="AK-TUNING MOTOROPTIMERING"
-          width={110}
-          height={120}
-          className="h-full object-contain cursor-pointer hover:opacity-90"
-          onClick={() => (window.location.href = "/")}
-          priority
+    <>
+      <Head>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} />
+
+        {/* Open Graph */}
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+        <meta property="og:type" content="website" />
+        <meta
+          property="og:url"
+          content={`https://tuning.aktuning.se/${brandData.slug?.current || brandName}`}
         />
-      </div>
-      {/* Header med logga */}
-      <div className="flex items-center gap-4 mb-6">
-        {brandData.logo?.asset && (
-          <img
-            src={urlFor(brandData.logo).width(80).url()}
-            alt={brandData.logo.alt || brandData.name}
-            className="h-10 object-contain"
+        <meta property="og:image" content="/ak-logo1.png" />
+
+        {/* Canonical */}
+        <link
+          rel="canonical"
+          href={`https://tuning.aktuning.se/${brandData.slug?.current || brandName}`}
+        />
+      </Head>
+      <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
+        <div className="flex items-center justify-between mb-4">
+          <NextImage
+            src="/ak-logo2.png"
+            alt="AK-TUNING MOTOROPTIMERING"
+            width={110}
+            height={120}
+            className="h-full object-contain cursor-pointer hover:opacity-90"
+            onClick={() => (window.location.href = "/")}
+            priority
           />
-        )}
-        <h1 className="text-2xl font-bold text-black">{brandData.name}</h1>
-      </div>
+        </div>
+        {/* Header med logga */}
+        <div className="flex items-center gap-4 mb-6">
+          {brandData.logo?.asset && (
+            <img
+              src={urlFor(brandData.logo).width(80).url()}
+              alt={brandData.logo.alt || brandData.name}
+              className="h-10 object-contain"
+            />
+          )}
+          <h1 className="text-2xl font-bold text-black">{brandData.name}</h1>
+        </div>
 
-      {/* Tillbaka-knapp */}
-      <div className="mb-4">
-        <Link href="/" className="text-sm text-orange-500 hover:underline">
-          ← Tillbaka till startsidan
-        </Link>
-      </div>
-
-      {/* Lista modeller */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-        {brandData.models?.map((model: Model) => (
-          <Link
-            key={model._id}
-            href={`/${brandSlug}/${getSlug(model.slug, model.name)}`}
-            className="p-4 bg-gray-800 hover:bg-gray-700 rounded-lg text-center text-white font-medium shadow"
-          >
-            {formatModelName(brandData.name, model.name)}
+        {/* Tillbaka-knapp */}
+        <div className="mb-4">
+          <Link href="/" className="text-sm text-orange-500 hover:underline">
+            ← Tillbaka till startsidan
           </Link>
-        ))}
+        </div>
+
+        {/* Lista modeller */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          {brandData.models?.map((model: Model) => (
+            <Link
+              key={model._id}
+              href={`/${brandSlug}/${getSlug(model.slug, model.name)}`}
+              className="p-4 bg-gray-800 hover:bg-gray-700 rounded-lg text-center text-white font-medium shadow"
+            >
+              {formatModelName(brandData.name, model.name)}
+            </Link>
+          ))}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

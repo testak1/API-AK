@@ -1,4 +1,5 @@
 // pages/[brand]/[model]/[year]/index.tsx
+import Head from "next/head";
 import {GetServerSideProps} from "next";
 import Link from "next/link";
 import client from "@/lib/sanity";
@@ -160,6 +161,10 @@ export default function YearPage({
     );
   }
 
+  const modelName = formatModelName(brandData.name, modelData.name);
+  const pageTitle = `${brandData.name} ${modelName} ${yearData.range} Motoroptimering | AK-Tuning`;
+  const pageDescription = `Motoroptimering för ${brandData.name} ${modelName} ${yearData.range}. Upplev högre effekt och bättre vridmoment med AK-Tuning.`;
+
   const brandSlug = getSlug(brandData.slug, brandData.name);
   const modelSlug = getSlug(modelData.slug, modelData.name);
   const yearSlug = getSlug(yearData.slug, yearData.range, true);
@@ -167,92 +172,105 @@ export default function YearPage({
   const enginesGrouped = groupEnginesByFuel(yearData.engines || []);
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
-      <div className="flex items-center justify-between mb-4">
-        <NextImage
-          src="/ak-logo2.png"
-          alt="AK-TUNING MOTOROPTIMERING"
-          width={110}
-          height={120}
-          className="h-full object-contain cursor-pointer hover:opacity-90"
-          onClick={() => (window.location.href = "/")}
-          priority
+    <>
+      <Head>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+        <link
+          rel="canonical"
+          href={`https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}`}
         />
-      </div>
-      {/* Header */}
-      <div className="flex items-center gap-4 mb-6">
-        {brandData.logo?.asset?.url && (
-          <img
-            src={urlFor(brandData.logo).width(80).url()}
-            alt={brandData.logo.alt || brandData.name}
-            className="h-10 object-contain"
+      </Head>
+
+      <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
+        <div className="flex items-center justify-between mb-4">
+          <NextImage
+            src="/ak-logo1.png"
+            alt="AK-TUNING MOTOROPTIMERING"
+            width={110}
+            height={120}
+            className="h-full object-contain cursor-pointer hover:opacity-90"
+            onClick={() => (window.location.href = "/")}
+            priority
           />
-        )}
-        <h1 className="text-2xl font-bold text-black">
-          {brandData.name} {formatModelName(brandData.name, modelData.name)}{" "}
-          {yearData.range}
-        </h1>
-      </div>
+        </div>
+        {/* Header */}
+        <div className="flex items-center gap-4 mb-6">
+          {brandData.logo?.asset?.url && (
+            <img
+              src={urlFor(brandData.logo).width(80).url()}
+              alt={brandData.logo.alt || brandData.name}
+              className="h-10 object-contain"
+            />
+          )}
+          <h1 className="text-2xl font-bold text-black">
+            {brandData.name} {formatModelName(brandData.name, modelData.name)}{" "}
+            {yearData.range}
+          </h1>
+        </div>
 
-      {/* Tillbaka-knapp */}
-      <div className="mb-4">
-        <Link
-          href={`/${brandSlug}/${modelSlug}`}
-          className="text-sm text-orange-500 hover:underline"
-        >
-          ← Tillbaka till {formatModelName(brandData.name, modelData.name)}
-        </Link>
-      </div>
+        {/* Tillbaka-knapp */}
+        <div className="mb-4">
+          <Link
+            href={`/${brandSlug}/${modelSlug}`}
+            className="text-sm text-orange-500 hover:underline"
+          >
+            ← Tillbaka till {formatModelName(brandData.name, modelData.name)}
+          </Link>
+        </div>
 
-      {/* Engines grouped by fuel */}
-      {["diesel", "bensin", "hybrid", "el", "other"].map(fuelKey => {
-        const engines = enginesGrouped[fuelKey] || [];
-        if (!engines.length) return null;
+        {/* Engines grouped by fuel */}
+        {["diesel", "bensin", "hybrid", "el", "other"].map(fuelKey => {
+          const engines = enginesGrouped[fuelKey] || [];
+          if (!engines.length) return null;
 
-        const heading =
-          fuelKey === "diesel"
-            ? "Diesel-motorer"
-            : fuelKey === "bensin"
-              ? "Bensin-motorer"
-              : fuelKey === "hybrid"
-                ? "Hybrid-motorer"
-                : fuelKey === "el"
-                  ? "El-motorer"
-                  : "Övriga motorer";
+          const heading =
+            fuelKey === "diesel"
+              ? "Diesel-motorer"
+              : fuelKey === "bensin"
+                ? "Bensin-motorer"
+                : fuelKey === "hybrid"
+                  ? "Hybrid-motorer"
+                  : fuelKey === "el"
+                    ? "El-motorer"
+                    : "Övriga motorer";
 
-        const badgeColor =
-          fuelKey === "diesel"
-            ? "bg-blue-600"
-            : fuelKey === "bensin"
-              ? "bg-red-600"
-              : fuelKey === "hybrid"
-                ? "bg-green-600"
-                : fuelKey === "el"
-                  ? "bg-yellow-500"
-                  : "bg-gray-500";
+          const badgeColor =
+            fuelKey === "diesel"
+              ? "bg-blue-600"
+              : fuelKey === "bensin"
+                ? "bg-red-600"
+                : fuelKey === "hybrid"
+                  ? "bg-green-600"
+                  : fuelKey === "el"
+                    ? "bg-yellow-500"
+                    : "bg-gray-500";
 
-        return (
-          <div key={fuelKey} className="mb-8">
-            <h2 className="text-xl font-bold text-orange-400 mb-4">
-              {heading}
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              {engines.map(engine => (
-                <Link
-                  key={engine._id}
-                  href={`/${brandSlug}/${modelSlug}/${yearSlug}/${getSlug(
-                    engine.slug,
-                    engine.label
-                  )}`}
-                  className="relative p-4 bg-gray-800 hover:bg-gray-700 rounded-lg text-center text-white font-medium shadow"
-                >
-                  {engine.label}
-                </Link>
-              ))}
+          return (
+            <div key={fuelKey} className="mb-8">
+              <h2 className="text-xl font-bold text-orange-400 mb-4">
+                {heading}
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {engines.map(engine => (
+                  <Link
+                    key={engine._id}
+                    href={`/${brandSlug}/${modelSlug}/${yearSlug}/${getSlug(
+                      engine.slug,
+                      engine.label
+                    )}`}
+                    className="relative p-4 bg-gray-800 hover:bg-gray-700 rounded-lg text-center text-white font-medium shadow"
+                  >
+                    {engine.label}
+                  </Link>
+                ))}
+              </div>
             </div>
-          </div>
-        );
-      })}
-    </div>
+          );
+        })}
+      </div>
+    </>
   );
 }

@@ -1,4 +1,5 @@
 // pages/[brand]/[model]/index.tsx
+import Head from "next/head";
 import {GetServerSideProps} from "next";
 import Link from "next/link";
 import client from "@/lib/sanity";
@@ -109,62 +110,78 @@ export default function ModelPage({brandData, modelData}: ModelPageProps) {
     return <p className="p-6 text-red-500">Ingen modell hittades.</p>;
   }
 
+  const modelName = formatModelName(brandData.name, modelData.name);
+  const pageTitle = `${brandData.name} ${modelName} Motoroptimering | AK-Tuning`;
+  const pageDescription = `Motoroptimering för ${brandData.name} ${modelName}. Få mer effekt, högre vridmoment och bättre körupplevelse med AK-Tuning.`;
+
   const brandSlug = getSlug(brandData.slug, brandData.name);
   const modelSlug = getSlug(modelData.slug, modelData.name);
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
-      <div className="flex items-center justify-between mb-4">
-        <NextImage
-          src="/ak-logo2.png"
-          alt="AK-TUNING MOTOROPTIMERING"
-          width={110}
-          height={120}
-          className="h-full object-contain cursor-pointer hover:opacity-90"
-          onClick={() => (window.location.href = "/")}
-          priority
+    <>
+      <Head>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+        <link
+          rel="canonical"
+          href={`https://tuning.aktuning.se/${brandSlug}/${modelSlug}`}
         />
-      </div>
-      {/* Header med logga */}
-      <div className="flex items-center gap-4 mb-6">
-        {brandData.logo?.asset && (
-          <img
-            src={urlFor(brandData.logo).width(80).url()}
-            alt={brandData.logo.alt || brandData.name}
-            className="h-10 object-contain"
+      </Head>
+      <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
+        <div className="flex items-center justify-between mb-4">
+          <NextImage
+            src="/ak-logo1.png"
+            alt="AK-TUNING MOTOROPTIMERING"
+            width={110}
+            height={120}
+            className="h-full object-contain cursor-pointer hover:opacity-90"
+            onClick={() => (window.location.href = "/")}
+            priority
           />
-        )}
-        <h1 className="text-2xl font-bold text-black">
-          {brandData.name} {formatModelName(brandData.name, modelData.name)}
-        </h1>
-      </div>
+        </div>
+        {/* Header med logga */}
+        <div className="flex items-center gap-4 mb-6">
+          {brandData.logo?.asset && (
+            <img
+              src={urlFor(brandData.logo).width(80).url()}
+              alt={brandData.logo.alt || brandData.name}
+              className="h-10 object-contain"
+            />
+          )}
+          <h1 className="text-2xl font-bold text-black">
+            {brandData.name} {formatModelName(brandData.name, modelData.name)}
+          </h1>
+        </div>
 
-      {/* Tillbaka-knapp */}
-      <div className="mb-4">
-        <Link
-          href={`/${brandSlug}`}
-          className="text-sm text-orange-500 hover:underline"
-        >
-          ← Tillbaka till {brandData.name}
-        </Link>
-      </div>
-
-      {/* Lista år */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-        {modelData.years?.map((year: Year) => (
+        {/* Tillbaka-knapp */}
+        <div className="mb-4">
           <Link
-            key={year._id}
-            href={`/${brandSlug}/${modelSlug}/${getSlug(
-              year.slug,
-              year.range,
-              true
-            )}`}
-            className="p-4 bg-gray-800 hover:bg-gray-700 rounded-lg text-center text-white font-medium shadow"
+            href={`/${brandSlug}`}
+            className="text-sm text-orange-500 hover:underline"
           >
-            {year.range}
+            ← Tillbaka till {brandData.name}
           </Link>
-        ))}
+        </div>
+
+        {/* Lista år */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          {modelData.years?.map((year: Year) => (
+            <Link
+              key={year._id}
+              href={`/${brandSlug}/${modelSlug}/${getSlug(
+                year.slug,
+                year.range,
+                true
+              )}`}
+              className="p-4 bg-gray-800 hover:bg-gray-700 rounded-lg text-center text-white font-medium shadow"
+            >
+              {year.range}
+            </Link>
+          ))}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
