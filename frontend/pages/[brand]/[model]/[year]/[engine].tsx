@@ -873,6 +873,7 @@ export default function EnginePage({
           <div className="space-y-6">
             {engineData.stages.map(stage => {
               const isDsgStage = stage.name.toLowerCase().includes("dsg");
+              const isTruck = brandData.name.startsWith("[LASTBIL]");
               const allOptions = getAllAktPlusOptions(stage);
               const isExpanded = expandedStages[stage.name] ?? false;
 
@@ -1162,7 +1163,7 @@ export default function EnginePage({
                       </div>
 
                       <div className="mt-6">
-                        {!isDsgStage && (
+                        {!isDsgStage && !isTruck && (
                           <h3 className="text-lg font-medium text-gray-300 mb-2 uppercase">
                             {translate(
                               currentLanguage,
@@ -1212,7 +1213,7 @@ export default function EnginePage({
                           </div>
                         )}
 
-                        {!isDsgStage && (
+                        {!isDsgStage && !isTruck && (
                           <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
                             {/* Split the spec boxes */}
                             <div className="absolute hidden md:flex flex-row justify-between top-4 left-0 right-0 px-16">
@@ -1252,190 +1253,192 @@ export default function EnginePage({
                             </div>
 
                             {/* Dyno graph */}
-                            <Line
-                              data={{
-                                labels: rpmLabels,
-                                datasets: [
-                                  {
-                                    label: "ORG HK",
-                                    data: generateDynoCurve(
-                                      stage.origHk,
-                                      true,
-                                      engineData.fuel
-                                    ),
-                                    borderColor: "#f87171",
-                                    backgroundColor: "transparent",
-                                    borderWidth: 2,
-                                    borderDash: [5, 3],
-                                    tension: 0.5,
-                                    pointRadius: 0,
-                                    yAxisID: "hp",
+                            {isExpanded && !isDsgStage && !isTruck && (
+                              <Line
+                                data={{
+                                  labels: rpmLabels,
+                                  datasets: [
+                                    {
+                                      label: "ORG HK",
+                                      data: generateDynoCurve(
+                                        stage.origHk,
+                                        true,
+                                        engineData.fuel
+                                      ),
+                                      borderColor: "#f87171",
+                                      backgroundColor: "transparent",
+                                      borderWidth: 2,
+                                      borderDash: [5, 3],
+                                      tension: 0.5,
+                                      pointRadius: 0,
+                                      yAxisID: "hp",
+                                    },
+                                    {
+                                      label: `ST ${stage.name.replace(/\D/g, "")} HK`,
+                                      data: generateDynoCurve(
+                                        stage.tunedHk,
+                                        true,
+                                        engineData.fuel
+                                      ),
+                                      borderColor: "#f87171",
+                                      backgroundColor: "#f87171",
+                                      borderWidth: 3,
+                                      tension: 0.5,
+                                      pointRadius: 0,
+                                      yAxisID: "hp",
+                                    },
+                                    {
+                                      label: "ORG NM",
+                                      data: generateDynoCurve(
+                                        stage.origNm,
+                                        false,
+                                        engineData.fuel
+                                      ),
+                                      borderColor: "#d1d5db",
+                                      backgroundColor: "transparent",
+                                      borderWidth: 2,
+                                      borderDash: [5, 3],
+                                      tension: 0.5,
+                                      pointRadius: 0,
+                                      yAxisID: "nm",
+                                    },
+                                    {
+                                      label: `ST ${stage.name.replace(/\D/g, "")} NM`,
+                                      data: generateDynoCurve(
+                                        stage.tunedNm,
+                                        false,
+                                        engineData.fuel
+                                      ),
+                                      borderColor: "#d1d5db",
+                                      backgroundColor: "transparent",
+                                      borderWidth: 3,
+                                      tension: 0.5,
+                                      pointRadius: 0,
+                                      yAxisID: "nm",
+                                    },
+                                  ],
+                                }}
+                                options={{
+                                  responsive: true,
+                                  maintainAspectRatio: false,
+                                  plugins: {
+                                    legend: {
+                                      display: false,
+                                    },
+                                    tooltip: {
+                                      enabled: true,
+                                      mode: "index",
+                                      intersect: false,
+                                      backgroundColor: "#1f2937",
+                                      titleColor: "#ffffff",
+                                      bodyColor: "#ffffff",
+                                      borderColor: "#6b7280",
+                                      borderWidth: 1,
+                                      padding: 10,
+                                      displayColors: true,
+                                      usePointStyle: true, // ✅ this enables circle style
+                                      callbacks: {
+                                        labelPointStyle: () => ({
+                                          pointStyle: "circle", // ✅ make symbol a circle
+                                          rotation: 0,
+                                        }),
+                                        title: function (tooltipItems) {
+                                          // tooltipItems[0].label will be the RPM (e.g., "4000")
+                                          return `${tooltipItems[0].label} RPM`;
+                                        },
+                                        label: function (context) {
+                                          const label =
+                                            context.dataset.label || "";
+                                          const value = context.parsed.y;
+
+                                          // Guard for undefined value
+                                          if (value === undefined) return label;
+
+                                          const unit =
+                                            context.dataset.yAxisID === "hp"
+                                              ? "hk"
+                                              : "Nm";
+                                          return `${label}: ${Math.round(value)} ${unit}`;
+                                        },
+                                      },
+                                    },
                                   },
-                                  {
-                                    label: `ST ${stage.name.replace(/\D/g, "")} HK`,
-                                    data: generateDynoCurve(
-                                      stage.tunedHk,
-                                      true,
-                                      engineData.fuel
-                                    ),
-                                    borderColor: "#f87171",
-                                    backgroundColor: "#f87171",
-                                    borderWidth: 3,
-                                    tension: 0.5,
-                                    pointRadius: 0,
-                                    yAxisID: "hp",
+                                  scales: {
+                                    hp: {
+                                      type: "linear",
+                                      display: true,
+                                      position: "left",
+                                      title: {
+                                        display: true,
+                                        text: translate(
+                                          currentLanguage,
+                                          "powerLabel"
+                                        ),
+                                        color: "white",
+                                        font: {size: 14},
+                                      },
+                                      min: 0,
+                                      max:
+                                        Math.ceil(stage.tunedHk / 100) * 100 +
+                                        100,
+                                      grid: {
+                                        color: "rgba(255, 255, 255, 0.1)",
+                                      },
+                                      ticks: {
+                                        color: "#9CA3AF",
+                                        stepSize: 100,
+                                        callback: value => `${value}`,
+                                      },
+                                    },
+                                    nm: {
+                                      type: "linear",
+                                      display: true,
+                                      position: "right",
+                                      title: {
+                                        display: true,
+                                        text: translate(
+                                          currentLanguage,
+                                          "torqueLabel"
+                                        ),
+                                        color: "white",
+                                        font: {size: 14},
+                                      },
+                                      min: 0,
+                                      max:
+                                        Math.ceil(stage.tunedNm / 100) * 100 +
+                                        100,
+                                      grid: {
+                                        drawOnChartArea: false,
+                                      },
+                                      ticks: {
+                                        color: "#9CA3AF",
+                                        stepSize: 100,
+                                        callback: value => `${value}`,
+                                      },
+                                    },
+                                    x: {
+                                      title: {
+                                        display: true,
+                                        text: "RPM",
+                                        color: "#E5E7EB",
+                                        font: {size: 14},
+                                      },
+                                      grid: {
+                                        color: "rgba(255, 255, 255, 0.1)",
+                                      },
+                                      ticks: {
+                                        color: "#9CA3AF",
+                                      },
+                                    },
                                   },
-                                  {
-                                    label: "ORG NM",
-                                    data: generateDynoCurve(
-                                      stage.origNm,
-                                      false,
-                                      engineData.fuel
-                                    ),
-                                    borderColor: "#d1d5db",
-                                    backgroundColor: "transparent",
-                                    borderWidth: 2,
-                                    borderDash: [5, 3],
-                                    tension: 0.5,
-                                    pointRadius: 0,
-                                    yAxisID: "nm",
-                                  },
-                                  {
-                                    label: `ST ${stage.name.replace(/\D/g, "")} NM`,
-                                    data: generateDynoCurve(
-                                      stage.tunedNm,
-                                      false,
-                                      engineData.fuel
-                                    ),
-                                    borderColor: "#d1d5db",
-                                    backgroundColor: "transparent",
-                                    borderWidth: 3,
-                                    tension: 0.5,
-                                    pointRadius: 0,
-                                    yAxisID: "nm",
-                                  },
-                                ],
-                              }}
-                              options={{
-                                responsive: true,
-                                maintainAspectRatio: false,
-                                plugins: {
-                                  legend: {
-                                    display: false,
-                                  },
-                                  tooltip: {
-                                    enabled: true,
-                                    mode: "index",
+                                  interaction: {
                                     intersect: false,
-                                    backgroundColor: "#1f2937",
-                                    titleColor: "#ffffff",
-                                    bodyColor: "#ffffff",
-                                    borderColor: "#6b7280",
-                                    borderWidth: 1,
-                                    padding: 10,
-                                    displayColors: true,
-                                    usePointStyle: true, // ✅ this enables circle style
-                                    callbacks: {
-                                      labelPointStyle: () => ({
-                                        pointStyle: "circle", // ✅ make symbol a circle
-                                        rotation: 0,
-                                      }),
-                                      title: function (tooltipItems) {
-                                        // tooltipItems[0].label will be the RPM (e.g., "4000")
-                                        return `${tooltipItems[0].label} RPM`;
-                                      },
-                                      label: function (context) {
-                                        const label =
-                                          context.dataset.label || "";
-                                        const value = context.parsed.y;
-
-                                        // Guard for undefined value
-                                        if (value === undefined) return label;
-
-                                        const unit =
-                                          context.dataset.yAxisID === "hp"
-                                            ? "hk"
-                                            : "Nm";
-                                        return `${label}: ${Math.round(value)} ${unit}`;
-                                      },
-                                    },
+                                    mode: "index",
                                   },
-                                },
-                                scales: {
-                                  hp: {
-                                    type: "linear",
-                                    display: true,
-                                    position: "left",
-                                    title: {
-                                      display: true,
-                                      text: translate(
-                                        currentLanguage,
-                                        "powerLabel"
-                                      ),
-                                      color: "white",
-                                      font: {size: 14},
-                                    },
-                                    min: 0,
-                                    max:
-                                      Math.ceil(stage.tunedHk / 100) * 100 +
-                                      100,
-                                    grid: {
-                                      color: "rgba(255, 255, 255, 0.1)",
-                                    },
-                                    ticks: {
-                                      color: "#9CA3AF",
-                                      stepSize: 100,
-                                      callback: value => `${value}`,
-                                    },
-                                  },
-                                  nm: {
-                                    type: "linear",
-                                    display: true,
-                                    position: "right",
-                                    title: {
-                                      display: true,
-                                      text: translate(
-                                        currentLanguage,
-                                        "torqueLabel"
-                                      ),
-                                      color: "white",
-                                      font: {size: 14},
-                                    },
-                                    min: 0,
-                                    max:
-                                      Math.ceil(stage.tunedNm / 100) * 100 +
-                                      100,
-                                    grid: {
-                                      drawOnChartArea: false,
-                                    },
-                                    ticks: {
-                                      color: "#9CA3AF",
-                                      stepSize: 100,
-                                      callback: value => `${value}`,
-                                    },
-                                  },
-                                  x: {
-                                    title: {
-                                      display: true,
-                                      text: "RPM",
-                                      color: "#E5E7EB",
-                                      font: {size: 14},
-                                    },
-                                    grid: {
-                                      color: "rgba(255, 255, 255, 0.1)",
-                                    },
-                                    ticks: {
-                                      color: "#9CA3AF",
-                                    },
-                                  },
-                                },
-                                interaction: {
-                                  intersect: false,
-                                  mode: "index",
-                                },
-                              }}
-                              plugins={[watermarkPlugin, shadowPlugin]}
-                            />
+                                }}
+                                plugins={[watermarkPlugin, shadowPlugin]}
+                              />
+                            )}
 
                             <div className="text-center text-white text-xs mt-4 italic">
                               {translate(currentLanguage, "tuningCurveNote")}
