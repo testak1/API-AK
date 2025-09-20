@@ -118,6 +118,28 @@ export default function BrandPage({brandData}: BrandPageProps) {
           rel="canonical"
           href={`https://tuning.aktuning.se/${brandData.slug?.current || brandName}`}
         />
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Brand",
+              name: brandData.name,
+              logo:
+                brandData.logo?.asset?.url ||
+                "https://tuning.aktuning.se/ak-logo1.png",
+              url: `https://tuning.aktuning.se/${brandSlug}`,
+              mainEntityOfPage: `https://tuning.aktuning.se/${brandSlug}`,
+              itemListElement: brandData.models?.map((model, index) => ({
+                "@type": "ListItem",
+                position: index + 1,
+                url: `https://tuning.aktuning.se/${brandSlug}/${getSlug(model.slug, model.name)}`,
+                name: model.name,
+              })),
+            }),
+          }}
+        />
       </Head>
       <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
         <div className="flex items-center justify-between mb-4">

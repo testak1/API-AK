@@ -128,6 +128,28 @@ export default function ModelPage({brandData, modelData}: ModelPageProps) {
           rel="canonical"
           href={`https://tuning.aktuning.se/${brandSlug}/${modelSlug}`}
         />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "ProductModel",
+              name: `${brandData.name} ${modelData.name}`,
+              brand: {
+                "@type": "Brand",
+                name: brandData.name,
+              },
+              url: `https://tuning.aktuning.se/${brandSlug}/${modelSlug}`,
+              mainEntityOfPage: `https://tuning.aktuning.se/${brandSlug}/${modelSlug}`,
+              itemListElement: modelData.years?.map((year, index) => ({
+                "@type": "ListItem",
+                position: index + 1,
+                url: `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${getSlug(year.slug, year.range, true)}`,
+                name: year.range,
+              })),
+            }),
+          }}
+        />
       </Head>
       <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
         <div className="flex items-center justify-between mb-4">

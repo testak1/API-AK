@@ -182,6 +182,29 @@ export default function YearPage({
           rel="canonical"
           href={`https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}`}
         />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "ProductGroup",
+              name: `${brandData.name} ${modelName} ${yearData.range}`,
+              brand: {
+                "@type": "Brand",
+                name: brandData.name,
+              },
+              model: modelName,
+              url: `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}`,
+              mainEntityOfPage: `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}`,
+              hasVariant: yearData.engines?.map((engine, index) => ({
+                "@type": "Product",
+                name: `${brandData.name} ${modelName} ${yearData.range} ${engine.label}`,
+                url: `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${getSlug(engine.slug, engine.label)}`,
+                position: index + 1,
+              })),
+            }),
+          }}
+        />
       </Head>
 
       <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
