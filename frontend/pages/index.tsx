@@ -1143,7 +1143,7 @@ export default function TuningViewer() {
                 }}
                 className="text-sm text-orange-500 hover:underline"
               >
-                ← Tillbaka till {selected.year}
+                ← {translate(currentLanguage, "BACKTO")} {selected.year}
               </button>
             </div>
           )}

@@ -82,6 +82,11 @@ export default function BrandPage({brandData}: BrandPageProps) {
 
   const brandSlug = getSlug(brandData.slug, brandData.name);
 
+  const storedLang = localStorage.getItem("lang");
+  if (storedLang) {
+    setCurrentLanguage(storedLang);
+  }
+
   return (
     <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
       <div className="flex items-center justify-between mb-4">
