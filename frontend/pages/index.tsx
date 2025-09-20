@@ -2109,7 +2109,7 @@ export default function TuningViewer() {
                           </div>
                         )}
 
-                        {!isDsgStage && (
+                        {!isDsgStage && !isTruck && (
                           <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
                             {/* Split the spec boxes */}
                             <div className="absolute hidden md:flex flex-row justify-between top-4 left-0 right-0 px-16">
