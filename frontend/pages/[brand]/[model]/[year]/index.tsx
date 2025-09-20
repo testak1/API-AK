@@ -13,6 +13,8 @@ const slugifySafe = (str: string) => {
     .toString()
     .toLowerCase()
     .trim()
+    .replace(/->/g, "-")
+    .replace(/>/g, "-")
     .replace(/\//g, "-")
     .replace(/\s+/g, "-")
     .replace(/[^a-z0-9\-]/g, "")
