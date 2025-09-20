@@ -7,12 +7,13 @@ import {Brand, Model, Year} from "@/types/sanity";
 import {urlFor} from "@/lib/sanity";
 import NextImage from "next/image";
 
-// --- slug helpers ---
 const slugifySafe = (str: string) => {
   return str
     .toString()
     .toLowerCase()
     .trim()
+    .replace(/->/g, "-")
+    .replace(/>/g, "-")
     .replace(/\//g, "-")
     .replace(/\s+/g, "-")
     .replace(/[^a-z0-9\-]/g, "")
