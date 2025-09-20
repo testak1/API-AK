@@ -2063,7 +2063,7 @@ export default function TuningViewer() {
                       </div>
 
                       <div className="mt-6">
-                        {!isDsgStage && (
+                        {!isDsgStage && !isTruck && (
                           <h3 className="text-lg font-medium text-gray-300 mb-2 uppercase">
                             {translate(
                               currentLanguage,
