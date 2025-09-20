@@ -259,6 +259,16 @@ export default function EnginePage({
       .replace(/\s+/g, "-")
       .replace(/[^\w-]/g, "");
 
+  const slugifyYear = (range: string) => {
+    return range
+      .toLowerCase()
+      .trim()
+      .replace(/->/g, "-")
+      .replace(/\//g, "-")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-");
+  };
+
   const handleBookNow = (
     stageOrOptionName: string,
     event?: React.MouseEvent
@@ -880,7 +890,7 @@ export default function EnginePage({
                 {yearData.range} – {engineData.label}
               </h1>
               <Link
-                href={`/${getSlugValue(brandData.slug, brandData.name)}/${getSlugValue(modelData.slug, modelData.name)}/${getSlugValue(yearData.slug, yearData.range)}`}
+                href={`/${getSlugValue(brandData.slug, brandData.name)}/${getSlugValue(modelData.slug, modelData.name)}/${slugifyYear(yearData.range)}`}
                 className="text-sm text-orange-500 hover:underline"
               >
                 ← Tillbaka till {yearData.range}
