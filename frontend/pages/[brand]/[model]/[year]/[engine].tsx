@@ -890,10 +890,10 @@ export default function EnginePage({
                 {yearData.range} – {engineData.label}
               </h1>
               <Link
-                href={`/${getSlugValue(brandData.slug, brandData.name)}/${getSlugValue(modelData.slug, modelData.name)}/${slugifyYear(yearData.range)}`}
+                href={`/${slugify(brandData.slug?.current || brandData.name)}/${slugify(modelData.slug?.current || modelData.name)}/${slugifyYear(yearData.range)}`}
                 className="text-sm text-orange-500 hover:underline"
               >
-                ← Tillbaka till {yearData.range}
+                ← {translate(currentLanguage, "BACKTO")} {yearData.range}
               </Link>
             </div>
           )}
