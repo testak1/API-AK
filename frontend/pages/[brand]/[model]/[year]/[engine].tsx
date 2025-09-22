@@ -209,6 +209,116 @@ const getStageColor = (stageName: string) => {
   return "text-white"; // fallback
 };
 
+const InfoModal = ({
+  isOpen,
+  onClose,
+  title,
+  content,
+  id,
+  setContactModalData,
+  currentLanguage,
+  translate,
+  showBookButton,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  content: React.ReactNode;
+  id: string;
+  setContactModalData: React.Dispatch<
+    React.SetStateAction<{
+      isOpen: boolean;
+      stageOrOption: string;
+      link: string;
+      scrollPosition?: number;
+    }>
+  >;
+  currentLanguage: string;
+  translate: (lang: string, key: string, fallback?: string) => string;
+  showBookButton: boolean;
+}) => {
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    modalRef.current?.focus();
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
+  if (!isOpen) {
+    return null;
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        ref={modalRef}
+        id={id}
+        className="bg-gray-900 p-6 rounded-lg shadow-lg max-w-2xl w-full outline-none"
+        tabIndex={-1}
+      >
+        <div className="flex justify-between items-center mb-4">
+          <h2 id={`${id}-title`} className="text-white text-lg font-semibold">
+            {title}
+          </h2>
+          <button
+            onClick={onClose}
+            aria-label="Close modal"
+            className="text-white text-xl hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
+          >
+            &times;
+          </button>
+        </div>
+
+        <div
+          id={`${id}-content`}
+          className="text-gray-300 text-sm max-h-[70vh] overflow-y-auto"
+        >
+          {content}
+        </div>
+
+        <div className="mt-6 flex justify-between">
+          {showBookButton && (
+            <button
+              onClick={() => {
+                setContactModalData({
+                  isOpen: true,
+                  stageOrOption: title,
+                  link: window.location.href,
+                });
+                onClose();
+              }}
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-bold transition focus:outline-none focus:ring-2 focus:ring-orange-500"
+            >
+              📅 {translate(currentLanguage, "bookNow")}
+            </button>
+          )}
+
+          <button
+            onClick={onClose}
+            className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-orange-500 ml-auto"
+          >
+            ❌ {translate(currentLanguage, "close")}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function EnginePage({
   brandData,
   modelData,
@@ -1855,112 +1965,3 @@ export default function EnginePage({
     </>
   );
 }
-const InfoModal = ({
-  isOpen,
-  onClose,
-  title,
-  content,
-  id,
-  setContactModalData,
-  currentLanguage,
-  translate,
-  showBookButton,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  title: string;
-  content: React.ReactNode;
-  id: string;
-  setContactModalData: React.Dispatch<
-    React.SetStateAction<{
-      isOpen: boolean;
-      stageOrOption: string;
-      link: string;
-      scrollPosition?: number;
-    }>
-  >;
-  currentLanguage: string;
-  translate: (lang: string, key: string, fallback?: string) => string;
-  showBookButton: boolean;
-}) => {
-  const modalRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-    modalRef.current?.focus();
-
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [isOpen, onClose]);
-
-  if (!isOpen) {
-    return null;
-  }
-
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70"
-      role="dialog"
-      aria-modal="true"
-    >
-      <div
-        ref={modalRef}
-        id={id}
-        className="bg-gray-900 p-6 rounded-lg shadow-lg max-w-2xl w-full outline-none"
-        tabIndex={-1}
-      >
-        <div className="flex justify-between items-center mb-4">
-          <h2 id={`${id}-title`} className="text-white text-lg font-semibold">
-            {title}
-          </h2>
-          <button
-            onClick={onClose}
-            aria-label="Close modal"
-            className="text-white text-xl hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
-          >
-            &times;
-          </button>
-        </div>
-
-        <div
-          id={`${id}-content`}
-          className="text-gray-300 text-sm max-h-[70vh] overflow-y-auto"
-        >
-          {content}
-        </div>
-
-        <div className="mt-6 flex justify-between">
-          {showBookButton && (
-            <button
-              onClick={() => {
-                setContactModalData({
-                  isOpen: true,
-                  stageOrOption: title,
-                  link: window.location.href,
-                });
-                onClose();
-              }}
-              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-bold transition focus:outline-none focus:ring-2 focus:ring-orange-500"
-            >
-              📅 {translate(currentLanguage, "bookNow")}
-            </button>
-          )}
-
-          <button
-            onClick={onClose}
-            className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-orange-500 ml-auto"
-          >
-            ❌ {translate(currentLanguage, "close")}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
