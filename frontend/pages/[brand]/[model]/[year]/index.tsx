@@ -210,7 +210,7 @@ export default function YearPage({
                   priceCurrency: "SEK",
                   availability: "http://schema.org/InStock",
                   url: `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${getSlug(engine.slug, engine.label)}`,
-                  description: "Kontakta oss för offert",
+                  description: "Bläddra fram din bilmodell för att se pris!",
                 },
               })),
             }),
