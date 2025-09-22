@@ -52,7 +52,7 @@ interface EnginePageProps {
 }
 
 const Line = dynamic(() => import("react-chartjs-2").then((mod) => mod.Line), {
-  ssr: false, // Disable server-side rendering for this component
+  ssr: false,
   loading: () => (
     <div className="h-96 bg-gray-800 rounded-lg animate-pulse flex items-center justify-center">
       <p className="text-gray-400">Laddar dynobild...</p>
@@ -136,7 +136,7 @@ function extractPlainTextFromDescription(description: any): string {
           .map((child) => (typeof child.text === "string" ? child.text : ""))
           .join("");
       }
-      // Handle custom block types with simple 'text' field fallback
+
       if (typeof block.text === "string") {
         return block.text;
       }
@@ -174,7 +174,6 @@ const generateDynoCurve = (
   isHp: boolean,
   fuelType: string,
 ) => {
-  // Välj RPM range beroende på motor
   const rpmRange = fuelType.toLowerCase().includes("diesel")
     ? [1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000]
     : [2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000];
@@ -206,117 +205,7 @@ const getStageColor = (stageName: string) => {
   if (name.includes("steg 3")) return "text-purple-400";
   if (name.includes("steg 4")) return "text-yellow-400";
   if (name.includes("dsg")) return "text-blue-400";
-  return "text-white"; // fallback
-};
-
-const InfoModal = ({
-  isOpen,
-  onClose,
-  title,
-  content,
-  id,
-  setContactModalData,
-  currentLanguage,
-  translate,
-  showBookButton,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  title: string;
-  content: React.ReactNode;
-  id: string;
-  setContactModalData: React.Dispatch<
-    React.SetStateAction<{
-      isOpen: boolean;
-      stageOrOption: string;
-      link: string;
-      scrollPosition?: number;
-    }>
-  >;
-  currentLanguage: string;
-  translate: (lang: string, key: string, fallback?: string) => string;
-  showBookButton: boolean;
-}) => {
-  const modalRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-    modalRef.current?.focus();
-
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [isOpen, onClose]);
-
-  if (!isOpen) {
-    return null;
-  }
-
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70"
-      role="dialog"
-      aria-modal="true"
-    >
-      <div
-        ref={modalRef}
-        id={id}
-        className="bg-gray-900 p-6 rounded-lg shadow-lg max-w-2xl w-full outline-none"
-        tabIndex={-1}
-      >
-        <div className="flex justify-between items-center mb-4">
-          <h2 id={`${id}-title`} className="text-white text-lg font-semibold">
-            {title}
-          </h2>
-          <button
-            onClick={onClose}
-            aria-label="Close modal"
-            className="text-white text-xl hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
-          >
-            &times;
-          </button>
-        </div>
-
-        <div
-          id={`${id}-content`}
-          className="text-gray-300 text-sm max-h-[70vh] overflow-y-auto"
-        >
-          {content}
-        </div>
-
-        <div className="mt-6 flex justify-between">
-          {showBookButton && (
-            <button
-              onClick={() => {
-                setContactModalData({
-                  isOpen: true,
-                  stageOrOption: title,
-                  link: window.location.href,
-                });
-                onClose();
-              }}
-              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-bold transition focus:outline-none focus:ring-2 focus:ring-orange-500"
-            >
-              📅 {translate(currentLanguage, "bookNow")}
-            </button>
-          )}
-
-          <button
-            onClick={onClose}
-            className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-orange-500 ml-auto"
-          >
-            ❌ {translate(currentLanguage, "close")}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+  return "text-white";
 };
 
 export default function EnginePage({
@@ -428,7 +317,6 @@ export default function EnginePage({
     });
   };
 
-  // Hämta språk från localStorage om det finns
   useEffect(() => {
     const storedLang = localStorage.getItem("lang");
     if (storedLang) {
@@ -436,12 +324,10 @@ export default function EnginePage({
     }
   }, []);
 
-  // Spara språk till localStorage när det ändras
   useEffect(() => {
     localStorage.setItem("lang", currentLanguage);
   }, [currentLanguage]);
 
-  // Load watermark image
   useEffect(() => {
     const img = new Image();
     img.src = "/ak-logo.png";
@@ -537,7 +423,6 @@ export default function EnginePage({
         const img = watermarkImageRef.current;
         const ratio = img.width / img.height;
 
-        // Adjust size based on screen width
         const isMobile = window.innerWidth <= 768;
         const imgWidth = isMobile ? width * 0.8 : width * 0.4;
         const imgHeight = imgWidth / ratio;
@@ -551,7 +436,6 @@ export default function EnginePage({
     },
   };
 
-  // Hjälpfunktion för Mercedes-modeller
   const formatModelName = (brand: string, model: string): string => {
     const mercedesModels = [
       "A",
@@ -762,7 +646,6 @@ export default function EnginePage({
     });
   }
 
-  // Funktion för att göra beskrivningar dynamiska
   const createDynamicDescription = (
     description: any[],
     stage: Stage | undefined,
@@ -782,16 +665,12 @@ export default function EnginePage({
     const nmIncrease =
       stage.tunedNm && stage.origNm ? stage.tunedNm - stage.origNm : "?";
 
-    // Skapa en djup kopia för att inte mutera originaldatan
     const newDescription = JSON.parse(JSON.stringify(description));
 
-    // Gå igenom varje block i Portable Text-datan
     newDescription.forEach((block: any) => {
       if (block._type === "block" && Array.isArray(block.children)) {
-        // Gå igenom varje textsegment i blocket
         block.children.forEach((child: any) => {
           if (child._type === "span" && typeof child.text === "string") {
-            // Ersätt platshållare
             child.text = child.text
               .replace(/{{brand}}/g, brandData.name)
               .replace(/{{model}}/g, modelData.name)
@@ -843,7 +722,6 @@ export default function EnginePage({
           }}
         />
 
-        {/* Structured Data: Samlat ItemList för alla steg + akt+ */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -852,7 +730,6 @@ export default function EnginePage({
               "@type": "ItemList",
               name: `Motoroptimering för ${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label}`,
               itemListElement: [
-                // Steg 1, 2, 3, DSG m.m.
                 ...[...engineData.stages]
                   .sort((a, b) => {
                     const extractSortValue = (name: string) => {
@@ -865,7 +742,6 @@ export default function EnginePage({
                     const hasPrice =
                       typeof stage.price === "number" && stage.price > 0;
 
-                    // ✅ Rensa och rendera placeholders
                     const templateDescription = extractPlainTextFromDescription(
                       stage.descriptionRef?.description ||
                         stage.description?.["sv"] ||
@@ -928,7 +804,6 @@ export default function EnginePage({
                     };
                   }),
 
-                // Sedan: AKT+ alternativ
                 ...mergedAktPlusOptions
                   .filter((opt) => {
                     const isLinkedToStage =
@@ -1077,7 +952,6 @@ export default function EnginePage({
                   [];
               }
 
-              // Skapa den dynamiska beskrivningen EN GÅNG
               const dynamicDescription = rawDescription
                 ? createDynamicDescription(rawDescription, stage)
                 : null;
@@ -1520,14 +1394,13 @@ export default function EnginePage({
                                       borderWidth: 1,
                                       padding: 10,
                                       displayColors: true,
-                                      usePointStyle: true, // ✅ this enables circle style
+                                      usePointStyle: true,
                                       callbacks: {
                                         labelPointStyle: () => ({
-                                          pointStyle: "circle", // ✅ make symbol a circle
+                                          pointStyle: "circle",
                                           rotation: 0,
                                         }),
                                         title: function (tooltipItems) {
-                                          // tooltipItems[0].label will be the RPM (e.g., "4000")
                                           return `${tooltipItems[0].label} RPM`;
                                         },
                                         label: function (context) {
@@ -1535,7 +1408,6 @@ export default function EnginePage({
                                             context.dataset.label || "";
                                           const value = context.parsed.y;
 
-                                          // Guard for undefined value
                                           if (value === undefined) return label;
 
                                           const unit =
@@ -1959,9 +1831,118 @@ export default function EnginePage({
           setContactModalData={setContactModalData}
           currentLanguage={currentLanguage}
           translate={translate}
-          showBookButton={infoModal.type === "stage"} // 👈 bara i stage-popup
+          showBookButton={infoModal.type === "stage"}
         />
       </div>
     </>
   );
 }
+const InfoModal = ({
+  isOpen,
+  onClose,
+  title,
+  content,
+  id,
+  setContactModalData,
+  currentLanguage,
+  translate,
+  showBookButton,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  content: React.ReactNode;
+  id: string;
+  setContactModalData: React.Dispatch<
+    React.SetStateAction<{
+      isOpen: boolean;
+      stageOrOption: string;
+      link: string;
+      scrollPosition?: number;
+    }>
+  >;
+  currentLanguage: string;
+  translate: (lang: string, key: string, fallback?: string) => string;
+  showBookButton: boolean;
+}) => {
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    modalRef.current?.focus();
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
+  if (!isOpen) {
+    return null;
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        ref={modalRef}
+        id={id}
+        className="bg-gray-900 p-6 rounded-lg shadow-lg max-w-2xl w-full outline-none"
+        tabIndex={-1}
+      >
+        <div className="flex justify-between items-center mb-4">
+          <h2 id={`${id}-title`} className="text-white text-lg font-semibold">
+            {title}
+          </h2>
+          <button
+            onClick={onClose}
+            aria-label="Close modal"
+            className="text-white text-xl hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
+          >
+            &times;
+          </button>
+        </div>
+
+        <div
+          id={`${id}-content`}
+          className="text-gray-300 text-sm max-h-[70vh] overflow-y-auto"
+        >
+          {content}
+        </div>
+
+        <div className="mt-6 flex justify-between">
+          {showBookButton && (
+            <button
+              onClick={() => {
+                setContactModalData({
+                  isOpen: true,
+                  stageOrOption: title,
+                  link: window.location.href,
+                });
+                onClose();
+              }}
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-bold transition focus:outline-none focus:ring-2 focus:ring-orange-500"
+            >
+              📅 {translate(currentLanguage, "bookNow")}
+            </button>
+          )}
+
+          <button
+            onClick={onClose}
+            className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-orange-500 ml-auto"
+          >
+            ❌ {translate(currentLanguage, "close")}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};

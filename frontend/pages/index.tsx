@@ -38,7 +38,6 @@ ChartJS.register(
   Legend,
 );
 
-// --- GRÄNSSNITTSTYPER ---
 interface SelectionState {
   brand: string;
   model: string;
@@ -64,7 +63,6 @@ interface FlatVehicle {
   engineSlug?: string;
 }
 
-// HJÄLPFUNKTIONER
 const isYearInRange = (
   year: string,
   range: string | undefined | null,
@@ -95,9 +93,7 @@ const normalize = (str: string | undefined | null): string => {
   return str.toLowerCase().replace(/[^a-z0-9]/g, "");
 };
 
-// --- HUVUDKOMPONENT ---
 export default function TuningViewer() {
-  // --- STATE-VARIABLER ---
   const [data, setData] = useState<Brand[]>([]);
   const [selected, setSelected] = useState<SelectionState>({
     brand: "",
@@ -140,19 +136,15 @@ export default function TuningViewer() {
     Record<string, boolean>
   >({});
 
-  // Körs en gång när komponenten laddas för att hämta all grunddata
   useEffect(() => {
-    // Sätt båda laddnings-statusarna till true i början
     setIsLoading(true);
     setIsDbLoading(true);
 
-    // Använd Promise.all för att köra de kritiska anropen parallellt
     Promise.all([
       fetch("/api/all-vehicles").then((res) => res.json()),
       fetch("/api/brands").then((res) => res.json()),
     ])
       .then(([vehiclesData, brandsData]) => {
-        // Båda anropen lyckades
         setAllVehicles(vehiclesData.vehicles || []);
         console.log(
           `Hämtat ${vehiclesData.vehicles?.length || 0} fordon för matchning.`,
@@ -161,19 +153,16 @@ export default function TuningViewer() {
         setData(brandsData.result || []);
       })
       .catch((error) => {
-        // Hantera fel om något av anropen misslyckas
         console.error("Ett fel uppstod vid hämtning av initial data:", error);
         setSearchError(
           "Kunde inte ladda all fordonsdata. Försök ladda om sidan.",
         );
       })
       .finally(() => {
-        // Körs alltid när båda anropen är klara
         setIsLoading(false);
         setIsDbLoading(false);
       });
 
-    // Annan data som inte är kritisk för sökfunktionen kan laddas separat
     fetch("/data/all_models.json")
       .then((res) => res.json())
       .then((data) => setAllModels(data))
@@ -194,9 +183,8 @@ export default function TuningViewer() {
     img.onload = () => {
       watermarkImageRef.current = img;
     };
-  }, []); // Den tomma arrayen säkerställer att denna hook bara körs en gång
+  }, []);
 
-  // Körs när språket ändras
   useEffect(() => {
     localStorage.setItem("lang", currentLanguage);
     const fetchAktPlusOptions = async () => {
@@ -211,7 +199,6 @@ export default function TuningViewer() {
     fetchAktPlusOptions();
   }, [currentLanguage]);
 
-  // Körs när märke OCH modell har valts
   useEffect(() => {
     const fetchYears = async () => {
       if (selected.brand && selected.model) {
@@ -246,7 +233,6 @@ export default function TuningViewer() {
     fetchYears();
   }, [selected.brand, selected.model]);
 
-  // Körs när märke, modell OCH år har valts
   useEffect(() => {
     const fetchEngines = async () => {
       if (selected.brand && selected.model && selected.year) {
@@ -370,7 +356,6 @@ export default function TuningViewer() {
       return;
     }
 
-    // Normalisera märke med specialfall
     const normalizeBrand = (brand: string) => {
       return brand
         .toLowerCase()
@@ -379,18 +364,16 @@ export default function TuningViewer() {
         .replace("mercedesbenz", "mercedes");
     };
 
-    // Förbättrad BMW-modellnormalisering
     const normalizeBMWModel = (model: string) => {
       return model
-        .replace(/\s?x\s?drive\s?/gi, "") // Ta bort xDrive
-        .replace(/^m(\d)/i, "$1") // Konvertera M550d -> 550d
-        .replace(/\s?e?hybrid\s?/gi, "") // Ta bort hybrid-tillägg
-        .replace(/\s+/g, " ") // Enkla mellanslag
+        .replace(/\s?x\s?drive\s?/gi, "")
+        .replace(/^m(\d)/i, "$1")
+        .replace(/\s?e?hybrid\s?/gi, "")
+        .replace(/\s+/g, " ")
         .trim()
         .toUpperCase();
     };
 
-    // Förbättrad modellnormalisering med BMW-specifik hantering
     const normalizeModel = (model: string, brand: string) => {
       const normalizedBrand = normalizeBrand(brand);
       let normalized = model
@@ -399,15 +382,13 @@ export default function TuningViewer() {
         .trim()
         .toLowerCase();
 
-      // Specialfall för BMW
       if (normalizedBrand === "bmw") {
         normalized = normalizeBMWModel(model).toLowerCase();
 
-        // Extrahera modellserie och motor (t.ex. "123d" → "1 123d")
         const bmwMatch = normalized.match(/^(\d+)([a-z]+)$/);
         if (bmwMatch) {
-          const series = bmwMatch[1].charAt(0); // Första siffran = serie
-          normalized = `${series} ${bmwMatch[1]}${bmwMatch[2]}`; // "1 123d"
+          const series = bmwMatch[1].charAt(0);
+          normalized = `${series} ${bmwMatch[1]}${bmwMatch[2]}`;
         }
       }
 
@@ -432,7 +413,6 @@ export default function TuningViewer() {
     for (const vehicle of allVehicles) {
       const vehicleBrandNorm = normalizeBrand(vehicle.brandName);
 
-      // Märkesmatchning med specialfall för Mercedes
       if (vehicleBrandNorm !== scrapedBrandNorm) {
         if (
           !(
@@ -444,7 +424,6 @@ export default function TuningViewer() {
         }
       }
 
-      // Modellmatchning med förbättrad BMW-logik
       const vehicleModelNorm = normalizeModel(
         vehicle.modelName,
         vehicle.brandName,
@@ -452,17 +431,14 @@ export default function TuningViewer() {
       let modelMatch = false;
 
       if (vehicleBrandNorm === "bmw") {
-        // Normalisera både skrapad och databasmodell
         const normalizedScrapedModel = normalizeBMWModel(scrapedVehicle.model);
         const normalizedDBModel = normalizeBMWModel(vehicle.modelName);
 
-        // Extrahera motorvariant (730D, 740i etc)
         const scrapedEngineCode =
           normalizedScrapedModel.match(/\d{3}[DIGLIMNPT]/)?.[0];
         const dbEngineCode =
           vehicle.engineLabel.match(/\d{3}[DIGLIMNPT]/i)?.[0];
 
-        // Kontrollera serie och motorvariant
         const seriesMatch =
           normalizedScrapedModel.charAt(0) === normalizedDBModel.charAt(0) ||
           vehicle.modelName.includes(
@@ -476,7 +452,6 @@ export default function TuningViewer() {
 
         modelMatch = seriesMatch && engineMatch;
 
-        // Debug-utskrift
         console.log("BMW Matchning:", {
           scraped: {
             original: scrapedVehicle.model,
@@ -492,7 +467,6 @@ export default function TuningViewer() {
           matches: { seriesMatch, engineMatch },
         });
       } else {
-        // Standardmatchning för andra märken
         modelMatch =
           vehicleModelNorm === scrapedModelNorm ||
           scrapedModelNorm.includes(vehicleModelNorm) ||
@@ -501,34 +475,27 @@ export default function TuningViewer() {
 
       if (!modelMatch) continue;
 
-      // Spara närmaste modell för fallback
       if (!closestModel) {
         closestModel = vehicle;
       }
 
-      // Kontrollera bränsletyp
       if (normalize(vehicle.engineFuel) !== scrapedFuelNorm) continue;
 
-      // Kontrollera årsintervall
       const yearInRange = isYearInRange(scrapedVehicle.year, vehicle.yearRange);
 
-      // Spara närmaste modell med rätt år
       if (!closestYearModel && yearInRange) {
         closestYearModel = vehicle;
       }
 
       if (!yearInRange) continue;
 
-      // Motorvolymshantering med specialfall för BMW
       let volume = 0;
       if (vehicleBrandNorm === "bmw") {
-        // Hantera BMW motorer som "30d" (3.0 liter) eller "20i" (2.0 liter)
         const bmwMatch = vehicle.engineLabel.match(/(\d)(\d)\s?[di]/i);
         if (bmwMatch) {
           volume = parseFloat(`${bmwMatch[1]}.${bmwMatch[2]}`);
         }
       } else {
-        // Standardvolymsextrahering för andra märken
         const volumeMatch =
           vehicle.engineLabel.match(/(\d[,.]\d)\s?L?/i) ||
           vehicle.engineLabel.match(/(\d)\s?L/i);
@@ -541,7 +508,6 @@ export default function TuningViewer() {
       const volumeDiff = Math.abs(volume - scrapedVolumeLiters);
       if (volumeDiff > 0.3) continue;
 
-      // Hästkraftshantering
       let hp = 0;
       const hpMatch =
         vehicle.engineLabel.match(/(\d+)\s*(hk|hp|ps|kw)/i) ||
@@ -566,7 +532,6 @@ export default function TuningViewer() {
       }
     }
 
-    // Resultathantering
     if (bestMatch) {
       console.log(
         "Bästa match hittad:",
@@ -607,7 +572,6 @@ export default function TuningViewer() {
     }
   };
 
-  // --- ÖVRIGA FUNKTIONER ---
   const translateStageName = (lang: string, name: string): string => {
     const match = name.match(/Steg\s?(\d+)/i);
     if (!match) return name;
@@ -658,7 +622,6 @@ export default function TuningViewer() {
     ? `Motoroptimering ${selected.brand} ${selected.model || ""} ${selected.year || ""} ${selected.engine || ""} | AK-TUNING`
     : "Motoroptimering – AK-TUNING | Göteborg • Jönköping • Skåne • Stockholm • Örebro";
 
-  // Hjälpfunktion för Mercedes-modeller
   const formatModelName = (brand: string, model: string): string => {
     const mercedesModels = [
       "A",
@@ -779,9 +742,8 @@ export default function TuningViewer() {
     window.parent.postMessage({ scrollToIframe: true }, "*");
   };
 
-  // --- FIX: Added 'id' to plugin objects ---
   const watermarkPlugin = {
-    id: "watermark", // Unique ID for the watermark plugin
+    id: "watermark",
     beforeDraw: (chart: ChartJS) => {
       const ctx = chart.ctx;
       const {
@@ -795,7 +757,6 @@ export default function TuningViewer() {
         const img = watermarkImageRef.current;
         const ratio = img.width / img.height;
 
-        // Adjust size based on screen width
         const isMobile = window.innerWidth <= 768;
         const imgWidth = isMobile ? width * 0.8 : width * 0.4;
         const imgHeight = imgWidth / ratio;
@@ -810,7 +771,7 @@ export default function TuningViewer() {
   };
 
   const shadowPlugin = {
-    id: "shadowPlugin", // Unique ID for the shadow plugin
+    id: "shadowPlugin",
     beforeDatasetDraw(chart: ChartJS, args: any, options: any) {
       const { ctx } = chart;
       const dataset = chart.data.datasets[args.index];
@@ -825,7 +786,6 @@ export default function TuningViewer() {
       chart.ctx.restore();
     },
   };
-  // --- END FIX ---
 
   const isExpandedAktPlusOption = (item: any): item is AktPlusOption => {
     return item && "_id" in item && "title" in item;
@@ -963,7 +923,6 @@ export default function TuningViewer() {
     setExpandedAktPlus((prev) => ({ ...prev, [stageName]: !prev[stageName] }));
   };
 
-  // Funktion för att göra beskrivningar dynamiska
   const createDynamicDescription = (
     description: any[],
     stage: Stage | undefined,
@@ -984,16 +943,12 @@ export default function TuningViewer() {
     const nmIncrease =
       stage.tunedNm && stage.origNm ? stage.tunedNm - stage.origNm : "?";
 
-    // Skapa en djup kopia för att inte mutera originaldatan
     const newDescription = JSON.parse(JSON.stringify(description));
 
-    // Gå igenom varje block i Portable Text-datan
     newDescription.forEach((block: any) => {
       if (block._type === "block" && Array.isArray(block.children)) {
-        // Gå igenom varje textsegment i blocket
         block.children.forEach((child: any) => {
           if (child._type === "span" && typeof child.text === "string") {
-            // Ersätt platshållare
             child.text = child.text
               .replace(/{{brand}}/g, selected.brand)
               .replace(/{{model}}/g, selected.model)
@@ -1164,7 +1119,6 @@ export default function TuningViewer() {
               </p>
               <button
                 onClick={() => {
-                  // Nollställ motorvalet men behåll brand/model/year
                   setSelected((prev) => ({
                     ...prev,
                     engine: null,
@@ -1321,7 +1275,6 @@ export default function TuningViewer() {
             </div>
           </div>
         ) : (
-          // New card view
           <div className="mb-8">
             {/* Brand selection */}
             {!selected.brand && (
@@ -1355,7 +1308,7 @@ export default function TuningViewer() {
                                 year: "",
                                 engine: "",
                               });
-                              // Denna rad skickar meddelandet för att skrolla upp
+
                               window.parent.postMessage(
                                 { scrollToIframe: true },
                                 "*",
@@ -1401,7 +1354,7 @@ export default function TuningViewer() {
                               year: "",
                               engine: "",
                             });
-                            // FIX: Lade till postMessage här
+
                             window.parent.postMessage(
                               { scrollToIframe: true },
                               "*",
@@ -1418,7 +1371,7 @@ export default function TuningViewer() {
                                 .url()}
                               alt={brand}
                               width={70}
-                              height={80} // justera vid behov
+                              height={80}
                               className="object-contain mb-2"
                             />
                           )}
@@ -1438,7 +1391,7 @@ export default function TuningViewer() {
                 <button
                   onClick={() => {
                     setSelected({ brand: "", model: "", year: "", engine: "" });
-                    // Denna rad skickar meddelandet för att skrolla upp
+
                     window.parent.postMessage({ scrollToIframe: true }, "*");
                   }}
                   className="group flex items-center gap-1 mb-4 text-blue-600 hover:text-blue-800 transition-colors duration-200"
@@ -1497,7 +1450,7 @@ export default function TuningViewer() {
                           year: "",
                           engine: "",
                         }));
-                        // FIX: Lade till postMessage här
+
                         window.parent.postMessage(
                           { scrollToIframe: true },
                           "*",
@@ -1539,7 +1492,7 @@ export default function TuningViewer() {
                       year: "",
                       engine: "",
                     }));
-                    // FIX: Lade till postMessage här
+
                     window.parent.postMessage({ scrollToIframe: true }, "*");
                   }}
                   className="group flex items-center gap-1 mb-4 text-blue-600 hover:text-blue-800 transition-colors duration-200"
@@ -1599,7 +1552,7 @@ export default function TuningViewer() {
                           year: year.range,
                           engine: "",
                         }));
-                        // FIX: Lade till postMessage här
+
                         window.parent.postMessage(
                           { scrollToIframe: true },
                           "*",
@@ -1629,7 +1582,7 @@ export default function TuningViewer() {
                         year: "",
                         engine: "",
                       }));
-                      // FIX: Lade till postMessage här
+
                       window.parent.postMessage({ scrollToIframe: true }, "*");
                     }}
                     className="group flex items-center gap-1 mb-4 text-blue-600 hover:text-blue-800 transition-colors duration-200"
@@ -1701,7 +1654,7 @@ export default function TuningViewer() {
                                   ...prev,
                                   engine: engine.label,
                                 }));
-                                // FIX: Lade till postMessage här
+
                                 window.parent.postMessage(
                                   { scrollToIframe: true },
                                   "*",
@@ -1739,7 +1692,7 @@ export default function TuningViewer() {
                                   ...prev,
                                   engine: engine.label,
                                 }));
-                                // FIX: Lade till postMessage här
+
                                 window.parent.postMessage(
                                   { scrollToIframe: true },
                                   "*",
@@ -1781,7 +1734,7 @@ export default function TuningViewer() {
                                   ...prev,
                                   engine: engine.label,
                                 }));
-                                // FIX: Lade till postMessage här
+
                                 window.parent.postMessage(
                                   { scrollToIframe: true },
                                   "*",
@@ -1814,7 +1767,6 @@ export default function TuningViewer() {
               const allOptions = getAllAktPlusOptions(stage);
               const isExpanded = expandedStages[stage.name] ?? false;
 
-              // --- Logik för att skapa dynamisk beskrivning ---
               const descriptionObject =
                 stage.descriptionRef?.description || stage.description;
 
@@ -1825,13 +1777,11 @@ export default function TuningViewer() {
                   typeof descriptionObject === "object" &&
                   !Array.isArray(descriptionObject)
                 ) {
-                  // Vi har ett språkobjekt { sv: [...], en: [...] }
                   rawDescription =
                     descriptionObject[currentLanguage] ||
-                    descriptionObject["sv"] || // fallback till svenska
+                    descriptionObject["sv"] ||
                     [];
                 } else if (Array.isArray(descriptionObject)) {
-                  // Vi har redan PortableText-array (ingen språknyckel)
                   rawDescription = descriptionObject;
                 }
               }
@@ -2272,14 +2222,13 @@ export default function TuningViewer() {
                                       borderWidth: 1,
                                       padding: 10,
                                       displayColors: true,
-                                      usePointStyle: true, // ✅ this enables circle style
+                                      usePointStyle: true,
                                       callbacks: {
                                         labelPointStyle: () => ({
-                                          pointStyle: "circle", // ✅ make symbol a circle
+                                          pointStyle: "circle",
                                           rotation: 0,
                                         }),
                                         title: function (tooltipItems) {
-                                          // tooltipItems[0].label will be the RPM (e.g., "4000")
                                           return `${tooltipItems[0].label} RPM`;
                                         },
                                         label: function (context) {
@@ -2287,7 +2236,6 @@ export default function TuningViewer() {
                                             context.dataset.label || "";
                                           const value = context.parsed.y;
 
-                                          // Guard for undefined value
                                           if (value === undefined) return label;
 
                                           const unit =
@@ -2696,8 +2644,8 @@ export default function TuningViewer() {
             )
           }
           setContactModalData={setContactModalData}
-          currentLanguage={currentLanguage} // 👈 skickas in
-          translate={translate} // 👈 skickas in
+          currentLanguage={currentLanguage}
+          translate={translate}
           showBookButton={infoModal.type === "stage"}
         />
       </div>
@@ -2714,7 +2662,7 @@ const InfoModal = ({
   setContactModalData,
   currentLanguage,
   translate,
-  showBookButton, // 👈 ny prop
+  showBookButton,
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -2731,7 +2679,7 @@ const InfoModal = ({
   >;
   currentLanguage: string;
   translate: (lang: string, key: string, fallback?: string) => string;
-  showBookButton: boolean; // 👈 typdefinition
+  showBookButton: boolean;
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
 
