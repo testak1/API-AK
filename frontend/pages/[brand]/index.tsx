@@ -1,12 +1,12 @@
 // pages/[brand]/index.tsx
 import Head from "next/head";
-import {GetServerSideProps} from "next";
+import { GetServerSideProps } from "next";
 import Link from "next/link";
-import {useRouter} from "next/router";
+import { useRouter } from "next/router";
 import client from "@/lib/sanity";
-import {brandBySlugQuery} from "@/src/lib/queries";
-import {Brand, Model} from "@/types/sanity";
-import {urlFor} from "@/lib/sanity";
+import { brandBySlugQuery } from "@/src/lib/queries";
+import { Brand, Model } from "@/types/sanity";
+import { urlFor } from "@/lib/sanity";
 import NextImage from "next/image";
 
 const slugifySafe = (str: string) => {
@@ -72,23 +72,23 @@ const formatModelName = (brand: string, model: string): string => {
   return model;
 };
 
-export const getServerSideProps: GetServerSideProps<
-  BrandPageProps
-> = async context => {
+export const getServerSideProps: GetServerSideProps<BrandPageProps> = async (
+  context,
+) => {
   const brand = decodeURIComponent((context.params?.brand as string) || "");
 
-  const brandData = await client.fetch(brandBySlugQuery, {brand});
+  const brandData = await client.fetch(brandBySlugQuery, { brand });
 
-  if (!brandData) return {notFound: true};
+  if (!brandData) return { notFound: true };
 
-  return {props: {brandData}};
+  return { props: { brandData } };
 };
 
-export default function BrandPage({brandData}: BrandPageProps) {
+export default function BrandPage({ brandData }: BrandPageProps) {
   const router = useRouter();
 
   const brandName = brandData.name;
-  const pageTitle = `${brandName} Motoroptimering | AK-Tuning`;
+  const pageTitle = `Motoroptimering ${brandName} | AK-Tuning`;
   const pageDescription = `Motoroptimering för ${brandName}. Mer effekt, högre vridmoment och bättre körglädje. | AK-Tuning`;
 
   if (!brandData) {
@@ -127,21 +127,21 @@ export default function BrandPage({brandData}: BrandPageProps) {
               "@graph": [
                 {
                   "@type": "Brand",
-                  "name": brandData.name,
-                  "logo":
+                  name: brandData.name,
+                  logo:
                     brandData.logo?.asset?.url ||
                     "https://tuning.aktuning.se/ak-logo1.png",
-                  "url": `https://tuning.aktuning.se/${brandSlug}`,
-                  "mainEntityOfPage": `https://tuning.aktuning.se/${brandSlug}`,
+                  url: `https://tuning.aktuning.se/${brandSlug}`,
+                  mainEntityOfPage: `https://tuning.aktuning.se/${brandSlug}`,
                 },
                 {
                   "@type": "ItemList",
-                  "name": `${brandData.name} modeller`,
-                  "itemListElement": brandData.models?.map((model, index) => ({
+                  name: `Motoroptimering för ${brandData.name} modeller`,
+                  itemListElement: brandData.models?.map((model, index) => ({
                     "@type": "ListItem",
-                    "position": index + 1,
-                    "url": `https://tuning.aktuning.se/${brandSlug}/${slugifySafe(model.slug?.current || model.name)}`,
-                    "name": model.name,
+                    position: index + 1,
+                    url: `https://tuning.aktuning.se/${brandSlug}/${slugifySafe(model.slug?.current || model.name)}`,
+                    name: model.name,
                   })),
                 },
               ],

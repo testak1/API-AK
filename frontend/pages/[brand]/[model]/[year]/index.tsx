@@ -162,7 +162,7 @@ export default function YearPage({
   }
 
   const modelName = formatModelName(brandData.name, modelData.name);
-  const pageTitle = `${brandData.name} ${modelName} ${yearData.range} Motoroptimering | AK-Tuning`;
+  const pageTitle = `Motoroptimering för ${brandData.name} ${modelName} ${yearData.range} | AK-Tuning`;
   const pageDescription = `Motoroptimering för ${brandData.name} ${modelName} ${yearData.range}. Upplev högre effekt och bättre vridmoment med AK-Tuning.`;
 
   const brandSlug = getSlug(brandData.slug, brandData.name);
@@ -198,7 +198,7 @@ export default function YearPage({
               mainEntityOfPage: `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}`,
               hasVariant: yearData.engines?.map((engine) => ({
                 "@type": "Product",
-                name: `${brandData.name} ${modelName} ${yearData.range} ${engine.label}`,
+                name: `Motoroptimering till ${brandData.name} ${modelName} ${yearData.range} ${engine.label}`,
                 url: `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${getSlug(engine.slug, engine.label)}`,
                 image:
                   brandData.logo?.asset?.url ||

@@ -1,11 +1,11 @@
 // pages/[brand]/[model]/index.tsx
 import Head from "next/head";
-import {GetServerSideProps} from "next";
+import { GetServerSideProps } from "next";
 import Link from "next/link";
 import client from "@/lib/sanity";
-import {brandBySlugQuery} from "@/src/lib/queries";
-import {Brand, Model, Year} from "@/types/sanity";
-import {urlFor} from "@/lib/sanity";
+import { brandBySlugQuery } from "@/src/lib/queries";
+import { Brand, Model, Year } from "@/types/sanity";
+import { urlFor } from "@/lib/sanity";
 import NextImage from "next/image";
 
 const slugifySafe = (str: string) => {
@@ -82,14 +82,14 @@ interface ModelPageProps {
   modelData: Model | null;
 }
 
-export const getServerSideProps: GetServerSideProps<
-  ModelPageProps
-> = async context => {
+export const getServerSideProps: GetServerSideProps<ModelPageProps> = async (
+  context,
+) => {
   const brand = decodeURIComponent((context.params?.brand as string) || "");
   const model = decodeURIComponent((context.params?.model as string) || "");
 
-  const brandData = await client.fetch(brandBySlugQuery, {brand});
-  if (!brandData) return {notFound: true};
+  const brandData = await client.fetch(brandBySlugQuery, { brand });
+  if (!brandData) return { notFound: true };
 
   const modelData =
     brandData.models?.find(
@@ -97,21 +97,21 @@ export const getServerSideProps: GetServerSideProps<
         getSlug(m.slug, m.name).toLowerCase() ===
           getSlug(model, model).toLowerCase() ||
         m.name.toLowerCase().replace(/\s+/g, "-") ===
-          model.toLowerCase().replace(/\s+/g, "-")
+          model.toLowerCase().replace(/\s+/g, "-"),
     ) || null;
 
-  if (!modelData) return {notFound: true};
+  if (!modelData) return { notFound: true };
 
-  return {props: {brandData, modelData}};
+  return { props: { brandData, modelData } };
 };
 
-export default function ModelPage({brandData, modelData}: ModelPageProps) {
+export default function ModelPage({ brandData, modelData }: ModelPageProps) {
   if (!brandData || !modelData) {
     return <p className="p-6 text-red-500">Ingen modell hittades.</p>;
   }
 
   const modelName = formatModelName(brandData.name, modelData.name);
-  const pageTitle = `${brandData.name} ${modelName} Motoroptimering | AK-Tuning`;
+  const pageTitle = `Motoroptimering för ${brandData.name} ${modelName} | AK-Tuning`;
   const pageDescription = `Motoroptimering för ${brandData.name} ${modelName}. Få mer effekt, högre vridmoment och bättre körupplevelse med AK-Tuning.`;
 
   const brandSlug = getSlug(brandData.slug, brandData.name);
@@ -136,22 +136,22 @@ export default function ModelPage({brandData, modelData}: ModelPageProps) {
               "@graph": [
                 {
                   "@type": "ProductModel",
-                  "name": `${brandData.name} ${modelData.name}`,
-                  "brand": {
+                  name: `${brandData.name} ${modelData.name}`,
+                  brand: {
                     "@type": "Brand",
-                    "name": brandData.name,
+                    name: brandData.name,
                   },
-                  "url": `https://tuning.aktuning.se/${brandSlug}/${modelSlug}`,
-                  "mainEntityOfPage": `https://tuning.aktuning.se/${brandSlug}/${modelSlug}`,
+                  url: `https://tuning.aktuning.se/${brandSlug}/${modelSlug}`,
+                  mainEntityOfPage: `https://tuning.aktuning.se/${brandSlug}/${modelSlug}`,
                 },
                 {
                   "@type": "ItemList",
-                  "name": `${brandData.name} ${modelData.name} årsmodeller`,
-                  "itemListElement": modelData.years?.map((year, index) => ({
+                  name: `Motoroptimering för ${brandData.name} ${modelData.name} årsmodeller`,
+                  itemListElement: modelData.years?.map((year, index) => ({
                     "@type": "ListItem",
-                    "position": index + 1,
-                    "url": `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${getSlug(year.slug, year.range, true)}`,
-                    "name": year.range,
+                    position: index + 1,
+                    url: `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${getSlug(year.slug, year.range, true)}`,
+                    name: year.range,
                   })),
                 },
               ],
@@ -203,7 +203,7 @@ export default function ModelPage({brandData, modelData}: ModelPageProps) {
               href={`/${brandSlug}/${modelSlug}/${getSlug(
                 year.slug,
                 year.range,
-                true
+                true,
               )}`}
               className="p-4 bg-gray-800 hover:bg-gray-700 rounded-lg text-center text-white font-medium shadow"
             >
