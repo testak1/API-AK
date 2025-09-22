@@ -1,7 +1,7 @@
 // pages/index.tsx
 import Head from "next/head";
 import Image from "next/image";
-import React, {useEffect, useState, useRef, useMemo} from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -13,13 +13,13 @@ import {
   Legend,
 } from "chart.js";
 import dynamic from "next/dynamic";
-import {PortableText} from "@portabletext/react";
+import { PortableText } from "@portabletext/react";
 import FuelSavingCalculator from "@/components/FuelSavingCalculator";
 import RegnrSearch from "@/components/RegnrSearch";
-import {urlFor} from "@/lib/sanity";
+import { urlFor } from "@/lib/sanity";
 import PublicLanguageDropdown from "@/components/PublicLanguageSwitcher";
-import {LayoutGrid, List} from "lucide-react";
-import {t as translate} from "@/lib/translations";
+import { LayoutGrid, List } from "lucide-react";
+import { t as translate } from "@/lib/translations";
 import type {
   Brand,
   Stage,
@@ -35,7 +35,7 @@ ChartJS.register(
   LineElement,
   LineController,
   Tooltip,
-  Legend
+  Legend,
 );
 
 // --- GRÄNSSNITTSTYPER ---
@@ -67,7 +67,7 @@ interface FlatVehicle {
 // HJÄLPFUNKTIONER
 const isYearInRange = (
   year: string,
-  range: string | undefined | null
+  range: string | undefined | null,
 ): boolean => {
   if (!range) return false;
 
@@ -111,7 +111,7 @@ export default function TuningViewer() {
   const [isLoading, setIsLoading] = useState(true);
   const [isDbLoading, setIsDbLoading] = useState(true);
   const [expandedStages, setExpandedStages] = useState<Record<string, boolean>>(
-    {}
+    {},
   );
   const [expandedOptions, setExpandedOptions] = useState<
     Record<string, boolean>
@@ -124,14 +124,14 @@ export default function TuningViewer() {
     stageOrOption: string;
     link: string;
     scrollPosition?: number;
-  }>({isOpen: false, stageOrOption: "", link: ""});
+  }>({ isOpen: false, stageOrOption: "", link: "" });
   const [infoModal, setInfoModal] = useState<{
     open: boolean;
     type: "stage" | "general";
     stage?: Stage;
-  }>({open: false, type: "stage"});
+  }>({ open: false, type: "stage" });
   const [allAktPlusOptions, setAllAktPlusOptions] = useState<AktPlusOption[]>(
-    []
+    [],
   );
   const [expandedAktPlus, setExpandedAktPlus] = useState<
     Record<string, boolean>
@@ -148,23 +148,23 @@ export default function TuningViewer() {
 
     // Använd Promise.all för att köra de kritiska anropen parallellt
     Promise.all([
-      fetch("/api/all-vehicles").then(res => res.json()),
-      fetch("/api/brands").then(res => res.json()),
+      fetch("/api/all-vehicles").then((res) => res.json()),
+      fetch("/api/brands").then((res) => res.json()),
     ])
       .then(([vehiclesData, brandsData]) => {
         // Båda anropen lyckades
         setAllVehicles(vehiclesData.vehicles || []);
         console.log(
-          `Hämtat ${vehiclesData.vehicles?.length || 0} fordon för matchning.`
+          `Hämtat ${vehiclesData.vehicles?.length || 0} fordon för matchning.`,
         );
 
         setData(brandsData.result || []);
       })
-      .catch(error => {
+      .catch((error) => {
         // Hantera fel om något av anropen misslyckas
         console.error("Ett fel uppstod vid hämtning av initial data:", error);
         setSearchError(
-          "Kunde inte ladda all fordonsdata. Försök ladda om sidan."
+          "Kunde inte ladda all fordonsdata. Försök ladda om sidan.",
         );
       })
       .finally(() => {
@@ -175,9 +175,9 @@ export default function TuningViewer() {
 
     // Annan data som inte är kritisk för sökfunktionen kan laddas separat
     fetch("/data/all_models.json")
-      .then(res => res.json())
-      .then(data => setAllModels(data))
-      .catch(err => console.error("Fel vid inläsning av modellbilder:", err));
+      .then((res) => res.json())
+      .then((data) => setAllModels(data))
+      .catch((err) => console.error("Fel vid inläsning av modellbilder:", err));
 
     const savedView = localStorage.getItem("viewMode");
     if (savedView === "dropdown") {
@@ -218,23 +218,23 @@ export default function TuningViewer() {
         setIsLoading(true);
         try {
           const res = await fetch(
-            `/api/years?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}`
+            `/api/years?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}`,
           );
           if (!res.ok) throw new Error("Failed to fetch years");
           const years = await res.json();
-          setData(prev =>
-            prev.map(brand =>
+          setData((prev) =>
+            prev.map((brand) =>
               brand.name !== selected.brand
                 ? brand
                 : {
                     ...brand,
-                    models: brand.models.map(model =>
+                    models: brand.models.map((model) =>
                       model.name !== selected.model
                         ? model
-                        : {...model, years: years.result}
+                        : { ...model, years: years.result },
                     ),
-                  }
-            )
+                  },
+            ),
           );
         } catch (error) {
           console.error("Error fetching years:", error);
@@ -253,30 +253,30 @@ export default function TuningViewer() {
         setIsLoading(true);
         try {
           const res = await fetch(
-            `/api/engines?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}&year=${encodeURIComponent(selected.year)}&lang=${currentLanguage}`
+            `/api/engines?brand=${encodeURIComponent(selected.brand)}&model=${encodeURIComponent(selected.model)}&year=${encodeURIComponent(selected.year)}&lang=${currentLanguage}`,
           );
           if (!res.ok) throw new Error("Failed to fetch engines");
           const engines = await res.json();
-          setData(prev =>
-            prev.map(brand =>
+          setData((prev) =>
+            prev.map((brand) =>
               brand.name !== selected.brand
                 ? brand
                 : {
                     ...brand,
-                    models: brand.models.map(model =>
+                    models: brand.models.map((model) =>
                       model.name !== selected.model
                         ? model
                         : {
                             ...model,
-                            years: model.years.map(year =>
+                            years: model.years.map((year) =>
                               year.range !== selected.year
                                 ? year
-                                : {...year, engines: engines.result}
+                                : { ...year, engines: engines.result },
                             ),
-                          }
+                          },
                     ),
-                  }
-            )
+                  },
+            ),
           );
         } catch (error) {
           console.error("Error fetching engines:", error);
@@ -297,21 +297,22 @@ export default function TuningViewer() {
     stages,
     groupedEngines,
   } = useMemo(() => {
-    const brands = data.map(b => b.name);
+    const brands = data.map((b) => b.name);
 
-    const modelsData = data.find(b => b.name === selected.brand)?.models || [];
+    const modelsData =
+      data.find((b) => b.name === selected.brand)?.models || [];
 
-    const selectedModel = modelsData.find(m => m.name === selected.model);
+    const selectedModel = modelsData.find((m) => m.name === selected.model);
     const yearsData = Array.isArray(selectedModel?.years)
       ? selectedModel.years
       : [];
 
-    const selectedYear = yearsData.find(y => y.range === selected.year);
+    const selectedYear = yearsData.find((y) => y.range === selected.year);
     const enginesData = Array.isArray(selectedYear?.engines)
       ? selectedYear.engines
       : [];
 
-    const currentEngine = enginesData.find(e => e.label === selected.engine);
+    const currentEngine = enginesData.find((e) => e.label === selected.engine);
     const currentStages = currentEngine?.stages || [];
 
     const grouped = Array.isArray(enginesData)
@@ -322,7 +323,7 @@ export default function TuningViewer() {
             acc[fuelType].push(engine);
             return acc;
           },
-          {} as Record<string, typeof enginesData>
+          {} as Record<string, typeof enginesData>,
         )
       : {};
 
@@ -344,7 +345,7 @@ export default function TuningViewer() {
           acc[stage.name] = stage.name === "Steg 1";
           return acc;
         },
-        {} as Record<string, boolean>
+        {} as Record<string, boolean>,
       );
       setExpandedStages(initialExpandedStates);
     } else {
@@ -416,7 +417,7 @@ export default function TuningViewer() {
     const scrapedBrandNorm = normalizeBrand(scrapedVehicle.brand);
     const scrapedModelNorm = normalizeModel(
       scrapedVehicle.model,
-      scrapedVehicle.brand
+      scrapedVehicle.brand,
     );
     const scrapedHp = parseInt(scrapedVehicle.powerHp, 10);
     const scrapedFuelNorm = normalize(scrapedVehicle.fuel);
@@ -424,7 +425,7 @@ export default function TuningViewer() {
       Math.round((parseInt(scrapedVehicle.engineCm3, 10) / 1000) * 10) / 10;
     const scrapedYear = parseInt(scrapedVehicle.year, 10);
 
-    let bestMatch: {vehicle: FlatVehicle; score: number} | null = null;
+    let bestMatch: { vehicle: FlatVehicle; score: number } | null = null;
     let closestModel: FlatVehicle | null = null;
     let closestYearModel: FlatVehicle | null = null;
 
@@ -446,7 +447,7 @@ export default function TuningViewer() {
       // Modellmatchning med förbättrad BMW-logik
       const vehicleModelNorm = normalizeModel(
         vehicle.modelName,
-        vehicle.brandName
+        vehicle.brandName,
       );
       let modelMatch = false;
 
@@ -465,7 +466,7 @@ export default function TuningViewer() {
         const seriesMatch =
           normalizedScrapedModel.charAt(0) === normalizedDBModel.charAt(0) ||
           vehicle.modelName.includes(
-            normalizedScrapedModel.charAt(0) + "-Serie"
+            normalizedScrapedModel.charAt(0) + "-Serie",
           );
 
         const engineMatch =
@@ -488,7 +489,7 @@ export default function TuningViewer() {
             engineCode: dbEngineCode,
             engineLabel: vehicle.engineLabel,
           },
-          matches: {seriesMatch, engineMatch},
+          matches: { seriesMatch, engineMatch },
         });
       } else {
         // Standardmatchning för andra märken
@@ -561,7 +562,7 @@ export default function TuningViewer() {
       const score = volumeDiff * 100 + hpDiff;
 
       if (!bestMatch || score < bestMatch.score) {
-        bestMatch = {vehicle, score};
+        bestMatch = { vehicle, score };
       }
     }
 
@@ -571,7 +572,7 @@ export default function TuningViewer() {
         "Bästa match hittad:",
         bestMatch.vehicle,
         "Poäng:",
-        bestMatch.score
+        bestMatch.score,
       );
       setSelected({
         brand: bestMatch.vehicle.brandName,
@@ -601,7 +602,7 @@ export default function TuningViewer() {
     } else {
       setSearchError(
         `Ingen match hittades för ${scrapedVehicle.brand} ${scrapedVehicle.model}.\n` +
-          `Kontrollera registreringsnumret eller välj manuellt.`
+          `Kontrollera registreringsnumret eller välj manuellt.`,
       );
     }
   };
@@ -623,14 +624,17 @@ export default function TuningViewer() {
     return translations[lang] || name;
   };
 
-  const Line = dynamic(() => import("react-chartjs-2").then(mod => mod.Line), {
-    ssr: false,
-    loading: () => (
-      <div className="h-96 bg-gray-800 rounded-lg animate-pulse flex items-center justify-center">
-        <p className="text-gray-400">Laddar dynobild...</p>
-      </div>
-    ),
-  });
+  const Line = dynamic(
+    () => import("react-chartjs-2").then((mod) => mod.Line),
+    {
+      ssr: false,
+      loading: () => (
+        <div className="h-96 bg-gray-800 rounded-lg animate-pulse flex items-center justify-center">
+          <p className="text-gray-400">Laddar dynobild...</p>
+        </div>
+      ),
+    },
+  );
   const getStageColor = (stageName: string) => {
     const name = stageName.toLowerCase();
     if (name.includes("steg 1")) return "text-red-500";
@@ -699,15 +703,15 @@ export default function TuningViewer() {
   const getModelImage = (modelName: string, brandName: string): string => {
     const normalize = (str: string) => str.toLowerCase().replace(/\s+/g, "");
     const exactMatch = allModels.find(
-      m =>
+      (m) =>
         normalize(m.name) === normalize(modelName) &&
-        m.brand.toLowerCase() === brandName.toLowerCase()
+        m.brand.toLowerCase() === brandName.toLowerCase(),
     );
     if (exactMatch?.image_url) return exactMatch.image_url;
     const fuzzyMatch = allModels.find(
-      m =>
+      (m) =>
         normalize(m.name).includes(normalize(modelName)) &&
-        m.brand.toLowerCase() === brandName.toLowerCase()
+        m.brand.toLowerCase() === brandName.toLowerCase(),
     );
     return (
       fuzzyMatch?.image_url || "https://tuning.aktuning.se/logos/missing.png"
@@ -728,14 +732,14 @@ export default function TuningViewer() {
 
   const handleBookNow = (
     stageOrOptionName: string,
-    event?: React.MouseEvent
+    event?: React.MouseEvent,
   ) => {
-    const selectedBrand = data.find(b => b.name === selected.brand);
+    const selectedBrand = data.find((b) => b.name === selected.brand);
     if (!selectedBrand) return;
     const brandSlug =
       selectedBrand.slug?.current || slugify(selectedBrand.name);
     const selectedModel = selectedBrand.models?.find(
-      m => m.name === selected.model
+      (m) => m.name === selected.model,
     );
     if (!selectedModel) return;
     const modelSlug =
@@ -743,14 +747,14 @@ export default function TuningViewer() {
         ? selectedModel.slug.current
         : selectedModel.slug || slugify(selectedModel.name);
     const selectedYear = selectedModel.years?.find(
-      y => y.range === selected.year
+      (y) => y.range === selected.year,
     );
     if (!selectedYear) return;
     const yearSlug = selectedYear.range.includes(" ")
       ? slugify(selectedYear.range)
       : selectedYear.range;
     const selectedEngine = selectedYear.engines?.find(
-      e => e.label === selected.engine
+      (e) => e.label === selected.engine,
     );
     if (!selectedEngine) return;
     const engineSlug = selectedEngine.label.includes(" ")
@@ -767,7 +771,7 @@ export default function TuningViewer() {
       link: finalLink,
       scrollPosition: isMobile ? undefined : 0,
     });
-    window.parent.postMessage({scrollToIframe: true}, "*");
+    window.parent.postMessage({ scrollToIframe: true }, "*");
   };
 
   // --- FIX: Added 'id' to plugin objects ---
@@ -776,7 +780,7 @@ export default function TuningViewer() {
     beforeDraw: (chart: ChartJS) => {
       const ctx = chart.ctx;
       const {
-        chartArea: {top, left, width, height},
+        chartArea: { top, left, width, height },
       } = chart;
 
       if (watermarkImageRef.current?.complete) {
@@ -803,7 +807,7 @@ export default function TuningViewer() {
   const shadowPlugin = {
     id: "shadowPlugin", // Unique ID for the shadow plugin
     beforeDatasetDraw(chart: ChartJS, args: any, options: any) {
-      const {ctx} = chart;
+      const { ctx } = chart;
       const dataset = chart.data.datasets[args.index];
 
       ctx.save();
@@ -832,12 +836,12 @@ export default function TuningViewer() {
       const uniqueOptionsMap = new Map<string, AktPlusOption>();
       (combinedOptions as AktPlusOptionReference[])
         .filter(isExpandedAktPlusOption)
-        .forEach(opt => {
+        .forEach((opt) => {
           if (
             (opt.isUniversal ||
               opt.applicableFuelTypes?.includes(selectedEngine.fuel) ||
               opt.manualAssignments?.some(
-                ref => ref._ref === selectedEngine._id
+                (ref) => ref._ref === selectedEngine._id,
               )) &&
             (!opt.stageCompatibility || opt.stageCompatibility === stage.name)
           ) {
@@ -846,13 +850,13 @@ export default function TuningViewer() {
         });
       return Array.from(uniqueOptionsMap.values());
     },
-    [selectedEngine]
+    [selectedEngine],
   );
 
   const generateDynoCurve = (
     peakValue: number,
     isHp: boolean,
-    fuelType: string
+    fuelType: string,
   ) => {
     const rpmRange = fuelType.toLowerCase().includes("diesel")
       ? [1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000]
@@ -863,7 +867,7 @@ export default function TuningViewer() {
       : Math.floor(rpmRange.length * 0.4);
     const startIndex = 0;
 
-    return rpmRange.map(rpm => {
+    return rpmRange.map((rpm) => {
       const startRpm = rpmRange[startIndex];
       const peakRpm = rpmRange[peakIndex];
       const endRpm = rpmRange[rpmRange.length - 1];
@@ -895,26 +899,26 @@ export default function TuningViewer() {
       ];
 
   const toggleStage = (stageName: string) => {
-    setExpandedStages(prev => {
+    setExpandedStages((prev) => {
       const newState: Record<string, boolean> = {};
-      Object.keys(prev).forEach(key => {
+      Object.keys(prev).forEach((key) => {
         newState[key] = key === stageName ? !prev[key] : false;
       });
       return newState;
     });
   };
   const toggleOption = (optionId: string) => {
-    setExpandedOptions(prev => {
+    setExpandedOptions((prev) => {
       const newState: Record<string, boolean> = {};
       newState[optionId] = !prev[optionId];
       return newState;
     });
   };
   const handleBrandChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelected({brand: e.target.value, model: "", year: "", engine: ""});
+    setSelected({ brand: e.target.value, model: "", year: "", engine: "" });
   };
   const handleModelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelected(prev => ({
+    setSelected((prev) => ({
       ...prev,
       model: e.target.value,
       year: "",
@@ -922,15 +926,15 @@ export default function TuningViewer() {
     }));
   };
   const handleYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelected(prev => ({...prev, year: e.target.value, engine: ""}));
+    setSelected((prev) => ({ ...prev, year: e.target.value, engine: "" }));
   };
   const handleEngineChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelected(prev => ({...prev, engine: e.target.value}));
+    setSelected((prev) => ({ ...prev, engine: e.target.value }));
   };
 
   const portableTextComponents = {
     types: {
-      image: ({value}: any) => (
+      image: ({ value }: any) => (
         <img
           src={urlFor(value).width(100).url()}
           alt={value.alt || ""}
@@ -939,7 +943,7 @@ export default function TuningViewer() {
       ),
     },
     marks: {
-      link: ({children, value}: any) => (
+      link: ({ children, value }: any) => (
         <a
           href={value.href}
           className="text-blue-400 hover:text-blue-300 underline"
@@ -951,13 +955,13 @@ export default function TuningViewer() {
   };
 
   const toggleAktPlus = (stageName: string) => {
-    setExpandedAktPlus(prev => ({...prev, [stageName]: !prev[stageName]}));
+    setExpandedAktPlus((prev) => ({ ...prev, [stageName]: !prev[stageName] }));
   };
 
   // Funktion för att göra beskrivningar dynamiska
   const createDynamicDescription = (
     description: any[],
-    stage: Stage | undefined
+    stage: Stage | undefined,
   ) => {
     if (
       !selected.brand ||
@@ -1009,12 +1013,12 @@ export default function TuningViewer() {
     <>
       <Head>
         <title>
-          AK-TUNING | Skräddarsydd Motoroptimering beprövat på vår dyno |
-          Göteborg - Stockholm - Skåne - Jönköping - Örebro
+          Motoroptimering – AK-TUNING | Göteborg • Jönköping • Skåne • Stockholm
+          • Örebro
         </title>
         <meta
           name="description"
-          content="Skräddarsydd Motoroptimering – Effektökning, bränslebesparing & trygg mjukvara. AK-TUNING finns i Göteborg - Stockholm - Skåne - Jönköping - Örebro"
+          content="Skräddarsydd Motoroptimering – Effektökning, bränslebesparing & trygg mjukvara. Göteborg - Stockholm - Skåne - Jönköping - Örebro"
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta
@@ -1038,10 +1042,28 @@ export default function TuningViewer() {
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
-              "@type": "Organization",
-              name: "AK-TUNING – Marknadsledande på Motoroptimering",
+              "@type": "LocalBusiness",
+              name: "AK-TUNING Motoroptimering",
+              image: "https://tuning.aktuning.se/ak-logo1.png",
+              "@id": "https://tuning.aktuning.se",
               url: "https://tuning.aktuning.se",
-              logo: "https://tuning.aktuning.se/ak-logo1.png",
+              telephone: "031-382 33 00",
+              priceRange: "$$",
+              address: {
+                "@type": "PostalAddress",
+                addressCountry: "SE",
+              },
+              areaServed: [
+                "Göteborg",
+                "Stockholm",
+                "Skåne",
+                "Jönköping",
+                "Örebro",
+              ],
+              sameAs: [
+                "https://www.facebook.com/aktuned",
+                "https://www.instagram.com/aktuning.se",
+              ],
             }),
           }}
         />
@@ -1055,7 +1077,7 @@ export default function TuningViewer() {
             <img
               src="/ak-logo-svart.png"
               alt="AK-TUNING"
-              style={{height: "80px", cursor: "pointer"}}
+              style={{ height: "80px", cursor: "pointer" }}
               className="h-auto max-h-20 w-auto max-w-[500px] object-contain"
               onClick={() => window.location.reload()}
             />
@@ -1136,7 +1158,7 @@ export default function TuningViewer() {
               <button
                 onClick={() => {
                   // Nollställ motorvalet men behåll brand/model/year
-                  setSelected(prev => ({
+                  setSelected((prev) => ({
                     ...prev,
                     engine: null,
                   }));
@@ -1174,14 +1196,14 @@ export default function TuningViewer() {
                   {translate(currentLanguage, "selectBrand")}
                 </option>
                 {[...brands]
-                  .filter(b => !b.startsWith("[LASTBIL]"))
+                  .filter((b) => !b.startsWith("[LASTBIL]"))
                   .sort((a, b) => a.localeCompare(b))
                   .concat(
                     brands
-                      .filter(b => b.startsWith("[LASTBIL]"))
-                      .sort((a, b) => a.localeCompare(b))
+                      .filter((b) => b.startsWith("[LASTBIL]"))
+                      .sort((a, b) => a.localeCompare(b)),
                   )
-                  .map(brand => (
+                  .map((brand) => (
                     <option key={brand} value={brand}>
                       {brand}
                     </option>
@@ -1211,7 +1233,7 @@ export default function TuningViewer() {
                 <option value="">
                   {translate(currentLanguage, "selectModel")}
                 </option>
-                {models.map(m => (
+                {models.map((m) => (
                   <option key={m.name} value={m.name}>
                     {formatModelName(selected.brand, m.name)}
                   </option>
@@ -1241,7 +1263,7 @@ export default function TuningViewer() {
                 <option value="">
                   {translate(currentLanguage, "selectYear")}
                 </option>
-                {years.map(y => (
+                {years.map((y) => (
                   <option key={y.range} value={y.range}>
                     {y.range}
                   </option>
@@ -1281,7 +1303,7 @@ export default function TuningViewer() {
                     }
                     key={fuelType}
                   >
-                    {engines.map(engine => (
+                    {engines.map((engine) => (
                       <option key={engine.label} value={engine.label}>
                         {engine.label}
                       </option>
@@ -1308,10 +1330,10 @@ export default function TuningViewer() {
                   </h3>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                     {brands
-                      .filter(b => !b.startsWith("[LASTBIL]"))
+                      .filter((b) => !b.startsWith("[LASTBIL]"))
                       .sort((a, b) => a.localeCompare(b))
-                      .map(brand => {
-                        const brandData = data.find(b => b.name === brand);
+                      .map((brand) => {
+                        const brandData = data.find((b) => b.name === brand);
                         const logoUrl = brandData?.logo?.asset
                           ? urlFor(brandData.logo).width(100).url()
                           : null;
@@ -1328,8 +1350,8 @@ export default function TuningViewer() {
                               });
                               // Denna rad skickar meddelandet för att skrolla upp
                               window.parent.postMessage(
-                                {scrollToIframe: true},
-                                "*"
+                                { scrollToIframe: true },
+                                "*",
                               );
                             }}
                             className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
@@ -1360,9 +1382,9 @@ export default function TuningViewer() {
                   </h3>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                     {brands
-                      .filter(b => b.startsWith("[LASTBIL]"))
+                      .filter((b) => b.startsWith("[LASTBIL]"))
                       .sort((a, b) => a.localeCompare(b))
-                      .map(brand => (
+                      .map((brand) => (
                         <div
                           key={brand}
                           onClick={() => {
@@ -1374,16 +1396,16 @@ export default function TuningViewer() {
                             });
                             // FIX: Lade till postMessage här
                             window.parent.postMessage(
-                              {scrollToIframe: true},
-                              "*"
+                              { scrollToIframe: true },
+                              "*",
                             );
                           }}
                           className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
                         >
-                          {data.find(b => b.name === brand)?.logo?.asset && (
+                          {data.find((b) => b.name === brand)?.logo?.asset && (
                             <Image
                               src={urlFor(
-                                data.find(b => b.name === brand)?.logo
+                                data.find((b) => b.name === brand)?.logo,
                               )
                                 .width(100)
                                 .url()}
@@ -1408,9 +1430,9 @@ export default function TuningViewer() {
               <>
                 <button
                   onClick={() => {
-                    setSelected({brand: "", model: "", year: "", engine: ""});
+                    setSelected({ brand: "", model: "", year: "", engine: "" });
                     // Denna rad skickar meddelandet för att skrolla upp
-                    window.parent.postMessage({scrollToIframe: true}, "*");
+                    window.parent.postMessage({ scrollToIframe: true }, "*");
                   }}
                   className="group flex items-center gap-1 mb-4 text-blue-600 hover:text-blue-800 transition-colors duration-200"
                 >
@@ -1458,18 +1480,21 @@ export default function TuningViewer() {
                   </h2>
                 </h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                  {models.map(model => (
+                  {models.map((model) => (
                     <div
                       key={model.name}
                       onClick={() => {
-                        setSelected(prev => ({
+                        setSelected((prev) => ({
                           ...prev,
                           model: model.name,
                           year: "",
                           engine: "",
                         }));
                         // FIX: Lade till postMessage här
-                        window.parent.postMessage({scrollToIframe: true}, "*");
+                        window.parent.postMessage(
+                          { scrollToIframe: true },
+                          "*",
+                        );
                       }}
                       className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
                     >
@@ -1501,14 +1526,14 @@ export default function TuningViewer() {
               <>
                 <button
                   onClick={() => {
-                    setSelected(prev => ({
+                    setSelected((prev) => ({
                       ...prev,
                       model: "",
                       year: "",
                       engine: "",
                     }));
                     // FIX: Lade till postMessage här
-                    window.parent.postMessage({scrollToIframe: true}, "*");
+                    window.parent.postMessage({ scrollToIframe: true }, "*");
                   }}
                   className="group flex items-center gap-1 mb-4 text-blue-600 hover:text-blue-800 transition-colors duration-200"
                 >
@@ -1558,17 +1583,20 @@ export default function TuningViewer() {
                   </h2>
                 </h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                  {years.map(year => (
+                  {years.map((year) => (
                     <div
                       key={year.range}
                       onClick={() => {
-                        setSelected(prev => ({
+                        setSelected((prev) => ({
                           ...prev,
                           year: year.range,
                           engine: "",
                         }));
                         // FIX: Lade till postMessage här
-                        window.parent.postMessage({scrollToIframe: true}, "*");
+                        window.parent.postMessage(
+                          { scrollToIframe: true },
+                          "*",
+                        );
                       }}
                       className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
                     >
@@ -1589,13 +1617,13 @@ export default function TuningViewer() {
                 <>
                   <button
                     onClick={() => {
-                      setSelected(prev => ({
+                      setSelected((prev) => ({
                         ...prev,
                         year: "",
                         engine: "",
                       }));
                       // FIX: Lade till postMessage här
-                      window.parent.postMessage({scrollToIframe: true}, "*");
+                      window.parent.postMessage({ scrollToIframe: true }, "*");
                     }}
                     className="group flex items-center gap-1 mb-4 text-blue-600 hover:text-blue-800 transition-colors duration-200"
                   >
@@ -1646,27 +1674,30 @@ export default function TuningViewer() {
                   </h2>
 
                   {/* Diesel engines */}
-                  {engines.filter(e => e.fuel.toLowerCase().includes("diesel"))
-                    .length > 0 && (
+                  {engines.filter((e) =>
+                    e.fuel.toLowerCase().includes("diesel"),
+                  ).length > 0 && (
                     <div className="mb-6">
                       <h3 className="text-md font-semibold mb-3 text-gray-700 bg-gray-100 px-3 py-2 rounded-md">
                         {translate(currentLanguage, "fuelDiesel")}
                       </h3>
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                         {engines
-                          .filter(e => e.fuel.toLowerCase().includes("diesel"))
-                          .map(engine => (
+                          .filter((e) =>
+                            e.fuel.toLowerCase().includes("diesel"),
+                          )
+                          .map((engine) => (
                             <div
                               key={engine.label}
                               onClick={() => {
-                                setSelected(prev => ({
+                                setSelected((prev) => ({
                                   ...prev,
                                   engine: engine.label,
                                 }));
                                 // FIX: Lade till postMessage här
                                 window.parent.postMessage(
-                                  {scrollToIframe: true},
-                                  "*"
+                                  { scrollToIframe: true },
+                                  "*",
                                 );
                               }}
                               className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
@@ -1681,27 +1712,30 @@ export default function TuningViewer() {
                   )}
 
                   {/* Petrol engines */}
-                  {engines.filter(e => e.fuel.toLowerCase().includes("bensin"))
-                    .length > 0 && (
+                  {engines.filter((e) =>
+                    e.fuel.toLowerCase().includes("bensin"),
+                  ).length > 0 && (
                     <div className="mb-6">
                       <h3 className="text-md font-semibold mb-3 text-gray-700 bg-gray-100 px-3 py-2 rounded-md">
                         {translate(currentLanguage, "fuelPetrol")}
                       </h3>
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                         {engines
-                          .filter(e => e.fuel.toLowerCase().includes("bensin"))
-                          .map(engine => (
+                          .filter((e) =>
+                            e.fuel.toLowerCase().includes("bensin"),
+                          )
+                          .map((engine) => (
                             <div
                               key={engine.label}
                               onClick={() => {
-                                setSelected(prev => ({
+                                setSelected((prev) => ({
                                   ...prev,
                                   engine: engine.label,
                                 }));
                                 // FIX: Lade till postMessage här
                                 window.parent.postMessage(
-                                  {scrollToIframe: true},
-                                  "*"
+                                  { scrollToIframe: true },
+                                  "*",
                                 );
                               }}
                               className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
@@ -1717,9 +1751,9 @@ export default function TuningViewer() {
 
                   {/* Other engines */}
                   {engines.filter(
-                    e =>
+                    (e) =>
                       !e.fuel.toLowerCase().includes("diesel") &&
-                      !e.fuel.toLowerCase().includes("bensin")
+                      !e.fuel.toLowerCase().includes("bensin"),
                   ).length > 0 && (
                     <div className="mb-6">
                       <h3 className="text-md font-semibold mb-3 text-gray-700 bg-gray-100 px-3 py-2 rounded-md">
@@ -1728,22 +1762,22 @@ export default function TuningViewer() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                         {engines
                           .filter(
-                            e =>
+                            (e) =>
                               !e.fuel.toLowerCase().includes("diesel") &&
-                              !e.fuel.toLowerCase().includes("bensin")
+                              !e.fuel.toLowerCase().includes("bensin"),
                           )
-                          .map(engine => (
+                          .map((engine) => (
                             <div
                               key={engine.label}
                               onClick={() => {
-                                setSelected(prev => ({
+                                setSelected((prev) => ({
                                   ...prev,
                                   engine: engine.label,
                                 }));
                                 // FIX: Lade till postMessage här
                                 window.parent.postMessage(
-                                  {scrollToIframe: true},
-                                  "*"
+                                  { scrollToIframe: true },
+                                  "*",
                                 );
                               }}
                               className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
@@ -1767,7 +1801,7 @@ export default function TuningViewer() {
           </div>
         ) : stages.length > 0 ? (
           <div className="space-y-6">
-            {stages.map(stage => {
+            {stages.map((stage) => {
               const isDsgStage = stage.name.toLowerCase().includes("dsg");
               const isTruck = selected.brand.startsWith("[LASTBIL]");
               const allOptions = getAllAktPlusOptions(stage);
@@ -1810,11 +1844,11 @@ export default function TuningViewer() {
                   >
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                       <div className="flex items-center gap-4">
-                        {data.find(b => b.name === selected.brand)?.logo
+                        {data.find((b) => b.name === selected.brand)?.logo
                           ?.asset && (
                           <img
                             src={urlFor(
-                              data.find(b => b.name === selected.brand)?.logo
+                              data.find((b) => b.name === selected.brand)?.logo,
                             )
                               .width(60)
                               .url()}
@@ -1849,7 +1883,7 @@ export default function TuningViewer() {
                             <br />
                             {translate(
                               currentLanguage,
-                              "stageContactForHardware"
+                              "stageContactForHardware",
                             )}
                           </p>
                         )}
@@ -1954,7 +1988,7 @@ export default function TuningViewer() {
                               {translate(
                                 currentLanguage,
                                 "translateStageName",
-                                stage.name
+                                stage.name,
                               )}{" "}
                               HK
                             </p>
@@ -1978,7 +2012,7 @@ export default function TuningViewer() {
                               {translate(
                                 currentLanguage,
                                 "translateStageName",
-                                stage.name
+                                stage.name,
                               )}{" "}
                               NM
                             </p>
@@ -1995,7 +2029,7 @@ export default function TuningViewer() {
                       <div className="flex flex-col sm:flex-row gap-4 mt-4">
                         <button
                           onClick={() =>
-                            setInfoModal({open: true, type: "stage", stage})
+                            setInfoModal({ open: true, type: "stage", stage })
                           }
                           className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg shadow"
                         >
@@ -2003,7 +2037,7 @@ export default function TuningViewer() {
                           {translate(
                             currentLanguage,
                             "translateStageName",
-                            stage.name
+                            stage.name,
                           ).toUpperCase()}{" "}
                           {translate(currentLanguage, "infoStage")}
                         </button>
@@ -2020,7 +2054,7 @@ export default function TuningViewer() {
 
                         <button
                           onClick={() =>
-                            setInfoModal({open: true, type: "general"})
+                            setInfoModal({ open: true, type: "general" })
                           }
                           className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg shadow"
                         >
@@ -2068,7 +2102,7 @@ export default function TuningViewer() {
                             {translate(
                               currentLanguage,
                               "translateStageName",
-                              stage.name
+                              stage.name,
                             ).toUpperCase()}{" "}
                           </h3>
                         )}
@@ -2158,7 +2192,7 @@ export default function TuningViewer() {
                                       data: generateDynoCurve(
                                         stage.origHk,
                                         true,
-                                        selectedEngine.fuel
+                                        selectedEngine.fuel,
                                       ),
                                       borderColor: "#f87171",
                                       backgroundColor: "transparent",
@@ -2173,7 +2207,7 @@ export default function TuningViewer() {
                                       data: generateDynoCurve(
                                         stage.tunedHk,
                                         true,
-                                        selectedEngine.fuel
+                                        selectedEngine.fuel,
                                       ),
                                       borderColor: "#f87171",
                                       backgroundColor: "#f87171",
@@ -2187,7 +2221,7 @@ export default function TuningViewer() {
                                       data: generateDynoCurve(
                                         stage.origNm,
                                         false,
-                                        selectedEngine.fuel
+                                        selectedEngine.fuel,
                                       ),
                                       borderColor: "#d1d5db",
                                       backgroundColor: "transparent",
@@ -2202,7 +2236,7 @@ export default function TuningViewer() {
                                       data: generateDynoCurve(
                                         stage.tunedNm,
                                         false,
-                                        selectedEngine.fuel
+                                        selectedEngine.fuel,
                                       ),
                                       borderColor: "#d1d5db",
                                       backgroundColor: "transparent",
@@ -2267,7 +2301,7 @@ export default function TuningViewer() {
                                         display: true,
                                         text: "EFFEKT",
                                         color: "white",
-                                        font: {size: 14},
+                                        font: { size: 14 },
                                       },
                                       min: 0,
                                       max:
@@ -2279,7 +2313,7 @@ export default function TuningViewer() {
                                       ticks: {
                                         color: "#9CA3AF",
                                         stepSize: 100,
-                                        callback: value => `${value}`,
+                                        callback: (value) => `${value}`,
                                       },
                                     },
                                     nm: {
@@ -2290,7 +2324,7 @@ export default function TuningViewer() {
                                         display: true,
                                         text: "VRIDMOMENT",
                                         color: "white",
-                                        font: {size: 14},
+                                        font: { size: 14 },
                                       },
                                       min: 0,
                                       max:
@@ -2302,7 +2336,7 @@ export default function TuningViewer() {
                                       ticks: {
                                         color: "#9CA3AF",
                                         stepSize: 100,
-                                        callback: value => `${value}`,
+                                        callback: (value) => `${value}`,
                                       },
                                     },
                                     x: {
@@ -2310,7 +2344,7 @@ export default function TuningViewer() {
                                         display: true,
                                         text: "RPM",
                                         color: "#E5E7EB",
-                                        font: {size: 14},
+                                        font: { size: 14 },
                                       },
                                       grid: {
                                         color: "rgba(255, 255, 255, 0.1)",
@@ -2346,7 +2380,7 @@ export default function TuningViewer() {
                                   {stage.name
                                     .replace(
                                       "Steg",
-                                      translate(currentLanguage, "stageLabel")
+                                      translate(currentLanguage, "stageLabel"),
                                     )
                                     .toUpperCase()}
                                 </span>
@@ -2456,7 +2490,7 @@ export default function TuningViewer() {
                           {/* Expandable AKT+ Grid */}
                           {expandedAktPlus[stage.name] && (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                              {allOptions.map(option => {
+                              {allOptions.map((option) => {
                                 const translatedTitle =
                                   option.title?.[currentLanguage] ||
                                   option.title?.sv ||
@@ -2528,7 +2562,7 @@ export default function TuningViewer() {
                                             <p className="font-bold text-green-400">
                                               {translate(
                                                 currentLanguage,
-                                                "priceLabel"
+                                                "priceLabel",
                                               )}
                                               : {option.price.toLocaleString()}{" "}
                                               kr
@@ -2544,7 +2578,7 @@ export default function TuningViewer() {
                                             📩{" "}
                                             {translate(
                                               currentLanguage,
-                                              "contactvalue"
+                                              "contactvalue",
                                             )}
                                           </button>
                                         </div>
@@ -2569,7 +2603,7 @@ export default function TuningViewer() {
         <ContactModal
           isOpen={contactModalData.isOpen}
           onClose={() =>
-            setContactModalData({isOpen: false, stageOrOption: "", link: ""})
+            setContactModalData({ isOpen: false, stageOrOption: "", link: "" })
           }
           selectedVehicle={{
             brand: selected.brand,
@@ -2583,7 +2617,7 @@ export default function TuningViewer() {
         />
         <InfoModal
           isOpen={infoModal.open}
-          onClose={() => setInfoModal({open: false, type: infoModal.type})}
+          onClose={() => setInfoModal({ open: false, type: infoModal.type })}
           title={
             infoModal.type === "stage" && infoModal.stage
               ? infoModal.stage.name.replace(/^steg/i, "STEG").toUpperCase()
@@ -2617,7 +2651,7 @@ export default function TuningViewer() {
                 if (rawDescription) {
                   const dynamicContent = createDynamicDescription(
                     rawDescription,
-                    infoModal.stage
+                    infoModal.stage,
                   );
                   return (
                     <PortableText
