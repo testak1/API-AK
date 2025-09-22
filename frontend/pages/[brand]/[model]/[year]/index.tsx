@@ -200,12 +200,17 @@ export default function YearPage({
                 "@type": "Product",
                 name: `${brandData.name} ${modelName} ${yearData.range} ${engine.label}`,
                 url: `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${getSlug(engine.slug, engine.label)}`,
+                image:
+                  brandData.logo?.asset?.url ||
+                  "https://tuning.aktuning.se/ak-logo2.png",
+                description: `Motoroptimering för ${brandData.name} ${modelName} ${yearData.range} ${engine.label}. Upplev mer effekt, högre vridmoment och bättre körglädje med AK-Tuning.`,
                 offers: {
                   "@type": "Offer",
                   price: "0",
                   priceCurrency: "SEK",
                   availability: "http://schema.org/InStock",
                   url: `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${getSlug(engine.slug, engine.label)}`,
+                  description: "Kontakta oss för offert",
                 },
               })),
             }),
