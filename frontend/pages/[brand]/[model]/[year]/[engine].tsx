@@ -1943,7 +1943,7 @@ const InfoModal = ({
                 });
                 onClose();
               }}
-              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold transition focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-bold transition focus:outline-none focus:ring-2 focus:ring-orange-500"
             >
               📅 {translate(currentLanguage, "bookNow")}
             </button>
