@@ -654,6 +654,10 @@ export default function TuningViewer() {
       .trim();
   };
 
+  const dynamicTitle = selected.brand
+    ? `Motoroptimering ${selected.brand} ${selected.model || ""} ${selected.year || ""} ${selected.engine || ""} | AK-TUNING`
+    : "Motoroptimering – AK-TUNING | Göteborg • Jönköping • Skåne • Stockholm • Örebro";
+
   // Hjälpfunktion för Mercedes-modeller
   const formatModelName = (brand: string, model: string): string => {
     const mercedesModels = [
@@ -765,6 +769,7 @@ export default function TuningViewer() {
     const clickY = event?.clientY || 0;
     const scrollY = window.scrollY + clickY;
     const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
+
     setContactModalData({
       isOpen: true,
       stageOrOption: stageOrOptionName,
@@ -1012,14 +1017,16 @@ export default function TuningViewer() {
   return (
     <>
       <Head>
-        <title>
-          Motoroptimering – AK-TUNING | Göteborg • Jönköping • Skåne • Stockholm
-          • Örebro
-        </title>
+        <title>{dynamicTitle}</title>
         <meta
           name="description"
-          content="Skräddarsydd Motoroptimering – Effektökning, bränslebesparing & trygg mjukvara. Göteborg - Stockholm - Skåne - Jönköping - Örebro"
+          content={
+            selected.brand
+              ? `Motoroptimering för ${selected.brand} ${selected.model} ${selected.year} ${selected.engine} – Effektökning, bränslebesparing & trygg mjukvara.`
+              : "Skräddarsydd Motoroptimering – Effektökning, bränslebesparing & trygg mjukvara. AK-TUNING finns i Göteborg - Stockholm - Skåne - Jönköping - Örebro"
+          }
         />
+        <link rel="canonical" href="https://tuning.aktuning.se/" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta
           property="og:title"
