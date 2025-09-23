@@ -668,6 +668,10 @@ export default function TuningViewer() {
       .replace(/-+/g, "-");
 
   const getModelImage = (modelName: string, brandName: string): string => {
+    if (modelName.includes("[LASTBIL]")) {
+      return "https://tuning.aktuning.se/logos/lastbil-missing.jpg";
+    }
+
     const normalize = (str: string) => str.toLowerCase().replace(/\s+/g, "");
     const exactMatch = allModels.find(
       (m) =>
