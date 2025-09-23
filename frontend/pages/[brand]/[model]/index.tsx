@@ -124,6 +124,13 @@ export default function ModelPage({ brandData, modelData }: ModelPageProps) {
         <meta name="description" content={pageDescription} />
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={pageDescription} />
+        <meta
+          property="og:image"
+          content={
+            brandData.logo?.asset?.url ||
+            "https://tuning.aktuning.se/ak-logo1.png"
+          }
+        />
         <link
           rel="canonical"
           href={`https://tuning.aktuning.se/${brandSlug}/${modelSlug}`}
@@ -141,6 +148,9 @@ export default function ModelPage({ brandData, modelData }: ModelPageProps) {
                     "@type": "Brand",
                     name: brandData.name,
                   },
+                  image:
+                    brandData.logo?.asset?.url ||
+                    "https://tuning.aktuning.se/ak-logo1.png",
                   url: `https://tuning.aktuning.se/${brandSlug}/${modelSlug}`,
                   mainEntityOfPage: `https://tuning.aktuning.se/${brandSlug}/${modelSlug}`,
                 },

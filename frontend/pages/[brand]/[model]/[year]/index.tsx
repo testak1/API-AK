@@ -178,6 +178,13 @@ export default function YearPage({
         <meta name="description" content={pageDescription} />
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={pageDescription} />
+        <meta
+          property="og:image"
+          content={
+            brandData.logo?.asset?.url ||
+            "https://tuning.aktuning.se/ak-logo1.png"
+          }
+        />
         <link
           rel="canonical"
           href={`https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}`}

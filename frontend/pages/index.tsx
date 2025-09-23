@@ -670,7 +670,10 @@ export default function TuningViewer() {
   const getModelImage = (modelName: string, brandName: string): string => {
     const normalize = (str: string) => str.toLowerCase().replace(/\s+/g, "");
 
-    if (normalize(modelName).includes("lastbil")) {
+    if (
+      normalize(modelName).includes("lastbil") ||
+      brandName.includes("[LASTBIL]")
+    ) {
       return "https://tuning.aktuning.se/logos/missing-lastbil.png";
     }
 
@@ -990,7 +993,7 @@ export default function TuningViewer() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta
           property="og:title"
-          content="AK-TUNING | Motoroptimering i Göteborg - Stockholm - Skåne - Jönköping - Örebro"
+          content="Motoroptimering i Göteborg, Stockholm, Skåne, Jönköping & Örebro | AK-TUNING"
         />
         <meta
           property="og:description"

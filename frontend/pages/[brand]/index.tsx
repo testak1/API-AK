@@ -108,10 +108,20 @@ export default function BrandPage({ brandData }: BrandPageProps) {
         <meta property="og:description" content={pageDescription} />
         <meta property="og:type" content="website" />
         <meta
-          property="og:url"
-          content={`https://tuning.aktuning.se/${brandSlug}`}
+          property="og:title"
+          content={`Motoroptimering ${brandData.name} | AK-TUNING`}
         />
-        <meta property="og:image" content="/ak-logo1.png" />
+        <meta
+          property="og:description"
+          content={`Upptäck motoroptimering för ${brandData.name}. Välj modell och få rätt effektökning och bränslebesparing med AK-TUNING.`}
+        />
+        <meta
+          property="og:image"
+          content={
+            brandData.logo?.asset?.url ||
+            "https://tuning.aktuning.se/ak-logo1.png"
+          }
+        />
 
         {/* Canonical */}
         <link
