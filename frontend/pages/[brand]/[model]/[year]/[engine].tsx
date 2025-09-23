@@ -623,7 +623,7 @@ export default function EnginePage({
 
   const pageUrl = `https://tuning.aktuning.se${router.asPath.split("?")[0]}`;
 
-  const imageUrl = "https://tuning.aktuning.se/ak-logo2.png";
+  const imageUrl = "https://tuning.aktuning.se/ak-logo1.png";
 
   if (!engineData || !brandData || !modelData || !yearData) {
     return (
@@ -782,7 +782,7 @@ export default function EnginePage({
                         brand: {
                           "@type": "Brand",
                           name: "AK-TUNING Motoroptimering",
-                          logo: "https://tuning.aktuning.se/ak-logo2.png",
+                          logo: "https://tuning.aktuning.se/ak-logo1.png",
                         },
                         offers: hasPrice
                           ? {
