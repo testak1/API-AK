@@ -163,7 +163,10 @@ export default function YearPage({
 
   const modelName = formatModelName(brandData.name, modelData.name);
   const pageTitle = `Motoroptimering för ${brandData.name} ${modelName} ${yearData.range} | AK-Tuning`;
-  const pageDescription = `Motoroptimering för ${brandData.name} ${modelName} ${yearData.range}. Upplev högre effekt och bättre vridmoment med AK-Tuning.`;
+  const defaultEngine = yearData.engines?.[0];
+  const pageDescription = defaultEngine
+    ? `Motoroptimering för ${brandData.name} ${modelName} ${yearData.range} – ${defaultEngine.label}. Effektökning och mer vridmoment med skräddarsydd mjukvara.`
+    : `Motoroptimering för ${brandData.name} ${modelName} ${yearData.range}. Effektökning och mer vridmoment med skräddarsydd mjukvara.`;
 
   const brandSlug = getSlug(brandData.slug, brandData.name);
   const modelSlug = getSlug(modelData.slug, modelData.name);
