@@ -1,4 +1,4 @@
-// pages/[brand]/[model]/index.tsx
+// pages/[brand] / [model] / index.tsx;
 import Head from "next/head";
 import { GetServerSideProps } from "next";
 import Link from "next/link";
@@ -110,22 +110,12 @@ export default function ModelPage({ brandData, modelData }: ModelPageProps) {
     return <p className="p-6 text-red-500">Ingen modell hittades.</p>;
   }
 
-  const brandName = brandData.name;
-  const yearRange =
-    modelData.years && modelData.years.length > 0
-      ? `${modelData.years[0].range} - ${modelData.years[modelData.years.length - 1].range}`
-      : "";
-
   const modelName = formatModelName(brandData.name, modelData.name);
   const pageTitle = `Motoroptimering för ${brandData.name} ${modelName} | AK-Tuning`;
   const pageDescription = `Motoroptimering för ${brandData.name} ${modelName}. Få mer effekt, högre vridmoment och bättre körupplevelse med AK-Tuning.`;
 
   const brandSlug = getSlug(brandData.slug, brandData.name);
   const modelSlug = getSlug(modelData.slug, modelData.name);
-  const canonicalUrl = `https://tuning.aktuning.se/${brandSlug}/${modelSlug}`;
-
-  const imageUrl =
-    brandData.logo?.asset?.url || "https://tuning.aktuning.se/ak-logo1.png";
 
   return (
     <>
@@ -141,7 +131,10 @@ export default function ModelPage({ brandData, modelData }: ModelPageProps) {
             "https://tuning.aktuning.se/ak-logo1.png"
           }
         />
-        <link rel="canonical" href={canonicalUrl} />
+        <link
+          rel="canonical"
+          href={`https://tuning.aktuning.se/${brandSlug}/${modelSlug}`}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -149,83 +142,27 @@ export default function ModelPage({ brandData, modelData }: ModelPageProps) {
               "@context": "https://schema.org",
               "@graph": [
                 {
-                  "@type": "WebPage",
-                  "@id": `${canonicalUrl}#webpage`,
-                  url: canonicalUrl,
-                  name: pageTitle,
-                  description: pageDescription,
-                  isPartOf: {
-                    "@id": "https://tuning.aktuning.se/#website",
-                  },
-                  breadcrumb: {
-                    "@id": `${canonicalUrl}#breadcrumb`,
-                  },
-                  inLanguage: "sv-SE",
-                  potentialAction: [
-                    {
-                      "@type": "ReadAction",
-                      target: [canonicalUrl],
-                    },
-                  ],
-                },
-                {
-                  "@type": "BreadcrumbList",
-                  "@id": `${canonicalUrl}#breadcrumb`,
-                  itemListElement: [
-                    {
-                      "@type": "ListItem",
-                      position: 1,
-                      name: "Hem",
-                      item: "https://tuning.aktuning.se",
-                    },
-                    {
-                      "@type": "ListItem",
-                      position: 2,
-                      name: brandName,
-                      item: `https://tuning.aktuning.se/${brandSlug}`,
-                    },
-                    {
-                      "@type": "ListItem",
-                      position: 3,
-                      name: modelName,
-                      item: canonicalUrl,
-                    },
-                  ],
-                },
-                {
                   "@type": "ProductModel",
-                  name: `${brandName} ${modelName}`,
-                  model: modelName,
+                  name: `${brandData.name} ${modelData.name}`,
                   brand: {
                     "@type": "Brand",
-                    name: brandName,
-                    logo: imageUrl,
+                    name: brandData.name,
                   },
-                  description: `Motoroptimering och ECU-programmering för ${brandName} ${modelName}`,
-                  url: canonicalUrl,
-                  productionDate: yearRange,
+                  image:
+                    brandData.logo?.asset?.url ||
+                    "https://tuning.aktuning.se/ak-logo1.png",
+                  url: `https://tuning.aktuning.se/${brandSlug}/${modelSlug}`,
+                  mainEntityOfPage: `https://tuning.aktuning.se/${brandSlug}/${modelSlug}`,
                 },
                 {
                   "@type": "ItemList",
-                  name: `Årsmodeller av ${brandName} ${modelName} för motoroptimering`,
-                  description: `Välj årsmodell för att se motoroptimering möjligheter för ${brandName} ${modelName}`,
-                  numberOfItems: modelData.years?.length || 0,
-                  itemListElement:
-                    modelData.years?.map((year, index) => ({
-                      "@type": "ListItem",
-                      position: index + 1,
-                      item: {
-                        "@type": "Product",
-                        name: `${brandName} ${modelName} ${year.range}`,
-                        url: `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${getSlug(year.slug, year.range, true)}`,
-                        model: modelName,
-                        brand: {
-                          "@type": "Brand",
-                          name: brandName,
-                        },
-                        releaseDate: year.range,
-                      },
-                    })) || [],
+                  name: `Motoroptimering för ${brandData.name} ${modelData.name} årsmodeller`,
+                  itemListElement: modelData.years?.map((year, index) => ({
+                    "@type": "ListItem",
+                    position: index + 1,
+                    url: `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${getSlug(year.slug, year.range, true)}`,
+                    name: year.range,
+                  })),
                 },
               ],
             }),
@@ -284,23 +221,21 @@ export default function ModelPage({ brandData, modelData }: ModelPageProps) {
             </Link>
           ))}
         </div>
-
         {/* SEO Content Section */}
         <section className="bg-gray-50 rounded-lg p-6 mt-8">
           <h2 className="text-xl font-bold text-gray-800 mb-4">
-            Motoroptimering för {brandName} {modelName}
+            Motoroptimering för {modelName}
           </h2>
           <div className="prose prose-gray max-w-none">
             <p>
-              AK-Tuning erbjuder professionell motoroptimering för {brandName}{" "}
-              {modelName}.
+              AK-Tuning erbjuder professionell motoroptimering för {modelName}.
               <p className="mt-4">
                 Välj din {modelName} modell ovan för att se exakta
                 effektökningar och priser för motoroptimering.
               </p>
             </p>
             <h3 className="text-lg font-semibold mt-4">
-              Fördelar med {brandName} {modelName} optimering:
+              Fördelar med {modelName} optimering:
             </h3>
             <ul className="list-disc list-inside space-y-1">
               <li>Ökad effekt och vridmoment för bättre acceleration</li>
