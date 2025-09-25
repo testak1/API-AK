@@ -977,8 +977,8 @@ export default function EnginePage({
             <div>
               <h1 className="text-xl sm:text-3xl md:text-xl font-bold mb-2">
                 {translate(currentLanguage, "tuningIntro")}{" "}
-                {formatModelName(brandData.name, modelData.name)}{" "}
-                {yearData.range} – {engineData.label}
+                {cleanText(formatModelName(brandData.name, modelData.name))}{" "}
+                {cleanText(yearData.range)} – {cleanText(engineData.label)}
               </h1>
               <Link
                 href={`/${slugifySafe(brandData.slug?.current || brandData.name)}/${slugifySafe(modelData.slug?.current || modelData.name)}/${slugifyYear(yearData.range)}`}
