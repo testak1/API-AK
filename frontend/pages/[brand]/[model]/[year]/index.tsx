@@ -376,7 +376,7 @@ export default function YearPage({
               AK-Tuning erbjuder professionell motoroptimering för {modelName}{" "}
               {yearData.range}.
               <p className="mt-4">
-                Välj din {yearData.range} modell ovan för att se exakta
+                Välj din {yearData.range} motor ovan för att se exakta
                 effektökningar och priser för motoroptimering.
               </p>
             </p>

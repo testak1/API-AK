@@ -247,18 +247,22 @@ export default function ModelPage({ brandData, modelData }: ModelPageProps) {
         {/* SEO Content Section */}
         <section className="bg-gray-50 rounded-lg p-6 mt-8">
           <h2 className="text-xl font-bold text-gray-800 mb-4">
-            Motoroptimering för {modelName}
+            Motoroptimering för {brandData.name}
+            {modelName}
           </h2>
           <div className="prose prose-gray max-w-none">
             <p>
-              AK-Tuning erbjuder professionell motoroptimering för {modelName}.
+              AK-Tuning erbjuder professionell motoroptimering för{" "}
+              {brandData.name}
+              {modelName}.
               <p className="mt-4">
                 Välj din {modelName} modell ovan för att se exakta
                 effektökningar och priser för motoroptimering.
               </p>
             </p>
             <h3 className="text-lg font-semibold mt-4">
-              Fördelar med {modelName} optimering:
+              Fördelar med {brandData.name}
+              {modelName} optimering:
             </h3>
             <ul className="list-disc list-inside space-y-1">
               <li>Ökad effekt och vridmoment för bättre acceleration</li>
