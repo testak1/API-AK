@@ -214,6 +214,14 @@ export default function EnginePage({
   yearData,
   engineData,
 }: EnginePageProps) {
+  const cleanText = (str: string | null | undefined) => {
+    if (!str) return "";
+    return str
+      .replace(/\.\.\./g, "")
+      .replace(/\//g, "-")
+      .replace(/\s+/g, " ")
+      .trim();
+  };
   const router = useRouter();
   const stageParam = router.query.stage;
   const stage = typeof stageParam === "string" ? stageParam : "";
@@ -617,15 +625,17 @@ export default function EnginePage({
 
   const canonicalUrl = `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}`;
 
-  const pageTitle = `Motoroptimering ${brandData.name} ${modelData.name} ${engineData.label} ${yearData.range} – ${selectedStep}`;
-
+  const pageTitle = cleanText(
+    `Motoroptimering ${brandData.name} ${modelData.name} ${engineData.label} ${yearData.range} – ${selectedStep}`,
+  );
   const hkIncreaseText =
     hkIncrease !== "?" ? `+${hkIncrease} hk` : "högre effekt";
   const nmIncreaseText =
     nmIncrease !== "?" ? `+${nmIncrease} Nm` : "bättre vridmoment";
 
-  const pageDescription = `Motoroptimering till ${brandData.name} ${modelData.name} ${engineData.label} ${yearData.range} ${hkIncreaseText} & ${nmIncreaseText} med skräddarsydd ${selectedStep} mjukvara. 2 års garanti & 30 dagars öppet köp!`;
-
+  const pageDescription = cleanText(
+    `Motoroptimering till ${brandData.name} ${modelData.name} ${engineData.label} ${yearData.range} ${hkIncreaseText} & ${nmIncreaseText} med skräddarsydd ${selectedStep} mjukvara. 2 års garanti & 30 dagars öppet köp!`,
+  );
   const pageUrl = `https://tuning.aktuning.se${router.asPath.split("?")[0]}`;
 
   const imageUrl = "https://tuning.aktuning.se/ak-logo1.png";

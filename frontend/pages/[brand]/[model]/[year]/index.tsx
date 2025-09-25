@@ -153,6 +153,14 @@ export default function YearPage({
   modelData,
   yearData,
 }: YearPageProps) {
+  const cleanText = (str: string | null | undefined) => {
+    if (!str) return "";
+    return str
+      .replace(/\.\.\./g, "")
+      .replace(/\//g, "-")
+      .replace(/\s+/g, " ")
+      .trim();
+  };
   if (!brandData || !modelData || !yearData) {
     return (
       <p className="p-6 text-red-500">
@@ -161,8 +169,10 @@ export default function YearPage({
     );
   }
 
-  const modelName = formatModelName(brandData.name, modelData.name);
-  const pageTitle = `Motoroptimering för ${brandData.name} ${modelName} ${yearData.range} | AK-Tuning`;
+  const modelName = cleanText(formatModelName(brandData.name, modelData.name));
+  const pageTitle = cleanText(
+    `Motoroptimering för ${brandData.name} ${modelName} ${yearData.range} | AK-Tuning`,
+  );
   const pageDescription = `Motoroptimering för ${brandData.name} ${modelName} årsmodell ${yearData.range}. Välj bland ${yearData.engines?.length} för skräddarsydd mjukvara inkl 2 års garanti.`;
 
   const brandSlug = getSlug(brandData.slug, brandData.name);
@@ -302,8 +312,8 @@ export default function YearPage({
             />
           )}
           <h1 className="text-2xl font-bold text-black">
-            {brandData.name} {formatModelName(brandData.name, modelData.name)}{" "}
-            {yearData.range}
+            {cleanText(brandData.name)} {cleanText(modelName)}{" "}
+            {cleanText(yearData.range)}
           </h1>
         </div>
 
@@ -376,8 +386,8 @@ export default function YearPage({
               AK-Tuning erbjuder professionell motoroptimering för {modelName}{" "}
               {yearData.range}.
               <p className="mt-4">
-                Välj din {yearData.range} motor ovan för att se exakta
-                effektökningar och priser för motoroptimering.
+                Välj din motor ovan för att se exakta effektökningar och priser
+                för motoroptimering.
               </p>
             </p>
             <h3 className="text-lg font-semibold mt-4">

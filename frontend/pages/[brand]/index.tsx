@@ -85,13 +85,21 @@ export const getServerSideProps: GetServerSideProps<BrandPageProps> = async (
 };
 
 export default function BrandPage({ brandData }: BrandPageProps) {
+  const cleanText = (str: string | null | undefined) => {
+    if (!str) return "";
+    return str
+      .replace(/\.\.\./g, "")
+      .replace(/\//g, "-")
+      .replace(/\s+/g, " ")
+      .trim();
+  };
   const router = useRouter();
   if (!brandData) {
     return <p className="p-6 text-red-500">Ingen tillverkare hittades.</p>;
   }
 
-  const brandName = brandData.name;
-  const pageTitle = `Motoroptimering ${brandName} | AK-Tuning`;
+  const brandName = cleanText(brandData.name);
+  const pageTitle = cleanText(`Motoroptimering ${brandName} | AK-Tuning`);
   const pageDescription = `Motoroptimering för ${brandName}. ✅ Effektökning ✅ Bränslebesparing ✅ 2 års garanti. Välj modell och upplev skillnaden!`;
 
   const brandSlug = getSlug(brandData.slug, brandData.name);
@@ -253,7 +261,9 @@ export default function BrandPage({ brandData }: BrandPageProps) {
               className="h-10 object-contain"
             />
           )}
-          <h1 className="text-2xl font-bold text-black">{brandData.name}</h1>
+          <h1 className="text-2xl font-bold text-black">
+            {cleanText(brandData.name)}
+          </h1>
         </div>
 
         {/* Tillbaka-knapp */}

@@ -106,12 +106,22 @@ export const getServerSideProps: GetServerSideProps<ModelPageProps> = async (
 };
 
 export default function ModelPage({ brandData, modelData }: ModelPageProps) {
+  const cleanText = (str: string | null | undefined) => {
+    if (!str) return "";
+    return str
+      .replace(/\.\.\./g, "")
+      .replace(/\//g, "-")
+      .replace(/\s+/g, " ")
+      .trim();
+  };
   if (!brandData || !modelData) {
     return <p className="p-6 text-red-500">Ingen modell hittades.</p>;
   }
 
-  const modelName = formatModelName(brandData.name, modelData.name);
-  const pageTitle = `Motoroptimering för ${brandData.name} ${modelName} | AK-Tuning`;
+  const modelName = cleanText(formatModelName(brandData.name, modelData.name));
+  const pageTitle = cleanText(
+    `Motoroptimering för ${brandData.name} ${modelName} | AK-Tuning`,
+  );
   const pageDescription = `Motoroptimering för ${brandData.name} ${modelName}. Få mer effekt, högre vridmoment och bättre körupplevelse med AK-Tuning.`;
 
   const brandSlug = getSlug(brandData.slug, brandData.name);
@@ -214,7 +224,7 @@ export default function ModelPage({ brandData, modelData }: ModelPageProps) {
             />
           )}
           <h1 className="text-2xl font-bold text-black">
-            {brandData.name} {formatModelName(brandData.name, modelData.name)}
+            {cleanText(brandData.name)} {cleanText(modelName)}
           </h1>
         </div>
 
@@ -253,16 +263,14 @@ export default function ModelPage({ brandData, modelData }: ModelPageProps) {
           <div className="prose prose-gray max-w-none">
             <p>
               AK-Tuning erbjuder professionell motoroptimering för{" "}
-              {brandData.name}
-              {modelName}.
+              {brandData.name} {modelName}.
               <p className="mt-4">
                 Välj din {modelName} modell ovan för att se exakta
                 effektökningar och priser för motoroptimering.
               </p>
             </p>
             <h3 className="text-lg font-semibold mt-4">
-              Fördelar med {brandData.name}
-              {modelName} optimering:
+              Fördelar med {brandData.name} {modelName} optimering:
             </h3>
             <ul className="list-disc list-inside space-y-1">
               <li>Ökad effekt och vridmoment för bättre acceleration</li>
