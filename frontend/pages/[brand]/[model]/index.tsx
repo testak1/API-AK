@@ -258,6 +258,7 @@ export default function ModelPage({ brandData, modelData }: ModelPageProps) {
         <section className="bg-gray-50 rounded-lg p-6 mt-8">
           <h2 className="text-xl font-bold text-gray-800 mb-4">
             Motoroptimering för {brandData.name}
+            {"-"}
             {modelName}
           </h2>
           <div className="prose prose-gray max-w-none">

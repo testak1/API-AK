@@ -379,11 +379,13 @@ export default function YearPage({
         {/* SEO Content Section */}
         <section className="bg-gray-50 rounded-lg p-6 mt-8">
           <h2 className="text-xl font-bold text-gray-800 mb-4">
-            Motoroptimering för {modelName} {yearData.range}
+            Motoroptimering för {modelName}
+            {yearData.range}.
           </h2>
           <div className="prose prose-gray max-w-none">
             <p>
-              AK-Tuning erbjuder professionell motoroptimering för {modelName}{" "}
+              AK-Tuning erbjuder professionell motoroptimering för {modelName}
+              {"-"}
               {yearData.range}.
               <p className="mt-4">
                 Välj din motor ovan för att se exakta effektökningar och priser
@@ -391,7 +393,8 @@ export default function YearPage({
               </p>
             </p>
             <h3 className="text-lg font-semibold mt-4">
-              Fördelar med {modelName} {yearData.range} optimering:
+              Fördelar med {cleanText(modelName)} {cleanText(yearData.range)}{" "}
+              optimering:
             </h3>
             <ul className="list-disc list-inside space-y-1">
               <li>Ökad effekt och vridmoment för bättre acceleration</li>
