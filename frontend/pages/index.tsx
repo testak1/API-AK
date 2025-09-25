@@ -1129,6 +1129,7 @@ export default function TuningViewer() {
           ) : (
             <div>
               <p className="text-black text-lg font-semibold mb-2">
+                {translate(currentLanguage, "tuningIntro")}{" "}
                 {cleanText(selected.brand)}{" "}
                 {formatModelName(selected.brand, cleanText(selected.model))}{" "}
                 {cleanText(selected.year)} – {cleanText(selected.engine)}
