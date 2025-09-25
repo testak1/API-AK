@@ -140,19 +140,10 @@ export default function BrandPage({ brandData }: BrandPageProps) {
                   url: canonicalUrl,
                   name: pageTitle,
                   description: pageDescription,
-                  isPartOf: {
-                    "@id": "https://tuning.aktuning.se/#website",
-                  },
                   breadcrumb: {
                     "@id": `${canonicalUrl}#breadcrumb`,
                   },
                   inLanguage: "sv-SE",
-                  potentialAction: [
-                    {
-                      "@type": "ReadAction",
-                      target: [canonicalUrl],
-                    },
-                  ],
                 },
                 {
                   "@type": "BreadcrumbList",
@@ -199,6 +190,42 @@ export default function BrandPage({ brandData }: BrandPageProps) {
                         },
                       },
                     })) || [],
+                },
+              ],
+            }),
+          }}
+        />
+        {/* FAQ Schema */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              mainEntity: [
+                {
+                  "@type": "Question",
+                  name: `Vad kostar motoroptimering för ${brandName}?`,
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: `Bläddra fram din bilmodell och motor för exakt pris och effektuppgifter.`,
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: `Är motoroptimering säkert för min ${brandName}?`,
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: `Ja, alla mjukvaror är skräddarsydda och anpassade utifrån bilens originalfil som grund, med hög fokus på driftsäkerhet. Alla våra tjänster omfattas av 2 års garanti.`,
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: `Förbättras bränsleekonomin efter motoroptimering av ${brandName}?`,
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: `Ja, de flesta kunder upplever en bränslebesparing mellan 5-15% vid normalt körningsmönster, tack vare optimerad förbränning och effektivare kraftöverföring.`,
+                  },
                 },
               ],
             }),

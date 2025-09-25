@@ -116,6 +116,9 @@ export default function ModelPage({ brandData, modelData }: ModelPageProps) {
 
   const brandSlug = getSlug(brandData.slug, brandData.name);
   const modelSlug = getSlug(modelData.slug, modelData.name);
+  const canonicalUrl = `https://tuning.aktuning.se/${brandSlug}/${modelSlug}`;
+  const imageUrl =
+    brandData.logo?.asset?.url || "https://tuning.aktuning.se/ak-logo1.png";
 
   return (
     <>
@@ -124,17 +127,9 @@ export default function ModelPage({ brandData, modelData }: ModelPageProps) {
         <meta name="description" content={pageDescription} />
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={pageDescription} />
-        <meta
-          property="og:image"
-          content={
-            brandData.logo?.asset?.url ||
-            "https://tuning.aktuning.se/ak-logo1.png"
-          }
-        />
-        <link
-          rel="canonical"
-          href={`https://tuning.aktuning.se/${brandSlug}/${modelSlug}`}
-        />
+        <meta property="og:image" content={imageUrl} />
+        <link rel="canonical" href={canonicalUrl} />
+
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -163,6 +158,34 @@ export default function ModelPage({ brandData, modelData }: ModelPageProps) {
                     url: `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${getSlug(year.slug, year.range, true)}`,
                     name: year.range,
                   })),
+                },
+              ],
+            }),
+          }}
+        />
+        {/* FAQ Schema */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              mainEntity: [
+                {
+                  "@type": "Question",
+                  name: `Vilka årsmodeller av ${modelName} kan optimeras?`,
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: `Vi erbjuder motoroptimering för ${modelName} från ${modelData.years?.[0]?.range || ""} till ${modelData.years?.[modelData.years.length - 1]?.range || ""}.`,
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: `Vad kan jag förvänta mig av motoroptimering för ${modelName}?`,
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: `Typiska resultat är 20-40% effektökning, 15-35% vridmomsökning och upp till 15% bättre bränsleekonomi. Exakta siffror varierar beroende på motor och årsmodell. Välj din modell och motor för att se effekt samt prisuppgifter.`,
+                  },
                 },
               ],
             }),

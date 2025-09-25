@@ -209,7 +209,7 @@ export default function YearPage({
                 url: `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${getSlug(engine.slug, engine.label)}`,
                 image:
                   brandData.logo?.asset?.url ||
-                  "https://tuning.aktuning.se/ak-logo2.png",
+                  "https://tuning.aktuning.se/ak-logo1.png",
                 description: `Motoroptimering för ${brandData.name} ${modelName} ${yearData.range} ${engine.label}. Upplev mer effekt, högre vridmoment och bättre körglädje med AK-Tuning.`,
                 offers: {
                   "@type": "Offer",
@@ -254,6 +254,25 @@ export default function YearPage({
                   position: 4,
                   name: yearData.range,
                   item: `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}`,
+                },
+              ],
+            }),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              mainEntity: [
+                {
+                  "@type": "Question",
+                  name: `Är motoroptimering säkert för ${modelName} ${yearData.range}?`,
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: `Ja, all vår mjukvara är skräddarsydd för din specifik motor och testas noggrant innan och efter optimering. Vi erbjuder 2 års mjukvaru garanti.`,
+                  },
                 },
               ],
             }),
@@ -347,6 +366,32 @@ export default function YearPage({
             </div>
           );
         })}
+        {/* SEO Content Section */}
+        <section className="bg-gray-50 rounded-lg p-6 mt-8">
+          <h2 className="text-xl font-bold text-gray-800 mb-4">
+            Motoroptimering för {modelName} {yearData.range}
+          </h2>
+          <div className="prose prose-gray max-w-none">
+            <p>
+              AK-Tuning erbjuder professionell motoroptimering för {modelName}{" "}
+              {yearData.range}.
+              <p className="mt-4">
+                Välj din {yearData.range} modell ovan för att se exakta
+                effektökningar och priser för motoroptimering.
+              </p>
+            </p>
+            <h3 className="text-lg font-semibold mt-4">
+              Fördelar med {modelName} {yearData.range} optimering:
+            </h3>
+            <ul className="list-disc list-inside space-y-1">
+              <li>Ökad effekt och vridmoment för bättre acceleration</li>
+              <li>Förbättrad bränsleekonomi vid normalkörning</li>
+              <li>Skräddarsydd mjukvara anpassad för din specifika modell</li>
+              <li>2 års garanti på allt vårt arbete</li>
+              <li>Professionell diagnostik före och efter optimering</li>
+            </ul>
+          </div>
+        </section>
       </div>
     </>
   );

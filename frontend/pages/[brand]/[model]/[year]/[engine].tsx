@@ -923,18 +923,18 @@ export default function EnginePage({
               mainEntity: [
                 {
                   "@type": "Question",
-                  name: `Vad kostar ${selectedStep} optimering för ${brandData.name} ${modelData.name}?`,
+                  name: `Vad kostar ${selectedStep} optimering för ${brandData.name} ${modelData.name} ${engineData.label}?`,
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: `${selectedStep} optimering för ${brandData.name} ${modelData.name} ${engineData.label} kostar ${price}. Priset inkluderar skräddarsydd mjukvara, diagnostik och 2 års garanti.`,
+                    text: `${selectedStep} mjukvara för ${brandData.name} ${modelData.name} ${engineData.label} kostar ${price}. Priset inkluderar skräddarsydd mjukvara, diagnostik, samt loggning innan och efter optimering. 2 års mjukvaru garanti och 30 dagars öppet köp.`,
                   },
                 },
                 {
                   "@type": "Question",
-                  name: `Hur mycket effektökning får jag med ${selectedStep}?`,
+                  name: `Hur mycket ökar effekten med ${selectedStep} till ${brandData.name} ${modelData.name} ${engineData.label}?`,
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: `Med ${selectedStep} optimering ökar effekten från ${selectedStage?.origHk} hk till ${selectedStage?.tunedHk} hk (+${hkIncrease} hk) och vridmomentet från ${selectedStage?.origNm} Nm till ${selectedStage?.tunedNm} Nm (+${nmIncrease} Nm).`,
+                    text: `Med ${selectedStep} ökar effekten från ${selectedStage?.origHk} hk till ${selectedStage?.tunedHk} hk (+${hkIncrease} hk) och vridmomentet från ${selectedStage?.origNm} Nm till ${selectedStage?.tunedNm} Nm (+${nmIncrease} Nm).`,
                   },
                 },
               ],
