@@ -624,7 +624,7 @@ export default function EnginePage({
   const nmIncreaseText =
     nmIncrease !== "?" ? `+${nmIncrease} Nm` : "bättre vridmoment";
 
-  const pageDescription = `Motoroptimering till ${brandData.name} ${modelData.name} ${engineData.label} ${yearData.range} – ${hkIncreaseText} & ${nmIncreaseText} med skräddarsydd ${selectedStep} mjukvara. 2 års garanti & 30 dagars öppet köp!`;
+  const pageDescription = `Motoroptimering till ${brandData.name} ${modelData.name} ${engineData.label} ${yearData.range} ${hkIncreaseText} & ${nmIncreaseText} med skräddarsydd ${selectedStep} mjukvara. 2 års garanti & 30 dagars öppet köp!`;
 
   const pageUrl = `https://tuning.aktuning.se${router.asPath.split("?")[0]}`;
 
@@ -888,8 +888,54 @@ export default function EnginePage({
                 {
                   "@type": "ListItem",
                   position: 2,
-                  name: `Motoroptimering ${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label}`,
+                  name: brandData.name,
+                  item: `https://tuning.aktuning.se/${brandSlug}`,
+                },
+                {
+                  "@type": "ListItem",
+                  position: 3,
+                  name: modelData.name,
+                  item: `https://tuning.aktuning.se/${brandSlug}/${modelSlug}`,
+                },
+                {
+                  "@type": "ListItem",
+                  position: 4,
+                  name: yearData.range,
+                  item: `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}`,
+                },
+                {
+                  "@type": "ListItem",
+                  position: 5,
+                  name: `${engineData.label} - ${selectedStep}`,
                   item: canonicalUrl,
+                },
+              ],
+            }),
+          }}
+        />
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              mainEntity: [
+                {
+                  "@type": "Question",
+                  name: `Vad kostar ${selectedStep} optimering för ${brandData.name} ${modelData.name}?`,
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: `${selectedStep} optimering för ${brandData.name} ${modelData.name} ${engineData.label} kostar ${price}. Priset inkluderar skräddarsydd mjukvara, diagnostik och 2 års garanti.`,
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: `Hur mycket effektökning får jag med ${selectedStep}?`,
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: `Med ${selectedStep} optimering ökar effekten från ${selectedStage?.origHk} hk till ${selectedStage?.tunedHk} hk (+${hkIncrease} hk) och vridmomentet från ${selectedStage?.origNm} Nm till ${selectedStage?.tunedNm} Nm (+${nmIncrease} Nm).`,
+                  },
                 },
               ],
             }),

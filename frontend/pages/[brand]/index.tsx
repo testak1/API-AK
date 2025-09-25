@@ -86,16 +86,18 @@ export const getServerSideProps: GetServerSideProps<BrandPageProps> = async (
 
 export default function BrandPage({ brandData }: BrandPageProps) {
   const router = useRouter();
-
-  const brandName = brandData.name;
-  const pageTitle = `Motoroptimering ${brandName} | AK-Tuning`;
-  const pageDescription = `Motoroptimering för ${brandName}. Mer effekt, högre vridmoment och bättre körglädje. | AK-Tuning`;
-
   if (!brandData) {
     return <p className="p-6 text-red-500">Ingen tillverkare hittades.</p>;
   }
 
+  const brandName = brandData.name;
+  const pageTitle = `Motoroptimering ${brandName} | AK-Tuning`;
+  const pageDescription = `Motoroptimering för ${brandName}. ✅ Effektökning ✅ Bränslebesparing ✅ 2 års garanti. Välj modell och upplev skillnaden!`;
+
   const brandSlug = getSlug(brandData.slug, brandData.name);
+  const canonicalUrl = `https://tuning.aktuning.se/${brandSlug}`;
+  const imageUrl =
+    brandData.logo?.asset?.url || "https://tuning.aktuning.se/ak-logo1.png";
 
   return (
     <>
@@ -124,10 +126,7 @@ export default function BrandPage({ brandData }: BrandPageProps) {
         />
 
         {/* Canonical */}
-        <link
-          rel="canonical"
-          href={`https://tuning.aktuning.se/${brandSlug}`}
-        />
+        <link rel="canonical" href={canonicalUrl} />
 
         <script
           type="application/ld+json"
@@ -136,23 +135,70 @@ export default function BrandPage({ brandData }: BrandPageProps) {
               "@context": "https://schema.org",
               "@graph": [
                 {
+                  "@type": "WebPage",
+                  "@id": `${canonicalUrl}#webpage`,
+                  url: canonicalUrl,
+                  name: pageTitle,
+                  description: pageDescription,
+                  isPartOf: {
+                    "@id": "https://tuning.aktuning.se/#website",
+                  },
+                  breadcrumb: {
+                    "@id": `${canonicalUrl}#breadcrumb`,
+                  },
+                  inLanguage: "sv-SE",
+                  potentialAction: [
+                    {
+                      "@type": "ReadAction",
+                      target: [canonicalUrl],
+                    },
+                  ],
+                },
+                {
+                  "@type": "BreadcrumbList",
+                  "@id": `${canonicalUrl}#breadcrumb`,
+                  itemListElement: [
+                    {
+                      "@type": "ListItem",
+                      position: 1,
+                      name: "Hem",
+                      item: "https://tuning.aktuning.se",
+                    },
+                    {
+                      "@type": "ListItem",
+                      position: 2,
+                      name: `Motoroptimering ${brandName}`,
+                      item: canonicalUrl,
+                    },
+                  ],
+                },
+                {
                   "@type": "Brand",
-                  name: brandData.name,
-                  logo:
-                    brandData.logo?.asset?.url ||
-                    "https://tuning.aktuning.se/ak-logo1.png",
-                  url: `https://tuning.aktuning.se/${brandSlug}`,
-                  mainEntityOfPage: `https://tuning.aktuning.se/${brandSlug}`,
+                  name: brandName,
+                  description: `Motoroptimering och ECU-programmering för ${brandName}`,
+                  logo: imageUrl,
+                  url: canonicalUrl,
+                  mainEntityOfPage: canonicalUrl,
                 },
                 {
                   "@type": "ItemList",
-                  name: `Motoroptimering för ${brandData.name} modeller`,
-                  itemListElement: brandData.models?.map((model, index) => ({
-                    "@type": "ListItem",
-                    position: index + 1,
-                    url: `https://tuning.aktuning.se/${brandSlug}/${slugifySafe(model.slug?.current || model.name)}`,
-                    name: model.name,
-                  })),
+                  name: `Modeller av ${brandName} för motoroptimering`,
+                  description: `Välj modell för att se motoroptimering möjligheter för ${brandName}`,
+                  numberOfItems: brandData.models?.length || 0,
+                  itemListElement:
+                    brandData.models?.map((model, index) => ({
+                      "@type": "ListItem",
+                      position: index + 1,
+                      item: {
+                        "@type": "ProductModel",
+                        name: formatModelName(brandName, model.name),
+                        url: `https://tuning.aktuning.se/${brandSlug}/${getSlug(model.slug, model.name)}`,
+                        brand: {
+                          "@type": "Brand",
+                          name: brandName,
+                        },
+                      },
+                    })) || [],
                 },
               ],
             }),
@@ -202,6 +248,34 @@ export default function BrandPage({ brandData }: BrandPageProps) {
             </Link>
           ))}
         </div>
+
+        {/* SEO Content Section */}
+        <section className="bg-gray-50 rounded-lg p-6 mt-8">
+          <h2 className="text-xl font-bold text-gray-800 mb-4">
+            Motoroptimering för {brandName}
+          </h2>
+          <div className="prose prose-gray max-w-none">
+            <p>
+              AK-Tuning erbjuder professionell motoroptimering för {brandName}
+              Oavsett om du äger en {brandName} personbil, SUV eller lastbil så
+              kan vi hjälpa dig att få ut mer potential ur din motor.
+            </p>
+            <h3 className="text-lg font-semibold mt-4">
+              Fördelar med {brandName} optimering:
+            </h3>
+            <ul className="list-disc list-inside space-y-1">
+              <li>Ökad effekt och vridmoment för bättre acceleration</li>
+              <li>Förbättrad bränsleekonomi vid normalkörning</li>
+              <li>Skräddarsydd mjukvara anpassad för din specifika modell</li>
+              <li>2 års garanti på allt vårt arbete</li>
+              <li>Professionell diagnostik före och efter optimering</li>
+            </ul>
+            <p className="mt-4">
+              Välj din {brandName} modell ovan för att se exakta effektökningar
+              och priser för motoroptimering.
+            </p>
+          </div>
+        </section>
       </div>
     </>
   );

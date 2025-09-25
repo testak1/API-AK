@@ -163,10 +163,7 @@ export default function YearPage({
 
   const modelName = formatModelName(brandData.name, modelData.name);
   const pageTitle = `Motoroptimering för ${brandData.name} ${modelName} ${yearData.range} | AK-Tuning`;
-  const defaultEngine = yearData.engines?.[0];
-  const pageDescription = defaultEngine
-    ? `Motoroptimering för ${brandData.name} ${modelName} ${yearData.range} – ${defaultEngine.label}. Effektökning och mer vridmoment med skräddarsydd mjukvara.`
-    : `Motoroptimering för ${brandData.name} ${modelName} ${yearData.range}. Effektökning och mer vridmoment med skräddarsydd mjukvara.`;
+  const pageDescription = `Motoroptimering för ${brandData.name} ${modelName} årsmodell ${yearData.range}. Välj bland ${yearData.engines?.length} för skräddarsydd mjukvara inkl 2 års garanti.`;
 
   const brandSlug = getSlug(brandData.slug, brandData.name);
   const modelSlug = getSlug(modelData.slug, modelData.name);
@@ -223,6 +220,42 @@ export default function YearPage({
                   description: "Bläddra fram din bilmodell för att se pris!",
                 },
               })),
+            }),
+          }}
+        />
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                {
+                  "@type": "ListItem",
+                  position: 1,
+                  name: "Hem",
+                  item: "https://tuning.aktuning.se",
+                },
+                {
+                  "@type": "ListItem",
+                  position: 2,
+                  name: `Motoroptimering ${brandData.name}`,
+                  item: `https://tuning.aktuning.se/${brandSlug}`,
+                },
+                {
+                  "@type": "ListItem",
+                  position: 3,
+                  name: modelName,
+                  item: `https://tuning.aktuning.se/${brandSlug}/${modelSlug}`,
+                },
+                {
+                  "@type": "ListItem",
+                  position: 4,
+                  name: yearData.range,
+                  item: `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}`,
+                },
+              ],
             }),
           }}
         />
