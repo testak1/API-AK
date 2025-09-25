@@ -619,8 +619,12 @@ export default function TuningViewer() {
   };
 
   const dynamicTitle = selected.brand
-    ? `Motoroptimering ${selected.brand} ${selected.model || ""} ${selected.year || ""} ${selected.engine || ""} | AK-TUNING`
-    : "Motoroptimering – AK-TUNING | Göteborg • Jönköping • Skåne • Stockholm • Örebro";
+    ? cleanText(
+        `Motoroptimering ${selected.brand} ${selected.model || ""} ${selected.year || ""} ${selected.engine || ""} | AK-TUNING`,
+      )
+    : cleanText(
+        "Motoroptimering – AK-TUNING | Göteborg • Jönköping • Skåne • Stockholm • Örebro",
+      );
 
   const formatModelName = (brand: string, model: string): string => {
     const mercedesModels = [
@@ -985,8 +989,12 @@ export default function TuningViewer() {
           name="description"
           content={
             selected.brand
-              ? `Motoroptimering för ${selected.brand} ${selected.model} ${selected.year} ${selected.engine} – Effektökning, bränslebesparing & trygg mjukvara.`
-              : "Skräddarsydd Motoroptimering – Effektökning, bränslebesparing & trygg mjukvara. AK-TUNING finns i Göteborg - Stockholm - Skåne - Jönköping - Örebro"
+              ? cleanText(
+                  `Motoroptimering för ${selected.brand} ${selected.model} ${selected.year} ${selected.engine} – Effektökning, bränslebesparing & trygg mjukvara.`,
+                )
+              : cleanText(
+                  "Skräddarsydd Motoroptimering – Effektökning, bränslebesparing & trygg mjukvara. AK-TUNING finns i Göteborg - Stockholm - Skåne - Jönköping - Örebro",
+                )
           }
         />
         <link rel="canonical" href="https://tuning.aktuning.se/" />
@@ -1481,7 +1489,7 @@ export default function TuningViewer() {
                         </div>
                       )}
                       <p className="text-center font-medium text-gray-800">
-                        {formatModelName(selected.brand, model.name)}
+                        {cleanText(formatModelName(selected.brand, model.name))}
                       </p>
                     </div>
                   ))}
@@ -1569,7 +1577,7 @@ export default function TuningViewer() {
                       className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
                     >
                       <p className="text-center font-medium text-gray-800">
-                        {year.range}
+                        {cleanText(year.range)}
                       </p>
                     </div>
                   ))}
@@ -1671,7 +1679,7 @@ export default function TuningViewer() {
                               className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
                             >
                               <p className="text-center font-medium text-gray-800">
-                                {engine.label}
+                                {cleanText(engine.label)}
                               </p>
                             </div>
                           ))}
