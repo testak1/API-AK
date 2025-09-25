@@ -1490,7 +1490,7 @@ export default function TuningViewer() {
                         </div>
                       )}
                       <p className="text-center font-medium text-gray-800">
-                        {cleanText(formatModelName(selected.brand, model.name))}
+                        {formatModelName(selected.brand, model.name)}
                       </p>
                     </div>
                   ))}
@@ -1578,7 +1578,7 @@ export default function TuningViewer() {
                       className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
                     >
                       <p className="text-center font-medium text-gray-800">
-                        {cleanText(year.range)}
+                        {year.range}
                       </p>
                     </div>
                   ))}
@@ -1680,7 +1680,7 @@ export default function TuningViewer() {
                               className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
                             >
                               <p className="text-center font-medium text-gray-800">
-                                {cleanText(engine.label)}
+                                {engine.label}
                               </p>
                             </div>
                           ))}
