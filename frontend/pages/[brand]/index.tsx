@@ -256,9 +256,11 @@ export default function BrandPage({ brandData }: BrandPageProps) {
           </h2>
           <div className="prose prose-gray max-w-none">
             <p>
-              AK-Tuning erbjuder professionell motoroptimering för {brandName}
-              Oavsett om du äger en {brandName} personbil, SUV eller lastbil så
-              kan vi hjälpa dig att få ut mer potential ur din motor.
+              AK-Tuning erbjuder professionell motoroptimering för {brandName}.
+              <p className="mt-4">
+                Välj din {brandName} modell ovan för att se exakta
+                effektökningar och priser för motoroptimering.
+              </p>
             </p>
             <h3 className="text-lg font-semibold mt-4">
               Fördelar med {brandName} optimering:
@@ -270,10 +272,6 @@ export default function BrandPage({ brandData }: BrandPageProps) {
               <li>2 års garanti på allt vårt arbete</li>
               <li>Professionell diagnostik före och efter optimering</li>
             </ul>
-            <p className="mt-4">
-              Välj din {brandName} modell ovan för att se exakta effektökningar
-              och priser för motoroptimering.
-            </p>
           </div>
         </section>
       </div>
