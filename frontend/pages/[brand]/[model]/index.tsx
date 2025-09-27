@@ -271,7 +271,7 @@ export default function ModelPage({ brandData, modelData }: ModelPageProps) {
               </p>
             </p>
             <h3 className="text-lg font-semibold mt-4">
-              Fördelar med {cleanText(brandData.name)} {cleanText(modelName)}
+              Fördelar med {cleanText(brandData.name)} {cleanText(modelName)}{" "}
               optimering:
             </h3>
             <ul className="list-disc list-inside space-y-1">
