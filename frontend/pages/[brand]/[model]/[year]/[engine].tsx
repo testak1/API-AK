@@ -1314,6 +1314,41 @@ export default function EnginePage({
                             ).toUpperCase()}{" "}
                           </h3>
                         )}
+ {/* Mobile-only legend above chart */}
+                        {!isDsgStage && (
+                          <div className="flex justify-center items-center gap-2 md:hidden text-xs text-white">
+                            <div className="flex items-center gap-1">
+                              <span className="w-3 h-3 rounded-full border-2 border-red-400"></span>
+                              <span>ORG HK</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <span className="w-3 h-3 rounded-full bg-red-400"></span>
+                              <span>
+                                {" "}
+                                {stage.name
+                                  .replace("Steg", "ST")
+                                  .replace(/\s+/g, "")
+                                  .toUpperCase()}{" "}
+                                HK
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <span className="w-3 h-3 rounded-full border-2 border-white"></span>
+                              <span>ORG NM</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <span className="w-3 h-3 rounded-full bg-white"></span>
+                              <span>
+                                {" "}
+                                {stage.name
+                                  .replace("Steg", "ST")
+                                  .replace(/\s+/g, "")
+                                  .toUpperCase()}{" "}
+                                NM
+                              </span>
+                            </div>
+                          </div>
+                        )}
 
                         
 
@@ -1375,64 +1410,62 @@ export default function EnginePage({
                                   labels: rpmLabels,
                                   datasets: [
                                     {
-                                      label: "ORG",
+                                      label: "ORG HK",
                                       data: generateDynoCurve(
                                         stage.origHk,
                                         true,
-                                        engineData.fuel,
+                                        selectedEngine.fuel,
                                       ),
                                       borderColor: "#f87171",
+                                      backgroundColor: "#000000",
                                       borderWidth: 2,
                                       borderDash: [5, 3],
-                                      tension: 0.4,
+                                      tension: 0.5,
                                       pointRadius: 0,
                                       yAxisID: "hp",
                                     },
                                     {
-                                      label: `ST${stage.name.replace(/\D/g, "")}`,
+                                      label: `ST ${stage.name.replace(/\D/g, "")} HK`,
                                       data: generateDynoCurve(
                                         stage.tunedHk,
                                         true,
-                                        engineData.fuel,
+                                        selectedEngine.fuel,
                                       ),
                                       borderColor: "#f87171",
-                                      backgroundColor:
-                                        "rgba(248, 113, 113, 0.1)",
+                                      backgroundColor: "#f87171",
                                       borderWidth: 3,
-                                      tension: 0.4,
+                                      tension: 0.5,
                                       pointRadius: 0,
                                       yAxisID: "hp",
-                                      fill: true,
                                     },
                                     {
-                                      label: "ORG",
+                                      label: "ORG NM",
                                       data: generateDynoCurve(
                                         stage.origNm,
                                         false,
-                                        engineData.fuel,
+                                        selectedEngine.fuel,
                                       ),
                                       borderColor: "#d1d5db",
+                                      backgroundColor: "#000000",
                                       borderWidth: 2,
                                       borderDash: [5, 3],
-                                      tension: 0.4,
+                                      tension: 0.5,
                                       pointRadius: 0,
                                       yAxisID: "nm",
                                     },
                                     {
-                                      label: `ST${stage.name.replace(/\D/g, "")}`,
+                                      label: `ST ${stage.name.replace(/\D/g, "")} NM`,
                                       data: generateDynoCurve(
                                         stage.tunedNm,
                                         false,
-                                        engineData.fuel,
+                                        selectedEngine.fuel,
                                       ),
                                       borderColor: "#d1d5db",
-                                      backgroundColor:
-                                        "rgba(209, 213, 219, 0.1)",
+                                      backgroundColor: "transparent",
                                       borderWidth: 3,
-                                      tension: 0.4,
+                                      tension: 0.5,
                                       pointRadius: 0,
                                       yAxisID: "nm",
-                                      fill: true,
                                     },
                                   ],
                                 }}
@@ -1440,128 +1473,42 @@ export default function EnginePage({
                                   responsive: true,
                                   maintainAspectRatio: false,
                                   plugins: {
-                                    legend: { display: false },
+                                    legend: {
+                                      display: false,
+                                    },
                                     tooltip: {
-                                      enabled: false, // 👈 Stäng av standard tooltip
-                                      external: function (context) {
-                                        // Custom tooltip implementation
-                                        let tooltipEl =
-                                          document.getElementById(
-                                            "chartjs-tooltip",
-                                          );
+                                      enabled: true,
+                                      mode: "index",
+                                      intersect: false,
+                                      backgroundColor: "#1f2937",
+                                      titleColor: "#ffffff",
+                                      bodyColor: "#ffffff",
+                                      borderColor: "#6b7280",
+                                      borderWidth: 1,
+                                      padding: 10,
+                                      displayColors: true,
+                                      usePointStyle: true,
+                                      callbacks: {
+                                        labelPointStyle: () => ({
+                                          pointStyle: "circle",
+                                          rotation: 0,
+                                        }),
+                                        title: function (tooltipItems) {
+                                          return `${tooltipItems[0].label} RPM`;
+                                        },
+                                        label: function (context) {
+                                          const label =
+                                            context.dataset.label || "";
+                                          const value = context.parsed.y;
 
-                                        // Skapa tooltip element om det inte finns
-                                        if (!tooltipEl) {
-                                          tooltipEl =
-                                            document.createElement("div");
-                                          tooltipEl.id = "chartjs-tooltip";
-                                          tooltipEl.innerHTML =
-                                            "<table></table>";
-                                          document.body.appendChild(tooltipEl);
-                                        }
+                                          if (value === undefined) return label;
 
-                                        // Hide if no tooltip
-                                        const tooltipModel = context.tooltip;
-                                        if (tooltipModel.opacity === 0) {
-                                          tooltipEl.style.opacity = "0";
-                                          return;
-                                        }
-
-                                        // Set Text
-                                        if (tooltipModel.body) {
-                                          const titleLine =
-                                            tooltipModel.title || [];
-                                          const bodyLines =
-                                            tooltipModel.body.map(
-                                              (b) => b.lines,
-                                            );
-
-                                          let innerHtml = "<thead>";
-
-                                          // Title
-                                          if (titleLine.length > 0) {
-                                            innerHtml +=
-                                              "<tr><th>" +
-                                              titleLine[0] +
-                                              "</th></tr>";
-                                          }
-                                          innerHtml += "</thead><tbody>";
-
-                                          // Body lines med custom styling
-                                          bodyLines.forEach((line, i) => {
-                                            const dataset =
-                                              tooltipModel.dataPoints[i]
-                                                .dataset;
-                                            const isOrg =
-                                              dataset.label.includes("ORG");
-                                            const isHK =
-                                              dataset.yAxisID === "hp";
-                                            const value =
-                                              tooltipModel.dataPoints[i].parsed
-                                                .y;
-                                            const unit =
-                                              dataset.yAxisID === "hp"
-                                                ? "hk"
-                                                : "Nm";
-
-                                            // Bestäm färg för strecken
-                                            const dashColor = isHK
-                                              ? "#f87171"
-                                              : "#d1d5db";
-                                            const dash = isOrg ? "---" : "___";
-
-                                            innerHtml += "<tr><td>";
-                                            innerHtml += `<span style="color: ${dashColor}; font-family: monospace; font-weight: bold;">${dash}</span>`;
-                                            innerHtml += `<span style="color: white; margin-left: 8px;">${dataset.label}: ${Math.round(value)} ${unit}</span>`;
-                                            innerHtml += "</td></tr>";
-                                          });
-
-                                          innerHtml += "</tbody>";
-
-                                          const tableRoot =
-                                            tooltipEl.querySelector("table");
-                                          if (tableRoot) {
-                                            tableRoot.innerHTML = innerHtml;
-                                          }
-                                        }
-
-                                        // Positionering
-                                        const position =
-                                          context.chart.canvas.getBoundingClientRect();
-                                        tooltipEl.style.position = "absolute";
-                                        tooltipEl.style.left =
-                                          position.left +
-                                          window.pageXOffset +
-                                          tooltipModel.caretX +
-                                          "px";
-                                        tooltipEl.style.top =
-                                          position.top +
-                                          window.pageYOffset +
-                                          tooltipModel.caretY +
-                                          "px";
-                                        tooltipEl.style.transform =
-                                          "translate(-50%, -100%)";
-                                        tooltipEl.style.transform +=
-                                          " translateY(-8px)";
-
-                                        // Styling
-                                        tooltipEl.style.opacity = "1";
-                                        tooltipEl.style.background =
-                                          "rgba(31, 41, 55, 0.95)";
-                                        tooltipEl.style.color = "white";
-                                        tooltipEl.style.border =
-                                          "1px solid #6b7280";
-                                        tooltipEl.style.borderRadius = "4px";
-                                        tooltipEl.style.padding = "12px";
-                                        tooltipEl.style.pointerEvents = "none";
-                                        tooltipEl.style.fontFamily =
-                                          "sans-serif";
-                                        tooltipEl.style.fontSize = "12px";
-                                        tooltipEl.style.boxShadow =
-                                          "0 4px 12px rgba(0,0,0,0.3)";
-                                        tooltipEl.style.backdropFilter =
-                                          "blur(4px)";
-                                        tooltipEl.style.zIndex = "1000";
+                                          const unit =
+                                            context.dataset.yAxisID === "hp"
+                                              ? "hk"
+                                              : "Nm";
+                                          return `${label}: ${Math.round(value)} ${unit}`;
+                                        },
                                       },
                                     },
                                   },
@@ -1572,20 +1519,22 @@ export default function EnginePage({
                                       position: "left",
                                       title: {
                                         display: true,
-                                        text: translate(
-                                          currentLanguage,
-                                          "powerLabel",
-                                        ),
+                                        text: "EFFEKT",
                                         color: "white",
+                                        font: { size: 14 },
                                       },
                                       min: 0,
                                       max:
-                                        Math.ceil((stage.tunedHk * 1.15) / 50) *
-                                        50,
+                                        Math.ceil(stage.tunedHk / 100) * 100 +
+                                        100,
                                       grid: {
                                         color: "rgba(255, 255, 255, 0.1)",
                                       },
-                                      ticks: { color: "#9CA3AF" },
+                                      ticks: {
+                                        color: "#9CA3AF",
+                                        stepSize: 100,
+                                        callback: (value) => `${value}`,
+                                      },
                                     },
                                     nm: {
                                       type: "linear",
@@ -1593,29 +1542,36 @@ export default function EnginePage({
                                       position: "right",
                                       title: {
                                         display: true,
-                                        text: translate(
-                                          currentLanguage,
-                                          "torqueLabel",
-                                        ),
+                                        text: "VRIDMOMENT",
                                         color: "white",
+                                        font: { size: 14 },
                                       },
                                       min: 0,
                                       max:
-                                        Math.ceil((stage.tunedNm * 1.15) / 50) *
-                                        50,
-                                      grid: { drawOnChartArea: false },
-                                      ticks: { color: "#9CA3AF" },
+                                        Math.ceil(stage.tunedNm / 100) * 100 +
+                                        100,
+                                      grid: {
+                                        drawOnChartArea: false,
+                                      },
+                                      ticks: {
+                                        color: "#9CA3AF",
+                                        stepSize: 100,
+                                        callback: (value) => `${value}`,
+                                      },
                                     },
                                     x: {
                                       title: {
                                         display: true,
                                         text: "RPM",
                                         color: "#E5E7EB",
+                                        font: { size: 14 },
                                       },
                                       grid: {
                                         color: "rgba(255, 255, 255, 0.1)",
                                       },
-                                      ticks: { color: "#9CA3AF" },
+                                      ticks: {
+                                        color: "#9CA3AF",
+                                      },
                                     },
                                   },
                                   interaction: {
@@ -1626,6 +1582,7 @@ export default function EnginePage({
                                 plugins={[watermarkPlugin, shadowPlugin]}
                               />
                             )}
+
                             <div className="text-center text-white text-xs mt-4 italic">
                               {translate(currentLanguage, "tuningCurveNote")}
                             </div>
