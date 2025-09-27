@@ -831,33 +831,62 @@ export default function TuningViewer() {
   );
 
   const generateDynoCurve = (
-    peakValue: number,
-    isHp: boolean,
-    fuelType: string,
-  ) => {
-    const rpmRange = fuelType.toLowerCase().includes("diesel")
-      ? [1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000]
-      : [2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000];
+  peakValue: number,
+  isHp: boolean,
+  fuelType: string,
+) => {
+  const isDiesel = fuelType.toLowerCase().includes("diesel");
+  const rpmRange = isDiesel
+    ? [1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000]
+    : [2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000];
 
-    const peakIndex = isHp
-      ? Math.floor(rpmRange.length * 0.6)
-      : Math.floor(rpmRange.length * 0.4);
-    const startIndex = 0;
+  const totalSteps = rpmRange.length;
+  const curve = new Array(totalSteps).fill(0);
 
-    return rpmRange.map((rpm) => {
-      const startRpm = rpmRange[startIndex];
-      const peakRpm = rpmRange[peakIndex];
-      const endRpm = rpmRange[rpmRange.length - 1];
+  if (isHp) {
+    // ---- Hästkraftskurva (senare peak, mjukare form) ----
+    const peakStep = Math.floor(totalSteps * (isDiesel ? 0.75 : 0.8));
 
-      if (rpm <= peakRpm) {
-        const progress = (rpm - startRpm) / (peakRpm - startRpm);
-        return peakValue * (0.5 + 0.5 * Math.pow(progress, 1.2));
+    for (let i = 0; i < totalSteps; i++) {
+      let value;
+      if (i <= peakStep) {
+        // Mjuk sinuskurva upp till toppen
+        const progress = i / peakStep;
+        value = peakValue * (0.45 + 0.55 * Math.sin((progress * Math.PI) / 2));
       } else {
-        const fallProgress = (rpm - peakRpm) / (endRpm - peakRpm);
-        return peakValue * (1 - 0.35 * Math.pow(fallProgress, 1));
+        // Mattas av långsamt efter toppen
+        const progress = (i - peakStep) / (totalSteps - 1 - peakStep);
+        value = peakValue * Math.cos((progress * Math.PI) / 2);
       }
-    });
-  };
+      curve[i] = value > 0 ? value : 0;
+    }
+  } else {
+    // ---- Vridmomentskurva (tidig peak, platå) ----
+    const peakStep = Math.floor(totalSteps * (isDiesel ? 0.3 : 0.4));
+    const plateauEndStep = peakStep + (isDiesel ? 2 : 1);
+
+    for (let i = 0; i < totalSteps; i++) {
+      let value;
+      if (i < peakStep) {
+        // Snabb, lite aggressivare uppgång
+        const progress = i / peakStep;
+        value = peakValue * (0.6 + 0.4 * Math.pow(progress, 1.5));
+      } else if (i <= plateauEndStep) {
+        // Håller maxvärdet en stund (platå)
+        value = peakValue;
+      } else {
+        // Mattas av efter platån
+        const progress =
+          (i - plateauEndStep) / (totalSteps - 1 - plateauEndStep);
+        value = peakValue * (1 - 0.35 * Math.pow(progress, 2));
+      }
+      curve[i] = value > 0 ? value : 0;
+    }
+  }
+
+  // Lägg till minimalt "brus" för att kurvan inte ska se helt perfekt ut
+  return curve.map((val) => val * (1 + (Math.random() - 0.5) * 0.03));
+};
 
   const rpmLabels = selectedEngine?.fuel?.toLowerCase().includes("diesel")
     ? ["1500", "2000", "2500", "3000", "3500", "4000", "4500", "5000"]
