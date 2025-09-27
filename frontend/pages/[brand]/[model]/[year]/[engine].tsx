@@ -1325,12 +1325,13 @@ export default function EnginePage({
                         {!isDsgStage && (
                           <div className="flex justify-center items-center gap-2 md:hidden text-xs text-white">
                             <div className="flex items-center gap-1">
-                              <span className="text-red-400 text-[8px] tracking-wide drop-shadow-[0_0_3px_rgba(248,113,113,0.8)]">
+                              <span className="text-red-400 text-[10px] tracking-wide drop-shadow-[0_0_3px_rgba(248,113,113,0.8)]">
                                 --
-                              </span>
-                              <span className="text-white">
+                                <span className="text-white">
                                 ORG: {stage.origHk} HK
                               </span>
+                              </span>
+                              
                             </div>
                             <div className="flex items-center gap-1">
                               <span className="text-red-600 text-[10px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
