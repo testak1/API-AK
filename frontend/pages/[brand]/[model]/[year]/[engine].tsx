@@ -1414,10 +1414,10 @@ export default function EnginePage({
                                       data: generateDynoCurve(
                                         stage.origHk,
                                         true,
-                                        selectedEngine.fuel,
+                                        engineData.fuel,
                                       ),
                                       borderColor: "#f87171",
-                                      backgroundColor: "#000000",
+                                      backgroundColor: "transparent",
                                       borderWidth: 2,
                                       borderDash: [5, 3],
                                       tension: 0.5,
@@ -1429,7 +1429,7 @@ export default function EnginePage({
                                       data: generateDynoCurve(
                                         stage.tunedHk,
                                         true,
-                                        selectedEngine.fuel,
+                                        engineData.fuel,
                                       ),
                                       borderColor: "#f87171",
                                       backgroundColor: "#f87171",
@@ -1443,10 +1443,10 @@ export default function EnginePage({
                                       data: generateDynoCurve(
                                         stage.origNm,
                                         false,
-                                        selectedEngine.fuel,
+                                        engineData.fuel,
                                       ),
                                       borderColor: "#d1d5db",
-                                      backgroundColor: "#000000",
+                                      backgroundColor: "transparent",
                                       borderWidth: 2,
                                       borderDash: [5, 3],
                                       tension: 0.5,
@@ -1458,7 +1458,7 @@ export default function EnginePage({
                                       data: generateDynoCurve(
                                         stage.tunedNm,
                                         false,
-                                        selectedEngine.fuel,
+                                        engineData.fuel,
                                       ),
                                       borderColor: "#d1d5db",
                                       backgroundColor: "transparent",
@@ -1519,7 +1519,10 @@ export default function EnginePage({
                                       position: "left",
                                       title: {
                                         display: true,
-                                        text: "EFFEKT",
+                                        text: translate(
+                                          currentLanguage,
+                                          "powerLabel",
+                                        ),
                                         color: "white",
                                         font: { size: 14 },
                                       },
@@ -1542,7 +1545,10 @@ export default function EnginePage({
                                       position: "right",
                                       title: {
                                         display: true,
-                                        text: "VRIDMOMENT",
+                                        text: translate(
+                                          currentLanguage,
+                                          "torqueLabel",
+                                        ),
                                         color: "white",
                                         font: { size: 14 },
                                       },
@@ -1582,7 +1588,6 @@ export default function EnginePage({
                                 plugins={[watermarkPlugin, shadowPlugin]}
                               />
                             )}
-
                             <div className="text-center text-white text-xs mt-4 italic">
                               {translate(currentLanguage, "tuningCurveNote")}
                             </div>
