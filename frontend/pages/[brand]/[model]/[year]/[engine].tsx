@@ -1321,51 +1321,7 @@ export default function EnginePage({
                           </h3>
                         )}
 
-                        {/* Mobile-only legend above chart */}
-                        {!isDsgStage && (
-                          <div className="flex justify-center items-center gap-2 md:hidden text-xs text-white">
-                            <div className="flex items-center gap-1">
-                              <span className="text-red-400 text-[10px] tracking-wide drop-shadow-[0_0_3px_rgba(248,113,113,0.8)]">
-                                --
-                                <span className="text-white">
-                                ORG: {stage.origHk} HK
-                              </span>
-                              </span>
-                              
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <span className="text-red-600 text-[10px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
-                                __
-                                <span className="text-white">
-                                <span className="text-white text-[12px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
-                                  ST{stage.name.replace(/\D/g, "")}:{" "}
-                                  {stage.tunedHk} HK
-                                </span>
-                              </span>
-                              
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <span className="text-white text-[8px] tracking-wide drop-shadow-[0_0_3px_rgba(248,113,113,0.8)]">
-                                --
-                              </span>
-                              <span className="text-white">
-                                ORG: {stage.origNm} NM
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <span className="text-white text-[10px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
-                                __
-                              </span>
-                              <span className="text-white">
-                                <span className="text-white text-[12px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
-                                  ST{stage.name.replace(/\D/g, "")}:{" "}
-                                  {stage.tunedNm} NM
-                                </span>
-                              </span>
-                            </div>
-                          </div>
-                        )}
+                        
 
                         {!isDsgStage && !isTruck && (
                           <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
