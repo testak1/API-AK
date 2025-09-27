@@ -174,28 +174,57 @@ const generateDynoCurve = (
   isHp: boolean,
   fuelType: string,
 ) => {
-  const rpmRange = fuelType.toLowerCase().includes("diesel")
+  const isDiesel = fuelType.toLowerCase().includes("diesel");
+  const rpmRange = isDiesel
     ? [1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000]
     : [2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000];
 
-  const peakIndex = isHp
-    ? Math.floor(rpmRange.length * 0.6)
-    : Math.floor(rpmRange.length * 0.4);
-  const startIndex = 0;
+  const totalSteps = rpmRange.length;
+  const curve = new Array(totalSteps).fill(0);
 
-  return rpmRange.map((rpm, i) => {
-    const startRpm = rpmRange[startIndex];
-    const peakRpm = rpmRange[peakIndex];
-    const endRpm = rpmRange[rpmRange.length - 1];
+  if (isHp) {
+    // ---- Hästkraftskurva (senare peak, mjukare form) ----
+    const peakStep = Math.floor(totalSteps * (isDiesel ? 0.75 : 0.8));
 
-    if (rpm <= peakRpm) {
-      const progress = (rpm - startRpm) / (peakRpm - startRpm);
-      return peakValue * (0.5 + 0.5 * Math.pow(progress, 1.2));
-    } else {
-      const fallProgress = (rpm - peakRpm) / (endRpm - peakRpm);
-      return peakValue * (1 - 0.35 * Math.pow(fallProgress, 1));
+    for (let i = 0; i < totalSteps; i++) {
+      let value;
+      if (i <= peakStep) {
+        // Mjuk sinuskurva upp till toppen
+        const progress = i / peakStep;
+        value = peakValue * (0.45 + 0.55 * Math.sin((progress * Math.PI) / 2));
+      } else {
+        // Mattas av långsamt efter toppen
+        const progress = (i - peakStep) / (totalSteps - 1 - peakStep);
+        value = peakValue * Math.cos((progress * Math.PI) / 2);
+      }
+      curve[i] = value > 0 ? value : 0;
     }
-  });
+  } else {
+    // ---- Vridmomentskurva (tidig peak, platå) ----
+    const peakStep = Math.floor(totalSteps * (isDiesel ? 0.3 : 0.4));
+    const plateauEndStep = peakStep + (isDiesel ? 2 : 1);
+
+    for (let i = 0; i < totalSteps; i++) {
+      let value;
+      if (i < peakStep) {
+        // Snabb, lite aggressivare uppgång
+        const progress = i / peakStep;
+        value = peakValue * (0.6 + 0.4 * Math.pow(progress, 1.5));
+      } else if (i <= plateauEndStep) {
+        // Håller maxvärdet en stund (platå)
+        value = peakValue;
+      } else {
+        // Mattas av efter platån
+        const progress =
+          (i - plateauEndStep) / (totalSteps - 1 - plateauEndStep);
+        value = peakValue * (1 - 0.35 * Math.pow(progress, 2));
+      }
+      curve[i] = value > 0 ? value : 0;
+    }
+  }
+
+  // Lägg till minimalt "brus" för att kurvan inte ska se helt perfekt ut
+  return curve.map((val) => val * (1 + (Math.random() - 0.5) * 0.03));
 };
 
 const getStageColor = (stageName: string) => {
@@ -1296,37 +1325,41 @@ export default function EnginePage({
                         {!isDsgStage && (
                           <div className="flex justify-center items-center gap-2 md:hidden text-xs text-white">
                             <div className="flex items-center gap-1">
-                              <span className="w-3 h-3 rounded-full border-2 border-red-400"></span>
-                              <span>ORG HK</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <span className="w-3 h-3 rounded-full bg-red-400"></span>
-                              <span>
-                                {translate(
-                                  currentLanguage,
-                                  "translateStageName",
-                                  stage.name,
-                                )
-                                  .replace("Steg", "ST")
-                                  .toUpperCase()}{" "}
-                                HK
+                              <span className="text-red-400 text-[10px] tracking-wide drop-shadow-[0_0_3px_rgba(248,113,113,0.8)]">
+                                --
+                              </span>
+                              <span className="text-white">
+                                ORG: {stage.origHk} HK
                               </span>
                             </div>
                             <div className="flex items-center gap-1">
-                              <span className="w-3 h-3 rounded-full border-2 border-white"></span>
-                              <span>ORG NM</span>
+                              <span className="text-red-600 text-[10px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
+                                __
+                              </span>
+                              <span className="text-white">
+                                <span className="text-white text-[12px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
+                                  ST{stage.name.replace(/\D/g, "")}:{" "}
+                                  {stage.tunedHk} HK
+                                </span>
+                              </span>
                             </div>
                             <div className="flex items-center gap-1">
-                              <span className="w-3 h-3 rounded-full bg-white"></span>
-                              <span>
-                                {translate(
-                                  currentLanguage,
-                                  "translateStageName",
-                                  stage.name,
-                                )
-                                  .replace("Steg", "ST")
-                                  .toUpperCase()}{" "}
-                                NM
+                              <span className="text-white text-[10px] tracking-wide drop-shadow-[0_0_3px_rgba(248,113,113,0.8)]">
+                                --
+                              </span>
+                              <span className="text-white">
+                                ORG: {stage.origNm} NM
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <span className="text-white text-[10px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
+                                __
+                              </span>
+                              <span className="text-white">
+                                <span className="text-white text-[12px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
+                                  ST{stage.name.replace(/\D/g, "")}:{" "}
+                                  {stage.tunedNm} NM
+                                </span>
                               </span>
                             </div>
                           </div>
@@ -1336,38 +1369,50 @@ export default function EnginePage({
                           <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
                             {/* Split the spec boxes */}
                             <div className="absolute hidden md:flex flex-row justify-between top-4 left-0 right-0 px-16">
-                              {/* ORG HK / Max HK */}
+                              {/* HK Container */}
                               <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
-                                <p className="text-red-600">- - -</p>
-                                <p className="text-white">
-                                  HK ORG: {stage.origHk} HK
-                                </p>
-                                <p className="text-red-600">_____</p>
-                                <p className="text-white">
-                                  HK{" "}
-                                  {stage.name
-                                    .replace("Steg", "ST")
-                                    .replace(/\s+/g, "")
-                                    .toUpperCase()}
-                                  : {stage.tunedHk} HK
-                                </p>
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="text-red-400 font-mono text-[16px] tracking-wide drop-shadow-[0_0_3px_rgba(248,113,113,0.8)]">
+                                    ---
+                                  </span>
+                                  <span className="text-white">
+                                    ORG: {stage.origHk} HK
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-red-600 font-mono text-[16px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
+                                    ___
+                                  </span>
+                                  <span className="text-white">
+                                    <span className="text-white text-[14px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
+                                      ST{stage.name.replace(/\D/g, "")}:{" "}
+                                      {stage.tunedHk} HK
+                                    </span>
+                                  </span>
+                                </div>
                               </div>
 
-                              {/* ORG NM / Max NM */}
+                              {/* NM Container */}
                               <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
-                                <p className="text-white">- - -</p>
-                                <p className="text-white">
-                                  NM ORG: {stage.origNm} NM
-                                </p>
-                                <p className="text-white">_____</p>
-                                <p className="text-white">
-                                  NM{" "}
-                                  {stage.name
-                                    .replace("Steg", "ST")
-                                    .replace(/\s+/g, "")
-                                    .toUpperCase()}
-                                  : {stage.tunedNm} NM
-                                </p>
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="text-white font-mono text-[16px] tracking-wide drop-shadow-[0_0_3px_rgba(248,113,113,0.8)]">
+                                    ---
+                                  </span>
+                                  <span className="text-white">
+                                    ORG: {stage.origNm} NM
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-white font-mono text-[16px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
+                                    ___
+                                  </span>
+                                  <span className="text-white">
+                                    <span className="text-white text-[14px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
+                                      ST{stage.name.replace(/\D/g, "")}:{" "}
+                                      {stage.tunedNm} NM
+                                    </span>
+                                  </span>
+                                </div>
                               </div>
                             </div>
 
@@ -1378,62 +1423,64 @@ export default function EnginePage({
                                   labels: rpmLabels,
                                   datasets: [
                                     {
-                                      label: "ORG HK",
+                                      label: "ORG",
                                       data: generateDynoCurve(
                                         stage.origHk,
                                         true,
                                         engineData.fuel,
                                       ),
                                       borderColor: "#f87171",
-                                      backgroundColor: "transparent",
                                       borderWidth: 2,
                                       borderDash: [5, 3],
-                                      tension: 0.5,
+                                      tension: 0.4,
                                       pointRadius: 0,
                                       yAxisID: "hp",
                                     },
                                     {
-                                      label: `ST ${stage.name.replace(/\D/g, "")} HK`,
+                                      label: `ST${stage.name.replace(/\D/g, "")}`,
                                       data: generateDynoCurve(
                                         stage.tunedHk,
                                         true,
                                         engineData.fuel,
                                       ),
                                       borderColor: "#f87171",
-                                      backgroundColor: "#f87171",
+                                      backgroundColor:
+                                        "rgba(248, 113, 113, 0.1)",
                                       borderWidth: 3,
-                                      tension: 0.5,
+                                      tension: 0.4,
                                       pointRadius: 0,
                                       yAxisID: "hp",
+                                      fill: true,
                                     },
                                     {
-                                      label: "ORG NM",
+                                      label: "ORG",
                                       data: generateDynoCurve(
                                         stage.origNm,
                                         false,
                                         engineData.fuel,
                                       ),
                                       borderColor: "#d1d5db",
-                                      backgroundColor: "transparent",
                                       borderWidth: 2,
                                       borderDash: [5, 3],
-                                      tension: 0.5,
+                                      tension: 0.4,
                                       pointRadius: 0,
                                       yAxisID: "nm",
                                     },
                                     {
-                                      label: `ST ${stage.name.replace(/\D/g, "")} NM`,
+                                      label: `ST${stage.name.replace(/\D/g, "")}`,
                                       data: generateDynoCurve(
                                         stage.tunedNm,
                                         false,
                                         engineData.fuel,
                                       ),
                                       borderColor: "#d1d5db",
-                                      backgroundColor: "transparent",
+                                      backgroundColor:
+                                        "rgba(209, 213, 219, 0.1)",
                                       borderWidth: 3,
-                                      tension: 0.5,
+                                      tension: 0.4,
                                       pointRadius: 0,
                                       yAxisID: "nm",
+                                      fill: true,
                                     },
                                   ],
                                 }}
@@ -1441,42 +1488,128 @@ export default function EnginePage({
                                   responsive: true,
                                   maintainAspectRatio: false,
                                   plugins: {
-                                    legend: {
-                                      display: false,
-                                    },
+                                    legend: { display: false },
                                     tooltip: {
-                                      enabled: true,
-                                      mode: "index",
-                                      intersect: false,
-                                      backgroundColor: "#1f2937",
-                                      titleColor: "#ffffff",
-                                      bodyColor: "#ffffff",
-                                      borderColor: "#6b7280",
-                                      borderWidth: 1,
-                                      padding: 10,
-                                      displayColors: true,
-                                      usePointStyle: true,
-                                      callbacks: {
-                                        labelPointStyle: () => ({
-                                          pointStyle: "circle",
-                                          rotation: 0,
-                                        }),
-                                        title: function (tooltipItems) {
-                                          return `${tooltipItems[0].label} RPM`;
-                                        },
-                                        label: function (context) {
-                                          const label =
-                                            context.dataset.label || "";
-                                          const value = context.parsed.y;
+                                      enabled: false, // 👈 Stäng av standard tooltip
+                                      external: function (context) {
+                                        // Custom tooltip implementation
+                                        let tooltipEl =
+                                          document.getElementById(
+                                            "chartjs-tooltip",
+                                          );
 
-                                          if (value === undefined) return label;
+                                        // Skapa tooltip element om det inte finns
+                                        if (!tooltipEl) {
+                                          tooltipEl =
+                                            document.createElement("div");
+                                          tooltipEl.id = "chartjs-tooltip";
+                                          tooltipEl.innerHTML =
+                                            "<table></table>";
+                                          document.body.appendChild(tooltipEl);
+                                        }
 
-                                          const unit =
-                                            context.dataset.yAxisID === "hp"
-                                              ? "hk"
-                                              : "Nm";
-                                          return `${label}: ${Math.round(value)} ${unit}`;
-                                        },
+                                        // Hide if no tooltip
+                                        const tooltipModel = context.tooltip;
+                                        if (tooltipModel.opacity === 0) {
+                                          tooltipEl.style.opacity = "0";
+                                          return;
+                                        }
+
+                                        // Set Text
+                                        if (tooltipModel.body) {
+                                          const titleLine =
+                                            tooltipModel.title || [];
+                                          const bodyLines =
+                                            tooltipModel.body.map(
+                                              (b) => b.lines,
+                                            );
+
+                                          let innerHtml = "<thead>";
+
+                                          // Title
+                                          if (titleLine.length > 0) {
+                                            innerHtml +=
+                                              "<tr><th>" +
+                                              titleLine[0] +
+                                              "</th></tr>";
+                                          }
+                                          innerHtml += "</thead><tbody>";
+
+                                          // Body lines med custom styling
+                                          bodyLines.forEach((line, i) => {
+                                            const dataset =
+                                              tooltipModel.dataPoints[i]
+                                                .dataset;
+                                            const isOrg =
+                                              dataset.label.includes("ORG");
+                                            const isHK =
+                                              dataset.yAxisID === "hp";
+                                            const value =
+                                              tooltipModel.dataPoints[i].parsed
+                                                .y;
+                                            const unit =
+                                              dataset.yAxisID === "hp"
+                                                ? "hk"
+                                                : "Nm";
+
+                                            // Bestäm färg för strecken
+                                            const dashColor = isHK
+                                              ? "#f87171"
+                                              : "#d1d5db";
+                                            const dash = isOrg ? "---" : "___";
+
+                                            innerHtml += "<tr><td>";
+                                            innerHtml += `<span style="color: ${dashColor}; font-family: monospace; font-weight: bold;">${dash}</span>`;
+                                            innerHtml += `<span style="color: white; margin-left: 8px;">${dataset.label}: ${Math.round(value)} ${unit}</span>`;
+                                            innerHtml += "</td></tr>";
+                                          });
+
+                                          innerHtml += "</tbody>";
+
+                                          const tableRoot =
+                                            tooltipEl.querySelector("table");
+                                          if (tableRoot) {
+                                            tableRoot.innerHTML = innerHtml;
+                                          }
+                                        }
+
+                                        // Positionering
+                                        const position =
+                                          context.chart.canvas.getBoundingClientRect();
+                                        tooltipEl.style.position = "absolute";
+                                        tooltipEl.style.left =
+                                          position.left +
+                                          window.pageXOffset +
+                                          tooltipModel.caretX +
+                                          "px";
+                                        tooltipEl.style.top =
+                                          position.top +
+                                          window.pageYOffset +
+                                          tooltipModel.caretY +
+                                          "px";
+                                        tooltipEl.style.transform =
+                                          "translate(-50%, -100%)";
+                                        tooltipEl.style.transform +=
+                                          " translateY(-8px)";
+
+                                        // Styling
+                                        tooltipEl.style.opacity = "1";
+                                        tooltipEl.style.background =
+                                          "rgba(31, 41, 55, 0.95)";
+                                        tooltipEl.style.color = "white";
+                                        tooltipEl.style.border =
+                                          "1px solid #6b7280";
+                                        tooltipEl.style.borderRadius = "4px";
+                                        tooltipEl.style.padding = "12px";
+                                        tooltipEl.style.pointerEvents = "none";
+                                        tooltipEl.style.fontFamily =
+                                          "sans-serif";
+                                        tooltipEl.style.fontSize = "12px";
+                                        tooltipEl.style.boxShadow =
+                                          "0 4px 12px rgba(0,0,0,0.3)";
+                                        tooltipEl.style.backdropFilter =
+                                          "blur(4px)";
+                                        tooltipEl.style.zIndex = "1000";
                                       },
                                     },
                                   },
@@ -1492,20 +1625,15 @@ export default function EnginePage({
                                           "powerLabel",
                                         ),
                                         color: "white",
-                                        font: { size: 14 },
                                       },
                                       min: 0,
                                       max:
-                                        Math.ceil(stage.tunedHk / 100) * 100 +
-                                        100,
+                                        Math.ceil((stage.tunedHk * 1.15) / 50) *
+                                        50,
                                       grid: {
                                         color: "rgba(255, 255, 255, 0.1)",
                                       },
-                                      ticks: {
-                                        color: "#9CA3AF",
-                                        stepSize: 100,
-                                        callback: (value) => `${value}`,
-                                      },
+                                      ticks: { color: "#9CA3AF" },
                                     },
                                     nm: {
                                       type: "linear",
@@ -1518,34 +1646,24 @@ export default function EnginePage({
                                           "torqueLabel",
                                         ),
                                         color: "white",
-                                        font: { size: 14 },
                                       },
                                       min: 0,
                                       max:
-                                        Math.ceil(stage.tunedNm / 100) * 100 +
-                                        100,
-                                      grid: {
-                                        drawOnChartArea: false,
-                                      },
-                                      ticks: {
-                                        color: "#9CA3AF",
-                                        stepSize: 100,
-                                        callback: (value) => `${value}`,
-                                      },
+                                        Math.ceil((stage.tunedNm * 1.15) / 50) *
+                                        50,
+                                      grid: { drawOnChartArea: false },
+                                      ticks: { color: "#9CA3AF" },
                                     },
                                     x: {
                                       title: {
                                         display: true,
                                         text: "RPM",
                                         color: "#E5E7EB",
-                                        font: { size: 14 },
                                       },
                                       grid: {
                                         color: "rgba(255, 255, 255, 0.1)",
                                       },
-                                      ticks: {
-                                        color: "#9CA3AF",
-                                      },
+                                      ticks: { color: "#9CA3AF" },
                                     },
                                   },
                                   interaction: {
@@ -1556,7 +1674,6 @@ export default function EnginePage({
                                 plugins={[watermarkPlugin, shadowPlugin]}
                               />
                             )}
-
                             <div className="text-center text-white text-xs mt-4 italic">
                               {translate(currentLanguage, "tuningCurveNote")}
                             </div>
