@@ -789,7 +789,7 @@ export default function EnginePage({
                       position: index + 1,
                       item: {
                         "@type": "Product",
-                        name: `${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${stage.name} Mjukvara`,
+                        name: `Motoroptimering ${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${stage.name}`,
                         image: [imageUrl],
                         description: hasPrice
                           ? fullDescription
