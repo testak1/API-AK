@@ -1336,12 +1336,13 @@ export default function EnginePage({
                             <div className="flex items-center gap-1">
                               <span className="text-red-600 text-[10px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
                                 __
-                              </span>
-                              <span className="text-white">
+                                <span className="text-white">
                                 <span className="text-white text-[12px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
                                   ST{stage.name.replace(/\D/g, "")}:{" "}
                                   {stage.tunedHk} HK
                                 </span>
+                              </span>
+                              
                               </span>
                             </div>
                             <div className="flex items-center gap-1">
