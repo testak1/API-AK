@@ -193,9 +193,10 @@ const generateDynoCurve = (
         const progress = i / peakStep;
         value = peakValue * (0.45 + 0.55 * Math.sin((progress * Math.PI) / 2));
       } else {
-        // Mattas av långsamt efter toppen
+        // 👇 BYT UT DENNA DEL - använd exponential decay istället för cos
         const progress = (i - peakStep) / (totalSteps - 1 - peakStep);
-        value = peakValue * Math.cos((progress * Math.PI) / 2);
+        // Behåll 70-80% av toppvärdet vid högsta varv
+        value = peakValue * (0.8 - 0.3 * Math.pow(progress, 1.5));
       }
       curve[i] = value > 0 ? value : 0;
     }
@@ -214,10 +215,9 @@ const generateDynoCurve = (
         // Håller maxvärdet en stund (platå)
         value = peakValue;
       } else {
-        // Mattas av efter platån
-        const progress =
-          (i - plateauEndStep) / (totalSteps - 1 - plateauEndStep);
-        value = peakValue * (1 - 0.35 * Math.pow(progress, 2));
+        // 👇 Också mjukare decay för vridmoment
+        const progress = (i - plateauEndStep) / (totalSteps - 1 - plateauEndStep);
+        value = peakValue * (0.85 - 0.25 * Math.pow(progress, 1.2));
       }
       curve[i] = value > 0 ? value : 0;
     }
