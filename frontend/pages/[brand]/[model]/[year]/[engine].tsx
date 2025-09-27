@@ -1410,14 +1410,14 @@ export default function EnginePage({
                                   labels: rpmLabels,
                                   datasets: [
                                     {
-                                      label: "ORG HK",
+                                      label: "ORG",
                                       data: generateDynoCurve(
                                         stage.origHk,
                                         true,
                                         engineData.fuel,
                                       ),
                                       borderColor: "#f87171",
-                                      backgroundColor: "transparent",
+                                      backgroundColor: "#000000",
                                       borderWidth: 2,
                                       borderDash: [5, 3],
                                       tension: 0.5,
@@ -1425,7 +1425,7 @@ export default function EnginePage({
                                       yAxisID: "hp",
                                     },
                                     {
-                                      label: `ST ${stage.name.replace(/\D/g, "")} HK`,
+                                      label: `ST ${stage.name.replace(/\D/g, "")}`,
                                       data: generateDynoCurve(
                                         stage.tunedHk,
                                         true,
@@ -1445,8 +1445,8 @@ export default function EnginePage({
                                         false,
                                         engineData.fuel,
                                       ),
-                                      borderColor: "#d1d5db",
-                                      backgroundColor: "transparent",
+                                      borderColor: "#FFFFFF",
+                                      backgroundColor: "#000000",
                                       borderWidth: 2,
                                       borderDash: [5, 3],
                                       tension: 0.5,
@@ -1454,7 +1454,7 @@ export default function EnginePage({
                                       yAxisID: "nm",
                                     },
                                     {
-                                      label: `ST ${stage.name.replace(/\D/g, "")} NM`,
+                                      label: `ST ${stage.name.replace(/\D/g, "")}`,
                                       data: generateDynoCurve(
                                         stage.tunedNm,
                                         false,
