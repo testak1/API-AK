@@ -1058,6 +1058,7 @@ export default function EnginePage({
               const isTruck = brandData.name.startsWith("[LASTBIL]");
               const allOptions = getAllAktPlusOptions(stage);
               const isExpanded = expandedStages[stage.name] ?? false;
+              const isLoaded = loadedStages[stage.name] ?? false;
 
               const descriptionObject =
                 stage.descriptionRef?.description || stage.description;
@@ -1444,7 +1445,7 @@ export default function EnginePage({
 
                             {/* Dyno graph */}
                             {isExpanded && !isDsgStage && !isTruck && (
-                              <Line
+                              <LazyLineChart
                                 data={{
                                   labels: rpmLabels,
                                   datasets: [
