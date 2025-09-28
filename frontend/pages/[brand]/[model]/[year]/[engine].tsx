@@ -1427,19 +1427,19 @@ export default function EnginePage({
                                     {
                                       label: `ST ${stage.name.replace(/\D/g, "")}`,
                                       data: generateDynoCurve(
-                                        stage.tunedHk,
-                                        true,
+                                        stage.tunedNm,
+                                        false,
                                         engineData.fuel,
                                       ),
-                                      borderColor: "#f87171",
-                                      backgroundColor: "#f87171",
+                                      borderColor: "#d1d5db",
+                                      backgroundColor: "transparent",
                                       borderWidth: 3,
                                       tension: 0.5,
                                       pointRadius: 0,
-                                      yAxisID: "hp",
+                                      yAxisID: "nm",
                                     },
                                     {
-                                      label: "ORG NM",
+                                      label: "ORG",
                                       data: generateDynoCurve(
                                         stage.origNm,
                                         false,
@@ -1456,17 +1456,19 @@ export default function EnginePage({
                                     {
                                       label: `ST ${stage.name.replace(/\D/g, "")}`,
                                       data: generateDynoCurve(
-                                        stage.tunedNm,
-                                        false,
+                                        stage.tunedHk,
+                                        true,
                                         engineData.fuel,
                                       ),
-                                      borderColor: "#d1d5db",
-                                      backgroundColor: "transparent",
+                                      borderColor: "#f87171",
+                                      backgroundColor: "#f87171",
                                       borderWidth: 3,
                                       tension: 0.5,
                                       pointRadius: 0,
-                                      yAxisID: "nm",
+                                      yAxisID: "hp",
                                     },
+                                    
+                                    
                                   ],
                                 }}
                                 options={{
