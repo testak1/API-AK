@@ -51,13 +51,14 @@ interface EnginePageProps {
   engineData: Engine | null;
 }
 
-const Line = dynamic(() => import("react-chartjs-2").then((mod) => mod.Line), {
+// Lazy-load Chart.js komponenten
+const LazyLineChart = dynamic(() => import('react-chartjs-2').then(mod => mod.Line), {
   ssr: false,
   loading: () => (
     <div className="h-96 bg-gray-800 rounded-lg animate-pulse flex items-center justify-center">
-      <p className="text-gray-400">Laddar dynobild...</p>
+      <p className="text-gray-400">Laddar dynokurva...</p>
     </div>
-  ),
+  )
 });
 
 const normalizeString = (str: string) =>
@@ -289,6 +290,7 @@ export default function EnginePage({
     Record<string, boolean>
   >({});
   const watermarkImageRef = useRef<HTMLImageElement | null>(null);
+  const [loadedStages, setLoadedStages] = useState<Record<string, boolean>>({});
   const [currentLanguage, setCurrentLanguage] = useState("sv");
   const [contactModalData, setContactModalData] = useState<{
     isOpen: boolean;
@@ -562,14 +564,20 @@ export default function EnginePage({
   };
 
   const toggleStage = (stageName: string) => {
-    setExpandedStages((prev) => {
-      const newState: Record<string, boolean> = {};
-      Object.keys(prev).forEach((key) => {
-        newState[key] = key === stageName ? !prev[key] : false;
-      });
-      return newState;
+  setExpandedStages((prev) => {
+    const newState: Record<string, boolean> = {};
+    Object.keys(prev).forEach((key) => {
+      newState[key] = key === stageName ? !prev[key] : false;
     });
-  };
+    
+    // Markera stage som laddad när den expanderas första gången
+    if (!loadedStages[stageName] && newState[stageName]) {
+      setLoadedStages(prev => ({ ...prev, [stageName]: true }));
+    }
+    
+    return newState;
+  });
+};
 
   const getUniqueAktPlusOptions = () => {
     if (!engineData || !engineData.stages?.length) return [];
