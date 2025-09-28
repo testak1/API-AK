@@ -12,9 +12,8 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import dynamic from "next/dynamic";
+
 import { PortableText } from "@portabletext/react";
-import FuelSavingCalculator from "@/components/FuelSavingCalculator";
 import RegnrSearch from "@/components/RegnrSearch";
 import { urlFor } from "@/lib/sanity";
 import PublicLanguageDropdown from "@/components/PublicLanguageSwitcher";
@@ -27,6 +26,7 @@ import type {
   AktPlusOptionReference,
 } from "@/types/sanity";
 import ContactModal from "@/components/ContactModal";
+import dynamic from "next/dynamic";
 
 ChartJS.register(
   CategoryScale,
@@ -37,6 +37,20 @@ ChartJS.register(
   Tooltip,
   Legend,
 );
+
+const FuelSavingCalculator = dynamic(
+  () => import("@/components/FuelSavingCalculator"),
+  { ssr: false },
+);
+
+const Line = dynamic(() => import("react-chartjs-2").then((mod) => mod.Line), {
+  ssr: false,
+  loading: () => (
+    <div className="h-96 bg-gray-800 rounded-lg animate-pulse flex items-center justify-center">
+      <p className="text-gray-400">Laddar dynobild...</p>
+    </div>
+  ),
+});
 
 interface SelectionState {
   brand: string;
@@ -588,17 +602,6 @@ export default function TuningViewer() {
     return translations[lang] || name;
   };
 
-  const Line = dynamic(
-    () => import("react-chartjs-2").then((mod) => mod.Line),
-    {
-      ssr: false,
-      loading: () => (
-        <div className="h-96 bg-gray-800 rounded-lg animate-pulse flex items-center justify-center">
-          <p className="text-gray-400">Laddar dynobild...</p>
-        </div>
-      ),
-    },
-  );
   const getStageColor = (stageName: string) => {
     const name = stageName.toLowerCase();
     if (name.includes("steg 1")) return "text-red-500";
@@ -915,21 +918,23 @@ export default function TuningViewer() {
       });
     }
   };
-  const rpmLabels = selectedEngine?.fuel?.toLowerCase().includes("diesel")
-    ? ["1500", "2000", "2500", "3000", "3500", "4000", "4500", "5000"]
-    : [
-        "2000",
-        "2500",
-        "3000",
-        "3500",
-        "4000",
-        "4500",
-        "5000",
-        "5500",
-        "6000",
-        "6500",
-        "7000",
-      ];
+  const rpmLabels = useMemo(() => {
+    return selectedEngine?.fuel?.toLowerCase().includes("diesel")
+      ? ["1500", "2000", "2500", "3000", "3500", "4000", "4500", "5000"]
+      : [
+          "2000",
+          "2500",
+          "3000",
+          "3500",
+          "4000",
+          "4500",
+          "5000",
+          "5500",
+          "6000",
+          "6500",
+          "7000",
+        ];
+  }, [selectedEngine?.fuel]);
 
   const toggleStage = (stageName: string) => {
     setExpandedStages((prev) => {
@@ -2138,7 +2143,7 @@ export default function TuningViewer() {
                         )}
 
                         {/* Mobile-only legend above chart */}
-                        {!isDsgStage && (
+                        {!isDsgStage && !isTruck && (
                           <div className="flex justify-center items-center gap-2 md:hidden text-xs text-white">
                             <div className="flex items-center gap-1">
                               <span className="w-3 h-3 rounded-full border-2 border-red-400"></span>

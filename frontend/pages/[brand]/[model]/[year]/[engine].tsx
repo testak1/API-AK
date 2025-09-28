@@ -18,7 +18,6 @@ import { urlFor } from "@/lib/sanity";
 import { PortableText } from "@portabletext/react";
 import PublicLanguageDropdown from "@/components/PublicLanguageSwitcher";
 import { t as translate } from "@/lib/translations";
-import FuelSavingCalculator from "@/components/FuelSavingCalculator";
 import Head from "next/head";
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import ContactModal from "@/components/ContactModal";
@@ -44,17 +43,21 @@ ChartJS.register(
   Legend,
 );
 
+const Line = dynamic(() => import("react-chartjs-2").then((mod) => mod.Line), {
+  ssr: false,
+  loading: () => <div className="h-96 bg-gray-800 animate-pulse" />,
+});
+const FuelSavingCalculator = dynamic(
+  () => import("@/components/FuelSavingCalculator"),
+  { ssr: false },
+);
+
 interface EnginePageProps {
   brandData: Brand | null;
   modelData: Model | null;
   yearData: Year | null;
   engineData: Engine | null;
 }
-
-const Line = dynamic(() => import("react-chartjs-2").then((mod) => mod.Line), {
-  ssr: false,
-  loading: () => <div className="h-96 bg-gray-800 animate-pulse" />,
-});
 
 const normalizeString = (str: string) =>
   str.toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -622,21 +625,23 @@ export default function EnginePage({
     }));
   };
 
-  const rpmLabels = engineData.fuel.toLowerCase().includes("diesel")
-    ? ["1500", "2000", "2500", "3000", "3500", "4000", "4500", "5000"]
-    : [
-        "2000",
-        "2500",
-        "3000",
-        "3500",
-        "4000",
-        "4500",
-        "5000",
-        "5500",
-        "6000",
-        "6500",
-        "7000",
-      ];
+  const rpmLabels = useMemo(() => {
+    return engineData?.fuel?.toLowerCase().includes("diesel")
+      ? ["1500", "2000", "2500", "3000", "3500", "4000", "4500", "5000"]
+      : [
+          "2000",
+          "2500",
+          "3000",
+          "3500",
+          "4000",
+          "4500",
+          "5000",
+          "5500",
+          "6000",
+          "6500",
+          "7000",
+        ];
+  }, [engineData?.fuel]);
 
   const selectedStage = engineData?.stages?.find((s) => expandedStages[s.name]);
   const selectedStep = selectedStage?.name?.toUpperCase() || "MJUKVARA";
@@ -1345,7 +1350,7 @@ export default function EnginePage({
                           </h3>
                         )}
                         {/* Mobile-only legend above chart */}
-                        {!isDsgStage && (
+                        {!isDsgStage && !isTruck && (
                           <div className="flex justify-center items-center gap-2 md:hidden text-xs text-white">
                             <div className="flex items-center gap-1">
                               <span className="w-3 h-3 rounded-full border-2 border-red-400"></span>
