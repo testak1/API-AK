@@ -836,58 +836,51 @@ export default function TuningViewer() {
   fuelType: string,
 ) => {
   const isDiesel = fuelType.toLowerCase().includes("diesel");
+  
+  // Behåll dina ursprungliga RPM-ranges
   const rpmRange = isDiesel
     ? [1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000]
     : [2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000];
-
+  
   const totalSteps = rpmRange.length;
-  const curve = new Array(totalSteps).fill(0);
 
   if (isHp) {
-    // ---- Hästkraftskurva (senare peak, mjukare form) ----
-    const peakStep = Math.floor(totalSteps * (isDiesel ? 0.75 : 0.8));
-
-    for (let i = 0; i < totalSteps; i++) {
-      let value;
+    // ---- Hästkraftskurva - jämn ökning, långsam minskning ----
+    const peakStep = Math.floor(totalSteps * (isDiesel ? 0.6 : 0.7)); // Anpassa peak baserat på bränsle
+    
+    return rpmRange.map((rpm, i) => {
       if (i <= peakStep) {
-        // Mjuk sinuskurva upp till toppen
+        // Linjär ökning till toppen
         const progress = i / peakStep;
-        value = peakValue * (0.45 + 0.55 * Math.sin((progress * Math.PI) / 2));
+        return peakValue * (0.4 + 0.6 * progress); // Startar från 40%, linjärt till 100%
       } else {
-        // Mattas av långsamt efter toppen
+        // Mycket långsam minskning efter toppen
         const progress = (i - peakStep) / (totalSteps - 1 - peakStep);
-        value = peakValue * Math.cos((progress * Math.PI) / 2);
+        return peakValue * (1 - 0.2 * progress); // Bara 20% minskning vid högsta RPM
       }
-      curve[i] = value > 0 ? value : 0;
-    }
+    });
+    
   } else {
-    // ---- Vridmomentskurva (tidig peak, platå) ----
-    const peakStep = Math.floor(totalSteps * (isDiesel ? 0.3 : 0.4));
-    const plateauEndStep = peakStep + (isDiesel ? 2 : 1);
-
-    for (let i = 0; i < totalSteps; i++) {
-      let value;
+    // ---- Vridmomentskurva - tidig topp, platå, långsam minskning ----
+    const peakStep = Math.floor(totalSteps * (isDiesel ? 0.3 : 0.4)); // Anpassa peak baserat på bränsle
+    const plateauEndStep = peakStep + (isDiesel ? 2 : 3); // Platå längre för bensin
+    
+    return rpmRange.map((rpm, i) => {
       if (i < peakStep) {
-        // Snabb, lite aggressivare uppgång
+        // Snabb ökning till toppen
         const progress = i / peakStep;
-        value = peakValue * (0.6 + 0.4 * Math.pow(progress, 1.5));
+        return peakValue * (0.5 + 0.5 * Math.pow(progress, 1.2));
       } else if (i <= plateauEndStep) {
-        // Håller maxvärdet en stund (platå)
-        value = peakValue;
+        // Platå - håller maxvärdet
+        return peakValue;
       } else {
-        // Mattas av efter platån
-        const progress =
-          (i - plateauEndStep) / (totalSteps - 1 - plateauEndStep);
-        value = peakValue * (1 - 0.35 * Math.pow(progress, 2));
+        // Långsam minskning efter platån
+        const progress = (i - plateauEndStep) / (totalSteps - 1 - plateauEndStep);
+        return peakValue * (1 - 0.25 * progress); // 25% minskning vid högsta RPM
       }
-      curve[i] = value > 0 ? value : 0;
-    }
+    });
   }
-
-  // Lägg till minimalt "brus" för att kurvan inte ska se helt perfekt ut
-  return curve.map((val) => val * (1 + (Math.random() - 0.5) * 0.03));
 };
-
   const rpmLabels = selectedEngine?.fuel?.toLowerCase().includes("diesel")
     ? ["1500", "2000", "2500", "3000", "3500", "4000", "4500", "5000"]
     : [
