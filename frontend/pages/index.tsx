@@ -2142,17 +2142,20 @@ export default function TuningViewer() {
                           </h3>
                         )}
 
-                        {/* Mobile-only legend above chart */}
+                        {/* Mobile-only legend above chart - TEXT VERSION */}
                         {!isDsgStage && !isTruck && (
-                          <div className="flex justify-center items-center gap-2 md:hidden text-xs text-white">
+                          <div className="flex justify-center items-center gap-4 md:hidden text-xs text-white mb-2">
                             <div className="flex items-center gap-1">
-                              <span className="w-3 h-3 rounded-full border-2 border-red-400"></span>
-                              <span>ORG HK</span>
+                              <span className="text-red-400 font-mono text-[12px] tracking-wide drop-shadow-[0_0_3px_rgba(248,113,113,0.8)]">
+                                ---
+                              </span>
+                              <span className="text-white">ORG HK</span>
                             </div>
                             <div className="flex items-center gap-1">
-                              <span className="w-3 h-3 rounded-full bg-red-400"></span>
-                              <span>
-                                {" "}
+                              <span className="text-red-600 font-mono text-[12px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
+                                ━━━
+                              </span>
+                              <span className="text-white">
                                 {stage.name
                                   .replace("Steg", "ST")
                                   .replace(/\s+/g, "")
@@ -2161,13 +2164,16 @@ export default function TuningViewer() {
                               </span>
                             </div>
                             <div className="flex items-center gap-1">
-                              <span className="w-3 h-3 rounded-full border-2 border-white"></span>
-                              <span>ORG NM</span>
+                              <span className="text-white font-mono text-[12px] tracking-wide drop-shadow-[0_0_3px_rgba(248,113,113,0.8)]">
+                                ---
+                              </span>
+                              <span className="text-white">ORG NM</span>
                             </div>
                             <div className="flex items-center gap-1">
-                              <span className="w-3 h-3 rounded-full bg-white"></span>
-                              <span>
-                                {" "}
+                              <span className="text-white font-mono text-[12px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
+                                ━━━
+                              </span>
+                              <span className="text-white">
                                 {stage.name
                                   .replace("Steg", "ST")
                                   .replace(/\s+/g, "")
@@ -2194,7 +2200,7 @@ export default function TuningViewer() {
                                 </div>
                                 <div className="flex items-center gap-2">
                                   <span className="text-red-600 font-mono text-[16px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
-                                    ___
+                                    ━━━
                                   </span>
                                   <span className="text-white">
                                     <span className="text-white text-[14px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
@@ -2217,7 +2223,7 @@ export default function TuningViewer() {
                                 </div>
                                 <div className="flex items-center gap-2">
                                   <span className="text-white font-mono text-[16px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
-                                    ___
+                                    ━━━
                                   </span>
                                   <span className="text-white">
                                     <span className="text-white text-[14px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
