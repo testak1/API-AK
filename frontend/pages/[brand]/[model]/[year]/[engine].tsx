@@ -176,47 +176,78 @@ const generateDynoCurve = (
 ) => {
   const isDiesel = fuelType.toLowerCase().includes("diesel");
   
-  // Behåll dina ursprungliga RPM-ranges
+  // RPM-ranges baserat på bränsletyp
   const rpmRange = isDiesel
     ? [1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000]
     : [2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000];
   
   const totalSteps = rpmRange.length;
 
+  // Lägg till lite slumpmässig variation (±2-3%)
+  const addRandomVariation = (value: number) => {
+    const variation = (Math.random() * 0.04) - 0.02; // ±2%
+    return value * (1 + variation);
+  };
+
   if (isHp) {
-    // ---- Hästkraftskurva - jämn ökning, långsam minskning ----
-    const peakStep = Math.floor(totalSteps * (isDiesel ? 0.6 : 0.7)); // Anpassa peak baserat på bränsle
+    // ---- HÄSTKRAFT (HP) KURVA ----
+    const startPercentage = isDiesel ? 0.45 : 0.35; // Diesel startar högre
+    const peakStepPercentage = isDiesel ? 0.6 : 0.7; // Bensin peakar senare
+    
+    const peakStep = Math.floor(totalSteps * peakStepPercentage);
     
     return rpmRange.map((rpm, i) => {
+      let value: number;
+      
       if (i <= peakStep) {
-        // Linjär ökning till toppen
+        // Ökning till toppen
         const progress = i / peakStep;
-        return peakValue * (0.4 + 0.6 * progress); // Startar från 40%, linjärt till 100%
+        // Diesel: snabbare uppgång, Bensin: lite jämnare
+        const curveFactor = isDiesel ? Math.pow(progress, 0.9) : progress;
+        value = peakValue * (startPercentage + (1 - startPercentage) * curveFactor);
       } else {
-        // Mycket långsam minskning efter toppen
+        // Minskning efter toppen
         const progress = (i - peakStep) / (totalSteps - 1 - peakStep);
-        return peakValue * (1 - 0.2 * progress); // Bara 20% minskning vid högsta RPM
+        // Diesel: långsammare minskning, Bensin: snabbare
+        const dropRate = isDiesel ? 0.15 : 0.25;
+        value = peakValue * (1 - dropRate * Math.pow(progress, 1.2));
       }
+      
+      return addRandomVariation(value);
     });
     
   } else {
-    // ---- Vridmomentskurva - tidig topp, platå, långsam minskning ----
-    const peakStep = Math.floor(totalSteps * (isDiesel ? 0.3 : 0.4)); // Anpassa peak baserat på bränsle
-    const plateauEndStep = peakStep + (isDiesel ? 2 : 3); // Platå längre för bensin
+    // ---- VRIDMOMENT (NM) KURVA ----
+    const startPercentage = isDiesel ? 0.6 : 0.4; // Diesel har mer bottenvrid
+    const peakStepPercentage = isDiesel ? 0.3 : 0.4; // Diesel peakar tidigare
+    const plateauLength = isDiesel ? 3 : 2; // Diesel har längre platå
+    
+    const peakStep = Math.floor(totalSteps * peakStepPercentage);
+    const plateauEndStep = Math.min(peakStep + plateauLength, totalSteps - 1);
     
     return rpmRange.map((rpm, i) => {
+      let value: number;
+      
       if (i < peakStep) {
         // Snabb ökning till toppen
         const progress = i / peakStep;
-        return peakValue * (0.5 + 0.5 * Math.pow(progress, 1.2));
+        // Exponentiell ökning för mer realistisk kurva
+        value = peakValue * (startPercentage + (1 - startPercentage) * Math.pow(progress, 1.3));
       } else if (i <= plateauEndStep) {
-        // Platå - håller maxvärdet
-        return peakValue;
+        // Platå - håller maxvärdet med liten variation
+        const plateauProgress = (i - peakStep) / (plateauEndStep - peakStep);
+        // Liten kurva på platån för att undvika perfekt rak linje
+        const plateauVariation = Math.sin(plateauProgress * Math.PI) * 0.02;
+        value = peakValue * (0.98 + plateauVariation);
       } else {
-        // Långsam minskning efter platån
+        // Minskning efter platån
         const progress = (i - plateauEndStep) / (totalSteps - 1 - plateauEndStep);
-        return peakValue * (1 - 0.25 * progress); // 25% minskning vid högsta RPM
+        // Diesel: långsammare minskning
+        const dropRate = isDiesel ? 0.2 : 0.3;
+        value = peakValue * (1 - dropRate * Math.pow(progress, 1.1));
       }
+      
+      return addRandomVariation(value);
     });
   }
 };
