@@ -25,7 +25,6 @@ import type {
   AktPlusOption,
   AktPlusOptionReference,
 } from "@/types/sanity";
-import ContactModal from "@/components/ContactModal";
 import dynamic from "next/dynamic";
 
 ChartJS.register(
@@ -38,6 +37,7 @@ ChartJS.register(
   Legend,
 );
 
+// LAZY-LOADED COMPONENTS
 const FuelSavingCalculator = dynamic(
   () => import("@/components/FuelSavingCalculator"),
   { ssr: false },
@@ -50,6 +50,10 @@ const Line = dynamic(() => import("react-chartjs-2").then((mod) => mod.Line), {
       <p className="text-gray-400">Laddar dynobild...</p>
     </div>
   ),
+});
+
+const ContactModal = dynamic(() => import("@/components/ContactModal"), {
+  ssr: false,
 });
 
 interface SelectionState {
@@ -144,9 +148,6 @@ export default function TuningViewer() {
     [],
   );
   const [expandedAktPlus, setExpandedAktPlus] = useState<
-    Record<string, boolean>
-  >({});
-  const [expandedDescriptions, setExpandedDescriptions] = useState<
     Record<string, boolean>
   >({});
 
@@ -418,7 +419,6 @@ export default function TuningViewer() {
     const scrapedFuelNorm = normalize(scrapedVehicle.fuel);
     const scrapedVolumeLiters =
       Math.round((parseInt(scrapedVehicle.engineCm3, 10) / 1000) * 10) / 10;
-    const scrapedYear = parseInt(scrapedVehicle.year, 10);
 
     let bestMatch: { vehicle: FlatVehicle; score: number } | null = null;
     let closestModel: FlatVehicle | null = null;
@@ -860,7 +860,7 @@ export default function TuningViewer() {
 
       const peakStep = Math.floor(totalSteps * peakStepPercentage);
 
-      return rpmRange.map((rpm, i) => {
+      return rpmRange.map((_, i) => {
         let value: number;
 
         if (i <= peakStep) {
@@ -889,7 +889,7 @@ export default function TuningViewer() {
       const peakStep = Math.floor(totalSteps * peakStepPercentage);
       const plateauEndStep = Math.min(peakStep + plateauLength, totalSteps - 1);
 
-      return rpmRange.map((rpm, i) => {
+      return rpmRange.map((_, i) => {
         let value: number;
 
         if (i < peakStep) {
@@ -977,6 +977,7 @@ export default function TuningViewer() {
           src={urlFor(value).width(100).url()}
           alt={value.alt || ""}
           className="my-4 rounded-lg shadow-md"
+          loading="lazy"
         />
       ),
     },
@@ -1199,7 +1200,7 @@ export default function TuningViewer() {
                 onClick={() => {
                   setSelected((prev) => ({
                     ...prev,
-                    engine: null,
+                    engine: "",
                   }));
                 }}
                 className="text-sm text-orange-500 hover:underline"
@@ -1451,6 +1452,7 @@ export default function TuningViewer() {
                               width={70}
                               height={80}
                               className="object-contain mb-2"
+                              loading="lazy"
                             />
                           )}
                           <p className="text-center font-medium text-gray-800">
@@ -1474,7 +1476,6 @@ export default function TuningViewer() {
                   }}
                   className="group flex items-center gap-1 mb-4 text-blue-600 hover:text-blue-800 transition-colors duration-200"
                 >
-                  {/* FIX: Ikon och text är nu uppdaterade för att vara logiska */}
                   <svg
                     className="w-5 h-5 transition-transform duration-200 group-hover:-translate-x-1"
                     fill="none"
@@ -1536,20 +1537,12 @@ export default function TuningViewer() {
                       }}
                       className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
                     >
-                      {getModelImage(model.name, selected.brand) ? (
-                        <img
-                          src={getModelImage(model.name, selected.brand)}
-                          alt={model.name}
-                          className="h-16 w-auto object-contain mb-2"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <div className="h-16 w-16 bg-gray-100 rounded-full mb-2 flex items-center justify-center">
-                          <span className="text-gray-400 text-xl">
-                            {model.name.charAt(0)}
-                          </span>
-                        </div>
-                      )}
+                      <img
+                        src={getModelImage(model.name, selected.brand)}
+                        alt={model.name}
+                        className="h-16 w-auto object-contain mb-2"
+                        loading="lazy"
+                      />
                       <p className="text-center font-medium text-gray-800">
                         {formatModelName(selected.brand, model.name)}
                       </p>
@@ -1575,11 +1568,8 @@ export default function TuningViewer() {
                   }}
                   className="group flex items-center gap-1 mb-4 text-blue-600 hover:text-blue-800 transition-colors duration-200"
                 >
-                  <span className="font-medium">
-                    {translate(currentLanguage, "BACKTO")}{" "}
-                  </span>
                   <svg
-                    className="w-5 h-5 transition-transform duration-200 group-hover:translate-x-1"
+                    className="w-5 h-5 transition-transform duration-200 group-hover:-translate-x-1"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -1588,10 +1578,11 @@ export default function TuningViewer() {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth={2}
-                      d="M14 5l7 7m0 0l-7 7m7-7H3"
+                      d="M11 19l-7-7 7-7m8 14l-7-7 7-7"
                     />
                   </svg>
                   <span className="font-semibold">
+                    {translate(currentLanguage, "BACKTO")}{" "}
                     {selected.brand.replace("[LASTBIL] ", "")}
                   </span>
                 </button>
@@ -1665,11 +1656,8 @@ export default function TuningViewer() {
                     }}
                     className="group flex items-center gap-1 mb-4 text-blue-600 hover:text-blue-800 transition-colors duration-200"
                   >
-                    <span className="font-medium">
-                      {translate(currentLanguage, "BACKTO")}
-                    </span>
                     <svg
-                      className="w-5 h-5 transition-transform duration-200 group-hover:translate-x-1"
+                      className="w-5 h-5 transition-transform duration-200 group-hover:-translate-x-1"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -1678,10 +1666,11 @@ export default function TuningViewer() {
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         strokeWidth={2}
-                        d="M14 5l7 7m0 0l-7 7m7-7H3"
+                        d="M11 19l-7-7 7-7m8 14l-7-7 7-7"
                       />
                     </svg>
                     <span className="font-semibold">
+                      {translate(currentLanguage, "BACKTO")}{" "}
                       {selected.brand.replace("[LASTBIL] ", "")}{" "}
                       {formatModelName(selected.brand, selected.model)}
                     </span>
@@ -1840,33 +1829,7 @@ export default function TuningViewer() {
         ) : stages.length > 0 ? (
           <div className="space-y-6">
             {stages.map((stage) => {
-              const isDsgStage = stage.name.toLowerCase().includes("dsg");
-              const isTruck = selected.brand.startsWith("[LASTBIL]");
-              const allOptions = getAllAktPlusOptions(stage);
               const isExpanded = expandedStages[stage.name] ?? false;
-
-              const descriptionObject =
-                stage.descriptionRef?.description || stage.description;
-
-              let rawDescription = null;
-
-              if (descriptionObject) {
-                if (
-                  typeof descriptionObject === "object" &&
-                  !Array.isArray(descriptionObject)
-                ) {
-                  rawDescription =
-                    descriptionObject[currentLanguage] ||
-                    descriptionObject["sv"] ||
-                    [];
-                } else if (Array.isArray(descriptionObject)) {
-                  rawDescription = descriptionObject;
-                }
-              }
-
-              const dynamicDescription = rawDescription
-                ? createDynamicDescription(rawDescription, stage)
-                : null;
 
               return (
                 <div
@@ -1889,6 +1852,7 @@ export default function TuningViewer() {
                               .url()}
                             alt={selected.brand}
                             className="h-8 w-auto object-contain"
+                            loading="lazy"
                           />
                         )}
                         <h2 className="text-lg font-semibold text-white">
@@ -1906,6 +1870,7 @@ export default function TuningViewer() {
                           src={`/badges/${stage.name.toLowerCase().replace(/\s+/g, "")}.png`}
                           alt={stage.name}
                           className="h-8 object-contain"
+                          loading="lazy"
                         />
                         <span className="inline-block bg-red-600 text-black px-4 py-1 rounded-full text-xl font-semibold shadow-md">
                           {stage.price?.toLocaleString()} kr
@@ -1941,710 +1906,788 @@ export default function TuningViewer() {
                     </div>
                   </button>
 
-                  {isExpanded && selected.brand.startsWith("[LASTBIL]") && (
-                    <FuelSavingCalculator stage={stage} />
-                  )}
+                  {isExpanded &&
+                    (() => {
+                      // Move all expensive calculations and variables inside this block
+                      const isDsgStage = stage.name
+                        .toLowerCase()
+                        .includes("dsg");
+                      const isTruck = selected.brand.startsWith("[LASTBIL]");
+                      const allOptions = getAllAktPlusOptions(stage);
+                      const descriptionObject =
+                        stage.descriptionRef?.description || stage.description;
+                      let rawDescription = null;
 
-                  {isExpanded && (
-                    <div className="px-6 pb-6">
-                      {isDsgStage ? (
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 mt-6">
-                          {/* DSG/TCU-FÄLT */}
-                          {stage.tcuFields?.launchControl && (
-                            <div className="border border-blue-400 rounded-lg p-3 text-white">
-                              <p className="text-sm font-bold text-blue-300 mb-1">
-                                LAUNCH CONTROL
-                              </p>
-                              <p>
-                                Original:{" "}
-                                {stage.tcuFields.launchControl.original || "-"}{" "}
-                                RPM
-                              </p>
-                              <p>
-                                Optimerad:{" "}
-                                <span className="text-green-400">
-                                  {stage.tcuFields.launchControl.optimized ||
-                                    "-"}{" "}
-                                  RPM
-                                </span>
-                              </p>
-                            </div>
-                          )}
-                          {stage.tcuFields?.rpmLimit && (
-                            <div className="border border-blue-400 rounded-lg p-3 text-white">
-                              <p className="text-sm font-bold text-blue-300 mb-1">
-                                VARVSTOPP
-                              </p>
-                              <p>
-                                Original:{" "}
-                                {stage.tcuFields.rpmLimit.original || "-"} RPM
-                              </p>
-                              <p>
-                                Optimerad:{" "}
-                                <span className="text-green-400">
-                                  {stage.tcuFields.rpmLimit.optimized || "-"}{" "}
-                                  RPM
-                                </span>
-                              </p>
-                            </div>
-                          )}
-                          {stage.tcuFields?.shiftTime && (
-                            <div className="border border-blue-400 rounded-lg p-3 text-white">
-                              <p className="text-sm font-bold text-blue-300 mb-1">
-                                VÄXLINGSTID
-                              </p>
-                              <p>
-                                Original:{" "}
-                                {stage.tcuFields.shiftTime.original || "-"} ms
-                              </p>
-                              <p>
-                                Optimerad:{" "}
-                                <span className="text-green-400">
-                                  {stage.tcuFields.shiftTime.optimized || "-"}{" "}
-                                  ms
-                                </span>
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 mt-6">
-                          {/* ORIGINAL & TUNED SPECS - PERFORMANCE */}
-                          <div className="border border-white rounded-lg p-3 text-center">
-                            <p className="text-sm text-white font-bold mb-1">
-                              {translate(currentLanguage, "originalHp")}
-                            </p>
-                            <p className="text-xl text-white font-bold">
-                              {stage.origHk} hk
-                            </p>
-                          </div>
-                          <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
-                            <p className="text-xl text-white font-bold mb-1 uppercase">
-                              {translate(
-                                currentLanguage,
-                                "translateStageName",
-                                stage.name,
-                              )}{" "}
-                              HK
-                            </p>
-                            <p className="text-xl font-bold">
-                              {stage.tunedHk} hk
-                            </p>
-                            <p className="text-xs mt-1 text-red-400">
-                              +{stage.tunedHk - stage.origHk} hk
-                            </p>
-                          </div>
-                          <div className="border border-white rounded-lg p-3 text-center">
-                            <p className="text-sm text-white font-bold mb-1">
-                              {translate(currentLanguage, "originalNm")}
-                            </p>
-                            <p className="text-xl text-white font-bold">
-                              {stage.origNm} Nm
-                            </p>
-                          </div>
-                          <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
-                            <p className="text-xl text-white font-bold mb-1 uppercase">
-                              {translate(
-                                currentLanguage,
-                                "translateStageName",
-                                stage.name,
-                              )}{" "}
-                              NM
-                            </p>
-                            <p className="text-xl font-bold">
-                              {stage.tunedNm} Nm
-                            </p>
-                            <p className="text-xs mt-1 text-red-400">
-                              +{stage.tunedNm - stage.origNm} Nm
-                            </p>
-                          </div>
-                        </div>
-                      )}
+                      if (descriptionObject) {
+                        if (
+                          typeof descriptionObject === "object" &&
+                          !Array.isArray(descriptionObject)
+                        ) {
+                          rawDescription =
+                            descriptionObject[currentLanguage] ||
+                            descriptionObject["sv"] ||
+                            [];
+                        } else if (Array.isArray(descriptionObject)) {
+                          rawDescription = descriptionObject;
+                        }
+                      }
 
-                      <div className="flex flex-col sm:flex-row gap-4 mt-4">
-                        <button
-                          onClick={() =>
-                            setInfoModal({ open: true, type: "stage", stage })
-                          }
-                          className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg shadow"
-                        >
-                          📄{" "}
-                          {translate(
-                            currentLanguage,
-                            "translateStageName",
-                            stage.name,
-                          ).toUpperCase()}{" "}
-                          {translate(currentLanguage, "infoStage")}
-                        </button>
-                        {/* Hidden SEO content for stage info */}
-                        <div className="sr-only" aria-hidden="false">
-                          <h2>{stage.name.toUpperCase()} INFORMATION</h2>
-                          {dynamicDescription && (
-                            <PortableText
-                              value={dynamicDescription}
-                              components={portableTextComponents}
-                            />
-                          )}
-                        </div>
+                      const dynamicDescription = rawDescription
+                        ? createDynamicDescription(rawDescription, stage)
+                        : null;
 
-                        <button
-                          onClick={() =>
-                            setInfoModal({ open: true, type: "general" })
-                          }
-                          className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg shadow"
-                        >
-                          💡 {translate(currentLanguage, "infoGeneral")}
-                        </button>
-                      </div>
-                      {/* Hidden SEO content for general info */}
-                      <div className="sr-only" aria-hidden="false">
-                        <h2>GENERELL INFORMATION</h2>
-                        <div>
-                          <ul className="space-y-2">
-                            <li>✅ All mjukvara är skräddarsydd för din bil</li>
-                            <li>✅ Felsökning inann samt efter optimering</li>
-                            <li>
-                              ✅ Loggning för att anpassa en individuell
-                              mjukvara
-                            </li>
-                            <li>
-                              ✅ Optimerad för både prestanda och bränsleekonomi
-                            </li>
-                          </ul>
-                          <div className="mt-6 text-sm text-gray-400 leading-relaxed">
-                            <p>
-                              AK-TUNING är specialister på skräddarsydd
-                              motoroptimering, chiptuning och ECU-programmering
-                              för alla bilmärken.
-                            </p>
-                            <p className="mt-2">
-                              Vi erbjuder effektökning, bättre bränsleekonomi
-                              och optimerade köregenskaper. Tjänster i Göteborg,
-                              Stockholm, Malmö, Jönköping, Örebro och Storvik.
-                            </p>
-                            <p className="mt-2">
-                              All mjukvara utvecklas in-house med fokus på
-                              kvalitet, säkerhet och lång livslängd. Välkommen
-                              till en ny nivå av bilprestanda med AK-TUNING.
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="mt-6">
-                        {!isDsgStage && !isTruck && (
-                          <h3 className="text-lg font-medium text-gray-300 mb-2 uppercase">
-                            {translate(
-                              currentLanguage,
-                              "translateStageName",
-                              stage.name,
-                            ).toUpperCase()}{" "}
-                          </h3>
-                        )}
-
-                        {/* Mobile-only legend above chart - TEXT VERSION */}
-                        {!isDsgStage && !isTruck && (
-                          <div className="flex justify-center items-center gap-4 md:hidden text-xs text-white mb-2">
-                            <div className="flex items-center gap-1">
-                              <span className="text-red-400 font-mono text-[12px] tracking-wide drop-shadow-[0_0_3px_rgba(248,113,113,0.8)]">
-                                ---
-                              </span>
-                              <span className="text-white">ORG HK</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <span className="text-red-600 font-mono text-[12px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
-                                ━━━
-                              </span>
-                              <span className="text-white">
-                                {stage.name
-                                  .replace("Steg", "ST")
-                                  .replace(/\s+/g, "")
-                                  .toUpperCase()}{" "}
-                                HK
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <span className="text-white font-mono text-[12px] tracking-wide drop-shadow-[0_0_3px_rgba(248,113,113,0.8)]">
-                                ---
-                              </span>
-                              <span className="text-white">ORG NM</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <span className="text-white font-mono text-[12px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
-                                ━━━
-                              </span>
-                              <span className="text-white">
-                                {stage.name
-                                  .replace("Steg", "ST")
-                                  .replace(/\s+/g, "")
-                                  .toUpperCase()}{" "}
-                                NM
-                              </span>
-                            </div>
-                          </div>
-                        )}
-
-                        {!isDsgStage && !isTruck && (
-                          <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
-                            {/* Split the spec boxes */}
-                            <div className="absolute hidden md:flex flex-row justify-between top-4 left-0 right-0 px-16">
-                              {/* HK Container */}
-                              <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
-                                <div className="flex items-center gap-2 mb-1">
-                                  <span className="text-red-400 font-mono text-[16px] tracking-wide drop-shadow-[0_0_3px_rgba(248,113,113,0.8)]">
-                                    ---
-                                  </span>
-                                  <span className="text-white">
-                                    ORG: {stage.origHk} HK
-                                  </span>
+                      return (
+                        <>
+                          {isTruck && <FuelSavingCalculator stage={stage} />}
+                          <div className="px-6 pb-6">
+                            {isDsgStage ? (
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 mt-6">
+                                {/* DSG/TCU-FÄLT */}
+                                {stage.tcuFields?.launchControl && (
+                                  <div className="border border-blue-400 rounded-lg p-3 text-white">
+                                    <p className="text-sm font-bold text-blue-300 mb-1">
+                                      LAUNCH CONTROL
+                                    </p>
+                                    <p>
+                                      Original:{" "}
+                                      {stage.tcuFields.launchControl.original ||
+                                        "-"}{" "}
+                                      RPM
+                                    </p>
+                                    <p>
+                                      Optimerad:{" "}
+                                      <span className="text-green-400">
+                                        {stage.tcuFields.launchControl
+                                          .optimized || "-"}{" "}
+                                        RPM
+                                      </span>
+                                    </p>
+                                  </div>
+                                )}
+                                {stage.tcuFields?.rpmLimit && (
+                                  <div className="border border-blue-400 rounded-lg p-3 text-white">
+                                    <p className="text-sm font-bold text-blue-300 mb-1">
+                                      VARVSTOPP
+                                    </p>
+                                    <p>
+                                      Original:{" "}
+                                      {stage.tcuFields.rpmLimit.original || "-"}{" "}
+                                      RPM
+                                    </p>
+                                    <p>
+                                      Optimerad:{" "}
+                                      <span className="text-green-400">
+                                        {stage.tcuFields.rpmLimit.optimized ||
+                                          "-"}{" "}
+                                        RPM
+                                      </span>
+                                    </p>
+                                  </div>
+                                )}
+                                {stage.tcuFields?.shiftTime && (
+                                  <div className="border border-blue-400 rounded-lg p-3 text-white">
+                                    <p className="text-sm font-bold text-blue-300 mb-1">
+                                      VÄXLINGSTID
+                                    </p>
+                                    <p>
+                                      Original:{" "}
+                                      {stage.tcuFields.shiftTime.original ||
+                                        "-"}{" "}
+                                      ms
+                                    </p>
+                                    <p>
+                                      Optimerad:{" "}
+                                      <span className="text-green-400">
+                                        {stage.tcuFields.shiftTime.optimized ||
+                                          "-"}{" "}
+                                        ms
+                                      </span>
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 mt-6">
+                                {/* ORIGINAL & TUNED SPECS - PERFORMANCE */}
+                                <div className="border border-white rounded-lg p-3 text-center">
+                                  <p className="text-sm text-white font-bold mb-1">
+                                    {translate(currentLanguage, "originalHp")}
+                                  </p>
+                                  <p className="text-xl text-white font-bold">
+                                    {stage.origHk} hk
+                                  </p>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                  <span className="text-red-600 font-mono text-[16px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
-                                    ━━━
-                                  </span>
-                                  <span className="text-white">
-                                    <span className="text-white text-[14px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
-                                      ST{stage.name.replace(/\D/g, "")}:{" "}
-                                      {stage.tunedHk} HK
-                                    </span>
-                                  </span>
+                                <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
+                                  <p className="text-xl text-white font-bold mb-1 uppercase">
+                                    {translate(
+                                      currentLanguage,
+                                      "translateStageName",
+                                      stage.name,
+                                    )}{" "}
+                                    HK
+                                  </p>
+                                  <p className="text-xl font-bold">
+                                    {stage.tunedHk} hk
+                                  </p>
+                                  <p className="text-xs mt-1 text-red-400">
+                                    +{stage.tunedHk - stage.origHk} hk
+                                  </p>
+                                </div>
+                                <div className="border border-white rounded-lg p-3 text-center">
+                                  <p className="text-sm text-white font-bold mb-1">
+                                    {translate(currentLanguage, "originalNm")}
+                                  </p>
+                                  <p className="text-xl text-white font-bold">
+                                    {stage.origNm} Nm
+                                  </p>
+                                </div>
+                                <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
+                                  <p className="text-xl text-white font-bold mb-1 uppercase">
+                                    {translate(
+                                      currentLanguage,
+                                      "translateStageName",
+                                      stage.name,
+                                    )}{" "}
+                                    NM
+                                  </p>
+                                  <p className="text-xl font-bold">
+                                    {stage.tunedNm} Nm
+                                  </p>
+                                  <p className="text-xs mt-1 text-red-400">
+                                    +{stage.tunedNm - stage.origNm} Nm
+                                  </p>
                                 </div>
                               </div>
-
-                              {/* NM Container */}
-                              <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
-                                <div className="flex items-center gap-2 mb-1">
-                                  <span className="text-white font-mono text-[16px] tracking-wide drop-shadow-[0_0_3px_rgba(248,113,113,0.8)]">
-                                    ---
-                                  </span>
-                                  <span className="text-white">
-                                    ORG: {stage.origNm} NM
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <span className="text-white font-mono text-[16px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
-                                    ━━━
-                                  </span>
-                                  <span className="text-white">
-                                    <span className="text-white text-[14px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
-                                      ST{stage.name.replace(/\D/g, "")}:{" "}
-                                      {stage.tunedNm} NM
-                                    </span>
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Dyno graph */}
-                            {isExpanded && !isDsgStage && !isTruck && (
-                              <Line
-                                data={{
-                                  labels: rpmLabels,
-                                  datasets: [
-                                    {
-                                      label: "ORG HK",
-                                      data: generateDynoCurve(
-                                        stage.origHk,
-                                        true,
-                                        selectedEngine.fuel,
-                                      ),
-                                      borderColor: "#f87171",
-                                      backgroundColor: "#000000",
-                                      borderWidth: 2,
-                                      borderDash: [5, 3],
-                                      tension: 0.5,
-                                      pointRadius: 0,
-                                      yAxisID: "hp",
-                                    },
-                                    {
-                                      label: `ST ${stage.name.replace(/\D/g, "")} HK`,
-                                      data: generateDynoCurve(
-                                        stage.tunedHk,
-                                        true,
-                                        selectedEngine.fuel,
-                                      ),
-                                      borderColor: "#f87171",
-                                      backgroundColor: "#f87171",
-                                      borderWidth: 3,
-                                      tension: 0.5,
-                                      pointRadius: 0,
-                                      yAxisID: "hp",
-                                    },
-                                    {
-                                      label: "ORG NM",
-                                      data: generateDynoCurve(
-                                        stage.origNm,
-                                        false,
-                                        selectedEngine.fuel,
-                                      ),
-                                      borderColor: "#d1d5db",
-                                      backgroundColor: "#000000",
-                                      borderWidth: 2,
-                                      borderDash: [5, 3],
-                                      tension: 0.5,
-                                      pointRadius: 0,
-                                      yAxisID: "nm",
-                                    },
-                                    {
-                                      label: `ST ${stage.name.replace(/\D/g, "")} NM`,
-                                      data: generateDynoCurve(
-                                        stage.tunedNm,
-                                        false,
-                                        selectedEngine.fuel,
-                                      ),
-                                      borderColor: "#d1d5db",
-                                      backgroundColor: "transparent",
-                                      borderWidth: 3,
-                                      tension: 0.5,
-                                      pointRadius: 0,
-                                      yAxisID: "nm",
-                                    },
-                                  ],
-                                }}
-                                options={{
-                                  responsive: true,
-                                  maintainAspectRatio: false,
-                                  plugins: {
-                                    legend: {
-                                      display: false,
-                                    },
-                                    tooltip: {
-                                      enabled: true,
-                                      mode: "index",
-                                      intersect: false,
-                                      backgroundColor: "#1f2937",
-                                      titleColor: "#ffffff",
-                                      bodyColor: "#ffffff",
-                                      borderColor: "#6b7280",
-                                      borderWidth: 1,
-                                      padding: 10,
-                                      displayColors: true,
-                                      usePointStyle: true,
-                                      callbacks: {
-                                        labelPointStyle: () => ({
-                                          pointStyle: "circle",
-                                          rotation: 0,
-                                        }),
-                                        title: function (tooltipItems) {
-                                          return `${tooltipItems[0].label} RPM`;
-                                        },
-                                        label: function (context) {
-                                          const label =
-                                            context.dataset.label || "";
-                                          const value = context.parsed.y;
-
-                                          if (value === undefined) return label;
-
-                                          const unit =
-                                            context.dataset.yAxisID === "hp"
-                                              ? "hk"
-                                              : "Nm";
-                                          return `${label}: ${Math.round(value)} ${unit}`;
-                                        },
-                                      },
-                                    },
-                                  },
-                                  scales: {
-                                    hp: {
-                                      type: "linear",
-                                      display: true,
-                                      position: "left",
-                                      title: {
-                                        display: true,
-                                        text: "EFFEKT",
-                                        color: "white",
-                                        font: { size: 14 },
-                                      },
-                                      min: 0,
-                                      max:
-                                        Math.ceil(stage.tunedHk / 100) * 100 +
-                                        100,
-                                      grid: {
-                                        color: "rgba(255, 255, 255, 0.1)",
-                                      },
-                                      ticks: {
-                                        color: "#9CA3AF",
-                                        stepSize: 100,
-                                        callback: (value) => `${value}`,
-                                      },
-                                    },
-                                    nm: {
-                                      type: "linear",
-                                      display: true,
-                                      position: "right",
-                                      title: {
-                                        display: true,
-                                        text: "VRIDMOMENT",
-                                        color: "white",
-                                        font: { size: 14 },
-                                      },
-                                      min: 0,
-                                      max:
-                                        Math.ceil(stage.tunedNm / 100) * 100 +
-                                        100,
-                                      grid: {
-                                        drawOnChartArea: false,
-                                      },
-                                      ticks: {
-                                        color: "#9CA3AF",
-                                        stepSize: 100,
-                                        callback: (value) => `${value}`,
-                                      },
-                                    },
-                                    x: {
-                                      title: {
-                                        display: true,
-                                        text: "RPM",
-                                        color: "#E5E7EB",
-                                        font: { size: 14 },
-                                      },
-                                      grid: {
-                                        color: "rgba(255, 255, 255, 0.1)",
-                                      },
-                                      ticks: {
-                                        color: "#9CA3AF",
-                                      },
-                                    },
-                                  },
-                                  interaction: {
-                                    intersect: false,
-                                    mode: "index",
-                                  },
-                                }}
-                                plugins={[watermarkPlugin, shadowPlugin]}
-                              />
                             )}
 
-                            <div className="text-center text-white text-xs mt-4 italic">
-                              {translate(currentLanguage, "tuningCurveNote")}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* small tuned specs */}
-                        {!isDsgStage && (
-                          <div className="mt-8 mb-10">
-                            {/* Performance Summary */}
-                            <div className="text-center mb-6">
-                              <p className="text-lg font-semibold text-white">
-                                {translate(currentLanguage, "tuningIntro")}{" "}
-                                <span className={getStageColor(stage.name)}>
-                                  {stage.name
-                                    .replace(
-                                      "Steg",
-                                      translate(currentLanguage, "stageLabel"),
-                                    )
-                                    .toUpperCase()}
-                                </span>
-                              </p>
-                              <p className="text-gray-300 mt-1">
-                                {`${stage.tunedHk} HK & ${stage.tunedNm} NM`}
-                              </p>
-                            </div>
-
-                            {/* Contact Button and Social Media - Restructured */}
-                            <div className="flex flex-col gap-4 max-w-2xl mx-auto mt-8 mb-10">
-                              {/* Contact Button (Green) */}
+                            <div className="flex flex-col sm:flex-row gap-4 mt-4">
                               <button
-                                onClick={() => handleBookNow(stage.name)}
-                                className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-4 py-3 rounded-lg font-medium shadow-lg flex items-center justify-center gap-2 transition-all"
+                                onClick={() =>
+                                  setInfoModal({
+                                    open: true,
+                                    type: "stage",
+                                    stage,
+                                  })
+                                }
+                                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg shadow"
                               >
-                                <svg
-                                  className="w-5 h-5"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  viewBox="0 0 24 24"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth="2"
-                                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                                  />
-                                </svg>
-                                {translate(currentLanguage, "contactvalue")}
+                                📄{" "}
+                                {translate(
+                                  currentLanguage,
+                                  "translateStageName",
+                                  stage.name,
+                                ).toUpperCase()}{" "}
+                                {translate(currentLanguage, "infoStage")}
                               </button>
+                              {/* Hidden SEO content for stage info */}
+                              <div className="sr-only" aria-hidden="true">
+                                <h2>{stage.name.toUpperCase()} INFORMATION</h2>
+                                {dynamicDescription && (
+                                  <PortableText
+                                    value={dynamicDescription}
+                                    components={portableTextComponents}
+                                  />
+                                )}
+                              </div>
 
-                              {/* Social Media Links */}
-                              <div className="flex items-center justify-center space-x-2">
-                                <a
-                                  href="https://www.facebook.com/aktuned"
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="bg-blue-600 hover:bg-blue-700 p-3 rounded-lg flex items-center justify-center transition-colors"
-                                  aria-label="Facebook"
-                                >
-                                  <svg
-                                    className="w-5 h-5 text-white"
-                                    fill="currentColor"
-                                    viewBox="0 0 24 24"
-                                  >
-                                    <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" />
-                                  </svg>
-                                </a>
-                                <a
-                                  href="https://www.instagram.com/aktuning.se"
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 p-3 rounded-lg flex items-center justify-center transition-colors"
-                                  aria-label="Instagram"
-                                >
-                                  <svg
-                                    className="w-5 h-5 text-white"
-                                    fill="currentColor"
-                                    viewBox="0 0 24 24"
-                                  >
-                                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
-                                  </svg>
-                                </a>
+                              <button
+                                onClick={() =>
+                                  setInfoModal({ open: true, type: "general" })
+                                }
+                                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg shadow"
+                              >
+                                💡 {translate(currentLanguage, "infoGeneral")}
+                              </button>
+                            </div>
+                            {/* Hidden SEO content for general info */}
+                            <div className="sr-only" aria-hidden="true">
+                              <h2>GENERELL INFORMATION</h2>
+                              <div>
+                                <ul className="space-y-2">
+                                  <li>
+                                    ✅ All mjukvara är skräddarsydd för din bil
+                                  </li>
+                                  <li>
+                                    ✅ Felsökning inann samt efter optimering
+                                  </li>
+                                  <li>
+                                    ✅ Loggning för att anpassa en individuell
+                                    mjukvara
+                                  </li>
+                                  <li>
+                                    ✅ Optimerad för både prestanda och
+                                    bränsleekonomi
+                                  </li>
+                                </ul>
+                                <div className="mt-6 text-sm text-gray-400 leading-relaxed">
+                                  <p>
+                                    AK-TUNING är specialister på skräddarsydd
+                                    motoroptimering, chiptuning och
+                                    ECU-programmering för alla bilmärken.
+                                  </p>
+                                  <p className="mt-2">
+                                    Vi erbjuder effektökning, bättre
+                                    bränsleekonomi och optimerade köregenskaper.
+                                    Tjänster i Göteborg, Stockholm, Malmö,
+                                    Jönköping, Örebro och Storvik.
+                                  </p>
+                                  <p className="mt-2">
+                                    All mjukvara utvecklas in-house med fokus på
+                                    kvalitet, säkerhet och lång livslängd.
+                                    Välkommen till en ny nivå av bilprestanda
+                                    med AK-TUNING.
+                                  </p>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        )}
-                      </div>
 
-                      {!isDsgStage && allOptions.length > 0 && (
-                        <div className="mt-8">
-                          {/* AKT+ Toggle Button */}
-                          <button
-                            onClick={() => toggleAktPlus(stage.name)}
-                            className="flex justify-between items-center w-full px-6 py-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
-                          >
-                            <div className="flex items-center gap-2">
-                              <img
-                                src="/logos/aktplus.png"
-                                alt="AKT+ Logo"
-                                className="h-8 w-auto object-contain"
-                              />
-                              <h3 className="text-md font-semibold text-white">
-                                {translate(currentLanguage, "additionsLabel")}
-                              </h3>
-                            </div>
-                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-800">
-                              <svg
-                                className={`h-5 w-5 text-orange-500 transform transition-transform duration-300 ${
-                                  expandedAktPlus[stage.name]
-                                    ? "rotate-180"
-                                    : ""
-                                }`}
-                                viewBox="0 0 20 20"
-                                fill="currentColor"
-                              >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                            </div>
-                          </button>
+                            <div className="mt-6">
+                              {!isDsgStage && !isTruck && (
+                                <h3 className="text-lg font-medium text-gray-300 mb-2 uppercase">
+                                  {translate(
+                                    currentLanguage,
+                                    "translateStageName",
+                                    stage.name,
+                                  ).toUpperCase()}{" "}
+                                </h3>
+                              )}
 
-                          {/* Expandable AKT+ Grid */}
-                          {expandedAktPlus[stage.name] && (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                              {allOptions.map((option) => {
-                                const translatedTitle =
-                                  option.title?.[currentLanguage] ||
-                                  option.title?.sv ||
-                                  "";
-                                const translatedDescription =
-                                  option.description?.[currentLanguage] ||
-                                  option.description?.sv;
+                              {/* Mobile-only legend above chart - TEXT VERSION */}
+                              {!isDsgStage && !isTruck && (
+                                <div className="flex justify-center items-center gap-4 md:hidden text-xs text-white mb-2">
+                                  <div className="flex items-center gap-1">
+                                    <span className="text-red-400 font-mono text-[12px] tracking-wide drop-shadow-[0_0_3px_rgba(248,113,113,0.8)]">
+                                      ---
+                                    </span>
+                                    <span className="text-white">ORG HK</span>
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <span className="text-red-600 font-mono text-[12px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
+                                      ━━━
+                                    </span>
+                                    <span className="text-white">
+                                      {stage.name
+                                        .replace("Steg", "ST")
+                                        .replace(/\s+/g, "")
+                                        .toUpperCase()}{" "}
+                                      HK
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <span className="text-white font-mono text-[12px] tracking-wide drop-shadow-[0_0_3px_rgba(248,113,113,0.8)]">
+                                      ---
+                                    </span>
+                                    <span className="text-white">ORG NM</span>
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <span className="text-white font-mono text-[12px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
+                                      ━━━
+                                    </span>
+                                    <span className="text-white">
+                                      {stage.name
+                                        .replace("Steg", "ST")
+                                        .replace(/\s+/g, "")
+                                        .toUpperCase()}{" "}
+                                      NM
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
 
-                                return (
-                                  <div
-                                    key={option._id}
-                                    className="border border-gray-600 rounded-lg overflow-hidden bg-gray-700 transition-all duration-300"
-                                  >
-                                    <button
-                                      onClick={() => toggleOption(option._id)}
-                                      className="w-full flex justify-between items-center p-4 hover:bg-gray-600 transition-colors"
-                                    >
-                                      <div className="flex items-center gap-3">
-                                        {option.gallery?.[0]?.asset && (
-                                          <img
-                                            src={urlFor(option.gallery[0].asset)
-                                              .width(80)
-                                              .url()}
-                                            alt={
-                                              option.gallery[0].alt ||
-                                              translatedTitle ||
-                                              "AKT+"
-                                            }
-                                            className="h-10 w-10 object-contain"
-                                          />
-                                        )}
-                                        <span className="text-lg font-bold text-orange-600">
-                                          {translatedTitle}
+                              {!isDsgStage && !isTruck && (
+                                <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
+                                  {/* Split the spec boxes */}
+                                  <div className="absolute hidden md:flex flex-row justify-between top-4 left-0 right-0 px-16">
+                                    {/* HK Container */}
+                                    <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
+                                      <div className="flex items-center gap-2 mb-1">
+                                        <span className="text-red-400 font-mono text-[16px] tracking-wide drop-shadow-[0_0_3px_rgba(248,113,113,0.8)]">
+                                          ---
+                                        </span>
+                                        <span className="text-white">
+                                          ORG: {stage.origHk} HK
                                         </span>
                                       </div>
-
-                                      <svg
-                                        className={`h-5 w-5 text-orange-600 transition-transform ${
-                                          expandedOptions[option._id]
-                                            ? "rotate-180"
-                                            : ""
-                                        }`}
-                                        viewBox="0 0 20 20"
-                                        fill="currentColor"
-                                      >
-                                        <path
-                                          fillRule="evenodd"
-                                          d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-                                          clipRule="evenodd"
-                                        />
-                                      </svg>
-                                    </button>
-
-                                    {expandedOptions[option._id] && (
-                                      <div className="bg-gray-800 border-t border-gray-600 p-4 space-y-4">
-                                        {translatedDescription && (
-                                          <div className="prose prose-invert max-w-none text-sm">
-                                            <PortableText
-                                              value={translatedDescription}
-                                              components={
-                                                portableTextComponents
-                                              }
-                                            />
-                                          </div>
-                                        )}
-
-                                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                                          {option.price && (
-                                            <p className="font-bold text-green-400">
-                                              {translate(
-                                                currentLanguage,
-                                                "priceLabel",
-                                              )}
-                                              : {option.price.toLocaleString()}{" "}
-                                              kr
-                                            </p>
-                                          )}
-
-                                          <button
-                                            onClick={() =>
-                                              handleBookNow(translatedTitle)
-                                            }
-                                            className="bg-green-600 hover:bg-green-700 hover:scale-105 transform transition-all text-white px-6 py-3 rounded-lg font-medium shadow-lg"
-                                          >
-                                            📩{" "}
-                                            {translate(
-                                              currentLanguage,
-                                              "contactvalue",
-                                            )}
-                                          </button>
-                                        </div>
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-red-600 font-mono text-[16px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
+                                          ━━━
+                                        </span>
+                                        <span className="text-white">
+                                          <span className="text-white text-[14px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
+                                            ST{stage.name.replace(/\D/g, "")}:{" "}
+                                            {stage.tunedHk} HK
+                                          </span>
+                                        </span>
                                       </div>
+                                    </div>
+
+                                    {/* NM Container */}
+                                    <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
+                                      <div className="flex items-center gap-2 mb-1">
+                                        <span className="text-white font-mono text-[16px] tracking-wide drop-shadow-[0_0_3px_rgba(248,113,113,0.8)]">
+                                          ---
+                                        </span>
+                                        <span className="text-white">
+                                          ORG: {stage.origNm} NM
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-white font-mono text-[16px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
+                                          ━━━
+                                        </span>
+                                        <span className="text-white">
+                                          <span className="text-white text-[14px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
+                                            ST{stage.name.replace(/\D/g, "")}:{" "}
+                                            {stage.tunedNm} NM
+                                          </span>
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* Dyno graph */}
+                                  <Line
+                                    data={{
+                                      labels: rpmLabels,
+                                      datasets: [
+                                        {
+                                          label: "ORG HK",
+                                          data: generateDynoCurve(
+                                            stage.origHk,
+                                            true,
+                                            selectedEngine.fuel,
+                                          ),
+                                          borderColor: "#f87171",
+                                          backgroundColor: "#000000",
+                                          borderWidth: 2,
+                                          borderDash: [5, 3],
+                                          tension: 0.5,
+                                          pointRadius: 0,
+                                          yAxisID: "hp",
+                                        },
+                                        {
+                                          label: `ST ${stage.name.replace(/\D/g, "")} HK`,
+                                          data: generateDynoCurve(
+                                            stage.tunedHk,
+                                            true,
+                                            selectedEngine.fuel,
+                                          ),
+                                          borderColor: "#f87171",
+                                          backgroundColor: "#f87171",
+                                          borderWidth: 3,
+                                          tension: 0.5,
+                                          pointRadius: 0,
+                                          yAxisID: "hp",
+                                        },
+                                        {
+                                          label: "ORG NM",
+                                          data: generateDynoCurve(
+                                            stage.origNm,
+                                            false,
+                                            selectedEngine.fuel,
+                                          ),
+                                          borderColor: "#d1d5db",
+                                          backgroundColor: "#000000",
+                                          borderWidth: 2,
+                                          borderDash: [5, 3],
+                                          tension: 0.5,
+                                          pointRadius: 0,
+                                          yAxisID: "nm",
+                                        },
+                                        {
+                                          label: `ST ${stage.name.replace(/\D/g, "")} NM`,
+                                          data: generateDynoCurve(
+                                            stage.tunedNm,
+                                            false,
+                                            selectedEngine.fuel,
+                                          ),
+                                          borderColor: "#d1d5db",
+                                          backgroundColor: "transparent",
+                                          borderWidth: 3,
+                                          tension: 0.5,
+                                          pointRadius: 0,
+                                          yAxisID: "nm",
+                                        },
+                                      ],
+                                    }}
+                                    options={{
+                                      responsive: true,
+                                      maintainAspectRatio: false,
+                                      plugins: {
+                                        legend: {
+                                          display: false,
+                                        },
+                                        tooltip: {
+                                          enabled: true,
+                                          mode: "index",
+                                          intersect: false,
+                                          backgroundColor: "#1f2937",
+                                          titleColor: "#ffffff",
+                                          bodyColor: "#ffffff",
+                                          borderColor: "#6b7280",
+                                          borderWidth: 1,
+                                          padding: 10,
+                                          displayColors: true,
+                                          usePointStyle: true,
+                                          callbacks: {
+                                            labelPointStyle: () => ({
+                                              pointStyle: "circle",
+                                              rotation: 0,
+                                            }),
+                                            title: function (tooltipItems) {
+                                              return `${tooltipItems[0].label} RPM`;
+                                            },
+                                            label: function (context) {
+                                              const label =
+                                                context.dataset.label || "";
+                                              const value = context.parsed.y;
+
+                                              if (value === undefined)
+                                                return label;
+
+                                              const unit =
+                                                context.dataset.yAxisID === "hp"
+                                                  ? "hk"
+                                                  : "Nm";
+                                              return `${label}: ${Math.round(value)} ${unit}`;
+                                            },
+                                          },
+                                        },
+                                      },
+                                      scales: {
+                                        hp: {
+                                          type: "linear",
+                                          display: true,
+                                          position: "left",
+                                          title: {
+                                            display: true,
+                                            text: "EFFEKT",
+                                            color: "white",
+                                            font: { size: 14 },
+                                          },
+                                          min: 0,
+                                          max:
+                                            Math.ceil(stage.tunedHk / 100) *
+                                              100 +
+                                            100,
+                                          grid: {
+                                            color: "rgba(255, 255, 255, 0.1)",
+                                          },
+                                          ticks: {
+                                            color: "#9CA3AF",
+                                            stepSize: 100,
+                                            callback: (value) => `${value}`,
+                                          },
+                                        },
+                                        nm: {
+                                          type: "linear",
+                                          display: true,
+                                          position: "right",
+                                          title: {
+                                            display: true,
+                                            text: "VRIDMOMENT",
+                                            color: "white",
+                                            font: { size: 14 },
+                                          },
+                                          min: 0,
+                                          max:
+                                            Math.ceil(stage.tunedNm / 100) *
+                                              100 +
+                                            100,
+                                          grid: {
+                                            drawOnChartArea: false,
+                                          },
+                                          ticks: {
+                                            color: "#9CA3AF",
+                                            stepSize: 100,
+                                            callback: (value) => `${value}`,
+                                          },
+                                        },
+                                        x: {
+                                          title: {
+                                            display: true,
+                                            text: "RPM",
+                                            color: "#E5E7EB",
+                                            font: { size: 14 },
+                                          },
+                                          grid: {
+                                            color: "rgba(255, 255, 255, 0.1)",
+                                          },
+                                          ticks: {
+                                            color: "#9CA3AF",
+                                          },
+                                        },
+                                      },
+                                      interaction: {
+                                        intersect: false,
+                                        mode: "index",
+                                      },
+                                    }}
+                                    plugins={[watermarkPlugin, shadowPlugin]}
+                                  />
+
+                                  <div className="text-center text-white text-xs mt-4 italic">
+                                    {translate(
+                                      currentLanguage,
+                                      "tuningCurveNote",
                                     )}
                                   </div>
-                                );
-                              })}
+                                </div>
+                              )}
+
+                              {/* small tuned specs */}
+                              {!isDsgStage && (
+                                <div className="mt-8 mb-10">
+                                  {/* Performance Summary */}
+                                  <div className="text-center mb-6">
+                                    <p className="text-lg font-semibold text-white">
+                                      {translate(
+                                        currentLanguage,
+                                        "tuningIntro",
+                                      )}{" "}
+                                      <span
+                                        className={getStageColor(stage.name)}
+                                      >
+                                        {stage.name
+                                          .replace(
+                                            "Steg",
+                                            translate(
+                                              currentLanguage,
+                                              "stageLabel",
+                                            ),
+                                          )
+                                          .toUpperCase()}
+                                      </span>
+                                    </p>
+                                    <p className="text-gray-300 mt-1">
+                                      {`${stage.tunedHk} HK & ${stage.tunedNm} NM`}
+                                    </p>
+                                  </div>
+
+                                  {/* Contact Button and Social Media - Restructured */}
+                                  <div className="flex flex-col gap-4 max-w-2xl mx-auto mt-8 mb-10">
+                                    {/* Contact Button (Green) */}
+                                    <button
+                                      onClick={(e) =>
+                                        handleBookNow(stage.name, e)
+                                      }
+                                      className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-4 py-3 rounded-lg font-medium shadow-lg flex items-center justify-center gap-2 transition-all"
+                                    >
+                                      <svg
+                                        className="w-5 h-5"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                      >
+                                        <path
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          strokeWidth="2"
+                                          d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                                        />
+                                      </svg>
+                                      {translate(
+                                        currentLanguage,
+                                        "contactvalue",
+                                      )}
+                                    </button>
+
+                                    {/* Social Media Links */}
+                                    <div className="flex items-center justify-center space-x-2">
+                                      <a
+                                        href="https://www.facebook.com/aktuned"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="bg-blue-600 hover:bg-blue-700 p-3 rounded-lg flex items-center justify-center transition-colors"
+                                        aria-label="Facebook"
+                                      >
+                                        <svg
+                                          className="w-5 h-5 text-white"
+                                          fill="currentColor"
+                                          viewBox="0 0 24 24"
+                                        >
+                                          <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" />
+                                        </svg>
+                                      </a>
+                                      <a
+                                        href="https://www.instagram.com/aktuning.se"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 p-3 rounded-lg flex items-center justify-center transition-colors"
+                                        aria-label="Instagram"
+                                      >
+                                        <svg
+                                          className="w-5 h-5 text-white"
+                                          fill="currentColor"
+                                          viewBox="0 0 24 24"
+                                        >
+                                          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
+                                        </svg>
+                                      </a>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  )}
+
+                            {!isDsgStage && allOptions.length > 0 && (
+                              <div className="mt-8">
+                                {/* AKT+ Toggle Button */}
+                                <button
+                                  onClick={() => toggleAktPlus(stage.name)}
+                                  className="flex justify-between items-center w-full px-6 py-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <img
+                                      src="/logos/aktplus.png"
+                                      alt="AKT+ Logo"
+                                      className="h-8 w-auto object-contain"
+                                      loading="lazy"
+                                    />
+                                    <h3 className="text-md font-semibold text-white">
+                                      {translate(
+                                        currentLanguage,
+                                        "additionsLabel",
+                                      )}
+                                    </h3>
+                                  </div>
+                                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-800">
+                                    <svg
+                                      className={`h-5 w-5 text-orange-500 transform transition-transform duration-300 ${
+                                        expandedAktPlus[stage.name]
+                                          ? "rotate-180"
+                                          : ""
+                                      }`}
+                                      viewBox="0 0 20 20"
+                                      fill="currentColor"
+                                    >
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                                        clipRule="evenodd"
+                                      />
+                                    </svg>
+                                  </div>
+                                </button>
+
+                                {/* Expandable AKT+ Grid */}
+                                {expandedAktPlus[stage.name] && (
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                    {allOptions.map((option) => {
+                                      const translatedTitle =
+                                        option.title?.[currentLanguage] ||
+                                        option.title?.sv ||
+                                        "";
+                                      const translatedDescription =
+                                        option.description?.[currentLanguage] ||
+                                        option.description?.sv;
+
+                                      return (
+                                        <div
+                                          key={option._id}
+                                          className="border border-gray-600 rounded-lg overflow-hidden bg-gray-700 transition-all duration-300"
+                                        >
+                                          <button
+                                            onClick={() =>
+                                              toggleOption(option._id)
+                                            }
+                                            className="w-full flex justify-between items-center p-4 hover:bg-gray-600 transition-colors"
+                                          >
+                                            <div className="flex items-center gap-3">
+                                              {option.gallery?.[0]?.asset && (
+                                                <img
+                                                  src={urlFor(
+                                                    option.gallery[0].asset,
+                                                  )
+                                                    .width(80)
+                                                    .url()}
+                                                  alt={
+                                                    option.gallery[0].alt ||
+                                                    translatedTitle ||
+                                                    "AKT+"
+                                                  }
+                                                  className="h-10 w-10 object-contain"
+                                                  loading="lazy"
+                                                />
+                                              )}
+                                              <span className="text-lg font-bold text-orange-600">
+                                                {translatedTitle}
+                                              </span>
+                                            </div>
+
+                                            <svg
+                                              className={`h-5 w-5 text-orange-600 transition-transform ${
+                                                expandedOptions[option._id]
+                                                  ? "rotate-180"
+                                                  : ""
+                                              }`}
+                                              viewBox="0 0 20 20"
+                                              fill="currentColor"
+                                            >
+                                              <path
+                                                fillRule="evenodd"
+                                                d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                                                clipRule="evenodd"
+                                              />
+                                            </svg>
+                                          </button>
+
+                                          {expandedOptions[option._id] && (
+                                            <div className="bg-gray-800 border-t border-gray-600 p-4 space-y-4">
+                                              {translatedDescription && (
+                                                <div className="prose prose-invert max-w-none text-sm">
+                                                  <PortableText
+                                                    value={
+                                                      translatedDescription
+                                                    }
+                                                    components={
+                                                      portableTextComponents
+                                                    }
+                                                  />
+                                                </div>
+                                              )}
+
+                                              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                                                {option.price && (
+                                                  <p className="font-bold text-green-400">
+                                                    {translate(
+                                                      currentLanguage,
+                                                      "priceLabel",
+                                                    )}
+                                                    :{" "}
+                                                    {option.price.toLocaleString()}{" "}
+                                                    kr
+                                                  </p>
+                                                )}
+
+                                                <button
+                                                  onClick={() =>
+                                                    handleBookNow(
+                                                      translatedTitle,
+                                                    )
+                                                  }
+                                                  className="bg-green-600 hover:bg-green-700 hover:scale-105 transform transition-all text-white px-6 py-3 rounded-lg font-medium shadow-lg"
+                                                >
+                                                  📩{" "}
+                                                  {translate(
+                                                    currentLanguage,
+                                                    "contactvalue",
+                                                  )}
+                                                </button>
+                                              </div>
+                                            </div>
+                                          )}
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </>
+                      );
+                    })()}
                 </div>
               );
             })}
