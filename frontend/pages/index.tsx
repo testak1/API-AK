@@ -831,56 +831,90 @@ export default function TuningViewer() {
   );
 
   const generateDynoCurve = (
-  peakValue: number,
-  isHp: boolean,
-  fuelType: string,
-) => {
-  const isDiesel = fuelType.toLowerCase().includes("diesel");
-  
-  // Behåll dina ursprungliga RPM-ranges
-  const rpmRange = isDiesel
-    ? [1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000]
-    : [2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000];
-  
-  const totalSteps = rpmRange.length;
+    peakValue: number,
+    isHp: boolean,
+    fuelType: string,
+  ) => {
+    const isDiesel = fuelType.toLowerCase().includes("diesel");
 
-  if (isHp) {
-    // ---- Hästkraftskurva - jämn ökning, långsam minskning ----
-    const peakStep = Math.floor(totalSteps * (isDiesel ? 0.6 : 0.7)); // Anpassa peak baserat på bränsle
-    
-    return rpmRange.map((rpm, i) => {
-      if (i <= peakStep) {
-        // Linjär ökning till toppen
-        const progress = i / peakStep;
-        return peakValue * (0.4 + 0.6 * progress); // Startar från 40%, linjärt till 100%
-      } else {
-        // Mycket långsam minskning efter toppen
-        const progress = (i - peakStep) / (totalSteps - 1 - peakStep);
-        return peakValue * (1 - 0.2 * progress); // Bara 20% minskning vid högsta RPM
-      }
-    });
-    
-  } else {
-    // ---- Vridmomentskurva - tidig topp, platå, långsam minskning ----
-    const peakStep = Math.floor(totalSteps * (isDiesel ? 0.3 : 0.4)); // Anpassa peak baserat på bränsle
-    const plateauEndStep = peakStep + (isDiesel ? 2 : 3); // Platå längre för bensin
-    
-    return rpmRange.map((rpm, i) => {
-      if (i < peakStep) {
-        // Snabb ökning till toppen
-        const progress = i / peakStep;
-        return peakValue * (0.5 + 0.5 * Math.pow(progress, 1.2));
-      } else if (i <= plateauEndStep) {
-        // Platå - håller maxvärdet
-        return peakValue;
-      } else {
-        // Långsam minskning efter platån
-        const progress = (i - plateauEndStep) / (totalSteps - 1 - plateauEndStep);
-        return peakValue * (1 - 0.25 * progress); // 25% minskning vid högsta RPM
-      }
-    });
-  }
-};
+    // RPM-ranges baserat på bränsletyp
+    const rpmRange = isDiesel
+      ? [1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000]
+      : [2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000];
+
+    const totalSteps = rpmRange.length;
+
+    // Lägg till lite slumpmässig variation (±2-3%)
+    const addRandomVariation = (value: number) => {
+      const variation = Math.random() * 0.06 - 0.03; // ±3%
+      return value * (1 + variation);
+    };
+
+    if (isHp) {
+      // ---- HÄSTKRAFT (HP) KURVA ----
+      const startPercentage = isDiesel ? 0.45 : 0.35; // Diesel startar högre
+      const peakStepPercentage = isDiesel ? 0.6 : 0.7; // Bensin peakar senare
+
+      const peakStep = Math.floor(totalSteps * peakStepPercentage);
+
+      return rpmRange.map((rpm, i) => {
+        let value: number;
+
+        if (i <= peakStep) {
+          // Ökning till toppen
+          const progress = i / peakStep;
+          // Diesel: snabbare uppgång, Bensin: lite jämnare
+          const curveFactor = isDiesel ? Math.pow(progress, 0.9) : progress;
+          value =
+            peakValue * (startPercentage + (1 - startPercentage) * curveFactor);
+        } else {
+          // Minskning efter toppen
+          const progress = (i - peakStep) / (totalSteps - 1 - peakStep);
+          // Diesel: långsammare minskning, Bensin: snabbare
+          const dropRate = isDiesel ? 0.15 : 0.25;
+          value = peakValue * (1 - dropRate * Math.pow(progress, 1.2));
+        }
+
+        return addRandomVariation(value);
+      });
+    } else {
+      // ---- VRIDMOMENT (NM) KURVA ----
+      const startPercentage = isDiesel ? 0.6 : 0.4; // Diesel har mer bottenvrid
+      const peakStepPercentage = isDiesel ? 0.3 : 0.4; // Diesel peakar tidigare
+      const plateauLength = isDiesel ? 3 : 2; // Diesel har längre platå
+
+      const peakStep = Math.floor(totalSteps * peakStepPercentage);
+      const plateauEndStep = Math.min(peakStep + plateauLength, totalSteps - 1);
+
+      return rpmRange.map((rpm, i) => {
+        let value: number;
+
+        if (i < peakStep) {
+          // Snabb ökning till toppen
+          const progress = i / peakStep;
+          // Exponentiell ökning för mer realistisk kurva
+          value =
+            peakValue *
+            (startPercentage + (1 - startPercentage) * Math.pow(progress, 1.3));
+        } else if (i <= plateauEndStep) {
+          // Platå - håller maxvärdet med liten variation
+          const plateauProgress = (i - peakStep) / (plateauEndStep - peakStep);
+          // Liten kurva på platån för att undvika perfekt rak linje
+          const plateauVariation = Math.sin(plateauProgress * Math.PI) * 0.02;
+          value = peakValue * (0.98 + plateauVariation);
+        } else {
+          // Minskning efter platån
+          const progress =
+            (i - plateauEndStep) / (totalSteps - 1 - plateauEndStep);
+          // Diesel: långsammare minskning
+          const dropRate = isDiesel ? 0.2 : 0.3;
+          value = peakValue * (1 - dropRate * Math.pow(progress, 1.1));
+        }
+
+        return addRandomVariation(value);
+      });
+    }
+  };
   const rpmLabels = selectedEngine?.fuel?.toLowerCase().includes("diesel")
     ? ["1500", "2000", "2500", "3000", "3500", "4000", "4500", "5000"]
     : [
@@ -2143,40 +2177,53 @@ export default function TuningViewer() {
                           <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
                             {/* Split the spec boxes */}
                             <div className="absolute hidden md:flex flex-row justify-between top-4 left-0 right-0 px-16">
-                              {/* ORG HK / Max HK */}
+                              {/* HK Container */}
                               <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
-                                <p className="text-red-600">- - -</p>
-                                <p className="text-white">
-                                  HK ORG: {stage.origHk} HK
-                                </p>
-                                <p className="text-red-600">_____</p>
-                                <p className="text-white">
-                                  HK{" "}
-                                  {stage.name
-                                    .replace("Steg", "ST")
-                                    .replace(/\s+/g, "")
-                                    .toUpperCase()}
-                                  : {stage.tunedHk} HK
-                                </p>
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="text-red-400 font-mono text-[16px] tracking-wide drop-shadow-[0_0_3px_rgba(248,113,113,0.8)]">
+                                    ---
+                                  </span>
+                                  <span className="text-white">
+                                    ORG: {stage.origHk} HK
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-red-600 font-mono text-[16px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
+                                    ___
+                                  </span>
+                                  <span className="text-white">
+                                    <span className="text-white text-[14px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
+                                      ST{stage.name.replace(/\D/g, "")}:{" "}
+                                      {stage.tunedHk} HK
+                                    </span>
+                                  </span>
+                                </div>
                               </div>
 
-                              {/* ORG NM / Max NM */}
+                              {/* NM Container */}
                               <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
-                                <p className="text-white">- - -</p>
-                                <p className="text-white">
-                                  NM ORG: {stage.origNm} NM
-                                </p>
-                                <p className="text-white">_____</p>
-                                <p className="text-white">
-                                  NM{" "}
-                                  {stage.name
-                                    .replace("Steg", "ST")
-                                    .replace(/\s+/g, "")
-                                    .toUpperCase()}
-                                  : {stage.tunedNm} NM
-                                </p>
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="text-white font-mono text-[16px] tracking-wide drop-shadow-[0_0_3px_rgba(248,113,113,0.8)]">
+                                    ---
+                                  </span>
+                                  <span className="text-white">
+                                    ORG: {stage.origNm} NM
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-white font-mono text-[16px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
+                                    ___
+                                  </span>
+                                  <span className="text-white">
+                                    <span className="text-white text-[14px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
+                                      ST{stage.name.replace(/\D/g, "")}:{" "}
+                                      {stage.tunedNm} NM
+                                    </span>
+                                  </span>
+                                </div>
                               </div>
                             </div>
+
                             {/* Dyno graph */}
                             {isExpanded && !isDsgStage && !isTruck && (
                               <Line

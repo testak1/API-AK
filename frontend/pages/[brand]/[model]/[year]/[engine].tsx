@@ -53,11 +53,7 @@ interface EnginePageProps {
 
 const Line = dynamic(() => import("react-chartjs-2").then((mod) => mod.Line), {
   ssr: false,
-  loading: () => (
-    <div className="h-96 bg-gray-800 rounded-lg animate-pulse flex items-center justify-center">
-      <p className="text-gray-400">Laddar dynobild...</p>
-    </div>
-  ),
+  loading: () => <div className="h-96 bg-gray-800 animate-pulse" />,
 });
 
 const normalizeString = (str: string) =>
@@ -175,17 +171,17 @@ const generateDynoCurve = (
   fuelType: string,
 ) => {
   const isDiesel = fuelType.toLowerCase().includes("diesel");
-  
+
   // RPM-ranges baserat på bränsletyp
   const rpmRange = isDiesel
     ? [1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000]
     : [2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000];
-  
+
   const totalSteps = rpmRange.length;
 
   // Lägg till lite slumpmässig variation (±2-3%)
   const addRandomVariation = (value: number) => {
-    const variation = (Math.random() * 0.04) - 0.02; // ±2%
+    const variation = Math.random() * 0.06 - 0.03; // ±3%
     return value * (1 + variation);
   };
 
@@ -193,18 +189,19 @@ const generateDynoCurve = (
     // ---- HÄSTKRAFT (HP) KURVA ----
     const startPercentage = isDiesel ? 0.45 : 0.35; // Diesel startar högre
     const peakStepPercentage = isDiesel ? 0.6 : 0.7; // Bensin peakar senare
-    
+
     const peakStep = Math.floor(totalSteps * peakStepPercentage);
-    
+
     return rpmRange.map((rpm, i) => {
       let value: number;
-      
+
       if (i <= peakStep) {
         // Ökning till toppen
         const progress = i / peakStep;
         // Diesel: snabbare uppgång, Bensin: lite jämnare
         const curveFactor = isDiesel ? Math.pow(progress, 0.9) : progress;
-        value = peakValue * (startPercentage + (1 - startPercentage) * curveFactor);
+        value =
+          peakValue * (startPercentage + (1 - startPercentage) * curveFactor);
       } else {
         // Minskning efter toppen
         const progress = (i - peakStep) / (totalSteps - 1 - peakStep);
@@ -212,27 +209,28 @@ const generateDynoCurve = (
         const dropRate = isDiesel ? 0.15 : 0.25;
         value = peakValue * (1 - dropRate * Math.pow(progress, 1.2));
       }
-      
+
       return addRandomVariation(value);
     });
-    
   } else {
     // ---- VRIDMOMENT (NM) KURVA ----
     const startPercentage = isDiesel ? 0.6 : 0.4; // Diesel har mer bottenvrid
     const peakStepPercentage = isDiesel ? 0.3 : 0.4; // Diesel peakar tidigare
     const plateauLength = isDiesel ? 3 : 2; // Diesel har längre platå
-    
+
     const peakStep = Math.floor(totalSteps * peakStepPercentage);
     const plateauEndStep = Math.min(peakStep + plateauLength, totalSteps - 1);
-    
+
     return rpmRange.map((rpm, i) => {
       let value: number;
-      
+
       if (i < peakStep) {
         // Snabb ökning till toppen
         const progress = i / peakStep;
         // Exponentiell ökning för mer realistisk kurva
-        value = peakValue * (startPercentage + (1 - startPercentage) * Math.pow(progress, 1.3));
+        value =
+          peakValue *
+          (startPercentage + (1 - startPercentage) * Math.pow(progress, 1.3));
       } else if (i <= plateauEndStep) {
         // Platå - håller maxvärdet med liten variation
         const plateauProgress = (i - peakStep) / (plateauEndStep - peakStep);
@@ -241,12 +239,13 @@ const generateDynoCurve = (
         value = peakValue * (0.98 + plateauVariation);
       } else {
         // Minskning efter platån
-        const progress = (i - plateauEndStep) / (totalSteps - 1 - plateauEndStep);
+        const progress =
+          (i - plateauEndStep) / (totalSteps - 1 - plateauEndStep);
         // Diesel: långsammare minskning
         const dropRate = isDiesel ? 0.2 : 0.3;
         value = peakValue * (1 - dropRate * Math.pow(progress, 1.1));
       }
-      
+
       return addRandomVariation(value);
     });
   }
@@ -1345,7 +1344,7 @@ export default function EnginePage({
                             ).toUpperCase()}{" "}
                           </h3>
                         )}
- {/* Mobile-only legend above chart */}
+                        {/* Mobile-only legend above chart */}
                         {!isDsgStage && (
                           <div className="flex justify-center items-center gap-2 md:hidden text-xs text-white">
                             <div className="flex items-center gap-1">
@@ -1380,8 +1379,6 @@ export default function EnginePage({
                             </div>
                           </div>
                         )}
-
-                        
 
                         {!isDsgStage && !isTruck && (
                           <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
@@ -1498,10 +1495,6 @@ export default function EnginePage({
                                       pointRadius: 0,
                                       yAxisID: "nm",
                                     },
-                                    
-                                    
-                                    
-                                    
                                   ],
                                 }}
                                 options={{
