@@ -1409,8 +1409,8 @@ export default function EnginePage({
                             </div>
 
                             {/* Dyno graph */}
-                            {isExpanded && !isDsgStage && !isTruck && (
-                              <Line
+{isExpanded && !isDsgStage && !isTruck && (
+  <Line
     data={{
       labels: rpmLabels,
       datasets: [
