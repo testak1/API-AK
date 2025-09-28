@@ -2102,7 +2102,7 @@ export default function TuningViewer() {
                                 {translate(currentLanguage, "infoStage")}
                               </button>
                               {/* Hidden SEO content for stage info */}
-                              <div className="sr-only" aria-hidden="true">
+                              <div className="sr-only">
                                 <h2>{stage.name.toUpperCase()} INFORMATION</h2>
                                 {dynamicDescription && (
                                   <PortableText
@@ -2122,7 +2122,7 @@ export default function TuningViewer() {
                               </button>
                             </div>
                             {/* Hidden SEO content for general info */}
-                            <div className="sr-only" aria-hidden="true">
+                            <div className="sr-only">
                               <h2>GENERELL INFORMATION</h2>
                               <div>
                                 <ul className="space-y-2">
