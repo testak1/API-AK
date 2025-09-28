@@ -12,14 +12,18 @@ type OnVehicleFound = (vehicle: {
 
 type OnError = (message: string | null) => void;
 
+type OnStartTyping = () => void;
+
 export default function RegnrSearch({
   onVehicleFound,
   onError,
   disabled,
+  onStartTyping,
 }: {
   onVehicleFound: OnVehicleFound;
   onError: OnError;
   disabled: boolean;
+  onStartTyping?: OnStartTyping;
 }) {
   const [regnr, setRegnr] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -34,6 +38,12 @@ export default function RegnrSearch({
       setError(null);
     }
   }, [regnr]);
+
+  useEffect(() => {
+    if (regnr.length > 0) {
+      onStartTyping?.();
+    }
+  }, [regnr, onStartTyping]);
 
   const handleSearch = async () => {
     if (!regnr || disabled) return;

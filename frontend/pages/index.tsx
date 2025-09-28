@@ -120,6 +120,7 @@ export default function TuningViewer() {
   const [viewMode, setViewMode] = useState<"card" | "dropdown">("card");
   const [isLoading, setIsLoading] = useState(true);
   const [isDbLoading, setIsDbLoading] = useState(true);
+  const [hasStartedRegnrSearch, setHasStartedRegnrSearch] = useState(false);
   const [expandedStages, setExpandedStages] = useState<Record<string, boolean>>(
     {},
   );
@@ -154,16 +155,14 @@ export default function TuningViewer() {
     setIsLoading(true);
     setIsDbLoading(true);
 
+    // TA BORT all-vehicles från denna fetch och låt den endast hämta brands
     Promise.all([
-      fetch("/api/all-vehicles").then((res) => res.json()),
+      // fetch("/api/all-vehicles").then((res) => res.json()), ← TA BORT DENNA
       fetch("/api/brands").then((res) => res.json()),
     ])
-      .then(([vehiclesData, brandsData]) => {
-        setAllVehicles(vehiclesData.vehicles || []);
-        console.log(
-          `Hämtat ${vehiclesData.vehicles?.length || 0} fordon för matchning.`,
-        );
-
+      .then(([brandsData]) => {
+        // ← Uppdatera parametern
+        // setAllVehicles(vehiclesData.vehicles || []); ← TA BORT DENNA
         setData(brandsData.result || []);
       })
       .catch((error) => {
@@ -352,6 +351,12 @@ export default function TuningViewer() {
       setExpandedStages({});
     }
   }, [stages]);
+
+  useEffect(() => {
+    if (hasStartedRegnrSearch && allVehicles.length === 0) {
+      fetchVehicleData();
+    }
+  }, [hasStartedRegnrSearch]);
 
   const handleVehicleFound = (scrapedVehicle: {
     brand: string;
@@ -666,6 +671,17 @@ export default function TuningViewer() {
       return `${model}-klass`;
     }
     return model;
+  };
+
+  const fetchVehicleData = async () => {
+    try {
+      const vehiclesResponse = await fetch("/api/all-vehicles");
+      const vehiclesData = await vehiclesResponse.json();
+      setAllVehicles(vehiclesData.vehicles || []);
+    } catch (error) {
+      console.error("Ett fel uppstod vid hämtning av fordonsdata:", error);
+      setSearchError("Kunde inte ladda fordonsdatabasen.");
+    }
   };
 
   const slugify = (str: string) =>
@@ -1153,6 +1169,7 @@ export default function TuningViewer() {
                   onVehicleFound={handleVehicleFound}
                   onError={setSearchError}
                   disabled={false}
+                  onStartTyping={() => setHasStartedRegnrSearch(true)}
                 />
               </div>
             </div>
