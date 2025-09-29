@@ -1,6 +1,7 @@
 // pages/index.tsx
 import Head from "next/head";
 import Image from "next/image";
+import NextImage from "next/image";
 import React, {
   useEffect,
   useState,
@@ -18,9 +19,9 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-
 import { PortableText } from "@portabletext/react";
 import RegnrSearch from "@/components/RegnrSearch";
+import ContactModal from "@/components/ContactModal";
 import { urlFor } from "@/lib/sanity";
 import PublicLanguageDropdown from "@/components/PublicLanguageSwitcher";
 import { LayoutGrid, List } from "lucide-react";
@@ -56,10 +57,6 @@ const Line = dynamic(() => import("react-chartjs-2").then((mod) => mod.Line), {
       <p className="text-gray-400">Laddar dynobild...</p>
     </div>
   ),
-});
-
-const ContactModal = dynamic(() => import("@/components/ContactModal"), {
-  ssr: false,
 });
 
 interface SelectionState {
@@ -1151,7 +1148,7 @@ export default function TuningViewer() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between relative mb-8">
           {/* Vänster: Logga */}
           <div className="flex justify-between items-center">
-            <Image
+            <NextImage
               src="/ak-logo2.png"
               alt="AK-TUNING MOTOROPTIMERING"
               width={110}

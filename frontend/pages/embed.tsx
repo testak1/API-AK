@@ -1,22 +1,13 @@
-// embed.tsx
-import { useEffect, useState, useCallback } from "react"; // Lägg till useState och useCallback
+import { useEffect } from "react";
 import TuningViewer from "./index";
 
 export default function Embed() {
-  const [lastSentHeight, setLastSentHeight] = useState<number | null>(null);
-
-  const sendHeight = useCallback(() => {
-    // Använd documentElement för bättre tillförlitlighet
-    const height = document.documentElement.scrollHeight;
-
-    // Skicka bara meddelandet om höjden faktiskt har ändrats
-    if (height !== lastSentHeight) {
-      setLastSentHeight(height);
-      window.parent.postMessage({ height }, "*");
-    }
-  }, [lastSentHeight]);
-
   useEffect(() => {
+    const sendHeight = () => {
+      const height = document.body.scrollHeight;
+      window.parent.postMessage({ height }, "*");
+    };
+
     const debounce = (fn: () => void, delay: number) => {
       let timeout: ReturnType<typeof setTimeout>;
       return () => {
@@ -25,17 +16,12 @@ export default function Embed() {
       };
     };
 
-    // Använd requestAnimationFrame för att mäta höjden vid ett stabilare tillfälle
-    const stableSendHeight = () => {
-      window.requestAnimationFrame(() => {
-        sendHeight();
-      });
-    };
+    const debouncedSendHeight = debounce(sendHeight, 100);
 
-    const debouncedSendHeight = debounce(stableSendHeight, 150); // Öka debounce lite
-
+    // Initial post
     debouncedSendHeight();
 
+    // Watch for DOM changes
     const mutationObserver = new MutationObserver(debouncedSendHeight);
     mutationObserver.observe(document.body, {
       childList: true,
@@ -43,17 +29,21 @@ export default function Embed() {
       attributes: true,
     });
 
-    const resizeObserver = new ResizeObserver(debouncedSendHeight);
-    resizeObserver.observe(document.documentElement);
-
+    // Watch for resize events
     window.addEventListener("resize", debouncedSendHeight);
+
+    // Optional: Track element size changes (e.g. images loading, modal expanding)
+    const resizeObserver = new ResizeObserver(debouncedSendHeight);
+    resizeObserver.observe(document.body);
 
     return () => {
       mutationObserver.disconnect();
       resizeObserver.disconnect();
       window.removeEventListener("resize", debouncedSendHeight);
     };
-  }, [sendHeight]);
+  }, []);
 
-  return <TuningViewer />;
+  return (
+      <TuningViewer />
+  );
 }
