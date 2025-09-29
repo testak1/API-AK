@@ -1,11 +1,11 @@
 // pages/[brand]/[model]/[year]/[engine]/[stage].tsx
-import { GetStaticPaths, GetStaticProps } from "next";
+import {GetStaticPaths, GetStaticProps} from "next";
 import NextImage from "next/image";
 import Image from "next/image";
-import { useRouter } from "next/router";
+import {useRouter} from "next/router";
 import Link from "next/link";
 import client from "@/lib/sanity";
-import { engineByParamsQuery } from "@/src/lib/queries";
+import {engineByParamsQuery} from "@/src/lib/queries";
 import type {
   Brand,
   Model,
@@ -14,12 +14,12 @@ import type {
   Stage,
   AktPlusOption,
 } from "@/types/sanity";
-import { urlFor } from "@/lib/sanity";
-import { PortableText } from "@portabletext/react";
+import {urlFor} from "@/lib/sanity";
+import {PortableText} from "@portabletext/react";
 import PublicLanguageDropdown from "@/components/PublicLanguageSwitcher";
-import { t as translate } from "@/lib/translations";
+import {t as translate} from "@/lib/translations";
 import Head from "next/head";
-import React, { useEffect, useState, useRef, useMemo } from "react";
+import React, {useEffect, useState, useRef, useMemo} from "react";
 import ContactModal from "@/components/ContactModal";
 import {
   Chart as ChartJS,
@@ -40,16 +40,16 @@ ChartJS.register(
   LineElement,
   LineController,
   Tooltip,
-  Legend,
+  Legend
 );
 
-const Line = dynamic(() => import("react-chartjs-2").then((mod) => mod.Line), {
+const Line = dynamic(() => import("react-chartjs-2").then(mod => mod.Line), {
   ssr: false,
   loading: () => <div className="h-96 bg-gray-800 animate-pulse" />,
 });
 const FuelSavingCalculator = dynamic(
   () => import("@/components/FuelSavingCalculator"),
-  { ssr: false },
+  {ssr: false}
 );
 
 interface StagePageProps {
@@ -67,11 +67,11 @@ export const getStaticPaths: GetStaticPaths = async () => {
   // Return empty paths for static generation - we'll generate on-demand
   return {
     paths: [],
-    fallback: 'blocking',
+    fallback: "blocking",
   };
 };
 
-export const getStaticProps: GetStaticProps<StagePageProps> = async (context) => {
+export const getStaticProps: GetStaticProps<StagePageProps> = async context => {
   const brand = decodeURIComponent((context.params?.brand as string) || "");
   const model = decodeURIComponent((context.params?.model as string) || "");
   const year = decodeURIComponent((context.params?.year as string) || "");
@@ -85,7 +85,7 @@ export const getStaticProps: GetStaticProps<StagePageProps> = async (context) =>
       lang,
     });
 
-    if (!brandData) return { notFound: true };
+    if (!brandData) return {notFound: true};
 
     const modelData =
       brandData.models?.find(
@@ -93,39 +93,40 @@ export const getStaticProps: GetStaticProps<StagePageProps> = async (context) =>
           normalizeString(m.name) === normalizeString(model) ||
           (m.slug &&
             normalizeString(
-              typeof m.slug === "string" ? m.slug : m.slug.current,
-            ) === normalizeString(model)),
+              typeof m.slug === "string" ? m.slug : m.slug.current
+            ) === normalizeString(model))
       ) || null;
 
-    if (!modelData) return { notFound: true };
+    if (!modelData) return {notFound: true};
 
     const yearData =
       modelData.years?.find(
         (y: Year) =>
           normalizeString(y.range) === normalizeString(year) ||
-          (y.slug && normalizeString(y.slug) === normalizeString(year)),
+          (y.slug && normalizeString(y.slug) === normalizeString(year))
       ) || null;
 
-    if (!yearData) return { notFound: true };
+    if (!yearData) return {notFound: true};
 
     const engineData =
       yearData.engines?.find(
         (e: Engine) =>
           normalizeString(e.label) === normalizeString(engine) ||
-          (e.slug && normalizeString(e.slug) === normalizeString(engine)),
+          (e.slug && normalizeString(e.slug) === normalizeString(engine))
       ) || null;
 
-    if (!engineData) return { notFound: true };
+    if (!engineData) return {notFound: true};
 
     // Find the specific stage
     const stageData =
       engineData.stages?.find(
         (s: Stage) =>
           normalizeString(s.name) === normalizeString(stage) ||
-          normalizeString(s.name.replace(/\s+/g, "-")) === normalizeString(stage),
+          normalizeString(s.name.replace(/\s+/g, "-")) ===
+            normalizeString(stage)
       ) || null;
 
-    if (!stageData) return { notFound: true };
+    if (!stageData) return {notFound: true};
 
     return {
       props: {
@@ -139,7 +140,7 @@ export const getStaticProps: GetStaticProps<StagePageProps> = async (context) =>
     };
   } catch (err) {
     console.error("Stage page fetch failed:", err);
-    return { notFound: true };
+    return {notFound: true};
   }
 };
 
@@ -147,10 +148,10 @@ function extractPlainTextFromDescription(description: any): string {
   if (!Array.isArray(description)) return "";
 
   return description
-    .map((block) => {
+    .map(block => {
       if (block._type === "block" && Array.isArray(block.children)) {
         return block.children
-          .map((child) => (typeof child.text === "string" ? child.text : ""))
+          .map(child => (typeof child.text === "string" ? child.text : ""))
           .join("");
       }
 
@@ -166,7 +167,7 @@ function extractPlainTextFromDescription(description: any): string {
 
 const portableTextComponents = {
   types: {
-    image: ({ value }: any) => (
+    image: ({value}: any) => (
       <img
         src={urlFor(value).width(600).url()}
         alt={value.alt || ""}
@@ -176,7 +177,7 @@ const portableTextComponents = {
     ),
   },
   marks: {
-    link: ({ children, value }: any) => (
+    link: ({children, value}: any) => (
       <a
         href={value.href}
         className="text-blue-400 hover:text-blue-300 underline"
@@ -190,7 +191,7 @@ const portableTextComponents = {
 const generateDynoCurve = (
   peakValue: number,
   isHp: boolean,
-  fuelType: string,
+  fuelType: string
 ) => {
   const isDiesel = fuelType.toLowerCase().includes("diesel");
 
@@ -317,7 +318,7 @@ export default function StagePage({
     open: boolean;
     type: "stage" | "general";
     stage?: Stage;
-  }>({ open: false, type: "stage" });
+  }>({open: false, type: "stage"});
 
   const [expandedOptions, setExpandedOptions] = useState<
     Record<string, boolean>
@@ -359,7 +360,7 @@ export default function StagePage({
 
   const handleBookNow = (
     stageOrOptionName: string,
-    event?: React.MouseEvent,
+    event?: React.MouseEvent
   ) => {
     if (!brandData || !modelData || !yearData || !engineData) return;
 
@@ -426,12 +427,12 @@ export default function StagePage({
   const getAllAktPlusOptions = (stage: Stage): AktPlusOption[] => {
     if (!engineData) return [];
 
-    const options = allAktOptions.filter((opt) => {
+    const options = allAktOptions.filter(opt => {
       const isFuelMatch =
         opt.isUniversal || opt.applicableFuelTypes?.includes(engineData.fuel);
 
       const isManualMatch = opt.manualAssignments?.some(
-        (ref) => ref._ref === engineData._id,
+        ref => ref._ref === engineData._id
       );
 
       const isStageMatch =
@@ -441,7 +442,7 @@ export default function StagePage({
     });
 
     const unique = new Map<string, AktPlusOption>();
-    options.forEach((opt) => unique.set(opt._id, opt));
+    options.forEach(opt => unique.set(opt._id, opt));
     return Array.from(unique.values());
   };
 
@@ -450,7 +451,7 @@ export default function StagePage({
     beforeDraw: (chart: ChartJS) => {
       const ctx = chart.ctx;
       const {
-        chartArea: { top, left, width, height },
+        chartArea: {top, left, width, height},
       } = chart;
 
       if (watermarkImageRef.current?.complete) {
@@ -475,9 +476,33 @@ export default function StagePage({
 
   const formatModelName = (brand: string, model: string): string => {
     const mercedesModels = [
-      "A", "B", "C", "CL", "CLA", "CLC", "CLK", "CLS", "E", "G", "GL", "GLA", 
-      "GLB", "GLC", "GLE", "GLK", "GLS", "GT", "ML", "R", "S", "SL", "SLC", 
-      "SLK", "SLS", "V", "X",
+      "A",
+      "B",
+      "C",
+      "CL",
+      "CLA",
+      "CLC",
+      "CLK",
+      "CLS",
+      "E",
+      "G",
+      "GL",
+      "GLA",
+      "GLB",
+      "GLC",
+      "GLE",
+      "GLK",
+      "GLS",
+      "GT",
+      "ML",
+      "R",
+      "S",
+      "SL",
+      "SLC",
+      "SLK",
+      "SLS",
+      "V",
+      "X",
     ];
     if (
       brand.toLowerCase().includes("mercedes") &&
@@ -491,7 +516,7 @@ export default function StagePage({
   const shadowPlugin = {
     id: "shadowPlugin",
     beforeDatasetDraw(chart: ChartJS, args: any, options: any) {
-      const { ctx } = chart;
+      const {ctx} = chart;
       const dataset = chart.data.datasets[args.index];
 
       ctx.save();
@@ -506,7 +531,7 @@ export default function StagePage({
   };
 
   const toggleOption = (optionId: string) => {
-    setExpandedOptions((prev) => {
+    setExpandedOptions(prev => {
       const newState: Record<string, boolean> = {};
       newState[optionId] = !prev[optionId];
       return newState;
@@ -519,7 +544,7 @@ export default function StagePage({
 
     const stageNum = match[1];
     const translations: Record<string, string> = {
-      sv: `Steg ${stageNum}`,
+      sv: `STEG ${stageNum}`,
       en: `Stage ${stageNum}`,
       it: `Fase ${stageNum}`,
       de: `Stufe ${stageNum}`,
@@ -535,34 +560,45 @@ export default function StagePage({
     return engineData?.fuel?.toLowerCase().includes("diesel")
       ? ["1500", "2000", "2500", "3000", "3500", "4000", "4500", "5000"]
       : [
-          "2000", "2500", "3000", "3500", "4000", "4500", "5000", 
-          "5500", "6000", "6500", "7000",
+          "2000",
+          "2500",
+          "3000",
+          "3500",
+          "4000",
+          "4500",
+          "5000",
+          "5500",
+          "6000",
+          "6500",
+          "7000",
         ];
   }, [engineData?.fuel]);
 
   const allOptions = stageData ? getAllAktPlusOptions(stageData) : [];
-  const hkIncrease = stageData?.tunedHk && stageData?.origHk 
-    ? stageData.tunedHk - stageData.origHk 
-    : "?";
-  const nmIncrease = stageData?.tunedNm && stageData?.origNm 
-    ? stageData.tunedNm - stageData.origNm 
-    : "?";
+  const hkIncrease =
+    stageData?.tunedHk && stageData?.origHk
+      ? stageData.tunedHk - stageData.origHk
+      : "?";
+  const nmIncrease =
+    stageData?.tunedNm && stageData?.origNm
+      ? stageData.tunedNm - stageData.origNm
+      : "?";
 
-  const price = stageData?.price != null
-    ? `${stageData.price.toLocaleString()} kr`
-    : "";
+  const price =
+    stageData?.price != null ? `${stageData.price.toLocaleString()} kr` : "";
 
   const brandSlug = brandData?.slug?.current || slugify(brandData?.name || "");
-  const modelSlug = typeof modelData?.slug === "object"
-    ? modelData.slug.current
-    : modelData?.slug || slugify(modelData?.name || "");
+  const modelSlug =
+    typeof modelData?.slug === "object"
+      ? modelData.slug.current
+      : modelData?.slug || slugify(modelData?.name || "");
   const yearSlug = yearData?.range.includes(" ")
     ? slugify(yearData.range)
     : yearData?.range || "";
   const engineSlug = engineData?.label.includes(" ")
     ? slugify(engineData.label)
     : engineData?.label || "";
-  const stageSlug = stageData?.name 
+  const stageSlug = stageData?.name
     ? slugify(stageData.name.replace(/\s+/g, "-"))
     : "";
 
@@ -570,14 +606,16 @@ export default function StagePage({
   const enginePageUrl = `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}`;
 
   const pageTitle = cleanText(
-    `Motoroptimering ${brandData?.name} ${modelData?.name} ${engineData?.label} ${yearData?.range} – ${stageData?.name} | AK-TUNING`,
+    `Motoroptimering ${brandData?.name} ${modelData?.name} ${engineData?.label} ${yearData?.range} – ${stageData?.name} | AK-TUNING`
   );
 
-  const hkIncreaseText = hkIncrease !== "?" ? `+${hkIncrease} hk` : "högre effekt";
-  const nmIncreaseText = nmIncrease !== "?" ? `+${nmIncrease} Nm` : "bättre vridmoment";
+  const hkIncreaseText =
+    hkIncrease !== "?" ? `+${hkIncrease} hk` : "högre effekt";
+  const nmIncreaseText =
+    nmIncrease !== "?" ? `+${nmIncrease} Nm` : "bättre vridmoment";
 
   const pageDescription = cleanText(
-    `${stageData?.name} motoroptimering för ${brandData?.name} ${modelData?.name} ${engineData?.label} ${yearData?.range}. Effekt: ${stageData?.tunedHk} hk (${hkIncreaseText}). Vridmoment: ${stageData?.tunedNm} Nm (${nmIncreaseText}). Skräddarsydd mjukvara med 2 års garanti & 30 dagars öppet köp!`,
+    `${stageData?.name} Motoroptimering för ${brandData?.name} ${modelData?.name} ${engineData?.label} ${yearData?.range}. Effekt: ${stageData?.tunedHk} hk (${hkIncreaseText}). Vridmoment: ${stageData?.tunedNm} Nm (${nmIncreaseText}). Skräddarsydd mjukvara med 2 års garanti & 30 dagars öppet köp!`
   );
 
   const imageUrl = "https://tuning.aktuning.se/ak-logo1.png";
@@ -596,7 +634,7 @@ export default function StagePage({
 
   function renderDescription(
     template: string,
-    data: Record<string, string | number>,
+    data: Record<string, string | number>
   ): string {
     return template.replace(/{{(.*?)}}/g, (_, key) => {
       return data[key.trim()]?.toString() || "";
@@ -605,7 +643,7 @@ export default function StagePage({
 
   const createDynamicDescription = (
     description: any[],
-    stage: Stage | undefined,
+    stage: Stage | undefined
   ) => {
     if (
       !brandData ||
@@ -650,12 +688,17 @@ export default function StagePage({
 
   const isDsgStage = stageData.name.toLowerCase().includes("dsg");
   const isTruck = brandData.name.startsWith("[LASTBIL]");
-  const descriptionObject = stageData.descriptionRef?.description || stageData.description;
+  const descriptionObject =
+    stageData.descriptionRef?.description || stageData.description;
   let rawDescription = null;
 
   if (descriptionObject) {
-    if (typeof descriptionObject === "object" && !Array.isArray(descriptionObject)) {
-      rawDescription = descriptionObject[currentLanguage] || descriptionObject["sv"] || [];
+    if (
+      typeof descriptionObject === "object" &&
+      !Array.isArray(descriptionObject)
+    ) {
+      rawDescription =
+        descriptionObject[currentLanguage] || descriptionObject["sv"] || [];
     } else if (Array.isArray(descriptionObject)) {
       rawDescription = descriptionObject;
     }
@@ -672,14 +715,14 @@ export default function StagePage({
         <meta name="description" content={pageDescription} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="canonical" href={canonicalUrl} />
-        
+
         {/* Open Graph */}
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={pageDescription} />
         <meta property="og:type" content="website" />
         <meta property="og:url" content={canonicalUrl} />
         <meta property="og:image" content={imageUrl} />
-        
+
         {/* Favicon */}
         <link rel="icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -713,22 +756,23 @@ export default function StagePage({
                 name: "AK-TUNING Motoroptimering",
                 logo: "https://tuning.aktuning.se/ak-logo1.png",
               },
-              offers: stageData.price && stageData.price > 0
-                ? {
-                    "@type": "Offer",
-                    priceCurrency: "SEK",
-                    price: stageData.price,
-                    availability: "https://schema.org/InStock",
-                    url: canonicalUrl,
-                  }
-                : {
-                    "@type": "Offer",
-                    priceCurrency: "SEK",
-                    price: 0,
-                    availability: "https://schema.org/InStock",
-                    url: canonicalUrl,
-                    description: "Kontakta oss för offert",
-                  },
+              offers:
+                stageData.price && stageData.price > 0
+                  ? {
+                      "@type": "Offer",
+                      priceCurrency: "SEK",
+                      price: stageData.price,
+                      availability: "https://schema.org/InStock",
+                      url: canonicalUrl,
+                    }
+                  : {
+                      "@type": "Offer",
+                      priceCurrency: "SEK",
+                      price: 0,
+                      availability: "https://schema.org/InStock",
+                      url: canonicalUrl,
+                      description: "Kontakta oss för offert",
+                    },
             }),
           }}
         />
@@ -833,10 +877,11 @@ export default function StagePage({
           <div>
             <h1 className="text-xl sm:text-3xl md:text-xl font-bold mb-2">
               {translate(currentLanguage, "tuningIntro")}{" "}
+              {cleanText(brandData.name)}{" "}
               {cleanText(formatModelName(brandData.name, modelData.name))}{" "}
-              {cleanText(yearData.range)} – {cleanText(engineData.label)} –{" "}
+              {cleanText(yearData.range)} {cleanText(engineData.label)} –{" "}
               <span className={getStageColor(stageData.name)}>
-                {cleanText(stageData.name)}
+                {cleanText(stageData.name.toUpperCase())}
               </span>
             </h1>
             <Link
@@ -926,8 +971,8 @@ export default function StagePage({
                       {translate(currentLanguage, "rpmLimit")}
                     </p>
                     <p>
-                      Original:{" "}
-                      {stageData.tcuFields.rpmLimit.original || "-"} RPM
+                      Original: {stageData.tcuFields.rpmLimit.original || "-"}{" "}
+                      RPM
                     </p>
                     <p>
                       Optimerad:{" "}
@@ -943,8 +988,8 @@ export default function StagePage({
                       {translate(currentLanguage, "shiftTime")}
                     </p>
                     <p>
-                      Original:{" "}
-                      {stageData.tcuFields.shiftTime.original || "-"} ms
+                      Original: {stageData.tcuFields.shiftTime.original || "-"}{" "}
+                      ms
                     </p>
                     <p>
                       Optimerad:{" "}
@@ -970,9 +1015,7 @@ export default function StagePage({
                   <p className="text-xl text-white font-bold mb-1 uppercase">
                     {translateStageName(currentLanguage, stageData.name)} HK
                   </p>
-                  <p className="text-xl font-bold">
-                    {stageData.tunedHk} hk
-                  </p>
+                  <p className="text-xl font-bold">{stageData.tunedHk} hk</p>
                   <p className="text-xs mt-1 text-red-400">
                     +{stageData.tunedHk - stageData.origHk} hk
                   </p>
@@ -989,9 +1032,7 @@ export default function StagePage({
                   <p className="text-xl text-white font-bold mb-1 uppercase">
                     {translateStageName(currentLanguage, stageData.name)} NM
                   </p>
-                  <p className="text-xl font-bold">
-                    {stageData.tunedNm} Nm
-                  </p>
+                  <p className="text-xl font-bold">{stageData.tunedNm} Nm</p>
                   <p className="text-xs mt-1 text-red-400">
                     +{stageData.tunedNm - stageData.origNm} Nm
                   </p>
@@ -1019,7 +1060,10 @@ export default function StagePage({
                       </span>
                       <span className="text-white">
                         <span className="text-white text-[14px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
-                          {stageData.name.replace("Steg", "ST").replace(/\s+/g, "")}: {stageData.tunedHk} HK
+                          {stageData.name
+                            .replace("Steg", "ST")
+                            .replace(/\s+/g, "")}
+                          : {stageData.tunedHk} HK
                         </span>
                       </span>
                     </div>
@@ -1041,7 +1085,10 @@ export default function StagePage({
                       </span>
                       <span className="text-white">
                         <span className="text-white text-[14px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
-                          {stageData.name.replace("Steg", "ST").replace(/\s+/g, "")}: {stageData.tunedNm} NM
+                          {stageData.name
+                            .replace("Steg", "ST")
+                            .replace(/\s+/g, "")}
+                          : {stageData.tunedNm} NM
                         </span>
                       </span>
                     </div>
@@ -1058,7 +1105,7 @@ export default function StagePage({
                         data: generateDynoCurve(
                           stageData.origHk,
                           true,
-                          engineData.fuel,
+                          engineData.fuel
                         ),
                         borderColor: "#f87171",
                         backgroundColor: "#000000",
@@ -1073,7 +1120,7 @@ export default function StagePage({
                         data: generateDynoCurve(
                           stageData.tunedHk,
                           true,
-                          engineData.fuel,
+                          engineData.fuel
                         ),
                         borderColor: "#f87171",
                         backgroundColor: "#f87171",
@@ -1087,7 +1134,7 @@ export default function StagePage({
                         data: generateDynoCurve(
                           stageData.origNm,
                           false,
-                          engineData.fuel,
+                          engineData.fuel
                         ),
                         borderColor: "#FFFFFF",
                         backgroundColor: "#000000",
@@ -1102,7 +1149,7 @@ export default function StagePage({
                         data: generateDynoCurve(
                           stageData.tunedNm,
                           false,
-                          engineData.fuel,
+                          engineData.fuel
                         ),
                         borderColor: "#FFFFFF",
                         backgroundColor: "#FFFFFF",
@@ -1146,7 +1193,8 @@ export default function StagePage({
 
                             if (value === undefined) return label;
 
-                            const unit = context.dataset.yAxisID === "hp" ? "hk" : "Nm";
+                            const unit =
+                              context.dataset.yAxisID === "hp" ? "hk" : "Nm";
                             return `${label}: ${Math.round(value)} ${unit}`;
                           },
                         },
@@ -1161,7 +1209,7 @@ export default function StagePage({
                           display: true,
                           text: translate(currentLanguage, "powerLabel"),
                           color: "white",
-                          font: { size: 14 },
+                          font: {size: 14},
                         },
                         min: 0,
                         max: Math.ceil(stageData.tunedHk / 100) * 100 + 100,
@@ -1171,7 +1219,7 @@ export default function StagePage({
                         ticks: {
                           color: "#9CA3AF",
                           stepSize: 100,
-                          callback: (value) => `${value}`,
+                          callback: value => `${value}`,
                         },
                       },
                       nm: {
@@ -1182,7 +1230,7 @@ export default function StagePage({
                           display: true,
                           text: translate(currentLanguage, "torqueLabel"),
                           color: "white",
-                          font: { size: 14 },
+                          font: {size: 14},
                         },
                         min: 0,
                         max: Math.ceil(stageData.tunedNm / 100) * 100 + 100,
@@ -1192,7 +1240,7 @@ export default function StagePage({
                         ticks: {
                           color: "#9CA3AF",
                           stepSize: 100,
-                          callback: (value) => `${value}`,
+                          callback: value => `${value}`,
                         },
                       },
                       x: {
@@ -1200,7 +1248,7 @@ export default function StagePage({
                           display: true,
                           text: "RPM",
                           color: "#E5E7EB",
-                          font: { size: 14 },
+                          font: {size: 14},
                         },
                         grid: {
                           color: "rgba(255, 255, 255, 0.1)",
@@ -1228,6 +1276,8 @@ export default function StagePage({
               <div className="mb-6">
                 <div className="bg-gray-900 rounded-lg p-4">
                   <h3 className="text-xl font-bold text-white mb-4">
+                    {cleanText(stageData.name.toUpperCase())} -{" "}
+                    {translate(currentLanguage, "tuningIntro").toUpperCase()}
                     {translate(currentLanguage, "infoStage")}
                   </h3>
                   <div className="prose prose-invert max-w-none text-white">
@@ -1239,110 +1289,115 @@ export default function StagePage({
                 </div>
               </div>
             )}
-{allOptions.length > 0 && (
-  <div className="mb-6">
-    <div className="bg-gray-900 rounded-lg p-4">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <Image
-            src="/logos/aktplus.png"
-            alt="AKT+ Logo"
-            width={120}
-            height={32}
-            className="h-8 w-auto object-contain"
-            loading="lazy"
-          />
-          <h3 className="text-xl font-bold text-white">
-            {translate(currentLanguage, "additionsLabel")}
-          </h3>
-        </div>
-        <button
-          onClick={() => setExpandedAktPlus(!expandedAktPlus)}
-          className="text-orange-400 hover:text-orange-300 text-sm font-medium"
-        >
-          {expandedAktPlus ? "Dölj" : "Visa alla"}
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {allOptions
-          .slice(0, expandedAktPlus ? allOptions.length : 4)
-          .map((option) => {
-            const isExpanded = expandedOptions[option._id] || false;
-            // KORRIGERAD RAD - ta bort option.name
-            const optionTitle = option.title?.[currentLanguage] || option.title?.sv || "";
-            const optionDescription =
-              option.description?.[currentLanguage] ||
-              option.description?.["sv"] ||
-              [];
-
-            return (
-              <div
-                key={option._id}
-                className={`border rounded-lg p-4 transition-all duration-300 ${
-                  isExpanded
-                    ? "border-orange-400 bg-gray-800"
-                    : "border-gray-600 bg-gray-700"
-                }`}
-              >
-                <div className="flex justify-between items-start gap-4">
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-white text-lg mb-1">
-                      {optionTitle}
-                    </h4>
-                    {option.price && (
-                      <p className="text-orange-400 font-bold text-lg mb-2">
-                        {translate(currentLanguage, "priceLabel")}: {option.price.toLocaleString()} kr
-                      </p>
-                    )}
+            {allOptions.length > 0 && (
+              <div className="mb-6">
+                <div className="bg-gray-900 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <Image
+                        src="/logos/aktplus.png"
+                        alt="AKT+ Logo"
+                        width={120}
+                        height={32}
+                        className="h-8 w-auto object-contain"
+                        loading="lazy"
+                      />
+                      <h3 className="text-xl font-bold text-white">
+                        {translate(currentLanguage, "additionsLabel")}
+                      </h3>
+                    </div>
+                    <button
+                      onClick={() => setExpandedAktPlus(!expandedAktPlus)}
+                      className="text-orange-400 hover:text-orange-300 text-sm font-medium"
+                    >
+                      {expandedAktPlus ? "Dölj" : "Visa alla"}
+                    </button>
                   </div>
-                  <div className="flex flex-col items-end gap-2">
-                    <button
-                      onClick={() => toggleOption(option._id)}
-                      className="text-orange-400 hover:text-orange-300 text-sm font-medium whitespace-nowrap"
-                    >
-                      {isExpanded ? "Dölj info" : "Visa info"}
-                    </button>
-                    <button
-                      onClick={(e) =>
-                        handleBookNow(
-                          `${stageData.name} + ${optionTitle}`,
-                          e,
-                        )
-                      }
-                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm font-medium whitespace-nowrap"
-                    >
-                      📩 {translate(currentLanguage, "contactvalue")}
-                    </button>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {allOptions
+                      .slice(0, expandedAktPlus ? allOptions.length : 4)
+                      .map(option => {
+                        const isExpanded = expandedOptions[option._id] || false;
+                        // KORRIGERAD RAD - ta bort option.name
+                        const optionTitle =
+                          option.title?.[currentLanguage] ||
+                          option.title?.sv ||
+                          "";
+                        const optionDescription =
+                          option.description?.[currentLanguage] ||
+                          option.description?.["sv"] ||
+                          [];
+
+                        return (
+                          <div
+                            key={option._id}
+                            className={`border rounded-lg p-4 transition-all duration-300 ${
+                              isExpanded
+                                ? "border-orange-400 bg-gray-800"
+                                : "border-gray-600 bg-gray-700"
+                            }`}
+                          >
+                            <div className="flex justify-between items-start gap-4">
+                              <div className="flex-1">
+                                <h4 className="font-semibold text-white text-lg mb-1">
+                                  {optionTitle}
+                                </h4>
+                                {option.price && (
+                                  <p className="text-orange-400 font-bold text-lg mb-2">
+                                    {translate(currentLanguage, "priceLabel")}:{" "}
+                                    {option.price.toLocaleString()} kr
+                                  </p>
+                                )}
+                              </div>
+                              <div className="flex flex-col items-end gap-2">
+                                <button
+                                  onClick={() => toggleOption(option._id)}
+                                  className="text-orange-400 hover:text-orange-300 text-sm font-medium whitespace-nowrap"
+                                >
+                                  {isExpanded ? "Dölj info" : "Visa info"}
+                                </button>
+                                <button
+                                  onClick={e =>
+                                    handleBookNow(
+                                      `${stageData.name} + ${optionTitle}`,
+                                      e
+                                    )
+                                  }
+                                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm font-medium whitespace-nowrap"
+                                >
+                                  📩{" "}
+                                  {translate(currentLanguage, "contactvalue")}
+                                </button>
+                              </div>
+                            </div>
+
+                            {isExpanded && (
+                              <div className="mt-3 pt-3 border-t border-gray-600">
+                                {optionDescription.length > 0 ? (
+                                  <div className="prose prose-invert max-w-none text-sm text-gray-200">
+                                    <PortableText
+                                      value={optionDescription}
+                                      components={portableTextComponents}
+                                    />
+                                  </div>
+                                ) : (
+                                  <p className="text-gray-400 text-sm italic">
+                                    Ingen beskrivning tillgänglig
+                                  </p>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
                   </div>
                 </div>
-
-                {isExpanded && (
-                  <div className="mt-3 pt-3 border-t border-gray-600">
-                    {optionDescription.length > 0 ? (
-                      <div className="prose prose-invert max-w-none text-sm text-gray-200">
-                        <PortableText
-                          value={optionDescription}
-                          components={portableTextComponents}
-                        />
-                      </div>
-                    ) : (
-                      <p className="text-gray-400 text-sm italic">
-                        Ingen beskrivning tillgänglig
-                      </p>
-                    )}
-                  </div>
-                )}
               </div>
-            );
-          })}
-      </div>
-    </div>
-  </div>
-)}
+            )}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-8">
               <button
-                onClick={(e) => handleBookNow(stageData.name, e)}
+                onClick={e => handleBookNow(stageData.name, e)}
                 className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-bold text-lg shadow-lg transition-all duration-300 transform hover:scale-105 w-full sm:w-auto text-center"
               >
                 📩 {translate(currentLanguage, "contactvalue")} {stageData.name}
@@ -1362,7 +1417,7 @@ export default function StagePage({
       <ContactModal
         isOpen={contactModalData.isOpen}
         onClose={() =>
-          setContactModalData({ isOpen: false, stageOrOption: "", link: "" })
+          setContactModalData({isOpen: false, stageOrOption: "", link: ""})
         }
         selectedVehicle={{
           brand: brandData.name,
@@ -1395,7 +1450,9 @@ export default function StagePage({
                     {infoModal.stage.price?.toLocaleString()} kr
                   </p>
                   <p>
-                    <strong>{translate(currentLanguage, "performance")}:</strong>{" "}
+                    <strong>
+                      {translate(currentLanguage, "performance")}:
+                    </strong>{" "}
                     {infoModal.stage.origHk} → {infoModal.stage.tunedHk} hk (+
                     {hkIncrease}) / {infoModal.stage.origNm} →{" "}
                     {infoModal.stage.tunedNm} Nm (+{nmIncrease})
@@ -1406,7 +1463,7 @@ export default function StagePage({
               )}
             </div>
             <button
-              onClick={() => setInfoModal({ open: false, type: "stage" })}
+              onClick={() => setInfoModal({open: false, type: "stage"})}
               className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded w-full"
             >
               {translate(currentLanguage, "close")}
