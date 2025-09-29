@@ -129,6 +129,7 @@ export default function TuningViewer() {
   const [searchError, setSearchError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"card" | "dropdown">("card");
   const [isLoading, setIsLoading] = useState(true);
+  // const [isDbLoading, setIsDbLoading] = useState(true); // BORTTAGEN - ersatt av isVehicleDbLoading
   const [isVehicleDbLoading, setIsVehicleDbLoading] = useState(false);
   const vehicleDataPromiseRef = useRef<Promise<void> | null>(null);
   const [expandedStages, setExpandedStages] = useState<Record<string, boolean>>(
@@ -161,8 +162,6 @@ export default function TuningViewer() {
   useEffect(() => {
     setIsLoading(true);
 
-    // BORTTAGEN: Promise.all som laddade all-vehicles
-    // Vi laddar bara den nödvändiga märkesdatan nu
     fetch("/api/brands")
       .then((res) => res.json())
       .then((brandsData) => {
@@ -198,9 +197,7 @@ export default function TuningViewer() {
     };
   }, []);
 
-  // NY FUNKTION: Hämtar fordonsdatan vid behov
   const loadVehicleData = useCallback(() => {
-    // Kör bara om vi inte redan har startat hämtningen
     if (vehicleDataPromiseRef.current) {
       return;
     }
@@ -225,7 +222,7 @@ export default function TuningViewer() {
       });
 
     vehicleDataPromiseRef.current = promise;
-  }, []); // Tom dependency array gör att funktionen inte skapas på nytt i onödan
+  }, []);
 
   useEffect(() => {
     localStorage.setItem("lang", currentLanguage);
@@ -402,7 +399,9 @@ export default function TuningViewer() {
     setSearchError(null);
 
     if (allVehicles.length === 0) {
-      setSearchError("Fordonsdatabasen laddas, försök igen om en liten stund.");
+      setSearchError(
+        "Fordonsdatabasen är inte laddad än. Försök igen om ett ögonblick.",
+      );
       return;
     }
 

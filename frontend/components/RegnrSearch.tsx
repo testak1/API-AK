@@ -11,23 +11,23 @@ type OnVehicleFound = (vehicle: {
 }) => void;
 
 type OnError = (message: string | null) => void;
-type OnOpen = () => void; // Typ för den nya funktionen
+type OnOpen = () => void;
 
 export default function RegnrSearch({
   onVehicleFound,
   onError,
   disabled,
-  onOpen, // Ny prop
+  onOpen,
 }: {
   onVehicleFound: OnVehicleFound;
   onError: OnError;
   disabled: boolean;
-  onOpen?: OnOpen; // Ny prop, valfri
+  onOpen?: OnOpen;
 }) {
   const [regnr, setRegnr] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const hasOpened = useRef(false); // Används för att bara köra onOpen en gång
+  const hasOpened = useRef(false);
 
   const isValidSwedishReg = (reg: string) =>
     /^[A-Z]{3}\d{2}[A-Z0-9]{1}$/.test(reg);
@@ -40,13 +40,9 @@ export default function RegnrSearch({
     }
   }, [regnr]);
 
-  // Funktion som körs när <details>-elementet öppnas eller stängs
   const handleToggle = (e: React.SyntheticEvent<HTMLDetailsElement>) => {
-    // Om rutan öppnas OCH vi inte redan har kört funktionen OCH onOpen finns...
     if (e.currentTarget.open && !hasOpened.current && onOpen) {
-      // ...anropa funktionen från föräldern (index.tsx)
       onOpen();
-      // ...och sätt en flagga så vi inte kör den igen.
       hasOpened.current = true;
     }
   };
@@ -161,7 +157,7 @@ export default function RegnrSearch({
   return (
     <details
       className="max-w-md mx-auto mb-8 rounded-xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 border border-gray-700 shadow-lg group overflow-hidden"
-      onToggle={handleToggle} // Eventet som triggar laddningen
+      onToggle={handleToggle}
     >
       <summary className="appearance-none marker:hidden p-4 flex justify-between items-center cursor-pointer list-none select-none transition-all hover:bg-gray-800">
         <div className="flex items-center gap-3">
@@ -194,42 +190,62 @@ export default function RegnrSearch({
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeWidth={2}
-            d="M19 9l-l-7"
+            d="M19 9l-7 7-7-7"
           />
         </svg>
       </summary>
 
       <div className="p-4 border-t border-gray-700 bg-gray-900/70">
         <div className="flex flex-col sm:flex-row gap-3">
-          <input
-            type="text"
-            value={regnr}
-            onChange={(e) =>
-              setRegnr(e.target.value.toUpperCase().replace(/\s/g, ""))
-            }
-            placeholder={disabled ? "Laddar databas..." : "ABC123"}
-            className="flex-grow p-3 rounded-lg bg-gray-800 border border-gray-600 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500 text-center text-lg font-mono tracking-widest disabled:opacity-50 transition-all"
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !disabled) {
-                e.preventDefault(); // Förhindra form submit om du har en <form>
-                handleSearch();
+          <div className="flex flex-col sm:flex-row gap-3">
+            {/* Input-fältet direkt utan extra container */}
+            <input
+              type="text"
+              value={regnr}
+              onChange={(e) =>
+                setRegnr(e.target.value.toUpperCase().replace(/\s/g, ""))
               }
-            }}
-            disabled={disabled || isLoading}
-          />
+              placeholder="ABC123"
+              className="flex-grow px-4 py-3 rounded-lg bg-gray-800 border border-gray-600 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500 text-center text-lg font-mono tracking-widest disabled:opacity-50 transition-all"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !disabled) {
+                  e.preventDefault();
+                  handleSearch();
+                }
+              }}
+              disabled={disabled || isLoading}
+            />
+            {/* Snurrande loader i input-fältet */}
+            {disabled && (
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                <div className="animate-spin h-5 w-5 border-2 border-red-400 border-t-transparent rounded-full"></div>
+              </div>
+            )}
+          </div>
 
           <button
             onClick={handleSearch}
             disabled={disabled || isLoading}
-            className="px-6 py-3 bg-red-600 hover:bg-red-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold rounded-lg transition-all shadow-lg flex items-center justify-center"
+            className="px-6 py-3 bg-red-600 hover:bg-red-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold rounded-lg transition-all shadow-lg flex items-center justify-center min-w-[120px]"
           >
             {isLoading ? (
-              <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
+              <div className="flex items-center gap-2">
+                <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                <span>Söker...</span>
+              </div>
             ) : (
               "Sök fordon"
             )}
           </button>
         </div>
+
+        {/* Statusmeddelande för databasladdning */}
+        {disabled && (
+          <div className="flex items-center justify-center gap-2 mt-3 text-sm text-gray-400">
+            <div className="animate-spin h-3 w-3 border-2 border-red-400 border-t-transparent rounded-full"></div>
+            <span>Initierar sökmotor...</span>
+          </div>
+        )}
 
         {error && (
           <p className="text-red-400 mt-3 text-center text-sm">{error}</p>
