@@ -1223,11 +1223,11 @@ export default function TuningViewer() {
         </div>
 
         <div className="mb-4 text-center">
-          {!selected.engine ? (
+          {!selected.brand ? (
             <p className="text-black text-lg font-semibold">
               {translate(currentLanguage, "headline")}
             </p>
-          ) : (
+          ) : selected.engine ? (
             <div>
               <p className="text-black text-lg font-semibold mb-2">
                 {translate(currentLanguage, "tuningIntro")}{" "}
@@ -1247,7 +1247,7 @@ export default function TuningViewer() {
                 ← {translate(currentLanguage, "BACKTO")} {selected.year}
               </button>
             </div>
-          )}
+          ) : null}
         </div>
 
         {viewMode === "dropdown" ? (
@@ -1397,13 +1397,13 @@ export default function TuningViewer() {
             {/* Brand selection */}
             {!selected.brand && (
               <>
-                <h2 className="text-xl font-bold text-black mb-4">
+                <h2 className="text-xl font-bold text-gray-900 mb-4">
                   {translate(currentLanguage, "selectBrand")}
                 </h2>
 
-                {/* Vanliga bilmärken */}
+                {/* 🚗 Personbilar */}
                 <div className="mb-6">
-                  <h3 className="text-md font-semibold text-gray-700 mb-2">
+                  <h3 className="uppercase tracking-wide text-gray-600 text-sm font-semibold mb-3 border-b border-gray-200 pb-1">
                     {translate(currentLanguage, "Personbilar")}
                   </h3>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -1413,28 +1413,25 @@ export default function TuningViewer() {
                       .map((brand) => {
                         const brandData = data.find((b) => b.name === brand);
                         const logoUrl = brandData?.logo?.asset
-                          ? urlFor(brandData.logo).width(100).url()
+                          ? urlFor(brandData.logo).width(200).url()
                           : null;
 
                         return (
                           <div
                             key={brand}
-                            onClick={() => {
+                            onClick={() =>
                               setSelected({
                                 brand,
                                 model: "",
                                 year: "",
                                 engine: "",
-                              });
-
-                              window.parent.postMessage(
-                                { scrollToIframe: true },
-                                "*",
-                              );
-                            }}
-                            className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
+                              })
+                            }
+                            className="cursor-pointer rounded-xl p-4 bg-white hover:bg-gray-50 border border-gray-200 
+                             transition-all duration-200 shadow-sm hover:shadow-md 
+                             hover:scale-105 active:scale-95 flex flex-col items-center justify-center"
                           >
-                            {logoUrl ? (
+                            {logoUrl && (
                               <Image
                                 src={logoUrl}
                                 alt={brand}
@@ -1443,7 +1440,7 @@ export default function TuningViewer() {
                                 className="object-contain mb-2"
                                 loading="lazy"
                               />
-                            ) : null}
+                            )}
                             <p className="text-center font-medium text-gray-800">
                               {brand}
                             </p>
@@ -1455,50 +1452,48 @@ export default function TuningViewer() {
 
                 {/* 🚛 Lastbilar */}
                 <div>
-                  <h3 className="text-md font-semibold text-gray-700 mb-2">
+                  <h3 className="uppercase tracking-wide text-gray-600 text-sm font-semibold mb-3 border-b border-gray-200 pb-1">
                     {translate(currentLanguage, "Lastbilar")}
                   </h3>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                     {brands
                       .filter((b) => b.startsWith("[LASTBIL]"))
                       .sort((a, b) => a.localeCompare(b))
-                      .map((brand) => (
-                        <div
-                          key={brand}
-                          onClick={() => {
-                            setSelected({
-                              brand,
-                              model: "",
-                              year: "",
-                              engine: "",
-                            });
-
-                            window.parent.postMessage(
-                              { scrollToIframe: true },
-                              "*",
-                            );
-                          }}
-                          className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
-                        >
-                          {data.find((b) => b.name === brand)?.logo?.asset && (
-                            <Image
-                              src={urlFor(
-                                data.find((b) => b.name === brand)?.logo,
-                              )
-                                .width(250)
-                                .url()}
-                              alt={brand}
-                              width={80}
-                              height={80}
-                              className="object-contain mb-2"
-                              loading="lazy"
-                            />
-                          )}
-                          <p className="text-center font-medium text-gray-800">
-                            {brand.replace("[LASTBIL] ", "").replace(/^-/, "")}
-                          </p>
-                        </div>
-                      ))}
+                      .map((brand) => {
+                        const brandData = data.find((b) => b.name === brand);
+                        return (
+                          <div
+                            key={brand}
+                            onClick={() =>
+                              setSelected({
+                                brand,
+                                model: "",
+                                year: "",
+                                engine: "",
+                              })
+                            }
+                            className="cursor-pointer rounded-xl p-4 bg-white hover:bg-gray-50 border border-gray-200 
+                             transition-all duration-200 shadow-sm hover:shadow-md 
+                             hover:scale-105 active:scale-95 flex flex-col items-center justify-center"
+                          >
+                            {brandData?.logo?.asset && (
+                              <Image
+                                src={urlFor(brandData.logo).width(250).url()}
+                                alt={brand}
+                                width={100}
+                                height={100}
+                                className="object-contain mb-2"
+                                loading="lazy"
+                              />
+                            )}
+                            <p className="text-center font-medium text-gray-800">
+                              {brand
+                                .replace("[LASTBIL] ", "")
+                                .replace(/^-/, "")}
+                            </p>
+                          </div>
+                        );
+                      })}
                   </div>
                 </div>
               </>
@@ -1508,12 +1503,11 @@ export default function TuningViewer() {
             {selected.brand && !selected.model && (
               <>
                 <button
-                  onClick={() => {
-                    setSelected({ brand: "", model: "", year: "", engine: "" });
-
-                    window.parent.postMessage({ scrollToIframe: true }, "*");
-                  }}
-                  className="group flex items-center gap-1 mb-4 text-blue-600 hover:text-blue-800 transition-colors duration-200"
+                  onClick={() =>
+                    setSelected({ brand: "", model: "", year: "", engine: "" })
+                  }
+                  className="group flex items-center gap-1 mb-4 hover:text-blue-800 
+                   transition-colors duration-200 rounded-md px-2 py-1 hover:bg-gray-200"
                 >
                   <svg
                     className="w-5 h-5 transition-transform duration-200 group-hover:-translate-x-1"
@@ -1532,49 +1526,41 @@ export default function TuningViewer() {
                     {translate(currentLanguage, "BACKTOMARKE")}
                   </span>
                 </button>
-                <h2 className="text-xl font-bold text-black mb-4">
-                  <h2 className="flex items-center gap-2 text-xl font-bold text-gray-900 mb-4">
-                    <svg
-                      className="w-5 h-5 text-gray-400"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                    <span className="text-gray-600 font-semibold">
-                      {translate(currentLanguage, "selectModel")
-                        .charAt(0)
-                        .toUpperCase() +
-                        translate(currentLanguage, "selectModel")
-                          .slice(1)
-                          .toLowerCase()}
-                    </span>
-                  </h2>
+
+                <h2 className="flex items-center justify-center gap-2 text-xl font-bold text-gray-900 mb-4">
+                  <svg
+                    className="w-5 h-5 text-red-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                  <span className="text-gray-600 font-semibold">
+                    {translate(currentLanguage, "selectModel")}
+                  </span>
                 </h2>
+
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                   {models.map((model) => (
                     <div
                       key={model.name}
-                      onClick={() => {
+                      onClick={() =>
                         setSelected((prev) => ({
                           ...prev,
                           model: model.name,
                           year: "",
                           engine: "",
-                        }));
-
-                        window.parent.postMessage(
-                          { scrollToIframe: true },
-                          "*",
-                        );
-                      }}
-                      className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
+                        }))
+                      }
+                      className="cursor-pointer rounded-xl p-4 bg-white hover:bg-gray-50 border border-gray-200 
+                       transition-all duration-200 shadow-sm hover:shadow-md 
+                       hover:scale-105 active:scale-95 flex flex-col items-center justify-center"
                     >
                       <Image
                         src={getModelImage(model.name, selected.brand)}
@@ -1597,17 +1583,16 @@ export default function TuningViewer() {
             {selected.brand && selected.model && !selected.year && (
               <>
                 <button
-                  onClick={() => {
+                  onClick={() =>
                     setSelected((prev) => ({
                       ...prev,
                       model: "",
                       year: "",
                       engine: "",
-                    }));
-
-                    window.parent.postMessage({ scrollToIframe: true }, "*");
-                  }}
-                  className="group flex items-center gap-1 mb-4 text-blue-600 hover:text-blue-800 transition-colors duration-200"
+                    }))
+                  }
+                  className="group flex items-center gap-1 mb-4 hover:text-blue-800 
+                   transition-colors duration-200 rounded-md px-2 py-1 hover:bg-gray-200"
                 >
                   <svg
                     className="w-5 h-5 transition-transform duration-200 group-hover:-translate-x-1"
@@ -1627,48 +1612,40 @@ export default function TuningViewer() {
                     {selected.brand.replace("[LASTBIL] ", "")}
                   </span>
                 </button>
-                <h2 className="text-xl font-bold text-black mb-4">
-                  <h2 className="flex items-center gap-2 text-xl font-bold text-gray-900 mb-4">
-                    <svg
-                      className="w-5 h-5 text-gray-400"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                    <span className="text-gray-600 font-semibold">
-                      {translate(currentLanguage, "selectYear")
-                        .charAt(0)
-                        .toUpperCase() +
-                        translate(currentLanguage, "selectYear")
-                          .slice(1)
-                          .toLowerCase()}
-                    </span>
-                  </h2>
+
+                <h2 className="flex items-center justify-center gap-2 text-xl font-bold text-gray-900 mb-4">
+                  <svg
+                    className="w-5 h-5 text-red-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                  <span className="text-gray-600 font-semibold">
+                    {translate(currentLanguage, "selectYear")}
+                  </span>
                 </h2>
+
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                   {years.map((year) => (
                     <div
                       key={year.range}
-                      onClick={() => {
+                      onClick={() =>
                         setSelected((prev) => ({
                           ...prev,
                           year: year.range,
                           engine: "",
-                        }));
-
-                        window.parent.postMessage(
-                          { scrollToIframe: true },
-                          "*",
-                        );
-                      }}
-                      className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
+                        }))
+                      }
+                      className="cursor-pointer rounded-xl p-4 bg-white hover:bg-gray-50 border border-gray-200 
+                       transition-all duration-200 shadow-sm hover:shadow-md 
+                       hover:scale-105 active:scale-95 flex flex-col items-center justify-center"
                     >
                       <p className="text-center font-medium text-gray-800">
                         {year.range}
@@ -1686,16 +1663,11 @@ export default function TuningViewer() {
               !selected.engine && (
                 <>
                   <button
-                    onClick={() => {
-                      setSelected((prev) => ({
-                        ...prev,
-                        year: "",
-                        engine: "",
-                      }));
-
-                      window.parent.postMessage({ scrollToIframe: true }, "*");
-                    }}
-                    className="group flex items-center gap-1 mb-4 text-blue-600 hover:text-blue-800 transition-colors duration-200"
+                    onClick={() =>
+                      setSelected((prev) => ({ ...prev, year: "", engine: "" }))
+                    }
+                    className="group flex items-center gap-1 mb-4 hover:text-blue-800 
+                   transition-colors duration-200 rounded-md px-2 py-1 hover:bg-gray-200"
                   >
                     <svg
                       className="w-5 h-5 transition-transform duration-200 group-hover:-translate-x-1"
@@ -1717,12 +1689,12 @@ export default function TuningViewer() {
                     </span>
                   </button>
 
-                  <h2 className="flex items-center gap-2 text-xl font-bold text-gray-900 mb-4">
+                  <h2 className="flex items-center justify-center gap-2 text-xl font-bold text-gray-900 mb-4">
                     <svg
-                      className="w-5 h-5 text-gray-400"
+                      className="w-5 h-5 text-red-600"
                       fill="none"
-                      viewBox="0 0 24 24"
                       stroke="currentColor"
+                      viewBox="0 0 24 24"
                     >
                       <path
                         strokeLinecap="round"
@@ -1732,96 +1704,55 @@ export default function TuningViewer() {
                       />
                     </svg>
                     <span className="text-gray-600 font-semibold">
-                      {translate(currentLanguage, "selectEngine")
-                        .charAt(0)
-                        .toUpperCase() +
-                        translate(currentLanguage, "selectEngine")
-                          .slice(1)
-                          .toLowerCase()}
+                      {translate(currentLanguage, "selectEngine")}
                     </span>
                   </h2>
 
-                  {/* Diesel engines */}
-                  {engines.filter((e) =>
-                    e.fuel.toLowerCase().includes("diesel"),
-                  ).length > 0 && (
-                    <div className="mb-6">
-                      <h3 className="text-md font-semibold mb-3 text-gray-700 bg-gray-100 px-3 py-2 rounded-md">
-                        {translate(currentLanguage, "fuelDiesel")}
-                      </h3>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                        {engines
-                          .filter((e) =>
-                            e.fuel.toLowerCase().includes("diesel"),
-                          )
-                          .map((engine) => (
+                  {/* Engine lists */}
+                  {["diesel", "bensin"].map((fuel) => {
+                    const filtered = engines.filter((e) =>
+                      e.fuel.toLowerCase().includes(fuel),
+                    );
+                    if (filtered.length === 0) return null;
+
+                    return (
+                      <div className="mb-6" key={fuel}>
+                        <h3 className="text-md font-semibold mb-3 text-gray-700 bg-gray-100 px-3 py-2 rounded-md">
+                          {translate(
+                            currentLanguage,
+                            fuel === "diesel" ? "fuelDiesel" : "fuelPetrol",
+                          )}
+                        </h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                          {filtered.map((engine) => (
                             <div
                               key={engine.label}
-                              onClick={() => {
+                              onClick={() =>
                                 setSelected((prev) => ({
                                   ...prev,
                                   engine: engine.label,
-                                }));
-
-                                window.parent.postMessage(
-                                  { scrollToIframe: true },
-                                  "*",
-                                );
-                              }}
-                              className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
+                                }))
+                              }
+                              className="cursor-pointer rounded-xl p-4 bg-white hover:bg-gray-50 border border-gray-200 
+                             transition-all duration-200 shadow-sm hover:shadow-md 
+                             hover:scale-105 active:scale-95 flex flex-col items-center justify-center"
                             >
                               <p className="text-center font-medium text-gray-800">
                                 {engine.label}
                               </p>
                             </div>
                           ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
-
-                  {/* Petrol engines */}
-                  {engines.filter((e) =>
-                    e.fuel.toLowerCase().includes("bensin"),
-                  ).length > 0 && (
-                    <div className="mb-6">
-                      <h3 className="text-md font-semibold mb-3 text-gray-700 bg-gray-100 px-3 py-2 rounded-md">
-                        {translate(currentLanguage, "fuelPetrol")}
-                      </h3>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                        {engines
-                          .filter((e) =>
-                            e.fuel.toLowerCase().includes("bensin"),
-                          )
-                          .map((engine) => (
-                            <div
-                              key={engine.label}
-                              onClick={() => {
-                                setSelected((prev) => ({
-                                  ...prev,
-                                  engine: engine.label,
-                                }));
-
-                                window.parent.postMessage(
-                                  { scrollToIframe: true },
-                                  "*",
-                                );
-                              }}
-                              className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
-                            >
-                              <p className="text-center font-medium text-gray-800">
-                                {engine.label}
-                              </p>
-                            </div>
-                          ))}
-                      </div>
-                    </div>
-                  )}
+                    );
+                  })}
 
                   {/* Other engines */}
                   {engines.filter(
                     (e) =>
-                      !e.fuel.toLowerCase().includes("diesel") &&
-                      !e.fuel.toLowerCase().includes("bensin"),
+                      !["diesel", "bensin"].some((f) =>
+                        e.fuel.toLowerCase().includes(f),
+                      ),
                   ).length > 0 && (
                     <div className="mb-6">
                       <h3 className="text-md font-semibold mb-3 text-gray-700 bg-gray-100 px-3 py-2 rounded-md">
@@ -1831,24 +1762,22 @@ export default function TuningViewer() {
                         {engines
                           .filter(
                             (e) =>
-                              !e.fuel.toLowerCase().includes("diesel") &&
-                              !e.fuel.toLowerCase().includes("bensin"),
+                              !["diesel", "bensin"].some((f) =>
+                                e.fuel.toLowerCase().includes(f),
+                              ),
                           )
                           .map((engine) => (
                             <div
                               key={engine.label}
-                              onClick={() => {
+                              onClick={() =>
                                 setSelected((prev) => ({
                                   ...prev,
                                   engine: engine.label,
-                                }));
-
-                                window.parent.postMessage(
-                                  { scrollToIframe: true },
-                                  "*",
-                                );
-                              }}
-                              className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
+                                }))
+                              }
+                              className="cursor-pointer rounded-xl p-4 bg-white hover:bg-gray-50 border border-gray-200 
+                             transition-all duration-200 shadow-sm hover:shadow-md 
+                             hover:scale-105 active:scale-95 flex flex-col items-center justify-center"
                             >
                               <p className="text-center font-medium text-gray-800">
                                 {engine.label}
