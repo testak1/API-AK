@@ -790,6 +790,7 @@ export default function TuningViewer() {
       link: finalLink,
       scrollPosition: isMobile ? undefined : 0,
     });
+    window.parent.postMessage({ scrollToIframe: true }, "*");
   };
 
   const watermarkPlugin = {
@@ -1419,14 +1420,19 @@ export default function TuningViewer() {
                         return (
                           <div
                             key={brand}
-                            onClick={() =>
+                            onClick={() => {
                               setSelected({
                                 brand,
                                 model: "",
                                 year: "",
                                 engine: "",
-                              })
-                            }
+                              });
+
+                              window.parent.postMessage(
+                                { scrollToIframe: true },
+                                "*",
+                              );
+                            }}
                             className="cursor-pointer rounded-xl p-4 bg-white hover:bg-gray-50 border border-gray-200 
                              transition-all duration-200 shadow-sm hover:shadow-md 
                              hover:scale-105 active:scale-95 flex flex-col items-center justify-center"
@@ -1464,14 +1470,19 @@ export default function TuningViewer() {
                         return (
                           <div
                             key={brand}
-                            onClick={() =>
+                            onClick={() => {
                               setSelected({
                                 brand,
                                 model: "",
                                 year: "",
                                 engine: "",
-                              })
-                            }
+                              });
+
+                              window.parent.postMessage(
+                                { scrollToIframe: true },
+                                "*",
+                              );
+                            }}
                             className="cursor-pointer rounded-xl p-4 bg-white hover:bg-gray-50 border border-gray-200 
                              transition-all duration-200 shadow-sm hover:shadow-md 
                              hover:scale-105 active:scale-95 flex flex-col items-center justify-center"
@@ -1503,9 +1514,11 @@ export default function TuningViewer() {
             {selected.brand && !selected.model && (
               <>
                 <button
-                  onClick={() =>
-                    setSelected({ brand: "", model: "", year: "", engine: "" })
-                  }
+                  onClick={() => {
+                    setSelected({ brand: "", model: "", year: "", engine: "" });
+
+                    window.parent.postMessage({ scrollToIframe: true }, "*");
+                  }}
                   className="group flex items-center gap-1 mb-4 hover:text-blue-800 
                    transition-colors duration-200 rounded-md px-2 py-1 hover:bg-gray-200"
                 >
@@ -1550,14 +1563,19 @@ export default function TuningViewer() {
                   {models.map((model) => (
                     <div
                       key={model.name}
-                      onClick={() =>
+                      onClick={() => {
                         setSelected((prev) => ({
                           ...prev,
                           model: model.name,
                           year: "",
                           engine: "",
-                        }))
-                      }
+                        }));
+
+                        window.parent.postMessage(
+                          { scrollToIframe: true },
+                          "*",
+                        );
+                      }}
                       className="cursor-pointer rounded-xl p-4 bg-white hover:bg-gray-50 border border-gray-200 
                        transition-all duration-200 shadow-sm hover:shadow-md 
                        hover:scale-105 active:scale-95 flex flex-col items-center justify-center"
@@ -1583,14 +1601,16 @@ export default function TuningViewer() {
             {selected.brand && selected.model && !selected.year && (
               <>
                 <button
-                  onClick={() =>
+                  onClick={() => {
                     setSelected((prev) => ({
                       ...prev,
                       model: "",
                       year: "",
                       engine: "",
-                    }))
-                  }
+                    }));
+
+                    window.parent.postMessage({ scrollToIframe: true }, "*");
+                  }}
                   className="group flex items-center gap-1 mb-4 hover:text-blue-800 
                    transition-colors duration-200 rounded-md px-2 py-1 hover:bg-gray-200"
                 >
@@ -1636,13 +1656,18 @@ export default function TuningViewer() {
                   {years.map((year) => (
                     <div
                       key={year.range}
-                      onClick={() =>
+                      onClick={() => {
                         setSelected((prev) => ({
                           ...prev,
                           year: year.range,
                           engine: "",
-                        }))
-                      }
+                        }));
+
+                        window.parent.postMessage(
+                          { scrollToIframe: true },
+                          "*",
+                        );
+                      }}
                       className="cursor-pointer rounded-xl p-4 bg-white hover:bg-gray-50 border border-gray-200 
                        transition-all duration-200 shadow-sm hover:shadow-md 
                        hover:scale-105 active:scale-95 flex flex-col items-center justify-center"
@@ -1663,9 +1688,15 @@ export default function TuningViewer() {
               !selected.engine && (
                 <>
                   <button
-                    onClick={() =>
-                      setSelected((prev) => ({ ...prev, year: "", engine: "" }))
-                    }
+                    onClick={() => {
+                      setSelected((prev) => ({
+                        ...prev,
+                        year: "",
+                        engine: "",
+                      }));
+
+                      window.parent.postMessage({ scrollToIframe: true }, "*");
+                    }}
                     className="group flex items-center gap-1 mb-4 hover:text-blue-800 
                    transition-colors duration-200 rounded-md px-2 py-1 hover:bg-gray-200"
                   >
@@ -1727,12 +1758,17 @@ export default function TuningViewer() {
                           {filtered.map((engine) => (
                             <div
                               key={engine.label}
-                              onClick={() =>
+                              onClick={() => {
                                 setSelected((prev) => ({
                                   ...prev,
                                   engine: engine.label,
-                                }))
-                              }
+                                }));
+
+                                window.parent.postMessage(
+                                  { scrollToIframe: true },
+                                  "*",
+                                );
+                              }}
                               className="cursor-pointer rounded-xl p-4 bg-white hover:bg-gray-50 border border-gray-200 
                              transition-all duration-200 shadow-sm hover:shadow-md 
                              hover:scale-105 active:scale-95 flex flex-col items-center justify-center"
@@ -1769,12 +1805,17 @@ export default function TuningViewer() {
                           .map((engine) => (
                             <div
                               key={engine.label}
-                              onClick={() =>
+                              onClick={() => {
                                 setSelected((prev) => ({
                                   ...prev,
                                   engine: engine.label,
-                                }))
-                              }
+                                }));
+
+                                window.parent.postMessage(
+                                  { scrollToIframe: true },
+                                  "*",
+                                );
+                              }}
                               className="cursor-pointer rounded-xl p-4 bg-white hover:bg-gray-50 border border-gray-200 
                              transition-all duration-200 shadow-sm hover:shadow-md 
                              hover:scale-105 active:scale-95 flex flex-col items-center justify-center"
@@ -2805,6 +2846,8 @@ const InfoModal = ({
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
 
+  const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -2860,6 +2903,7 @@ const InfoModal = ({
                   isOpen: true,
                   stageOrOption: title,
                   link: window.location.href,
+                  scrollPosition: isMobile ? undefined : 0,
                 });
                 onClose();
               }}
