@@ -1,6 +1,7 @@
 // pages/[brand]/[model]/[year]/[engine].tsx
 import { GetServerSideProps } from "next";
 import NextImage from "next/image";
+import Image from "next/image";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import client from "@/lib/sanity";
@@ -392,7 +393,7 @@ export default function EnginePage({
   }, [currentLanguage]);
 
   useEffect(() => {
-    const img = new Image();
+    const img = new window.Image();
     img.src = "/ak-logo.png";
     img.onload = () => {
       watermarkImageRef.current = img;
@@ -1038,12 +1039,12 @@ export default function EnginePage({
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                       <div className="flex items-center gap-4">
                         {brandData.logo?.asset && (
-                          <img
+                          <Image
                             src={urlFor(brandData.logo).width(60).url()}
                             alt={brandData.name}
+                            width={60}
+                            height={35}
                             className="h-8 w-auto object-contain"
-                            width="35"
-                            height="35"
                             loading="lazy"
                           />
                         )}
@@ -1058,7 +1059,7 @@ export default function EnginePage({
                       </div>
 
                       <div className="mt-3 md:mt-0 flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-4 text-center">
-                        <img
+                        <Image
                           src={`/badges/${stage.name.toLowerCase().replace(/\s+/g, "")}.png`}
                           alt={stage.name}
                           width={66}
@@ -1066,6 +1067,7 @@ export default function EnginePage({
                           className="h-8 object-contain"
                           loading="lazy"
                         />
+
                         <span className="inline-block bg-red-600 text-black px-4 py-1 rounded-full text-xl font-semibold shadow-md">
                           {stage.price?.toLocaleString()} kr
                         </span>
@@ -1749,12 +1751,12 @@ export default function EnginePage({
                                   className="flex justify-between items-center w-full px-6 py-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
                                 >
                                   <div className="flex items-center gap-2">
-                                    <img
+                                    <Image
                                       src="/logos/aktplus.png"
                                       alt="AKT+ Logo"
+                                      width={120}
+                                      height={32}
                                       className="h-8 w-auto object-contain"
-                                      width="120"
-                                      height="32"
                                       loading="lazy"
                                     />
                                     <h3 className="text-md font-semibold text-white">
@@ -1808,7 +1810,7 @@ export default function EnginePage({
                                           >
                                             <div className="flex items-center gap-3">
                                               {option.gallery?.[0]?.asset && (
-                                                <img
+                                                <Image
                                                   src={urlFor(
                                                     option.gallery[0].asset,
                                                   )
@@ -1819,6 +1821,8 @@ export default function EnginePage({
                                                     translatedTitle ||
                                                     "AKT+"
                                                   }
+                                                  width={80}
+                                                  height={80}
                                                   className="h-10 w-10 object-contain"
                                                   loading="lazy"
                                                 />
@@ -1828,21 +1832,23 @@ export default function EnginePage({
                                               </span>
                                             </div>
 
-                                            <svg
-                                              className={`h-5 w-5 text-orange-600 transition-transform ${
-                                                expandedOptions[option._id]
-                                                  ? "rotate-180"
-                                                  : ""
-                                              }`}
-                                              viewBox="0 0 20 20"
-                                              fill="currentColor"
-                                            >
-                                              <path
-                                                fillRule="evenodd"
-                                                d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-                                                clipRule="evenodd"
-                                              />
-                                            </svg>
+                                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-800">
+                                              <svg
+                                                className={`h-5 w-5 text-orange-600 transition-transform ${
+                                                  expandedOptions[option._id]
+                                                    ? "rotate-180"
+                                                    : ""
+                                                }`}
+                                                viewBox="0 0 20 20"
+                                                fill="currentColor"
+                                              >
+                                                <path
+                                                  fillRule="evenodd"
+                                                  d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                                                  clipRule="evenodd"
+                                                />
+                                              </svg>
+                                            </div>
                                           </button>
 
                                           {expandedOptions[option._id] && (

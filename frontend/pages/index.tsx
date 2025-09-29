@@ -790,7 +790,6 @@ export default function TuningViewer() {
       link: finalLink,
       scrollPosition: isMobile ? undefined : 0,
     });
-    window.parent.postMessage({ scrollToIframe: true }, "*");
   };
 
   const watermarkPlugin = {
@@ -1151,13 +1150,14 @@ export default function TuningViewer() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between relative mb-8">
           {/* Vänster: Logga */}
           <div className="flex justify-between items-center">
-            <img
-              src="/ak-logo-svart.png"
-              alt="AK-TUNING"
-              style={{ height: "80px", cursor: "pointer" }}
-              className="h-auto max-h-20 w-auto max-w-[500px] object-contain"
-              onClick={() => window.location.reload()}
-              decoding="async"
+            <Image
+              src="/ak-logo2.png"
+              alt="AK-TUNING MOTOROPTIMERING"
+              width={110}
+              height={120}
+              className="h-full object-contain cursor-pointer hover:opacity-90"
+              onClick={() => (window.location.href = "/")}
+              priority
             />
 
             {/* Höger på mobil: språk + vy */}
@@ -1485,10 +1485,10 @@ export default function TuningViewer() {
                               src={urlFor(
                                 data.find((b) => b.name === brand)?.logo,
                               )
-                                .width(100)
+                                .width(250)
                                 .url()}
                               alt={brand}
-                              width={70}
+                              width={80}
                               height={80}
                               className="object-contain mb-2"
                               loading="lazy"
@@ -1576,12 +1576,13 @@ export default function TuningViewer() {
                       }}
                       className="cursor-pointer rounded-lg p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md flex flex-col items-center justify-center"
                     >
-                      <img
+                      <Image
                         src={getModelImage(model.name, selected.brand)}
                         alt={model.name}
+                        width={250}
+                        height={100}
                         className="h-16 w-auto object-contain mb-2"
                         loading="lazy"
-                        decoding="async"
                       />
                       <p className="text-center font-medium text-gray-800">
                         {formatModelName(selected.brand, model.name)}
@@ -1884,16 +1885,17 @@ export default function TuningViewer() {
                       <div className="flex items-center gap-4">
                         {data.find((b) => b.name === selected.brand)?.logo
                           ?.asset && (
-                          <img
+                          <Image
                             src={urlFor(
                               data.find((b) => b.name === selected.brand)?.logo,
                             )
                               .width(60)
                               .url()}
                             alt={selected.brand}
+                            width={80}
+                            height={32}
                             className="h-8 w-auto object-contain"
                             loading="lazy"
-                            decoding="async"
                           />
                         )}
                         <h2 className="text-lg font-semibold text-white">
@@ -1909,15 +1911,15 @@ export default function TuningViewer() {
                       </div>
 
                       <div className="mt-3 md:mt-0 flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-4 text-center">
-                        <img
-                          src={`/badges/${stage.name
-                            .toLowerCase()
-                            .replace(/\s+/g, "")}.png`}
+                        <Image
+                          src={`/badges/${stage.name.toLowerCase().replace(/\s+/g, "")}.png`}
                           alt={stage.name}
+                          width={66}
+                          height={32}
                           className="h-8 object-contain"
                           loading="lazy"
-                          decoding="async"
                         />
+
                         <span className="inline-block bg-red-600 text-black px-4 py-1 rounded-full text-xl font-semibold shadow-md">
                           {stage.price?.toLocaleString()} kr
                         </span>
@@ -2595,12 +2597,13 @@ export default function TuningViewer() {
                                   className="flex justify-between items-center w-full px-6 py-4 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
                                 >
                                   <div className="flex items-center gap-2">
-                                    <img
+                                    <Image
                                       src="/logos/aktplus.png"
                                       alt="AKT+ Logo"
+                                      width={120}
+                                      height={32}
                                       className="h-8 w-auto object-contain"
                                       loading="lazy"
-                                      decoding="async"
                                     />
                                     <h3 className="text-md font-semibold text-white">
                                       {translate(
@@ -2653,7 +2656,7 @@ export default function TuningViewer() {
                                           >
                                             <div className="flex items-center gap-3">
                                               {option.gallery?.[0]?.asset && (
-                                                <img
+                                                <Image
                                                   src={urlFor(
                                                     option.gallery[0].asset,
                                                   )
@@ -2664,9 +2667,10 @@ export default function TuningViewer() {
                                                     translatedTitle ||
                                                     "AKT+"
                                                   }
+                                                  width={80}
+                                                  height={80}
                                                   className="h-10 w-10 object-contain"
                                                   loading="lazy"
-                                                  decoding="async"
                                                 />
                                               )}
                                               <span className="text-lg font-bold text-orange-600">
@@ -2674,21 +2678,23 @@ export default function TuningViewer() {
                                               </span>
                                             </div>
 
-                                            <svg
-                                              className={`h-5 w-5 text-orange-600 transition-transform ${
-                                                expandedOptions[option._id]
-                                                  ? "rotate-180"
-                                                  : ""
-                                              }`}
-                                              viewBox="0 0 20 20"
-                                              fill="currentColor"
-                                            >
-                                              <path
-                                                fillRule="evenodd"
-                                                d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-                                                clipRule="evenodd"
-                                              />
-                                            </svg>
+                                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-800">
+                                              <svg
+                                                className={`h-5 w-5 text-orange-600 transition-transform ${
+                                                  expandedOptions[option._id]
+                                                    ? "rotate-180"
+                                                    : ""
+                                                }`}
+                                                viewBox="0 0 20 20"
+                                                fill="currentColor"
+                                              >
+                                                <path
+                                                  fillRule="evenodd"
+                                                  d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                                                  clipRule="evenodd"
+                                                />
+                                              </svg>
+                                            </div>
                                           </button>
 
                                           {expandedOptions[option._id] && (
@@ -2882,6 +2888,8 @@ const InfoModal = ({
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
 
+  const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -2937,6 +2945,7 @@ const InfoModal = ({
                   isOpen: true,
                   stageOrOption: title,
                   link: window.location.href,
+                  scrollPosition: isMobile ? undefined : 0,
                 });
                 onClose();
               }}
