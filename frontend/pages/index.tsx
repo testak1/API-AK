@@ -1,7 +1,13 @@
 // pages/index.tsx
 import Head from "next/head";
 import Image from "next/image";
-import React, { useEffect, useState, useRef, useMemo } from "react";
+import React, {
+  useEffect,
+  useState,
+  useRef,
+  useMemo,
+  useCallback,
+} from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -123,7 +129,8 @@ export default function TuningViewer() {
   const [searchError, setSearchError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"card" | "dropdown">("card");
   const [isLoading, setIsLoading] = useState(true);
-  const [isDbLoading, setIsDbLoading] = useState(true);
+  const [isVehicleDbLoading, setIsVehicleDbLoading] = useState(false);
+  const vehicleDataPromiseRef = useRef<Promise<void> | null>(null);
   const [expandedStages, setExpandedStages] = useState<Record<string, boolean>>(
     {},
   );
@@ -153,29 +160,20 @@ export default function TuningViewer() {
 
   useEffect(() => {
     setIsLoading(true);
-    setIsDbLoading(true);
 
-    Promise.all([
-      fetch("/api/all-vehicles").then((res) => res.json()),
-      fetch("/api/brands").then((res) => res.json()),
-    ])
-      .then(([vehiclesData, brandsData]) => {
-        setAllVehicles(vehiclesData.vehicles || []);
-        console.log(
-          `Hämtat ${vehiclesData.vehicles?.length || 0} fordon för matchning.`,
-        );
-
+    // BORTTAGEN: Promise.all som laddade all-vehicles
+    // Vi laddar bara den nödvändiga märkesdatan nu
+    fetch("/api/brands")
+      .then((res) => res.json())
+      .then((brandsData) => {
         setData(brandsData.result || []);
       })
       .catch((error) => {
-        console.error("Ett fel uppstod vid hämtning av initial data:", error);
-        setSearchError(
-          "Kunde inte ladda all fordonsdata. Försök ladda om sidan.",
-        );
+        console.error("Fel vid hämtning av märkesdata:", error);
+        setSearchError("Kunde inte ladda fordonsmärken.");
       })
       .finally(() => {
         setIsLoading(false);
-        setIsDbLoading(false);
       });
 
     fetch("/data/all_models.json")
@@ -199,6 +197,35 @@ export default function TuningViewer() {
       watermarkImageRef.current = img;
     };
   }, []);
+
+  // NY FUNKTION: Hämtar fordonsdatan vid behov
+  const loadVehicleData = useCallback(() => {
+    // Kör bara om vi inte redan har startat hämtningen
+    if (vehicleDataPromiseRef.current) {
+      return;
+    }
+
+    console.log("Användarinteraktion: Startar inläsning av fordonsdatabas...");
+    setIsVehicleDbLoading(true);
+
+    const promise = fetch("/api/all-vehicles")
+      .then((res) => res.json())
+      .then((vehiclesData) => {
+        setAllVehicles(vehiclesData.vehicles || []);
+        console.log(
+          `Hämtat ${vehiclesData.vehicles?.length || 0} fordon för matchning.`,
+        );
+      })
+      .catch((error) => {
+        console.error("Fel vid hämtning av fordonsdata:", error);
+        setSearchError("Kunde inte ladda sökdatabasen. Välj bil manuellt.");
+      })
+      .finally(() => {
+        setIsVehicleDbLoading(false);
+      });
+
+    vehicleDataPromiseRef.current = promise;
+  }, []); // Tom dependency array gör att funktionen inte skapas på nytt i onödan
 
   useEffect(() => {
     localStorage.setItem("lang", currentLanguage);
@@ -1159,13 +1186,14 @@ export default function TuningViewer() {
           </div>
 
           {/* Mitten (desktop), under (mobil): REGNR */}
-          {!selected.brand && !isDbLoading && currentLanguage === "sv" && (
+          {!selected.brand && currentLanguage === "sv" && (
             <div className="mt-4 sm:absolute sm:top-0 sm:left-1/2 sm:-translate-x-1/2">
               <div className="mx-auto max-w-md">
                 <RegnrSearch
                   onVehicleFound={handleVehicleFound}
                   onError={setSearchError}
-                  disabled={false}
+                  disabled={isVehicleDbLoading} // Använd det nya loading-statet
+                  onOpen={loadVehicleData} // Skicka med den nya funktionen
                 />
               </div>
             </div>

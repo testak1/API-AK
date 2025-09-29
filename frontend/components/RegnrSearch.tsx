@@ -1,5 +1,5 @@
 // components/RegnrSearch.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 type OnVehicleFound = (vehicle: {
   brand: string;
@@ -11,23 +11,24 @@ type OnVehicleFound = (vehicle: {
 }) => void;
 
 type OnError = (message: string | null) => void;
-
-type OnStartTyping = () => void;
+type OnOpen = () => void; // Typ för den nya funktionen
 
 export default function RegnrSearch({
   onVehicleFound,
   onError,
   disabled,
-  onStartTyping,
+  onOpen, // Ny prop
 }: {
   onVehicleFound: OnVehicleFound;
   onError: OnError;
   disabled: boolean;
-  onStartTyping?: OnStartTyping;
+  onOpen?: OnOpen; // Ny prop, valfri
 }) {
   const [regnr, setRegnr] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const hasOpened = useRef(false); // Används för att bara köra onOpen en gång
+
   const isValidSwedishReg = (reg: string) =>
     /^[A-Z]{3}\d{2}[A-Z0-9]{1}$/.test(reg);
 
@@ -39,11 +40,16 @@ export default function RegnrSearch({
     }
   }, [regnr]);
 
-  useEffect(() => {
-    if (regnr.length > 0) {
-      onStartTyping?.();
+  // Funktion som körs när <details>-elementet öppnas eller stängs
+  const handleToggle = (e: React.SyntheticEvent<HTMLDetailsElement>) => {
+    // Om rutan öppnas OCH vi inte redan har kört funktionen OCH onOpen finns...
+    if (e.currentTarget.open && !hasOpened.current && onOpen) {
+      // ...anropa funktionen från föräldern (index.tsx)
+      onOpen();
+      // ...och sätt en flagga så vi inte kör den igen.
+      hasOpened.current = true;
     }
-  }, [regnr, onStartTyping]);
+  };
 
   const handleSearch = async () => {
     if (!regnr || disabled) return;
@@ -78,10 +84,9 @@ export default function RegnrSearch({
       const technicalDataSection = doc.querySelector("section#technical-data");
 
       if (!summarySection) {
-        throw new Error("Kunde inte hitta slutföra.");
+        throw new Error("Kunde inte hitta fordonsinformation.");
       }
 
-      // KORRIGERAD, MER SPECIFIK SELEKTOR FÖR H1
       const h1 = summarySection.querySelector<HTMLElement>(
         ".bar.summary .info h1",
       );
@@ -89,7 +94,7 @@ export default function RegnrSearch({
         summarySection.querySelector<HTMLElement>("ul.icon-grid");
 
       if (!h1 || !iconGrid) {
-        throw new Error("Kunde inte slutföra.");
+        throw new Error("Kunde inte läsa ut fordonsinformation.");
       }
 
       const fullName = h1.innerText.trim();
@@ -154,7 +159,10 @@ export default function RegnrSearch({
   };
 
   return (
-    <details className="max-w-md mx-auto mb-8 rounded-xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 border border-gray-700 shadow-lg group overflow-hidden">
+    <details
+      className="max-w-md mx-auto mb-8 rounded-xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 border border-gray-700 shadow-lg group overflow-hidden"
+      onToggle={handleToggle} // Eventet som triggar laddningen
+    >
       <summary className="appearance-none marker:hidden p-4 flex justify-between items-center cursor-pointer list-none select-none transition-all hover:bg-gray-800">
         <div className="flex items-center gap-3">
           <svg
@@ -186,7 +194,7 @@ export default function RegnrSearch({
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeWidth={2}
-            d="M19 9l-7 7-7-7"
+            d="M19 9l-l-7"
           />
         </svg>
       </summary>
@@ -201,7 +209,12 @@ export default function RegnrSearch({
             }
             placeholder={disabled ? "Laddar databas..." : "ABC123"}
             className="flex-grow p-3 rounded-lg bg-gray-800 border border-gray-600 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500 text-center text-lg font-mono tracking-widest disabled:opacity-50 transition-all"
-            onKeyDown={(e) => e.key === "Enter" && !disabled && handleSearch()}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !disabled) {
+                e.preventDefault(); // Förhindra form submit om du har en <form>
+                handleSearch();
+              }
+            }}
             disabled={disabled || isLoading}
           />
 
