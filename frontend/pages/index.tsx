@@ -1582,7 +1582,7 @@ export default function TuningViewer() {
                     >
                       <Image
                         src={getModelImage(model.name, selected.brand)}
-                        alt={model.name}
+                        alt={`${selected.brand} ${formatModelName(selected.brand, model.name)}`}
                         width={250}
                         height={100}
                         className="h-16 w-auto object-contain mb-2"
@@ -1883,7 +1883,7 @@ export default function TuningViewer() {
                       <div className="mt-3 md:mt-0 flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-4 text-center">
                         <Image
                           src={`/badges/${stage.name.toLowerCase().replace(/\s+/g, "")}.png`}
-                          alt={stage.name}
+                          alt={`${selected.brand} ${formatModelName(selected.brand, selected.model)} ${selected.engine} – ${stage.name}`}
                           width={66}
                           height={32}
                           className="h-8 object-contain"
@@ -2620,11 +2620,7 @@ export default function TuningViewer() {
                                                   )
                                                     .width(80)
                                                     .url()}
-                                                  alt={
-                                                    option.gallery[0].alt ||
-                                                    translatedTitle ||
-                                                    "AKT+"
-                                                  }
+                                                  alt={`${selected.brand} ${formatModelName(selected.brand, selected.model)} ${selected.year} ${selected.engine} – ${translatedTitle}`}
                                                   width={80}
                                                   height={80}
                                                   className="h-10 w-10 object-contain"

@@ -176,7 +176,7 @@ export default function RegnrSearch({
             />
           </svg>
           <span className="text-white text-lg font-semibold tracking-wide">
-            SÖK MED REGNR <span className="text-sm text-red-400">(BETA)</span>
+            SÖK MED REGNR <span className="text-sm text-red-400">[BETA]</span>
           </span>
         </div>
         <svg
