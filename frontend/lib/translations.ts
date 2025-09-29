@@ -7,6 +7,7 @@ export const translations = {
     INSELECT: "FÖRFRÅGAN FÖR:",
     lang: "VÄLJ SPRÅK",
     Lastbilar: "LASTBILAR",
+    AktPlusOption: "AKT+",
     Personbilar: "BILAR",
     BACKTO: "Tillbaka till",
     backtostart: "Tillbaka till startsidan",
