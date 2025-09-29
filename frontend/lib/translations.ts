@@ -2,6 +2,7 @@
 export const translations = {
   sv: {
     skicka1: "SKICKA FÖRFRÅGAN",
+    aktPlusOptions: "AK-Tuning Plus Alternativ",
     ring1: "RING OSS",
     INSELECT: "FÖRFRÅGAN FÖR:",
     lang: "VÄLJ SPRÅK",
