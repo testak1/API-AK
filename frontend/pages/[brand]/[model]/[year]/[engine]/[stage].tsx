@@ -1273,7 +1273,7 @@ export default function StagePage({
                       .slice(0, expandedAktPlus ? allOptions.length : 4)
                       .map((option) => {
                         const isExpanded = expandedOptions[option._id] || false;
-                        const optionTitle = option.title?.[currentLanguage] || option.title?.sv || option.name || "";
+                        const optionTitle = option.title?.[currentLanguage] || option.title?.sv || "";
                         const optionDescription =
                           option.description?.[currentLanguage] ||
                           option.description?.["sv"] ||
