@@ -1061,7 +1061,7 @@ export default function EnginePage({
                       <div className="mt-3 md:mt-0 flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-4 text-center">
                         <Image
                           src={`/badges/${stage.name.toLowerCase().replace(/\s+/g, "")}.png`}
-                          alt={`${brandData} ${formatModelName(brandData.name, modelData.name)} ${engineData} – ${stage.name}`}
+                          alt={`${brandData.name} ${modelData.name} ${engineData.label} – ${stage.name}`}
                           width={66}
                           height={32}
                           className="h-8 object-contain"
@@ -1804,7 +1804,7 @@ export default function EnginePage({
                                                   )
                                                     .width(80)
                                                     .url()}
-                                                  alt={`${brandData.name} ${formatModelName(brandData.name, modelData.name)} ${yearData.range} ${engineData} – ${translatedTitle}`}
+                                                  alt={`${brandData.name} ${modelData.name} ${engineData.label} – ${translatedTitle}`}
                                                   width={80}
                                                   height={80}
                                                   className="h-10 w-10 object-contain"
