@@ -2033,8 +2033,6 @@ const InfoModal = ({
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
 
-  const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
-
   useEffect(() => {
     if (!isOpen) return;
 
@@ -2094,7 +2092,6 @@ const InfoModal = ({
                   isOpen: true,
                   stageOrOption: title,
                   link: window.location.href,
-                  scrollPosition: isMobile ? undefined : 0,
                 });
                 onClose();
               }}

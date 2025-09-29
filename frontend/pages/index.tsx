@@ -2805,8 +2805,6 @@ const InfoModal = ({
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
 
-  const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
-
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -2862,7 +2860,6 @@ const InfoModal = ({
                   isOpen: true,
                   stageOrOption: title,
                   link: window.location.href,
-                  scrollPosition: isMobile ? undefined : 0,
                 });
                 onClose();
               }}
