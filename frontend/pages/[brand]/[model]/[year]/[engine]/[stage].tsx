@@ -1047,25 +1047,38 @@ export default function StagePage({
                 {translate(currentLanguage, "aktPlusOptions")}
               </h2>
               <div className="space-y-4">
-                {allOptions.map((option) => (
-                  <div
-                    key={option._id}
-                    className="border border-gray-600 rounded-lg p-4 bg-gray-750"
-                  >
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-white">
-                          {option.name}
-                        </h3>
-                        <p className="text-gray-300 text-sm mt-1">
-                          {option.description}
-                        </p>
-                        {option.price && (
-                          <p className="text-green-400 font-bold text-lg mt-2">
-                            {option.price.toLocaleString()} kr
-                          </p>
-                        )}
-                      </div>
+                {allOptions.map((option) => {
+  const optionTitle =
+    typeof option.title === "string"
+      ? option.title
+      : option.title?.[currentLanguage] || option.title?.sv || "AKT+";
+
+  const optionDescription =
+    typeof option.description === "string"
+      ? option.description
+      : option.description?.[currentLanguage] ||
+        option.description?.sv ||
+        "";
+
+  return (
+    <div
+      key={option._id}
+      className="border border-gray-600 rounded-lg p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+    >
+      <div className="flex-1">
+        <h3 className="text-lg font-semibold text-white">{optionTitle}</h3>
+        {optionDescription && (
+          <p className="text-gray-300 text-sm mt-1">{optionDescription}</p>
+        )}
+        {option.price && (
+          <p className="text-orange-400 font-bold mt-2">
+            {option.price.toLocaleString()} kr
+          </p>
+        )}
+      </div>
+    </div>
+  );
+})}
                       <div className="flex flex-col sm:flex-row gap-2">
                         <button
                           onClick={() => toggleOption(option._id)}
