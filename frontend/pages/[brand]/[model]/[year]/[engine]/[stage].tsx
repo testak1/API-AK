@@ -956,143 +956,270 @@ export default function StagePage({
                 )}
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 mt-6">
-                <div className="bg-gray-700 rounded-lg p-4 text-white">
-                  <p className="text-sm font-bold text-gray-300 mb-1">
-                    {translate(currentLanguage, "originalHp")} / {translate(currentLanguage, "originalNm")}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 mt-6">
+                {/* ORIGINAL & TUNED SPECS - PERFORMANCE */}
+                <div className="border border-white rounded-lg p-3 text-center">
+                  <p className="text-sm text-white font-bold mb-1">
+                    {translate(currentLanguage, "originalHp")}
+                  </p>
+                  <p className="text-xl text-white font-bold">
+                    {stageData.origHk} hk
+                  </p>
+                </div>
+                <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
+                  <p className="text-xl text-white font-bold mb-1 uppercase">
+                    {translateStageName(currentLanguage, stageData.name)} HK
                   </p>
                   <p className="text-xl font-bold">
-                    {stageData.origHk} hk / {stageData.origNm} Nm
+                    {stageData.tunedHk} hk
+                  </p>
+                  <p className="text-xs mt-1 text-red-400">
+                    +{stageData.tunedHk - stageData.origHk} hk
                   </p>
                 </div>
-                <div className="bg-gray-700 rounded-lg p-4 text-white">
-                  <p className="text-sm font-bold text-gray-300 mb-1">
-                    {translate(currentLanguage, "tunedHp")} / {translate(currentLanguage, "tunedNm")}
+                <div className="border border-white rounded-lg p-3 text-center">
+                  <p className="text-sm text-white font-bold mb-1">
+                    {translate(currentLanguage, "originalNm")}
                   </p>
-                  <p className="text-xl font-bold text-green-400">
-                    {stageData.tunedHk} hk / {stageData.tunedNm} Nm
+                  <p className="text-xl text-white font-bold">
+                    {stageData.origNm} Nm
                   </p>
                 </div>
-                <div className="bg-gray-700 rounded-lg p-4 text-white">
-                  <p className="text-sm font-bold text-gray-300 mb-1">
-                    {translate(currentLanguage, "increase")}
+                <div className="border border-green-500 text-green-400 rounded-lg p-3 text-center">
+                  <p className="text-xl text-white font-bold mb-1 uppercase">
+                    {translateStageName(currentLanguage, stageData.name)} NM
                   </p>
-                  <p className="text-xl font-bold text-orange-400">
-                    +{hkIncrease} hk / +{nmIncrease} Nm
+                  <p className="text-xl font-bold">
+                    {stageData.tunedNm} Nm
+                  </p>
+                  <p className="text-xs mt-1 text-red-400">
+                    +{stageData.tunedNm - stageData.origNm} Nm
                   </p>
                 </div>
               </div>
             )}
 
             <div className="mb-6">
-              <div className="bg-gray-900 rounded-lg p-4">
-                <h3 className="text-xl font-bold text-white mb-4">
-                  {translate(currentLanguage, "performanceChart")}
-                </h3>
-                <div className="relative h-96">
-                  <Line
-                    data={{
-                      labels: rpmLabels,
-                      datasets: [
-                        {
-                          label: `${translate(currentLanguage, "horsepower")} (hk)`,
-                          data: generateDynoCurve(
-                            stageData.tunedHk || 0,
-                            true,
-                            engineData.fuel || "",
-                          ),
-                          borderColor: "#f97316",
-                          backgroundColor: "rgba(249, 115, 22, 0.1)",
-                          borderWidth: 3,
-                          tension: 0.4,
-                          fill: true,
-                          pointBackgroundColor: "#f97316",
-                          pointBorderColor: "#fff",
-                          pointBorderWidth: 2,
-                          pointRadius: 4,
-                          pointHoverRadius: 6,
-                        },
-                        {
-                          label: `${translate(currentLanguage, "torque")} (Nm)`,
-                          data: generateDynoCurve(
-                            stageData.tunedNm || 0,
-                            false,
-                            engineData.fuel || "",
-                          ),
-                          borderColor: "#3b82f6",
-                          backgroundColor: "rgba(59, 130, 246, 0.1)",
-                          borderWidth: 3,
-                          tension: 0.4,
-                          fill: true,
-                          pointBackgroundColor: "#3b82f6",
-                          pointBorderColor: "#fff",
-                          pointBorderWidth: 2,
-                          pointRadius: 4,
-                          pointHoverRadius: 6,
-                        },
-                      ],
-                    }}
-                    options={{
-                      responsive: true,
-                      maintainAspectRatio: false,
-                      plugins: {
-                        legend: {
-                          position: "top",
-                          labels: {
-                            color: "#fff",
-                            font: {
-                              size: 14,
-                              weight: "bold",
-                            },
+              <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
+                {/* Split the spec boxes */}
+                <div className="absolute hidden md:flex flex-row justify-between top-4 left-0 right-0 px-16">
+                  {/* HK Container */}
+                  <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-red-400 font-mono text-[16px] tracking-wide drop-shadow-[0_0_3px_rgba(248,113,113,0.8)]">
+                        ---
+                      </span>
+                      <span className="text-white">
+                        ORG: {stageData.origHk} HK
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-red-600 font-mono text-[16px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
+                        ━━━
+                      </span>
+                      <span className="text-white">
+                        <span className="text-white text-[14px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
+                          {stageData.name.replace("Steg", "ST").replace(/\s+/g, "")}: {stageData.tunedHk} HK
+                        </span>
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* NM Container */}
+                  <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-white font-mono text-[16px] tracking-wide drop-shadow-[0_0_3px_rgba(248,113,113,0.8)]">
+                        ---
+                      </span>
+                      <span className="text-white">
+                        ORG: {stageData.origNm} NM
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-white font-mono text-[16px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
+                        ━━━
+                      </span>
+                      <span className="text-white">
+                        <span className="text-white text-[14px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
+                          {stageData.name.replace("Steg", "ST").replace(/\s+/g, "")}: {stageData.tunedNm} NM
+                        </span>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Dyno graph */}
+                <Line
+                  data={{
+                    labels: rpmLabels,
+                    datasets: [
+                      {
+                        label: "ORG",
+                        data: generateDynoCurve(
+                          stageData.origHk,
+                          true,
+                          engineData.fuel,
+                        ),
+                        borderColor: "#f87171",
+                        backgroundColor: "#000000",
+                        borderWidth: 2,
+                        borderDash: [5, 3],
+                        tension: 0.5,
+                        pointRadius: 0,
+                        yAxisID: "hp",
+                      },
+                      {
+                        label: `ST ${stageData.name.replace(/\D/g, "")}`,
+                        data: generateDynoCurve(
+                          stageData.tunedHk,
+                          true,
+                          engineData.fuel,
+                        ),
+                        borderColor: "#f87171",
+                        backgroundColor: "#f87171",
+                        borderWidth: 3,
+                        tension: 0.5,
+                        pointRadius: 0,
+                        yAxisID: "hp",
+                      },
+                      {
+                        label: "ORG",
+                        data: generateDynoCurve(
+                          stageData.origNm,
+                          false,
+                          engineData.fuel,
+                        ),
+                        borderColor: "#FFFFFF",
+                        backgroundColor: "#000000",
+                        borderWidth: 2,
+                        borderDash: [5, 3],
+                        tension: 0.5,
+                        pointRadius: 0,
+                        yAxisID: "nm",
+                      },
+                      {
+                        label: `ST ${stageData.name.replace(/\D/g, "")}`,
+                        data: generateDynoCurve(
+                          stageData.tunedNm,
+                          false,
+                          engineData.fuel,
+                        ),
+                        borderColor: "#FFFFFF",
+                        backgroundColor: "#FFFFFF",
+                        borderWidth: 3,
+                        tension: 0.5,
+                        pointRadius: 0,
+                        yAxisID: "nm",
+                      },
+                    ],
+                  }}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                      legend: {
+                        display: false,
+                      },
+                      tooltip: {
+                        enabled: true,
+                        mode: "index",
+                        intersect: false,
+                        backgroundColor: "#1f2937",
+                        titleColor: "#ffffff",
+                        bodyColor: "#ffffff",
+                        borderColor: "#6b7280",
+                        borderWidth: 1,
+                        padding: 10,
+                        displayColors: true,
+                        usePointStyle: true,
+                        callbacks: {
+                          labelPointStyle: () => ({
+                            pointStyle: "circle",
+                            rotation: 0,
+                          }),
+                          title: function (tooltipItems) {
+                            return `${tooltipItems[0].label} RPM`;
                           },
-                        },
-                        tooltip: {
-                          backgroundColor: "rgba(0, 0, 0, 0.8)",
-                          titleColor: "#fff",
-                          bodyColor: "#fff",
-                          borderColor: "#374151",
-                          borderWidth: 1,
+                          label: function (context) {
+                            const label = context.dataset.label || "";
+                            const value = context.parsed.y;
+
+                            if (value === undefined) return label;
+
+                            const unit = context.dataset.yAxisID === "hp" ? "hk" : "Nm";
+                            return `${label}: ${Math.round(value)} ${unit}`;
+                          },
                         },
                       },
-                      scales: {
-                        x: {
-                          title: {
-                            display: true,
-                            text: "RPM",
-                            color: "#fff",
-                            font: {
-                              size: 14,
-                              weight: "bold",
-                            },
-                          },
-                          ticks: {
-                            color: "#fff",
-                          },
-                          grid: {
-                            color: "rgba(255, 255, 255, 0.1)",
-                          },
+                    },
+                    scales: {
+                      hp: {
+                        type: "linear",
+                        display: true,
+                        position: "left",
+                        title: {
+                          display: true,
+                          text: translate(currentLanguage, "powerLabel"),
+                          color: "white",
+                          font: { size: 14 },
                         },
-                        y: {
-                          title: {
-                            display: true,
-                            text: "hk / Nm",
-                            color: "#fff",
-                            font: {
-                              size: 14,
-                              weight: "bold",
-                            },
-                          },
-                          ticks: {
-                            color: "#fff",
-                          },
-                          grid: {
-                            color: "rgba(255, 255, 255, 0.1)",
-                          },
+                        min: 0,
+                        max: Math.ceil(stageData.tunedHk / 100) * 100 + 100,
+                        grid: {
+                          color: "rgba(255, 255, 255, 0.1)",
+                        },
+                        ticks: {
+                          color: "#9CA3AF",
+                          stepSize: 100,
+                          callback: (value) => `${value}`,
                         },
                       },
-                    }}
-                    plugins={[watermarkPlugin, shadowPlugin]}
-                  />
+                      nm: {
+                        type: "linear",
+                        display: true,
+                        position: "right",
+                        title: {
+                          display: true,
+                          text: translate(currentLanguage, "torqueLabel"),
+                          color: "white",
+                          font: { size: 14 },
+                        },
+                        min: 0,
+                        max: Math.ceil(stageData.tunedNm / 100) * 100 + 100,
+                        grid: {
+                          drawOnChartArea: false,
+                        },
+                        ticks: {
+                          color: "#9CA3AF",
+                          stepSize: 100,
+                          callback: (value) => `${value}`,
+                        },
+                      },
+                      x: {
+                        title: {
+                          display: true,
+                          text: "RPM",
+                          color: "#E5E7EB",
+                          font: { size: 14 },
+                        },
+                        grid: {
+                          color: "rgba(255, 255, 255, 0.1)",
+                        },
+                        ticks: {
+                          color: "#9CA3AF",
+                        },
+                      },
+                    },
+                    interaction: {
+                      intersect: false,
+                      mode: "index",
+                    },
+                  }}
+                  plugins={[watermarkPlugin, shadowPlugin]}
+                />
+
+                <div className="text-center text-white text-xs mt-4 italic">
+                  {translate(currentLanguage, "tuningCurveNote")}
                 </div>
               </div>
             </div>
@@ -1101,7 +1228,7 @@ export default function StagePage({
               <div className="mb-6">
                 <div className="bg-gray-900 rounded-lg p-4">
                   <h3 className="text-xl font-bold text-white mb-4">
-                    {translate(currentLanguage, "description")}
+                    {translate(currentLanguage, "infoStage")}
                   </h3>
                   <div className="prose prose-invert max-w-none text-white">
                     <PortableText
@@ -1117,9 +1244,19 @@ export default function StagePage({
               <div className="mb-6">
                 <div className="bg-gray-900 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-xl font-bold text-white">
-                      {translate(currentLanguage, "aktPlusOptions")}
-                    </h3>
+                    <div className="flex items-center gap-2">
+                      <Image
+                        src="/logos/aktplus.png"
+                        alt="AKT+ Logo"
+                        width={120}
+                        height={32}
+                        className="h-8 w-auto object-contain"
+                        loading="lazy"
+                      />
+                      <h3 className="text-xl font-bold text-white">
+                        {translate(currentLanguage, "additionsLabel")}
+                      </h3>
+                    </div>
                     <button
                       onClick={() => setExpandedAktPlus(!expandedAktPlus)}
                       className="text-orange-400 hover:text-orange-300 text-sm font-medium"
@@ -1158,7 +1295,7 @@ export default function StagePage({
                                 </h4>
                                 {option.price && (
                                   <p className="text-orange-400 font-bold text-lg mb-2">
-                                    {option.price.toLocaleString()} kr
+                                    {translate(currentLanguage, "priceLabel")}: {option.price.toLocaleString()} kr
                                   </p>
                                 )}
                               </div>
@@ -1179,9 +1316,9 @@ export default function StagePage({
                                       e,
                                     )
                                   }
-                                  className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded text-sm font-medium whitespace-nowrap"
+                                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm font-medium whitespace-nowrap"
                                 >
-                                  {translate(currentLanguage, "contact")}
+                                  📩 {translate(currentLanguage, "contactvalue")}
                                 </button>
                               </div>
                             </div>
@@ -1197,7 +1334,7 @@ export default function StagePage({
                                   </div>
                                 ) : (
                                   <p className="text-gray-400 text-sm italic">
-                                    {translate(currentLanguage, "noDescription")}
+                                    {translate(currentLanguage, "noDescriptionAvailable")}
                                   </p>
                                 )}
                               </div>
@@ -1215,14 +1352,14 @@ export default function StagePage({
                 onClick={(e) => handleBookNow(stageData.name, e)}
                 className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-bold text-lg shadow-lg transition-all duration-300 transform hover:scale-105 w-full sm:w-auto text-center"
               >
-                📩 {translate(currentLanguage, "contact")} {stageData.name}
+                📩 {translate(currentLanguage, "contactvalue")} {stageData.name}
               </button>
 
               <Link
                 href={enginePageUrl}
                 className="bg-gray-600 hover:bg-gray-700 text-white px-8 py-3 rounded-lg font-bold text-lg shadow-lg transition-all duration-300 w-full sm:w-auto text-center"
               >
-                ← {translate(currentLanguage, "backTo")} {engineData.label}
+                ← {translate(currentLanguage, "BACKTO")} {engineData.label}
               </Link>
             </div>
           </div>
@@ -1250,8 +1387,8 @@ export default function StagePage({
           <div className="bg-gray-800 rounded-lg max-w-md w-full p-6 border border-gray-600">
             <h3 className="text-xl font-bold text-white mb-4">
               {infoModal.type === "stage"
-                ? translate(currentLanguage, "stageInfo")
-                : translate(currentLanguage, "generalInfo")}
+                ? translate(currentLanguage, "infoStage")
+                : translate(currentLanguage, "infoGeneral")}
             </h3>
             <div className="text-gray-200 mb-6">
               {infoModal.type === "stage" && infoModal.stage ? (
