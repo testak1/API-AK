@@ -2186,6 +2186,15 @@ export const translations = {
     aboutUs3:
       "ซอฟต์แวร์ทั้งหมดได้รับการพัฒนาภายในบริษัทโดยเน้นที่คุณภาพ ความปลอดภัย และอายุการใช้งานที่ยาวนาน ยินดีต้อนรับสู่ระดับใหม่ของสมรรถนะรถยนต์กับ AK-TUNING",
   },
+    viewStageDetails: {
+    sv: "Se steg-detaljer",
+    en: "View stage details", 
+    it: "Vedi dettagli fase",
+    de: "Stufen-Details anzeigen",
+    fr: "Voir les détails du niveau",
+    da: "Se trin detaljer",
+    no: "Se trinn detaljer",
+  },
 };
 
 export const t = (
