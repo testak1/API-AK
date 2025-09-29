@@ -937,19 +937,19 @@ export default function StagePage({
                     </p>
                   </div>
                 )}
-                {stageData.tcuFields?.torqueLimit && (
+                {stageData.tcuFields?.shiftTime && (
                   <div className="border border-blue-400 rounded-lg p-3 text-white">
                     <p className="text-sm font-bold text-blue-300 mb-1">
-                      {translate(currentLanguage, "torqueLimit")}
+                      {translate(currentLanguage, "shiftTime")}
                     </p>
                     <p>
                       Original:{" "}
-                      {stageData.tcuFields.torqueLimit.original || "-"} Nm
+                      {stageData.tcuFields.shiftTime.original || "-"} ms
                     </p>
                     <p>
                       Optimerad:{" "}
                       <span className="text-green-400">
-                        {stageData.tcuFields.torqueLimit.optimized || "-"} Nm
+                        {stageData.tcuFields.shiftTime.optimized || "-"} ms
                       </span>
                     </p>
                   </div>
@@ -959,7 +959,7 @@ export default function StagePage({
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 mt-6">
                 <div className="bg-gray-700 rounded-lg p-4 text-white">
                   <p className="text-sm font-bold text-gray-300 mb-1">
-                    {translate(currentLanguage, "ORIGINAL")}
+                    {translate(currentLanguage, "originalHp")} / {translate(currentLanguage, "originalNm")}
                   </p>
                   <p className="text-xl font-bold">
                     {stageData.origHk} hk / {stageData.origNm} Nm
@@ -967,7 +967,7 @@ export default function StagePage({
                 </div>
                 <div className="bg-gray-700 rounded-lg p-4 text-white">
                   <p className="text-sm font-bold text-gray-300 mb-1">
-                    {translate(currentLanguage, "OPTIMIZED")}
+                    {translate(currentLanguage, "tunedHp")} / {translate(currentLanguage, "tunedNm")}
                   </p>
                   <p className="text-xl font-bold text-green-400">
                     {stageData.tunedHk} hk / {stageData.tunedNm} Nm
@@ -975,7 +975,7 @@ export default function StagePage({
                 </div>
                 <div className="bg-gray-700 rounded-lg p-4 text-white">
                   <p className="text-sm font-bold text-gray-300 mb-1">
-                    {translate(currentLanguage, "INCREASE")}
+                    {translate(currentLanguage, "increase")}
                   </p>
                   <p className="text-xl font-bold text-orange-400">
                     +{hkIncrease} hk / +{nmIncrease} Nm
@@ -984,126 +984,124 @@ export default function StagePage({
               </div>
             )}
 
-            {stageData.dynoChart && (
-              <div className="mb-6">
-                <div className="bg-gray-900 rounded-lg p-4">
-                  <h3 className="text-xl font-bold text-white mb-4">
-                    {translate(currentLanguage, "DYNOCHART")}
-                  </h3>
-                  <div className="relative h-96">
-                    <Line
-                      data={{
-                        labels: rpmLabels,
-                        datasets: [
-                          {
-                            label: `${translate(currentLanguage, "HORSEPOWER")} (hk)`,
-                            data: generateDynoCurve(
-                              stageData.tunedHk || 0,
-                              true,
-                              engineData.fuel || "",
-                            ),
-                            borderColor: "#f97316",
-                            backgroundColor: "rgba(249, 115, 22, 0.1)",
-                            borderWidth: 3,
-                            tension: 0.4,
-                            fill: true,
-                            pointBackgroundColor: "#f97316",
-                            pointBorderColor: "#fff",
-                            pointBorderWidth: 2,
-                            pointRadius: 4,
-                            pointHoverRadius: 6,
-                          },
-                          {
-                            label: `${translate(currentLanguage, "TORQUE")} (Nm)`,
-                            data: generateDynoCurve(
-                              stageData.tunedNm || 0,
-                              false,
-                              engineData.fuel || "",
-                            ),
-                            borderColor: "#3b82f6",
-                            backgroundColor: "rgba(59, 130, 246, 0.1)",
-                            borderWidth: 3,
-                            tension: 0.4,
-                            fill: true,
-                            pointBackgroundColor: "#3b82f6",
-                            pointBorderColor: "#fff",
-                            pointBorderWidth: 2,
-                            pointRadius: 4,
-                            pointHoverRadius: 6,
-                          },
-                        ],
-                      }}
-                      options={{
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                          legend: {
-                            position: "top",
-                            labels: {
-                              color: "#fff",
-                              font: {
-                                size: 14,
-                                weight: "bold",
-                              },
-                            },
-                          },
-                          tooltip: {
-                            backgroundColor: "rgba(0, 0, 0, 0.8)",
-                            titleColor: "#fff",
-                            bodyColor: "#fff",
-                            borderColor: "#374151",
-                            borderWidth: 1,
-                          },
+            <div className="mb-6">
+              <div className="bg-gray-900 rounded-lg p-4">
+                <h3 className="text-xl font-bold text-white mb-4">
+                  {translate(currentLanguage, "performanceChart")}
+                </h3>
+                <div className="relative h-96">
+                  <Line
+                    data={{
+                      labels: rpmLabels,
+                      datasets: [
+                        {
+                          label: `${translate(currentLanguage, "horsepower")} (hk)`,
+                          data: generateDynoCurve(
+                            stageData.tunedHk || 0,
+                            true,
+                            engineData.fuel || "",
+                          ),
+                          borderColor: "#f97316",
+                          backgroundColor: "rgba(249, 115, 22, 0.1)",
+                          borderWidth: 3,
+                          tension: 0.4,
+                          fill: true,
+                          pointBackgroundColor: "#f97316",
+                          pointBorderColor: "#fff",
+                          pointBorderWidth: 2,
+                          pointRadius: 4,
+                          pointHoverRadius: 6,
                         },
-                        scales: {
-                          x: {
-                            title: {
-                              display: true,
-                              text: "RPM",
-                              color: "#fff",
-                              font: {
-                                size: 14,
-                                weight: "bold",
-                              },
-                            },
-                            ticks: {
-                              color: "#fff",
-                            },
-                            grid: {
-                              color: "rgba(255, 255, 255, 0.1)",
-                            },
-                          },
-                          y: {
-                            title: {
-                              display: true,
-                              text: "hk / Nm",
-                              color: "#fff",
-                              font: {
-                                size: 14,
-                                weight: "bold",
-                              },
-                            },
-                            ticks: {
-                              color: "#fff",
-                            },
-                            grid: {
-                              color: "rgba(255, 255, 255, 0.1)",
+                        {
+                          label: `${translate(currentLanguage, "torque")} (Nm)`,
+                          data: generateDynoCurve(
+                            stageData.tunedNm || 0,
+                            false,
+                            engineData.fuel || "",
+                          ),
+                          borderColor: "#3b82f6",
+                          backgroundColor: "rgba(59, 130, 246, 0.1)",
+                          borderWidth: 3,
+                          tension: 0.4,
+                          fill: true,
+                          pointBackgroundColor: "#3b82f6",
+                          pointBorderColor: "#fff",
+                          pointBorderWidth: 2,
+                          pointRadius: 4,
+                          pointHoverRadius: 6,
+                        },
+                      ],
+                    }}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: {
+                          position: "top",
+                          labels: {
+                            color: "#fff",
+                            font: {
+                              size: 14,
+                              weight: "bold",
                             },
                           },
                         },
-                      }}
-                      plugins={[watermarkPlugin, shadowPlugin]}
-                    />
-                  </div>
+                        tooltip: {
+                          backgroundColor: "rgba(0, 0, 0, 0.8)",
+                          titleColor: "#fff",
+                          bodyColor: "#fff",
+                          borderColor: "#374151",
+                          borderWidth: 1,
+                        },
+                      },
+                      scales: {
+                        x: {
+                          title: {
+                            display: true,
+                            text: "RPM",
+                            color: "#fff",
+                            font: {
+                              size: 14,
+                              weight: "bold",
+                            },
+                          },
+                          ticks: {
+                            color: "#fff",
+                          },
+                          grid: {
+                            color: "rgba(255, 255, 255, 0.1)",
+                          },
+                        },
+                        y: {
+                          title: {
+                            display: true,
+                            text: "hk / Nm",
+                            color: "#fff",
+                            font: {
+                              size: 14,
+                              weight: "bold",
+                            },
+                          },
+                          ticks: {
+                            color: "#fff",
+                          },
+                          grid: {
+                            color: "rgba(255, 255, 255, 0.1)",
+                          },
+                        },
+                      },
+                    }}
+                    plugins={[watermarkPlugin, shadowPlugin]}
+                  />
                 </div>
               </div>
-            )}
+            </div>
 
             {dynamicDescription && dynamicDescription.length > 0 && (
               <div className="mb-6">
                 <div className="bg-gray-900 rounded-lg p-4">
                   <h3 className="text-xl font-bold text-white mb-4">
-                    {translate(currentLanguage, "DESCRIPTION")}
+                    {translate(currentLanguage, "description")}
                   </h3>
                   <div className="prose prose-invert max-w-none text-white">
                     <PortableText
@@ -1120,13 +1118,16 @@ export default function StagePage({
                 <div className="bg-gray-900 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-xl font-bold text-white">
-                      {translate(currentLanguage, "AKTPLUSOPTIONS")}
+                      {translate(currentLanguage, "aktPlusOptions")}
                     </h3>
                     <button
                       onClick={() => setExpandedAktPlus(!expandedAktPlus)}
                       className="text-orange-400 hover:text-orange-300 text-sm font-medium"
                     >
-                      {expandedAktPlus ? "Dölj" : "Visa alla"}
+                      {expandedAktPlus ? 
+                        translate(currentLanguage, "hide") : 
+                        translate(currentLanguage, "showAll")
+                      }
                     </button>
                   </div>
 
@@ -1135,6 +1136,7 @@ export default function StagePage({
                       .slice(0, expandedAktPlus ? allOptions.length : 4)
                       .map((option) => {
                         const isExpanded = expandedOptions[option._id] || false;
+                        const optionTitle = option.title?.[currentLanguage] || option.title?.sv || option.name || "";
                         const optionDescription =
                           option.description?.[currentLanguage] ||
                           option.description?.["sv"] ||
@@ -1152,29 +1154,34 @@ export default function StagePage({
                             <div className="flex justify-between items-start gap-4">
                               <div className="flex-1">
                                 <h4 className="font-semibold text-white text-lg mb-1">
-                                  {option.name}
+                                  {optionTitle}
                                 </h4>
-                                <p className="text-orange-400 font-bold text-lg mb-2">
-                                  {option.price?.toLocaleString()} kr
-                                </p>
+                                {option.price && (
+                                  <p className="text-orange-400 font-bold text-lg mb-2">
+                                    {option.price.toLocaleString()} kr
+                                  </p>
+                                )}
                               </div>
                               <div className="flex flex-col items-end gap-2">
                                 <button
                                   onClick={() => toggleOption(option._id)}
                                   className="text-orange-400 hover:text-orange-300 text-sm font-medium whitespace-nowrap"
                                 >
-                                  {isExpanded ? "Dölj info" : "Visa info"}
+                                  {isExpanded ? 
+                                    translate(currentLanguage, "hideInfo") : 
+                                    translate(currentLanguage, "showInfo")
+                                  }
                                 </button>
                                 <button
                                   onClick={(e) =>
                                     handleBookNow(
-                                      `${stageData.name} + ${option.name}`,
+                                      `${stageData.name} + ${optionTitle}`,
                                       e,
                                     )
                                   }
                                   className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded text-sm font-medium whitespace-nowrap"
                                 >
-                                  {translate(currentLanguage, "BOOKNOW")}
+                                  {translate(currentLanguage, "contact")}
                                 </button>
                               </div>
                             </div>
@@ -1190,7 +1197,7 @@ export default function StagePage({
                                   </div>
                                 ) : (
                                   <p className="text-gray-400 text-sm italic">
-                                    {translate(currentLanguage, "NODESCRIPTION")}
+                                    {translate(currentLanguage, "noDescription")}
                                   </p>
                                 )}
                               </div>
@@ -1206,16 +1213,16 @@ export default function StagePage({
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-8">
               <button
                 onClick={(e) => handleBookNow(stageData.name, e)}
-                className="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-lg font-bold text-lg shadow-lg transition-all duration-300 transform hover:scale-105 w-full sm:w-auto text-center"
+                className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-bold text-lg shadow-lg transition-all duration-300 transform hover:scale-105 w-full sm:w-auto text-center"
               >
-                {translate(currentLanguage, "BOOKNOW")} {stageData.name}
+                📩 {translate(currentLanguage, "contact")} {stageData.name}
               </button>
 
               <Link
                 href={enginePageUrl}
                 className="bg-gray-600 hover:bg-gray-700 text-white px-8 py-3 rounded-lg font-bold text-lg shadow-lg transition-all duration-300 w-full sm:w-auto text-center"
               >
-                {translate(currentLanguage, "BACKTO")} {engineData.label}
+                ← {translate(currentLanguage, "backTo")} {engineData.label}
               </Link>
             </div>
           </div>
@@ -1227,6 +1234,12 @@ export default function StagePage({
         onClose={() =>
           setContactModalData({ isOpen: false, stageOrOption: "", link: "" })
         }
+        selectedVehicle={{
+          brand: brandData.name,
+          model: modelData.name,
+          year: yearData.range,
+          engine: engineData.label,
+        }}
         stageOrOption={contactModalData.stageOrOption}
         link={contactModalData.link}
         scrollPosition={contactModalData.scrollPosition}
@@ -1237,36 +1250,36 @@ export default function StagePage({
           <div className="bg-gray-800 rounded-lg max-w-md w-full p-6 border border-gray-600">
             <h3 className="text-xl font-bold text-white mb-4">
               {infoModal.type === "stage"
-                ? translate(currentLanguage, "STAGEINFO")
-                : translate(currentLanguage, "GENERALINFO")}
+                ? translate(currentLanguage, "stageInfo")
+                : translate(currentLanguage, "generalInfo")}
             </h3>
             <div className="text-gray-200 mb-6">
               {infoModal.type === "stage" && infoModal.stage ? (
                 <div>
                   <p className="mb-2">
-                    <strong>{translate(currentLanguage, "STAGE")}:</strong>{" "}
+                    <strong>{translate(currentLanguage, "stage")}:</strong>{" "}
                     {infoModal.stage.name}
                   </p>
                   <p className="mb-2">
-                    <strong>{translate(currentLanguage, "PRICE")}:</strong>{" "}
+                    <strong>{translate(currentLanguage, "price")}:</strong>{" "}
                     {infoModal.stage.price?.toLocaleString()} kr
                   </p>
                   <p>
-                    <strong>{translate(currentLanguage, "PERFORMANCE")}:</strong>{" "}
+                    <strong>{translate(currentLanguage, "performance")}:</strong>{" "}
                     {infoModal.stage.origHk} → {infoModal.stage.tunedHk} hk (+
                     {hkIncrease}) / {infoModal.stage.origNm} →{" "}
                     {infoModal.stage.tunedNm} Nm (+{nmIncrease})
                   </p>
                 </div>
               ) : (
-                <p>{translate(currentLanguage, "GENERALINFOTEXT")}</p>
+                <p>{translate(currentLanguage, "generalInfoText")}</p>
               )}
             </div>
             <button
               onClick={() => setInfoModal({ open: false, type: "stage" })}
               className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded w-full"
             >
-              {translate(currentLanguage, "CLOSE")}
+              {translate(currentLanguage, "close")}
             </button>
           </div>
         </div>
