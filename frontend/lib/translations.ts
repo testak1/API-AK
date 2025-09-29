@@ -109,12 +109,6 @@ export const translations = {
     "noDescriptionAvailable": "Ingen beskrivning tillgänglig",
     "performanceChart": "Prestandadiagram",
     "horsepower": "Hästkrafter",
-    "torque": "Vridmoment",
-    "description": "Beskrivning",
-    "aktPlusOptions": "AKT+ Tillval",
-    "stageInfo": "Steginformation",
-    "generalInfo": "Generell information",
-    "stage": "Steg",
     "price": "Pris",
     "performance": "Prestanda",
     "generalInfoText": "All mjukvara är skräddarsydd för din bil med felsökning före och efter optimering.",
@@ -2217,15 +2211,7 @@ export const translations = {
     aboutUs3:
       "ซอฟต์แวร์ทั้งหมดได้รับการพัฒนาภายในบริษัทโดยเน้นที่คุณภาพ ความปลอดภัย และอายุการใช้งานที่ยาวนาน ยินดีต้อนรับสู่ระดับใหม่ของสมรรถนะรถยนต์กับ AK-TUNING",
   },
-    viewStageDetails: {
-    sv: "Se steg-detaljer",
-    en: "View stage details", 
-    it: "Vedi dettagli fase",
-    de: "Stufen-Details anzeigen",
-    fr: "Voir les détails du niveau",
-    da: "Se trin detaljer",
-    no: "Se trinn detaljer",
-  },
+    
 };
 
 export const t = (
