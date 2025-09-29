@@ -82,9 +82,7 @@ export const getStaticProps: GetStaticProps<StagePageProps> = async (
   const stage = decodeURIComponent((context.params?.stage as string) || "");
 
   try {
-    const lang =
-      (typeof context.query?.lang === "string" ? context.query.lang : null) ||
-      "sv";
+    const lang = "sv"; 
     
     const brandData = await client.fetch(engineByParamsQuery, {
       brand: brand.toLowerCase(),
