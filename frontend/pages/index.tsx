@@ -1,7 +1,6 @@
 // pages/index.tsx
 import Head from "next/head";
 import Image from "next/image";
-import NextImage from "next/image";
 import React, {
   useEffect,
   useState,
@@ -1148,13 +1147,17 @@ export default function TuningViewer() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between relative mb-8">
           {/* Vänster: Logga */}
           <div className="flex justify-between items-center">
-            <NextImage
+            <Image
               src="/ak-logo2.png"
               alt="AK-TUNING MOTOROPTIMERING"
               width={110}
               height={120}
               className="h-full object-contain cursor-pointer hover:opacity-90"
-              onClick={() => (window.location.href = "/")}
+              onClick={() => {
+                setSelected({ brand: "", model: "", year: "", engine: "" });
+                window.parent.postMessage({ scrollToIframe: true }, "*");
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
               priority
             />
 
