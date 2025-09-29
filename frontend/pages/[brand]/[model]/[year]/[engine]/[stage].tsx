@@ -1239,114 +1239,107 @@ export default function StagePage({
                 </div>
               </div>
             )}
+{allOptions.length > 0 && (
+  <div className="mb-6">
+    <div className="bg-gray-900 rounded-lg p-4">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <Image
+            src="/logos/aktplus.png"
+            alt="AKT+ Logo"
+            width={120}
+            height={32}
+            className="h-8 w-auto object-contain"
+            loading="lazy"
+          />
+          <h3 className="text-xl font-bold text-white">
+            {translate(currentLanguage, "additionsLabel")}
+          </h3>
+        </div>
+        <button
+          onClick={() => setExpandedAktPlus(!expandedAktPlus)}
+          className="text-orange-400 hover:text-orange-300 text-sm font-medium"
+        >
+          {expandedAktPlus ? "Dölj" : "Visa alla"}
+        </button>
+      </div>
 
-            {allOptions.length > 0 && (
-              <div className="mb-6">
-                <div className="bg-gray-900 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2">
-                      <Image
-                        src="/logos/aktplus.png"
-                        alt="AKT+ Logo"
-                        width={120}
-                        height={32}
-                        className="h-8 w-auto object-contain"
-                        loading="lazy"
-                      />
-                      <h3 className="text-xl font-bold text-white">
-                        {translate(currentLanguage, "additionsLabel")}
-                      </h3>
-                    </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {allOptions
+          .slice(0, expandedAktPlus ? allOptions.length : 4)
+          .map((option) => {
+            const isExpanded = expandedOptions[option._id] || false;
+            // KORRIGERAD RAD - ta bort option.name
+            const optionTitle = option.title?.[currentLanguage] || option.title?.sv || "";
+            const optionDescription =
+              option.description?.[currentLanguage] ||
+              option.description?.["sv"] ||
+              [];
+
+            return (
+              <div
+                key={option._id}
+                className={`border rounded-lg p-4 transition-all duration-300 ${
+                  isExpanded
+                    ? "border-orange-400 bg-gray-800"
+                    : "border-gray-600 bg-gray-700"
+                }`}
+              >
+                <div className="flex justify-between items-start gap-4">
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-white text-lg mb-1">
+                      {optionTitle}
+                    </h4>
+                    {option.price && (
+                      <p className="text-orange-400 font-bold text-lg mb-2">
+                        {translate(currentLanguage, "priceLabel")}: {option.price.toLocaleString()} kr
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex flex-col items-end gap-2">
                     <button
-                      onClick={() => setExpandedAktPlus(!expandedAktPlus)}
-                      className="text-orange-400 hover:text-orange-300 text-sm font-medium"
+                      onClick={() => toggleOption(option._id)}
+                      className="text-orange-400 hover:text-orange-300 text-sm font-medium whitespace-nowrap"
                     >
-                      {expandedAktPlus ? 
-                        translate(currentLanguage, "hide") : 
-                        translate(currentLanguage, "showAll")
+                      {isExpanded ? "Dölj info" : "Visa info"}
+                    </button>
+                    <button
+                      onClick={(e) =>
+                        handleBookNow(
+                          `${stageData.name} + ${optionTitle}`,
+                          e,
+                        )
                       }
+                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm font-medium whitespace-nowrap"
+                    >
+                      📩 {translate(currentLanguage, "contactvalue")}
                     </button>
                   </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {allOptions
-                      .slice(0, expandedAktPlus ? allOptions.length : 4)
-                      .map((option) => {
-                        const isExpanded = expandedOptions[option._id] || false;
-                        const optionTitle = option.title?.[currentLanguage] || option.title?.sv || "";
-                        const optionDescription =
-                          option.description?.[currentLanguage] ||
-                          option.description?.["sv"] ||
-                          [];
-
-                        return (
-                          <div
-                            key={option._id}
-                            className={`border rounded-lg p-4 transition-all duration-300 ${
-                              isExpanded
-                                ? "border-orange-400 bg-gray-800"
-                                : "border-gray-600 bg-gray-700"
-                            }`}
-                          >
-                            <div className="flex justify-between items-start gap-4">
-                              <div className="flex-1">
-                                <h4 className="font-semibold text-white text-lg mb-1">
-                                  {optionTitle}
-                                </h4>
-                                {option.price && (
-                                  <p className="text-orange-400 font-bold text-lg mb-2">
-                                    {translate(currentLanguage, "priceLabel")}: {option.price.toLocaleString()} kr
-                                  </p>
-                                )}
-                              </div>
-                              <div className="flex flex-col items-end gap-2">
-                                <button
-                                  onClick={() => toggleOption(option._id)}
-                                  className="text-orange-400 hover:text-orange-300 text-sm font-medium whitespace-nowrap"
-                                >
-                                  {isExpanded ? 
-                                    translate(currentLanguage, "hideInfo") : 
-                                    translate(currentLanguage, "showInfo")
-                                  }
-                                </button>
-                                <button
-                                  onClick={(e) =>
-                                    handleBookNow(
-                                      `${stageData.name} + ${optionTitle}`,
-                                      e,
-                                    )
-                                  }
-                                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm font-medium whitespace-nowrap"
-                                >
-                                  📩 {translate(currentLanguage, "contactvalue")}
-                                </button>
-                              </div>
-                            </div>
-
-                            {isExpanded && (
-                              <div className="mt-3 pt-3 border-t border-gray-600">
-                                {optionDescription.length > 0 ? (
-                                  <div className="prose prose-invert max-w-none text-sm text-gray-200">
-                                    <PortableText
-                                      value={optionDescription}
-                                      components={portableTextComponents}
-                                    />
-                                  </div>
-                                ) : (
-                                  <p className="text-gray-400 text-sm italic">
-                                    {translate(currentLanguage, "noDescriptionAvailable")}
-                                  </p>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
-                  </div>
                 </div>
-              </div>
-            )}
 
+                {isExpanded && (
+                  <div className="mt-3 pt-3 border-t border-gray-600">
+                    {optionDescription.length > 0 ? (
+                      <div className="prose prose-invert max-w-none text-sm text-gray-200">
+                        <PortableText
+                          value={optionDescription}
+                          components={portableTextComponents}
+                        />
+                      </div>
+                    ) : (
+                      <p className="text-gray-400 text-sm italic">
+                        Ingen beskrivning tillgänglig
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+      </div>
+    </div>
+  </div>
+)}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-8">
               <button
                 onClick={(e) => handleBookNow(stageData.name, e)}
