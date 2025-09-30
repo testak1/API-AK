@@ -2563,7 +2563,7 @@ export default function TuningViewer() {
                                       className="h-8 w-auto object-contain"
                                       loading="lazy"
                                     />
-                                    <h3 className="text-md font-semibold text-white">
+                                    <h3 className="text-xl font-semibold text-white">
                                       {translate(
                                         currentLanguage,
                                         "additionsLabel",

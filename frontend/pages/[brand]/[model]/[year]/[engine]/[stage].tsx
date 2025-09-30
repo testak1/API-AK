@@ -1,11 +1,11 @@
 // pages/[brand]/[model]/[year]/[engine]/[stage].tsx
-import {GetStaticPaths, GetStaticProps} from "next";
+import { GetStaticPaths, GetStaticProps } from "next";
 import NextImage from "next/image";
 import Image from "next/image";
-import {useRouter} from "next/router";
+import { useRouter } from "next/router";
 import Link from "next/link";
 import client from "@/lib/sanity";
-import {engineByParamsQuery} from "@/src/lib/queries";
+import { engineByParamsQuery } from "@/src/lib/queries";
 import type {
   Brand,
   Model,
@@ -14,12 +14,12 @@ import type {
   Stage,
   AktPlusOption,
 } from "@/types/sanity";
-import {urlFor} from "@/lib/sanity";
-import {PortableText} from "@portabletext/react";
+import { urlFor } from "@/lib/sanity";
+import { PortableText } from "@portabletext/react";
 import PublicLanguageDropdown from "@/components/PublicLanguageSwitcher";
-import {t as translate} from "@/lib/translations";
+import { t as translate } from "@/lib/translations";
 import Head from "next/head";
-import React, {useEffect, useState, useRef, useMemo} from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import ContactModal from "@/components/ContactModal";
 import {
   Chart as ChartJS,
@@ -40,16 +40,16 @@ ChartJS.register(
   LineElement,
   LineController,
   Tooltip,
-  Legend
+  Legend,
 );
 
-const Line = dynamic(() => import("react-chartjs-2").then(mod => mod.Line), {
+const Line = dynamic(() => import("react-chartjs-2").then((mod) => mod.Line), {
   ssr: false,
   loading: () => <div className="h-96 bg-gray-800 animate-pulse" />,
 });
 const FuelSavingCalculator = dynamic(
   () => import("@/components/FuelSavingCalculator"),
-  {ssr: false}
+  { ssr: false },
 );
 
 interface StagePageProps {
@@ -71,7 +71,9 @@ export const getStaticPaths: GetStaticPaths = async () => {
   };
 };
 
-export const getStaticProps: GetStaticProps<StagePageProps> = async context => {
+export const getStaticProps: GetStaticProps<StagePageProps> = async (
+  context,
+) => {
   const brand = decodeURIComponent((context.params?.brand as string) || "");
   const model = decodeURIComponent((context.params?.model as string) || "");
   const year = decodeURIComponent((context.params?.year as string) || "");
@@ -85,7 +87,7 @@ export const getStaticProps: GetStaticProps<StagePageProps> = async context => {
       lang,
     });
 
-    if (!brandData) return {notFound: true};
+    if (!brandData) return { notFound: true };
 
     const modelData =
       brandData.models?.find(
@@ -93,29 +95,29 @@ export const getStaticProps: GetStaticProps<StagePageProps> = async context => {
           normalizeString(m.name) === normalizeString(model) ||
           (m.slug &&
             normalizeString(
-              typeof m.slug === "string" ? m.slug : m.slug.current
-            ) === normalizeString(model))
+              typeof m.slug === "string" ? m.slug : m.slug.current,
+            ) === normalizeString(model)),
       ) || null;
 
-    if (!modelData) return {notFound: true};
+    if (!modelData) return { notFound: true };
 
     const yearData =
       modelData.years?.find(
         (y: Year) =>
           normalizeString(y.range) === normalizeString(year) ||
-          (y.slug && normalizeString(y.slug) === normalizeString(year))
+          (y.slug && normalizeString(y.slug) === normalizeString(year)),
       ) || null;
 
-    if (!yearData) return {notFound: true};
+    if (!yearData) return { notFound: true };
 
     const engineData =
       yearData.engines?.find(
         (e: Engine) =>
           normalizeString(e.label) === normalizeString(engine) ||
-          (e.slug && normalizeString(e.slug) === normalizeString(engine))
+          (e.slug && normalizeString(e.slug) === normalizeString(engine)),
       ) || null;
 
-    if (!engineData) return {notFound: true};
+    if (!engineData) return { notFound: true };
 
     // Find the specific stage
     const stageData =
@@ -123,10 +125,10 @@ export const getStaticProps: GetStaticProps<StagePageProps> = async context => {
         (s: Stage) =>
           normalizeString(s.name) === normalizeString(stage) ||
           normalizeString(s.name.replace(/\s+/g, "-")) ===
-            normalizeString(stage)
+            normalizeString(stage),
       ) || null;
 
-    if (!stageData) return {notFound: true};
+    if (!stageData) return { notFound: true };
 
     return {
       props: {
@@ -140,7 +142,7 @@ export const getStaticProps: GetStaticProps<StagePageProps> = async context => {
     };
   } catch (err) {
     console.error("Stage page fetch failed:", err);
-    return {notFound: true};
+    return { notFound: true };
   }
 };
 
@@ -148,10 +150,10 @@ function extractPlainTextFromDescription(description: any): string {
   if (!Array.isArray(description)) return "";
 
   return description
-    .map(block => {
+    .map((block) => {
       if (block._type === "block" && Array.isArray(block.children)) {
         return block.children
-          .map(child => (typeof child.text === "string" ? child.text : ""))
+          .map((child) => (typeof child.text === "string" ? child.text : ""))
           .join("");
       }
 
@@ -167,7 +169,7 @@ function extractPlainTextFromDescription(description: any): string {
 
 const portableTextComponents = {
   types: {
-    image: ({value}: any) => (
+    image: ({ value }: any) => (
       <img
         src={urlFor(value).width(600).url()}
         alt={value.alt || ""}
@@ -177,7 +179,7 @@ const portableTextComponents = {
     ),
   },
   marks: {
-    link: ({children, value}: any) => (
+    link: ({ children, value }: any) => (
       <a
         href={value.href}
         className="text-blue-400 hover:text-blue-300 underline"
@@ -191,7 +193,7 @@ const portableTextComponents = {
 const generateDynoCurve = (
   peakValue: number,
   isHp: boolean,
-  fuelType: string
+  fuelType: string,
 ) => {
   const isDiesel = fuelType.toLowerCase().includes("diesel");
 
@@ -318,7 +320,7 @@ export default function StagePage({
     open: boolean;
     type: "stage" | "general";
     stage?: Stage;
-  }>({open: false, type: "stage"});
+  }>({ open: false, type: "stage" });
 
   const [expandedOptions, setExpandedOptions] = useState<
     Record<string, boolean>
@@ -360,7 +362,7 @@ export default function StagePage({
 
   const handleBookNow = (
     stageOrOptionName: string,
-    event?: React.MouseEvent
+    event?: React.MouseEvent,
   ) => {
     if (!brandData || !modelData || !yearData || !engineData) return;
 
@@ -427,12 +429,12 @@ export default function StagePage({
   const getAllAktPlusOptions = (stage: Stage): AktPlusOption[] => {
     if (!engineData) return [];
 
-    const options = allAktOptions.filter(opt => {
+    const options = allAktOptions.filter((opt) => {
       const isFuelMatch =
         opt.isUniversal || opt.applicableFuelTypes?.includes(engineData.fuel);
 
       const isManualMatch = opt.manualAssignments?.some(
-        ref => ref._ref === engineData._id
+        (ref) => ref._ref === engineData._id,
       );
 
       const isStageMatch =
@@ -442,7 +444,7 @@ export default function StagePage({
     });
 
     const unique = new Map<string, AktPlusOption>();
-    options.forEach(opt => unique.set(opt._id, opt));
+    options.forEach((opt) => unique.set(opt._id, opt));
     return Array.from(unique.values());
   };
 
@@ -451,7 +453,7 @@ export default function StagePage({
     beforeDraw: (chart: ChartJS) => {
       const ctx = chart.ctx;
       const {
-        chartArea: {top, left, width, height},
+        chartArea: { top, left, width, height },
       } = chart;
 
       if (watermarkImageRef.current?.complete) {
@@ -516,7 +518,7 @@ export default function StagePage({
   const shadowPlugin = {
     id: "shadowPlugin",
     beforeDatasetDraw(chart: ChartJS, args: any, options: any) {
-      const {ctx} = chart;
+      const { ctx } = chart;
       const dataset = chart.data.datasets[args.index];
 
       ctx.save();
@@ -531,7 +533,7 @@ export default function StagePage({
   };
 
   const toggleOption = (optionId: string) => {
-    setExpandedOptions(prev => {
+    setExpandedOptions((prev) => {
       const newState: Record<string, boolean> = {};
       newState[optionId] = !prev[optionId];
       return newState;
@@ -606,7 +608,7 @@ export default function StagePage({
   const enginePageUrl = `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}`;
 
   const pageTitle = cleanText(
-    `Motoroptimering ${brandData?.name} ${modelData?.name} ${engineData?.label} ${yearData?.range} – ${stageData?.name} | AK-TUNING`
+    `Motoroptimering ${brandData?.name} ${modelData?.name} ${engineData?.label} ${yearData?.range} – ${stageData?.name} | AK-TUNING`,
   );
 
   const hkIncreaseText =
@@ -615,7 +617,7 @@ export default function StagePage({
     nmIncrease !== "?" ? `+${nmIncrease} Nm` : "bättre vridmoment";
 
   const pageDescription = cleanText(
-    `${stageData?.name} Motoroptimering för ${brandData?.name} ${modelData?.name} ${engineData?.label} ${yearData?.range}. Effekt: ${stageData?.tunedHk} hk (${hkIncreaseText}). Vridmoment: ${stageData?.tunedNm} Nm (${nmIncreaseText}). Skräddarsydd mjukvara med 2 års garanti & 30 dagars öppet köp!`
+    `${stageData?.name} Motoroptimering för ${brandData?.name} ${modelData?.name} ${engineData?.label} ${yearData?.range}. Effekt: ${stageData?.tunedHk} hk (${hkIncreaseText}). Vridmoment: ${stageData?.tunedNm} Nm (${nmIncreaseText}). Skräddarsydd mjukvara med 2 års garanti & 30 dagars öppet köp!`,
   );
 
   const imageUrl = "https://tuning.aktuning.se/ak-logo1.png";
@@ -634,7 +636,7 @@ export default function StagePage({
 
   function renderDescription(
     template: string,
-    data: Record<string, string | number>
+    data: Record<string, string | number>,
   ): string {
     return template.replace(/{{(.*?)}}/g, (_, key) => {
       return data[key.trim()]?.toString() || "";
@@ -643,7 +645,7 @@ export default function StagePage({
 
   const createDynamicDescription = (
     description: any[],
-    stage: Stage | undefined
+    stage: Stage | undefined,
   ) => {
     if (
       !brandData ||
@@ -1105,7 +1107,7 @@ export default function StagePage({
                         data: generateDynoCurve(
                           stageData.origHk,
                           true,
-                          engineData.fuel
+                          engineData.fuel,
                         ),
                         borderColor: "#f87171",
                         backgroundColor: "#000000",
@@ -1120,7 +1122,7 @@ export default function StagePage({
                         data: generateDynoCurve(
                           stageData.tunedHk,
                           true,
-                          engineData.fuel
+                          engineData.fuel,
                         ),
                         borderColor: "#f87171",
                         backgroundColor: "#f87171",
@@ -1134,7 +1136,7 @@ export default function StagePage({
                         data: generateDynoCurve(
                           stageData.origNm,
                           false,
-                          engineData.fuel
+                          engineData.fuel,
                         ),
                         borderColor: "#FFFFFF",
                         backgroundColor: "#000000",
@@ -1149,7 +1151,7 @@ export default function StagePage({
                         data: generateDynoCurve(
                           stageData.tunedNm,
                           false,
-                          engineData.fuel
+                          engineData.fuel,
                         ),
                         borderColor: "#FFFFFF",
                         backgroundColor: "#FFFFFF",
@@ -1209,7 +1211,7 @@ export default function StagePage({
                           display: true,
                           text: translate(currentLanguage, "powerLabel"),
                           color: "white",
-                          font: {size: 14},
+                          font: { size: 14 },
                         },
                         min: 0,
                         max: Math.ceil(stageData.tunedHk / 100) * 100 + 100,
@@ -1219,7 +1221,7 @@ export default function StagePage({
                         ticks: {
                           color: "#9CA3AF",
                           stepSize: 100,
-                          callback: value => `${value}`,
+                          callback: (value) => `${value}`,
                         },
                       },
                       nm: {
@@ -1230,7 +1232,7 @@ export default function StagePage({
                           display: true,
                           text: translate(currentLanguage, "torqueLabel"),
                           color: "white",
-                          font: {size: 14},
+                          font: { size: 14 },
                         },
                         min: 0,
                         max: Math.ceil(stageData.tunedNm / 100) * 100 + 100,
@@ -1240,7 +1242,7 @@ export default function StagePage({
                         ticks: {
                           color: "#9CA3AF",
                           stepSize: 100,
-                          callback: value => `${value}`,
+                          callback: (value) => `${value}`,
                         },
                       },
                       x: {
@@ -1248,7 +1250,7 @@ export default function StagePage({
                           display: true,
                           text: "RPM",
                           color: "#E5E7EB",
-                          font: {size: 14},
+                          font: { size: 14 },
                         },
                         grid: {
                           color: "rgba(255, 255, 255, 0.1)",
@@ -1277,8 +1279,8 @@ export default function StagePage({
                 <div className="bg-gray-900 rounded-lg p-4">
                   <h3 className="text-xl font-bold text-white mb-4">
                     {cleanText(stageData.name.toUpperCase())} -{" "}
-                    {translate(currentLanguage, "tuningIntro").toUpperCase()}
-                    {translate(currentLanguage, "infoStage")}
+                    {translate(currentLanguage, "tuningIntro").toUpperCase()}{" "}
+                    {translate(currentLanguage, "info1").toUpperCase()}
                   </h3>
                   <div className="prose prose-invert max-w-none text-white">
                     <PortableText
@@ -1289,6 +1291,16 @@ export default function StagePage({
                 </div>
               </div>
             )}
+
+            <div className="flex flex-col sm:flex-row justify-center items-center mb-4">
+              <button
+                onClick={(e) => handleBookNow(stageData.name, e)}
+                className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-bold text-lg shadow-lg transition-all duration-300 transform hover:scale-105 w-full sm:w-auto text-center"
+              >
+                📩 {translate(currentLanguage, "contactvalue")}{" "}
+                {stageData.name.toUpperCase()}
+              </button>
+            </div>
             {allOptions.length > 0 && (
               <div className="mb-6">
                 <div className="bg-gray-900 rounded-lg p-4">
@@ -1309,15 +1321,13 @@ export default function StagePage({
                     <button
                       onClick={() => setExpandedAktPlus(!expandedAktPlus)}
                       className="text-orange-400 hover:text-orange-300 text-sm font-medium"
-                    >
-                      {expandedAktPlus ? "Dölj" : "Visa alla"}
-                    </button>
+                    ></button>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {allOptions
-                      .slice(0, expandedAktPlus ? allOptions.length : 4)
-                      .map(option => {
+                      .slice(0, expandedAktPlus ? allOptions.length : 6)
+                      .map((option) => {
                         const isExpanded = expandedOptions[option._id] || false;
                         // KORRIGERAD RAD - ta bort option.name
                         const optionTitle =
@@ -1358,10 +1368,10 @@ export default function StagePage({
                                   {isExpanded ? "Dölj info" : "Visa info"}
                                 </button>
                                 <button
-                                  onClick={e =>
+                                  onClick={(e) =>
                                     handleBookNow(
                                       `${stageData.name} + ${optionTitle}`,
-                                      e
+                                      e,
                                     )
                                   }
                                   className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm font-medium whitespace-nowrap"
@@ -1395,21 +1405,6 @@ export default function StagePage({
                 </div>
               </div>
             )}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-8">
-              <button
-                onClick={e => handleBookNow(stageData.name, e)}
-                className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-bold text-lg shadow-lg transition-all duration-300 transform hover:scale-105 w-full sm:w-auto text-center"
-              >
-                📩 {translate(currentLanguage, "contactvalue")} {stageData.name}
-              </button>
-
-              <Link
-                href={enginePageUrl}
-                className="bg-gray-600 hover:bg-gray-700 text-white px-8 py-3 rounded-lg font-bold text-lg shadow-lg transition-all duration-300 w-full sm:w-auto text-center"
-              >
-                ← {translate(currentLanguage, "BACKTO")} {engineData.label}
-              </Link>
-            </div>
           </div>
         </div>
       </div>
@@ -1417,7 +1412,7 @@ export default function StagePage({
       <ContactModal
         isOpen={contactModalData.isOpen}
         onClose={() =>
-          setContactModalData({isOpen: false, stageOrOption: "", link: ""})
+          setContactModalData({ isOpen: false, stageOrOption: "", link: "" })
         }
         selectedVehicle={{
           brand: brandData.name,
@@ -1463,7 +1458,7 @@ export default function StagePage({
               )}
             </div>
             <button
-              onClick={() => setInfoModal({open: false, type: "stage"})}
+              onClick={() => setInfoModal({ open: false, type: "stage" })}
               className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded w-full"
             >
               {translate(currentLanguage, "close")}
