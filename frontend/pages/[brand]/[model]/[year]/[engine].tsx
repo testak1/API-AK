@@ -89,10 +89,13 @@ export const getServerSideProps: GetServerSideProps<
     });
 
     const engineData = data?.model?.year?.engine;
-    if (!engineData) {
+
+    // Robust check to ensure the entire data chain exists
+    if (!data || !data.model || !data.model.year || !engineData) {
       return {notFound: true};
     }
 
+    // Now it's safe to reconstruct the data
     const yearData = {
       ...data.model.year,
       engines: [engineData],
