@@ -21,6 +21,49 @@ export const brandsLightQuery = `
 }
 `;
 
+export const specificEngineQuery = groq`
+*[_type == "brand" && slug.current == $brand][0]{
+    _id,
+    name,
+    slug,
+    "logo": logo{ alt, "asset": asset->{_id, url} },
+    "model": models[slug.current == $model || name == $model][0]{
+        _id,
+        name,
+        slug,
+        "year": years[slug == $year || range == $year][0]{
+            _id,
+            range,
+            slug,
+            "engine": engines[slug == $engine || label == $engine][0]{
+                _id,
+                label,
+                fuel,
+                slug,
+                stages[]{
+                    name,
+                    type,
+                    origHk,
+                    tunedHk,
+                    origNm,
+                    tunedNm,
+                    price,
+                    "description": description[$lang],
+                    "descriptionRef": descriptionRef->{
+                        "description": description[$lang]
+                    },
+                    tcuFields {
+                        launchControl { original, optimized },
+                        rpmLimit { original, optimized },
+                        shiftTime { original, optimized }
+                    }
+                }
+            }
+        }
+    }
+}
+`;
+
 export const brandBySlugQuery = `
   *[_type == "brand" && (slug.current == $brand || lower(name) == $brand)][0]{
     _id,
