@@ -1,11 +1,11 @@
 // pages/[brand]/[model]/[year]/[engine]/[stage].tsx
-import {GetServerSideProps} from "next";
+import {GetStaticPaths, GetStaticProps} from "next";
 import NextImage from "next/image";
 import Image from "next/image";
 import {useRouter} from "next/router";
 import Link from "next/link";
 import client from "@/lib/sanity";
-import {specificEngineQuery} from "@/src/lib/queries";
+import {engineByParamsQuery} from "@/src/lib/queries";
 import type {
   Brand,
   Model,
@@ -63,39 +63,61 @@ interface StagePageProps {
 const normalizeString = (str: string) =>
   str.toLowerCase().replace(/[^a-z0-9]/g, "");
 
-export const getServerSideProps: GetServerSideProps<
-  StagePageProps
-> = async context => {
+export const getStaticPaths: GetStaticPaths = async () => {
+  // Return empty paths for static generation - we'll generate on-demand
+  return {
+    paths: [],
+    fallback: "blocking",
+  };
+};
+
+export const getStaticProps: GetStaticProps<StagePageProps> = async context => {
   const brand = decodeURIComponent((context.params?.brand as string) || "");
   const model = decodeURIComponent((context.params?.model as string) || "");
   const year = decodeURIComponent((context.params?.year as string) || "");
   const engine = decodeURIComponent((context.params?.engine as string) || "");
   const stage = decodeURIComponent((context.params?.stage as string) || "");
 
-  if (!brand || !model || !year || !engine || !stage) {
-    return {notFound: true};
-  }
-
   try {
-    const lang =
-      (typeof context.query.lang === "string" ? context.query.lang : null) ||
-      "sv";
-
-    const data = await client.fetch(specificEngineQuery, {
-      brand,
-      model,
-      year,
-      engine,
+    const lang = "sv"; // Default language for static generation
+    const brandData = await client.fetch(engineByParamsQuery, {
+      brand: brand.toLowerCase(),
       lang,
     });
 
-    const engineData = data?.model?.year?.engine;
+    if (!brandData) return {notFound: true};
 
-    // Robust check to ensure the entire data chain exists
-    if (!data || !data.model || !data.model.year || !engineData) {
-      return {notFound: true};
-    }
+    const modelData =
+      brandData.models?.find(
+        (m: Model) =>
+          normalizeString(m.name) === normalizeString(model) ||
+          (m.slug &&
+            normalizeString(
+              typeof m.slug === "string" ? m.slug : m.slug.current
+            ) === normalizeString(model))
+      ) || null;
 
+    if (!modelData) return {notFound: true};
+
+    const yearData =
+      modelData.years?.find(
+        (y: Year) =>
+          normalizeString(y.range) === normalizeString(year) ||
+          (y.slug && normalizeString(y.slug) === normalizeString(year))
+      ) || null;
+
+    if (!yearData) return {notFound: true};
+
+    const engineData =
+      yearData.engines?.find(
+        (e: Engine) =>
+          normalizeString(e.label) === normalizeString(engine) ||
+          (e.slug && normalizeString(e.slug) === normalizeString(engine))
+      ) || null;
+
+    if (!engineData) return {notFound: true};
+
+    // Find the specific stage
     const stageData =
       engineData.stages?.find(
         (s: Stage) =>
@@ -104,25 +126,7 @@ export const getServerSideProps: GetServerSideProps<
             normalizeString(stage)
       ) || null;
 
-    if (!stageData) {
-      return {notFound: true};
-    }
-
-    // Now it's safe to reconstruct the data
-    const yearData = {
-      ...data.model.year,
-      engines: [engineData],
-    };
-
-    const modelData = {
-      ...data.model,
-      years: [yearData],
-    };
-
-    const brandData = {
-      ...data,
-      models: [modelData],
-    };
+    if (!stageData) return {notFound: true};
 
     return {
       props: {
@@ -132,6 +136,7 @@ export const getServerSideProps: GetServerSideProps<
         engineData,
         stageData,
       },
+      revalidate: 86400, // Revalidate every 24 hours
     };
   } catch (err) {
     console.error("Stage page fetch failed:", err);
@@ -181,6 +186,92 @@ const portableTextComponents = {
       </a>
     ),
   },
+};
+
+const generateDynoCurve = (
+  peakValue: number,
+  isHp: boolean,
+  fuelType: string
+) => {
+  const isDiesel = fuelType.toLowerCase().includes("diesel");
+
+  // RPM-ranges baserat på bränsletyp
+  const rpmRange = isDiesel
+    ? [1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000]
+    : [2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000];
+
+  const totalSteps = rpmRange.length;
+
+  // Lägg till lite slumpmässig variation (±2-3%)
+  const addRandomVariation = (value: number) => {
+    const variation = Math.random() * 0.06 - 0.03; // ±3%
+    return value * (1 + variation);
+  };
+
+  if (isHp) {
+    // ---- HÄSTKRAFT (HP) KURVA ----
+    const startPercentage = isDiesel ? 0.45 : 0.35; // Diesel startar högre
+    const peakStepPercentage = isDiesel ? 0.6 : 0.7; // Bensin peakar senare
+
+    const peakStep = Math.floor(totalSteps * peakStepPercentage);
+
+    return rpmRange.map((rpm, i) => {
+      let value: number;
+
+      if (i <= peakStep) {
+        // Ökning till toppen
+        const progress = i / peakStep;
+        // Diesel: snabbare uppgång, Bensin: lite jämnare
+        const curveFactor = isDiesel ? Math.pow(progress, 0.9) : progress;
+        value =
+          peakValue * (startPercentage + (1 - startPercentage) * curveFactor);
+      } else {
+        // Minskning efter toppen
+        const progress = (i - peakStep) / (totalSteps - 1 - peakStep);
+        // Diesel: långsammare minskning, Bensin: snabbare
+        const dropRate = isDiesel ? 0.15 : 0.25;
+        value = peakValue * (1 - dropRate * Math.pow(progress, 1.2));
+      }
+
+      return addRandomVariation(value);
+    });
+  } else {
+    // ---- VRIDMOMENT (NM) KURVA ----
+    const startPercentage = isDiesel ? 0.6 : 0.4; // Diesel har mer bottenvrid
+    const peakStepPercentage = isDiesel ? 0.3 : 0.4; // Diesel peakar tidigare
+    const plateauLength = isDiesel ? 3 : 2; // Diesel har längre platå
+
+    const peakStep = Math.floor(totalSteps * peakStepPercentage);
+    const plateauEndStep = Math.min(peakStep + plateauLength, totalSteps - 1);
+
+    return rpmRange.map((rpm, i) => {
+      let value: number;
+
+      if (i < peakStep) {
+        // Snabb ökning till toppen
+        const progress = i / peakStep;
+        // Exponentiell ökning för mer realistisk kurva
+        value =
+          peakValue *
+          (startPercentage + (1 - startPercentage) * Math.pow(progress, 1.3));
+      } else if (i <= plateauEndStep) {
+        // Platå - håller maxvärdet med liten variation
+        const plateauProgress = (i - peakStep) / (plateauEndStep - peakStep);
+        // Liten kurva på platån för att undvika perfekt rak linje
+        const plateauVariation = Math.sin(plateauProgress * Math.PI) * 0.02;
+        value = peakValue * (0.98 + plateauVariation);
+      } else {
+        // Minskning efter platån
+        const progress =
+          (i - plateauEndStep) / (totalSteps - 1 - plateauEndStep);
+        // Diesel: långsammare minskning
+        const dropRate = isDiesel ? 0.2 : 0.3;
+        value = peakValue * (1 - dropRate * Math.pow(progress, 1.1));
+      }
+
+      return addRandomVariation(value);
+    });
+  }
 };
 
 const getStageColor = (stageName: string) => {
@@ -383,6 +474,45 @@ export default function StagePage({
     },
   };
 
+  const formatModelName = (brand: string, model: string): string => {
+    const mercedesModels = [
+      "A",
+      "B",
+      "C",
+      "CL",
+      "CLA",
+      "CLC",
+      "CLK",
+      "CLS",
+      "E",
+      "G",
+      "GL",
+      "GLA",
+      "GLB",
+      "GLC",
+      "GLE",
+      "GLK",
+      "GLS",
+      "GT",
+      "ML",
+      "R",
+      "S",
+      "SL",
+      "SLC",
+      "SLK",
+      "SLS",
+      "V",
+      "X",
+    ];
+    if (
+      brand.toLowerCase().includes("mercedes") &&
+      mercedesModels.includes(model.toUpperCase())
+    ) {
+      return `${model}-klass`;
+    }
+    return model;
+  };
+
   const shadowPlugin = {
     id: "shadowPlugin",
     beforeDatasetDraw(chart: ChartJS, args: any, options: any) {
@@ -580,6 +710,152 @@ export default function StagePage({
 
   return (
     <>
+      <Head>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="canonical" href={canonicalUrl} />
+
+        {/* Open Graph */}
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:image" content={imageUrl} />
+
+        {/* Favicon */}
+        <link rel="icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+        {/* Structured Data: Organization */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "AK-TUNING Motoroptimering",
+              url: "https://tuning.aktuning.se",
+              logo: "https://tuning.aktuning.se/ak-logo2.png",
+            }),
+          }}
+        />
+
+        {/* Structured Data: Product */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Product",
+              name: `Motoroptimering ${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${stageData.name}`,
+              image: [imageUrl],
+              description: pageDescription,
+              brand: {
+                "@type": "Brand",
+                name: "AK-TUNING Motoroptimering",
+                logo: "https://tuning.aktuning.se/ak-logo1.png",
+              },
+              offers:
+                stageData.price && stageData.price > 0
+                  ? {
+                      "@type": "Offer",
+                      priceCurrency: "SEK",
+                      price: stageData.price,
+                      availability: "https://schema.org/InStock",
+                      url: canonicalUrl,
+                    }
+                  : {
+                      "@type": "Offer",
+                      priceCurrency: "SEK",
+                      price: 0,
+                      availability: "https://schema.org/InStock",
+                      url: canonicalUrl,
+                      description: "Kontakta oss för offert",
+                    },
+            }),
+          }}
+        />
+
+        {/* Breadcrumbs */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                {
+                  "@type": "ListItem",
+                  position: 1,
+                  name: "Hem",
+                  item: "https://tuning.aktuning.se",
+                },
+                {
+                  "@type": "ListItem",
+                  position: 2,
+                  name: brandData.name,
+                  item: `https://tuning.aktuning.se/${brandSlug}`,
+                },
+                {
+                  "@type": "ListItem",
+                  position: 3,
+                  name: modelData.name,
+                  item: `https://tuning.aktuning.se/${brandSlug}/${modelSlug}`,
+                },
+                {
+                  "@type": "ListItem",
+                  position: 4,
+                  name: yearData.range,
+                  item: `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}`,
+                },
+                {
+                  "@type": "ListItem",
+                  position: 5,
+                  name: engineData.label,
+                  item: enginePageUrl,
+                },
+                {
+                  "@type": "ListItem",
+                  position: 6,
+                  name: stageData.name,
+                  item: canonicalUrl,
+                },
+              ],
+            }),
+          }}
+        />
+
+        {/* FAQ */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              mainEntity: [
+                {
+                  "@type": "Question",
+                  name: `Vad kostar ${stageData.name} optimering för ${brandData.name} ${modelData.name} ${engineData.label}?`,
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: `${stageData.name} mjukvara för ${brandData.name} ${modelData.name} ${engineData.label} kostar ${price}. Priset inkluderar skräddarsydd mjukvara, diagnostik, samt loggning innan och efter optimering. 2 års mjukvaru garanti och 30 dagars öppet köp.`,
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: `Hur mycket ökar effekten med ${stageData.name} till ${brandData.name} ${modelData.name} ${engineData.label}?`,
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: `Med ${stageData.name} ökar effekten från ${stageData.origHk} hk till ${stageData.tunedHk} hk (+${hkIncrease} hk) och vridmomentet från ${stageData.origNm} Nm till ${stageData.tunedNm} Nm (+${nmIncrease} Nm).`,
+                  },
+                },
+              ],
+            }),
+          }}
+        />
+      </Head>
+
       <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
         <div className="flex items-center justify-between mb-4">
           <NextImage
@@ -602,7 +878,7 @@ export default function StagePage({
             <h1 className="text-xl sm:text-3xl md:text-xl font-bold mb-2">
               {translate(currentLanguage, "tuningIntro")}{" "}
               {cleanText(brandData.name)}{" "}
-              {cleanText((brandData.name, modelData.name))}{" "}
+              {cleanText(formatModelName(brandData.name, modelData.name))}{" "}
               {cleanText(yearData.range)} {cleanText(engineData.label)} –{" "}
               <span className={getStageColor(stageData.name)}>
                 {cleanText(stageData.name.toUpperCase())}
@@ -819,6 +1095,177 @@ export default function StagePage({
                   </div>
                 </div>
 
+                {/* Dyno graph */}
+                <Line
+                  data={{
+                    labels: rpmLabels,
+                    datasets: [
+                      {
+                        label: "ORG",
+                        data: generateDynoCurve(
+                          stageData.origHk,
+                          true,
+                          engineData.fuel
+                        ),
+                        borderColor: "#f87171",
+                        backgroundColor: "#000000",
+                        borderWidth: 2,
+                        borderDash: [5, 3],
+                        tension: 0.5,
+                        pointRadius: 0,
+                        yAxisID: "hp",
+                      },
+                      {
+                        label: `ST ${stageData.name.replace(/\D/g, "")}`,
+                        data: generateDynoCurve(
+                          stageData.tunedHk,
+                          true,
+                          engineData.fuel
+                        ),
+                        borderColor: "#f87171",
+                        backgroundColor: "#f87171",
+                        borderWidth: 3,
+                        tension: 0.5,
+                        pointRadius: 0,
+                        yAxisID: "hp",
+                      },
+                      {
+                        label: "ORG",
+                        data: generateDynoCurve(
+                          stageData.origNm,
+                          false,
+                          engineData.fuel
+                        ),
+                        borderColor: "#FFFFFF",
+                        backgroundColor: "#000000",
+                        borderWidth: 2,
+                        borderDash: [5, 3],
+                        tension: 0.5,
+                        pointRadius: 0,
+                        yAxisID: "nm",
+                      },
+                      {
+                        label: `ST ${stageData.name.replace(/\D/g, "")}`,
+                        data: generateDynoCurve(
+                          stageData.tunedNm,
+                          false,
+                          engineData.fuel
+                        ),
+                        borderColor: "#FFFFFF",
+                        backgroundColor: "#FFFFFF",
+                        borderWidth: 3,
+                        tension: 0.5,
+                        pointRadius: 0,
+                        yAxisID: "nm",
+                      },
+                    ],
+                  }}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                      legend: {
+                        display: false,
+                      },
+                      tooltip: {
+                        enabled: true,
+                        mode: "index",
+                        intersect: false,
+                        backgroundColor: "#1f2937",
+                        titleColor: "#ffffff",
+                        bodyColor: "#ffffff",
+                        borderColor: "#6b7280",
+                        borderWidth: 1,
+                        padding: 10,
+                        displayColors: true,
+                        usePointStyle: true,
+                        callbacks: {
+                          labelPointStyle: () => ({
+                            pointStyle: "circle",
+                            rotation: 0,
+                          }),
+                          title: function (tooltipItems) {
+                            return `${tooltipItems[0].label} RPM`;
+                          },
+                          label: function (context) {
+                            const label = context.dataset.label || "";
+                            const value = context.parsed.y;
+
+                            if (value === undefined) return label;
+
+                            const unit =
+                              context.dataset.yAxisID === "hp" ? "hk" : "Nm";
+                            return `${label}: ${Math.round(value)} ${unit}`;
+                          },
+                        },
+                      },
+                    },
+                    scales: {
+                      hp: {
+                        type: "linear",
+                        display: true,
+                        position: "left",
+                        title: {
+                          display: true,
+                          text: translate(currentLanguage, "powerLabel"),
+                          color: "white",
+                          font: {size: 14},
+                        },
+                        min: 0,
+                        max: Math.ceil(stageData.tunedHk / 100) * 100 + 100,
+                        grid: {
+                          color: "rgba(255, 255, 255, 0.1)",
+                        },
+                        ticks: {
+                          color: "#9CA3AF",
+                          stepSize: 100,
+                          callback: value => `${value}`,
+                        },
+                      },
+                      nm: {
+                        type: "linear",
+                        display: true,
+                        position: "right",
+                        title: {
+                          display: true,
+                          text: translate(currentLanguage, "torqueLabel"),
+                          color: "white",
+                          font: {size: 14},
+                        },
+                        min: 0,
+                        max: Math.ceil(stageData.tunedNm / 100) * 100 + 100,
+                        grid: {
+                          drawOnChartArea: false,
+                        },
+                        ticks: {
+                          color: "#9CA3AF",
+                          stepSize: 100,
+                          callback: value => `${value}`,
+                        },
+                      },
+                      x: {
+                        title: {
+                          display: true,
+                          text: "RPM",
+                          color: "#E5E7EB",
+                          font: {size: 14},
+                        },
+                        grid: {
+                          color: "rgba(255, 255, 255, 0.1)",
+                        },
+                        ticks: {
+                          color: "#9CA3AF",
+                        },
+                      },
+                    },
+                    interaction: {
+                      intersect: false,
+                      mode: "index",
+                    },
+                  }}
+                  plugins={[watermarkPlugin, shadowPlugin]}
+                />
+
                 <div className="text-center text-white text-xs mt-4 italic">
                   {translate(currentLanguage, "tuningCurveNote")}
                 </div>
@@ -955,6 +1402,22 @@ export default function StagePage({
           </div>
         </div>
       </div>
+
+      <ContactModal
+        isOpen={contactModalData.isOpen}
+        onClose={() =>
+          setContactModalData({isOpen: false, stageOrOption: "", link: ""})
+        }
+        selectedVehicle={{
+          brand: brandData.name,
+          model: modelData.name,
+          year: yearData.range,
+          engine: engineData.label,
+        }}
+        stageOrOption={contactModalData.stageOrOption}
+        link={contactModalData.link}
+        scrollPosition={contactModalData.scrollPosition}
+      />
 
       {infoModal.open && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
