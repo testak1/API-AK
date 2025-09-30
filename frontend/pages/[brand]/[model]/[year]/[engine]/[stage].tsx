@@ -1318,10 +1318,6 @@ export default function StagePage({
                         {translate(currentLanguage, "additionsLabel")}
                       </h3>
                     </div>
-                    <button
-                      onClick={() => setExpandedAktPlus(!expandedAktPlus)}
-                      className="text-orange-400 hover:text-orange-300 text-sm font-medium"
-                    ></button>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
