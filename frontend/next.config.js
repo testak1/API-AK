@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+
 const nextConfig = {
   images: {
     remotePatterns: [
@@ -11,8 +12,16 @@ const nextConfig = {
         hostname: "tuning.aktuning.se",
       },
     ],
+
+    formats: ["image/webp", "image/avif"],
+    minimumCacheTTL: 60,
   },
   reactStrictMode: true,
+
+  compiler: {
+    removeConsole: process.env.NODE_ENV === "production",
+  },
+
   env: {
     SANITY_PROJECT_ID: "wensahkh",
     SANITY_DATASET: "production",
