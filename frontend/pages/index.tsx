@@ -775,7 +775,8 @@ export default function TuningViewer() {
       ? slugify(selectedEngine.label)
       : selectedEngine.label;
     const stageSlug = slugifyStage(stageOrOptionName);
-    const finalLink = `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}#${stageSlug}`;
+    const cleanUrl = `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}#${stageSlug}`;
+    const finalLink = encodeURI(cleanUrl);
     const clickY = event?.clientY || 0;
     const scrollY = window.scrollY + clickY;
     const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
