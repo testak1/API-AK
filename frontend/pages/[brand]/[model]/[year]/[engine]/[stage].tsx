@@ -775,6 +775,33 @@ export default function StagePage({
                       url: canonicalUrl,
                       description: "Kontakta oss för offert",
                     },
+
+              // --- NYTT BLOCK BÖRJAR HÄR ---
+              isRelatedTo: allOptions.map((option) => {
+                const optionTitle =
+                  option.title?.[currentLanguage] || option.title?.sv || "";
+                const optionDescription = extractPlainTextFromDescription(
+                  option.description?.[currentLanguage] ||
+                    option.description?.sv ||
+                    [],
+                );
+
+                return {
+                  "@type": "Product",
+                  name: `${brandData.name} ${modelData.name} - ${optionTitle}`,
+                  description: optionDescription,
+                  url: canonicalUrl, // Länkar till samma sida, då de är tillägg här
+                  ...(option.price && {
+                    offers: {
+                      "@type": "Offer",
+                      priceCurrency: "SEK",
+                      price: option.price,
+                      availability: "https://schema.org/InStock",
+                    },
+                  }),
+                };
+              }),
+              // --- NYTT BLOCK SLUTAR HÄR ---
             }),
           }}
         />
