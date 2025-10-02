@@ -704,6 +704,7 @@ export default function TuningViewer() {
     str
       .toLowerCase()
       .replace(/[^\w\s-]/g, "")
+      .replace(/\s+/g, "-")
       .replace(/-+/g, "-");
 
   const getModelImage = (modelName: string, brandName: string): string => {
@@ -775,8 +776,7 @@ export default function TuningViewer() {
       ? slugify(selectedEngine.label)
       : selectedEngine.label;
     const stageSlug = slugifyStage(stageOrOptionName);
-    const cleanUrl = `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}#${stageSlug}`;
-    const finalLink = encodeURI(cleanUrl);
+    const finalLink = `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}/${stageSlug}`;
     const clickY = event?.clientY || 0;
     const scrollY = window.scrollY + clickY;
     const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
