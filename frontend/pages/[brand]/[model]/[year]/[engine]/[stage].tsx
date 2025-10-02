@@ -788,7 +788,7 @@ export default function StagePage({
 
                 return {
                   "@type": "Product",
-                  name: `${brandData.name} ${modelData.name} - ${optionTitle}`,
+                  name: `${brandData.name} ${modelData.name} ${engineData.label} - ${optionTitle}`,
                   description: optionDescription,
                   url: canonicalUrl, // Länkar till samma sida, då de är tillägg här
                   ...(option.price && {

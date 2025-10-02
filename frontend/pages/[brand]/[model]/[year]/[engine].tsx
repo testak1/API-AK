@@ -13,7 +13,6 @@ import type {
   Engine,
   Stage,
   AktPlusOption,
-  AktPlusOptionReference,
 } from "@/types/sanity";
 import { urlFor } from "@/lib/sanity";
 import { PortableText } from "@portabletext/react";
