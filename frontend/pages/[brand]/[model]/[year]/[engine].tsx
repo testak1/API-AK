@@ -949,7 +949,7 @@ export default function EnginePage({
                 {
                   "@type": "ListItem",
                   position: 5,
-                  name: `${engineData.label} - ${selectedStep}`,
+                  name: `${engineData.label}`,
                   item: canonicalUrl,
                 },
               ],
