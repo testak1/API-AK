@@ -1445,7 +1445,7 @@ export default function TuningViewer() {
                                 width={80}
                                 height={80}
                                 className="object-contain mb-2"
-                                loading="lazy"
+                                
                               />
                             )}
                             <p className="text-center font-medium text-gray-800">
@@ -1587,7 +1587,7 @@ export default function TuningViewer() {
                         width={250}
                         height={100}
                         className="h-16 w-auto object-contain mb-2"
-                        loading="lazy"
+
                       />
                       <p className="text-center font-medium text-gray-800">
                         {formatModelName(selected.brand, model.name)}
