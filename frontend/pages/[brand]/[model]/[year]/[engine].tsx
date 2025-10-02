@@ -353,20 +353,21 @@ export default function EnginePage({
   ) => {
     if (!brandData || !modelData || !yearData || !engineData) return;
 
-    const brandSlug = brandData.slug?.current || slugify(brandData.name);
+    const brandSlug =
+      brandData?.slug?.current || slugify(brandData?.name || "");
     const modelSlug =
-      typeof modelData.slug === "object"
+      typeof modelData?.slug === "object"
         ? modelData.slug.current
-        : modelData.slug || slugify(modelData.name);
-    const yearSlug = yearData.range.includes(" ")
+        : modelData?.slug || slugify(modelData?.name || "");
+    const yearSlug = yearData?.range.includes(" ")
       ? slugify(yearData.range)
-      : yearData.range;
-    const engineSlug = engineData.label.includes(" ")
+      : yearData?.range || "";
+    const engineSlug = engineData?.label.includes(" ")
       ? slugify(engineData.label)
-      : engineData.label;
+      : engineData?.label || "";
 
     const stageSlug = slugifyStage(stageOrOptionName);
-    const finalLink = `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}#${stageSlug}`;
+    const finalLink = `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}/${stageSlug}`;
 
     const clickY = event?.clientY || 0;
     const scrollY = window.scrollY + clickY;

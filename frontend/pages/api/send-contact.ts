@@ -73,7 +73,7 @@ export default async function handler(
                         <tr><td><strong>MODELL:</strong></td><td>${vehicle?.model || "-"}</td></tr>
                         <tr><td><strong>VARIANT:</strong></td><td>${vehicle?.year || "-"}</td></tr>
                         <tr><td><strong>MOTOR:</strong></td><td>${vehicle?.engine || "-"}</td></tr>
-                        <tr><td><strong>LÄNK:</strong></td><td><a href="${link || "?stage="}" style="color:#3b82f6;" target="_blank">DIREKT LÄNK</a></td></tr>
+                        <tr><td><strong>LÄNK:</strong></td><td><a href="${link || "/"}" style="color:#3b82f6;" target="_blank">DIREKT LÄNK</a></td></tr>
                         <tr><td><strong>GÄLLANDE:</strong></td><td><span style="color:#059669;"><strong>${(stage || "-").toUpperCase()}</strong></span></td></tr>
                       </table>
 
