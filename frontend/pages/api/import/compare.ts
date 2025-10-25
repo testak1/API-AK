@@ -9,11 +9,29 @@ export const config = {
   },
 };
 
-function normalize(text = ""): string {
+// Använd samma normaliseringsfunktioner som i importMissing.ts
+function normalizeString(text = ""): string {
   return text
     .toLowerCase()
     .replace(/\s+/g, "")
-    .replace(/[^a-z0-9]/g, "");
+    .replace(/[^a-z0-9åäö]/g, "")
+    .trim();
+}
+
+function compareYearRanges(range1: string, range2: string): boolean {
+  if (!range1 || !range2) return false;
+
+  const normalizeYearRange = (range: string): string => {
+    return range
+      .toLowerCase()
+      .replace(/\s+/g, "")
+      .replace(/[→–-]/g, "-")
+      .replace(/\.\.\./g, "")
+      .replace(/\//g, "-")
+      .trim();
+  };
+
+  return normalizeYearRange(range1) === normalizeYearRange(range2);
 }
 
 interface BRData {
@@ -76,7 +94,7 @@ export default async function handler(
       if (!brandData?.models) continue;
 
       const sanityBrand = sanityData.find(
-        (b: any) => normalize(b.name) === normalize(brandName)
+        (b: any) => normalizeString(b.name) === normalizeString(brandName)
       );
 
       if (!sanityBrand) {
@@ -88,7 +106,7 @@ export default async function handler(
         if (!modelData?.years) continue;
 
         const sanityModel = sanityBrand.models?.find(
-          (m: any) => normalize(m.name) === normalize(modelName)
+          (m: any) => normalizeString(m.name) === normalizeString(modelName)
         );
 
         if (!sanityModel) {
@@ -99,8 +117,8 @@ export default async function handler(
         for (const [yearName, yearData] of Object.entries(modelData.years)) {
           if (!yearData?.engines) continue;
 
-          const sanityYear = sanityModel.years?.find(
-            (y: any) => normalize(y.range) === normalize(yearName)
+          const sanityYear = sanityModel.years?.find((y: any) =>
+            compareYearRanges(y.range, yearName)
           );
 
           if (!sanityYear) {
@@ -115,8 +133,7 @@ export default async function handler(
           )) {
             const engineExists = sanityYear.engines?.some(
               (e: any) =>
-                normalize(e.label).includes(normalize(engineName)) ||
-                normalize(engineName).includes(normalize(e.label))
+                normalizeString(e.label) === normalizeString(engineName)
             );
 
             if (!engineExists) {

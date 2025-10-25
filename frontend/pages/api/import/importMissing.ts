@@ -89,6 +89,12 @@ async function processImportItem(item: ImportItem): Promise<ImportResult> {
     throw new Error("Brand name saknas");
   }
 
+  // Hämta Stage 1 description reference
+  const stage1Description = await findStage1Description();
+  if (!stage1Description) {
+    throw new Error("Kunde inte hitta Stage 1 description");
+  }
+
   // Hämta hela brand-dokumentet med alla modeller, years och engines
   const brandDoc = await sanityClient.fetch(
     `*[_type == "brand" && lower(name) == lower($name)][0]{
@@ -103,7 +109,7 @@ async function processImportItem(item: ImportItem): Promise<ImportResult> {
     throw new Error(`Brand '${brandName}' hittades inte`);
   }
 
-  // Skapa stage objekt
+  // Skapa stage objekt med fast pris och description
   const stage = {
     _key: generateKey(),
     name: "Steg 1",
@@ -112,7 +118,11 @@ async function processImportItem(item: ImportItem): Promise<ImportResult> {
     tunedHk: item.tunedHk,
     origNm: item.origNm,
     tunedNm: item.tunedNm,
-    price: item.price,
+    price: 4995, // Fast pris för Steg 1
+    descriptionRef: {
+      _type: "reference",
+      _ref: stage1Description._id,
+    },
   };
 
   // Skapa engine objekt
@@ -128,7 +138,7 @@ async function processImportItem(item: ImportItem): Promise<ImportResult> {
 
   // Hitta eller skapa model
   const modelIndex = brandDoc.models?.findIndex(
-    (m: any) => m?.name?.toLowerCase() === modelName?.toLowerCase()
+    (m: any) => normalizeString(m?.name) === normalizeString(modelName)
   );
 
   if (modelIndex === -1 || !brandDoc.models?.[modelIndex]) {
@@ -148,10 +158,10 @@ async function processImportItem(item: ImportItem): Promise<ImportResult> {
     ]);
     action = "new_model";
   } else {
-    // Model finns, hitta eller skapa year
+    // Model finns, hitta eller skapa year med BÄTTRE jämförelse
     const model = brandDoc.models[modelIndex];
-    const yearIndex = model.years?.findIndex(
-      (y: any) => y?.range?.toLowerCase() === yearRange?.toLowerCase()
+    const yearIndex = model.years?.findIndex((y: any) =>
+      compareYearRanges(y?.range, yearRange)
     );
 
     if (yearIndex === -1 || !model.years?.[yearIndex]) {
@@ -168,7 +178,7 @@ async function processImportItem(item: ImportItem): Promise<ImportResult> {
       // Year finns, kolla om engine redan finns
       const year = model.years[yearIndex];
       const engineExists = year.engines?.some(
-        (e: any) => e?.label?.toLowerCase() === engineLabel?.toLowerCase()
+        (e: any) => normalizeString(e?.label) === normalizeString(engineLabel)
       );
 
       if (engineExists) {
@@ -202,6 +212,50 @@ async function processImportItem(item: ImportItem): Promise<ImportResult> {
     status: "created",
     action,
   };
+}
+
+// Hjälpfunktion för att hitta Stage 1 description
+async function findStage1Description(): Promise<any> {
+  const query = `*[_type == "stageDescription" && stageName match "steg 1" || stageName match "stage 1"][0]{
+    _id,
+    stageName
+  }`;
+
+  const description = await sanityClient.fetch(query);
+
+  if (!description) {
+    // Fallback: hitta första stageDescription
+    const fallbackQuery = `*[_type == "stageDescription"][0]{_id, stageName}`;
+    return await sanityClient.fetch(fallbackQuery);
+  }
+
+  return description;
+}
+
+// Bättre jämförelse av år-intervall
+function compareYearRanges(range1: string, range2: string): boolean {
+  if (!range1 || !range2) return false;
+
+  const normalizeYearRange = (range: string): string => {
+    return range
+      .toLowerCase()
+      .replace(/\s+/g, "")
+      .replace(/[→–-]/g, "-") // Normalisera alla separatorer till -
+      .replace(/\.\.\./g, "") // Ta bort ...
+      .replace(/\//g, "-") // Ersätt / med -
+      .trim();
+  };
+
+  return normalizeYearRange(range1) === normalizeYearRange(range2);
+}
+
+// Bättre normalisering för strängjämförelse
+function normalizeString(text = ""): string {
+  return text
+    .toLowerCase()
+    .replace(/\s+/g, "")
+    .replace(/[^a-z0-9åäö]/g, "")
+    .trim();
 }
 
 function generateKey(): string {
