@@ -85,3 +85,75 @@ export async function verifyImport(
 
   return !!engine;
 }
+
+// Lägg till engine - den funktion som saknades
+export async function addEngine(
+  brand: string,
+  model: string,
+  year: string,
+  engine: any
+) {
+  // Hämta brand dokumentet
+  const brandDoc = await sanity.fetch(
+    `*[_type == "brand" && lower(name) == lower($brand)][0]{
+      _id,
+      models
+    }`,
+    {brand}
+  );
+
+  if (!brandDoc?._id) {
+    throw new Error(`Brand '${brand}' hittades inte`);
+  }
+
+  // Hitta model index
+  const modelIndex = brandDoc.models?.findIndex(
+    (m: any) => m?.name?.toLowerCase() === model?.toLowerCase()
+  );
+
+  if (modelIndex === -1) {
+    throw new Error(`Model '${model}' hittades inte i brand '${brand}'`);
+  }
+
+  // Hitta year index
+  const yearIndex = brandDoc.models[modelIndex].years?.findIndex(
+    (y: any) => y?.range?.toLowerCase() === year?.toLowerCase()
+  );
+
+  if (yearIndex === -1) {
+    throw new Error(`Year '${year}' hittades inte i model '${model}'`);
+  }
+
+  // Skapa ny engine
+  const newEngine = {
+    _key: generateKey(),
+    label: engine.label,
+    fuel: engine.fuel || "Bensin",
+    stages: [
+      {
+        _key: generateKey(),
+        name: "Steg 1",
+        type: "performance",
+        origHk: engine.origHk,
+        tunedHk: engine.tunedHk,
+        origNm: engine.origNm,
+        tunedNm: engine.tunedNm,
+        price: engine.price,
+      },
+    ],
+  };
+
+  // Lägg till engine i befintlig year
+  return sanity
+    .patch(brandDoc._id)
+    .append(`models[${modelIndex}].years[${yearIndex}].engines`, [newEngine])
+    .commit();
+}
+
+// Hjälpfunktion för att generera unika keys
+function generateKey(): string {
+  return (
+    Math.random().toString(36).substring(2, 15) +
+    Math.random().toString(36).substring(2, 15)
+  );
+}
