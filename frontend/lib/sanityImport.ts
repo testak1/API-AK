@@ -4,7 +4,7 @@ export const sanity = createClient({
   projectId: process.env.SANITY_PROJECT_ID!,
   dataset: process.env.SANITY_DATASET || "production",
   token: process.env.SANITY_WRITE_TOKEN,
-  apiVersion: "2025-10-01",
+  apiVersion: "2025-04-23",
   useCdn: false,
 });
 
