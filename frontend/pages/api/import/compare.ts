@@ -42,7 +42,7 @@ export default async function handler(
 
         for (const [engineName, engineObj] of Object.entries(
           (yearData as any).engines
-        ) as [string, any][]) {
+        )) {
           const exists = sanityYear.engines.some((e: any) =>
             normalize(e.label).includes(normalize(engineName))
           );
@@ -53,7 +53,7 @@ export default async function handler(
               year: yearName,
               engine: engineName,
               fuel: (engineObj as any).type,
-              data: engineObj as any,
+              data: engineObj,
             });
           }
         }
