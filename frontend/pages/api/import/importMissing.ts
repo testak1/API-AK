@@ -2,24 +2,24 @@ import {NextApiRequest, NextApiResponse} from "next";
 import {sanityClient} from "@/lib/sanity.server";
 
 export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: "10mb",
-    },
-  },
+  api: {bodyParser: {sizeLimit: "10mb"}},
 };
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  if (req.method !== "POST") {
+    return res.status(405).json({message: "Endast POST tillåten"});
+  }
+
   try {
-    const items = req.body.items;
-    if (!Array.isArray(items)) {
-      return res.status(400).json({error: "Missing or invalid 'items' array"});
+    const {items} = req.body;
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({message: "Tom importlista"});
     }
 
-    const created = [];
+    const results = [];
 
     for (const item of items) {
       const brandName = item.brand?.trim();
@@ -27,82 +27,148 @@ export default async function handler(
       const yearRange = item.year?.trim();
       const engineLabel = item.engine?.trim();
 
-      // 💡 Hämta brand dokumentet (måste redan finnas i Sanity)
+      const stage = {
+        name: "Steg 1",
+        origHk: item.origHk,
+        tunedHk: item.tunedHk,
+        origNm: item.origNm,
+        tunedNm: item.tunedNm,
+        price: item.price,
+      };
+
+      // 🔍 Hitta branden
       const brandDoc = await sanityClient.fetch(
-        `*[_type == "brand" && lower(name) == lower($name)][0]{ _id }`,
+        `*[_type == "brand" && lower(name) == lower($name)][0]{_id, models}`,
         {name: brandName}
       );
 
       if (!brandDoc?._id) {
-        console.warn(`⚠️ Hittade inte brand i Sanity: ${brandName}`);
+        console.warn(`⚠️ Hittade inte brand: ${brandName}`);
+        results.push({brand: brandName, ok: false, reason: "brand not found"});
         continue;
       }
 
-      // 📘 Hämta modell (skapa om den inte finns)
-      let modelDoc = await sanityClient.fetch(
-        `*[_type == "model" && name match $model && brand._ref == $brandId][0]{ _id, years }`,
-        {model: modelName, brandId: brandDoc._id}
+      // 🔎 Sök efter modellen
+      const modelIndex = brandDoc.models?.findIndex(
+        (m: any) => m.name.toLowerCase() === modelName.toLowerCase()
       );
 
-      if (!modelDoc) {
-        modelDoc = await sanityClient.create({
-          _type: "model",
-          name: modelName,
-          brand: {_type: "reference", _ref: brandDoc._id},
-          years: [],
-        });
-        console.log(`✅ Skapade ny modell: ${brandName} / ${modelName}`);
-      }
-
-      // 🧭 Leta årsmodell (lägg till om saknas)
-      let yearObj = modelDoc.years?.find((y: any) => y.range === yearRange);
-      if (!yearObj) {
-        yearObj = {
-          _key: Math.random().toString(36).substr(2, 9),
-          range: yearRange,
-          engines: [],
-        };
-        modelDoc.years.push(yearObj);
-      }
-
-      // ⚙️ Lägg till motor (endast om saknas)
-      if (!yearObj.engines.find((e: any) => e.label === engineLabel)) {
-        yearObj.engines.push({
-          _key: Math.random().toString(36).substr(2, 9),
-          label: engineLabel,
-          fuel: item.fuel || "Okänd",
-          stages: [
+      // 🧱 Om modellen inte finns, skapa den
+      if (modelIndex === -1 || modelIndex === undefined) {
+        await sanityClient
+          .patch(brandDoc._id)
+          .setIfMissing({models: []})
+          .insert("after", "models[-1]", [
             {
-              _key: Math.random().toString(36).substr(2, 9),
-              name: "Steg 1",
-              origHk: item.origHk || null,
-              tunedHk: item.tunedHk || null,
-              origNm: item.origNm || null,
-              tunedNm: item.tunedNm || null,
-              price: item.price || null,
+              name: modelName,
+              years: [
+                {
+                  range: yearRange,
+                  engines: [
+                    {
+                      fuel: "Bensin", // du kan ändra logiken här
+                      label: engineLabel,
+                      stages: [stage],
+                    },
+                  ],
+                },
+              ],
             },
-          ],
+          ])
+          .commit();
+
+        results.push({
+          brand: brandName,
+          model: modelName,
+          created: "new model",
         });
+        continue;
       }
 
-      // 💾 Uppdatera modellen i Sanity
-      await sanityClient
-        .patch(modelDoc._id)
-        .set({years: modelDoc.years})
-        .commit();
+      // Om modellen finns, hämta dess years-array
+      const model = brandDoc.models[modelIndex];
+      const yearIndex = model.years?.findIndex(
+        (y: any) => y.range.toLowerCase() === yearRange.toLowerCase()
+      );
 
-      created.push({brandName, modelName, yearRange, engineLabel});
+      if (yearIndex === -1 || yearIndex === undefined) {
+        await sanityClient
+          .patch(brandDoc._id)
+          .insert(`after`, `models[${modelIndex}].years[-1]`, [
+            {
+              range: yearRange,
+              engines: [
+                {
+                  fuel: "Bensin",
+                  label: engineLabel,
+                  stages: [stage],
+                },
+              ],
+            },
+          ])
+          .commit();
+
+        results.push({
+          brand: brandName,
+          model: modelName,
+          year: yearRange,
+          created: "new year",
+        });
+        continue;
+      }
+
+      // Om år finns, lägg till motorn om den saknas
+      const year = model.years[yearIndex];
+      const engineExists = year.engines?.some(
+        (e: any) => e.label.toLowerCase() === engineLabel.toLowerCase()
+      );
+
+      if (!engineExists) {
+        await sanityClient
+          .patch(brandDoc._id)
+          .insert(
+            "after",
+            `models[${modelIndex}].years[${yearIndex}].engines[-1]`,
+            [
+              {
+                fuel: "Bensin",
+                label: engineLabel,
+                stages: [stage],
+              },
+            ]
+          )
+          .commit();
+
+        results.push({
+          brand: brandName,
+          model: modelName,
+          year: yearRange,
+          engine: engineLabel,
+          created: "new engine",
+        });
+      } else {
+        results.push({
+          brand: brandName,
+          model: modelName,
+          year: yearRange,
+          engine: engineLabel,
+          created: "already exists",
+        });
+      }
     }
 
     res.status(200).json({
-      success: true,
-      message: `Importerade ${created.length} objekt till Sanity`,
-      created,
+      message: "Import klar",
+      summary: {
+        total: results.length,
+        created: results.filter(
+          r => r.created && r.created !== "already exists"
+        ).length,
+      },
+      results,
     });
-  } catch (err) {
-    console.error("❌ Import error", err);
-    res
-      .status(500)
-      .json({error: "Import failed", details: (err as any).message});
+  } catch (err: any) {
+    console.error("🔥 Importfel:", err);
+    res.status(500).json({message: "Server error", error: err.message});
   }
 }
