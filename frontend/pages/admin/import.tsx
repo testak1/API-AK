@@ -1,4 +1,4 @@
-import { useState } from "react";
+import {useState} from "react";
 
 interface MissingItem {
   type: string;
@@ -42,8 +42,8 @@ export default function ImportPage() {
   };
 
   const toggleSelect = (item: MissingItem) => {
-    setSelected((prev) =>
-      prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item]
+    setSelected(prev =>
+      prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]
     );
   };
 
@@ -54,8 +54,8 @@ export default function ImportPage() {
     try {
       const res = await fetch("/api/import/importMissing", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items: selected }),
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({items: selected}),
       });
 
       const data = await res.json();
@@ -69,18 +69,23 @@ export default function ImportPage() {
   };
 
   return (
-    <div style={{ padding: 30, fontFamily: "sans-serif" }}>
+    <div style={{padding: 30, fontFamily: "sans-serif"}}>
       <h1>⚙️ Sanity Importverktyg</h1>
-      <p>Välj <strong>missing_import.json</strong> för att granska och importera saknade poster.</p>
+      <p>
+        Välj <strong>missing_import.json</strong> för att granska och importera
+        saknade poster.
+      </p>
 
       <input type="file" accept=".json" onChange={handleFileUpload} />
       <p>{status}</p>
 
       {missing.length > 0 && (
         <>
-          <table style={{ width: "100%", borderCollapse: "collapse", marginTop: 20 }}>
+          <table
+            style={{width: "100%", borderCollapse: "collapse", marginTop: 20}}
+          >
             <thead>
-              <tr style={{ background: "#eee" }}>
+              <tr style={{background: "#eee"}}>
                 <th></th>
                 <th>Brand</th>
                 <th>Model</th>
@@ -119,9 +124,7 @@ export default function ImportPage() {
               cursor: "pointer",
             }}
           >
-            {loading
-              ? "Importerar..."
-              : `Importera valda (${selected.length})`}
+            {loading ? "Importerar..." : `Importera valda (${selected.length})`}
           </button>
         </>
       )}

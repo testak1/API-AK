@@ -1,5 +1,5 @@
 import {NextApiRequest, NextApiResponse} from "next";
-import SanityClient from "@/lib/sanity";
+import {sanityClient} from "@/lib/sanity.server";
 
 export const config = {
   api: {
@@ -28,7 +28,7 @@ export default async function handler(
       const engineLabel = item.engine?.trim();
 
       // 💡 Hämta brand dokumentet (måste redan finnas i Sanity)
-      const brandDoc = await SanityClient.fetch(
+      const brandDoc = await sanityClient.fetch(
         `*[_type == "brand" && name match $name][0]{ _id }`,
         {name: brandName}
       );
@@ -39,13 +39,13 @@ export default async function handler(
       }
 
       // 📘 Hämta modell (skapa om den inte finns)
-      let modelDoc = await SanityClient.fetch(
+      let modelDoc = await sanityClient.fetch(
         `*[_type == "model" && name match $model && brand._ref == $brandId][0]{ _id, years }`,
         {model: modelName, brandId: brandDoc._id}
       );
 
       if (!modelDoc) {
-        modelDoc = await SanityClient.create({
+        modelDoc = await sanityClient.create({
           _type: "model",
           name: modelName,
           brand: {_type: "reference", _ref: brandDoc._id},
@@ -86,7 +86,8 @@ export default async function handler(
       }
 
       // 💾 Uppdatera modellen i Sanity
-      await SanityClient.patch(modelDoc._id)
+      await sanityClient
+        .patch(modelDoc._id)
         .set({years: modelDoc.years})
         .commit();
 
