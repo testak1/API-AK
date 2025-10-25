@@ -18,31 +18,32 @@ export default async function handler(
 
   const missing: any[] = [];
 
-  for (const [brandName, brandData] of Object.entries(brData)) {
+  for (const [brandName, brandData] of Object.entries(brData || {})) {
     const sanityBrand = sanityData.find(
       (b: any) => normalize(b.name) === normalize(brandName)
     );
-    if (!sanityBrand) continue;
+    if (!sanityBrand || !brandData || !(brandData as any).models) continue;
 
     for (const [modelName, modelData] of Object.entries(
-      (brandData as any).models
+      (brandData as any).models || {}
     )) {
       const sanityModel = sanityBrand.models.find(
         (m: any) => normalize(m.name) === normalize(modelName)
       );
-      if (!sanityModel) continue;
+      if (!sanityModel || !modelData || !(modelData as any).years) continue;
 
       for (const [yearName, yearData] of Object.entries(
-        (modelData as any).years
+        (modelData as any).years || {}
       )) {
         const sanityYear = sanityModel.years.find(
           (y: any) => normalize(y.range) === normalize(yearName)
         );
-        if (!sanityYear) continue;
+        if (!sanityYear || !yearData || !(yearData as any).engines) continue;
 
-        for (const [engineName, engineObj] of Object.entries(
-          (yearData as any).engines
+        for (const [engineName, engineObjRaw] of Object.entries(
+          (yearData as any).engines || {}
         )) {
+          const engineObj = engineObjRaw as any;
           const exists = sanityYear.engines.some((e: any) =>
             normalize(e.label).includes(normalize(engineName))
           );
@@ -52,7 +53,7 @@ export default async function handler(
               model: modelName,
               year: yearName,
               engine: engineName,
-              fuel: (engineObj as any).type,
+              fuel: engineObj.type || "Unknown",
               data: engineObj,
             });
           }
