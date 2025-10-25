@@ -8,48 +8,80 @@ export const sanity = createClient({
   useCdn: false,
 });
 
+// Lightweight query för compare
 export async function getAllData() {
   const query = `*[_type == "brand"]{
+    _id,
     name,
     "models": models[]{
       name,
       "years": years[]{
         range,
-        "engines": engines[]{label, fuel}
+        "engines": engines[]{
+          label,
+          fuel
+        }
       }
     }
   }`;
   return sanity.fetch(query);
 }
 
-export async function addEngine(
-  brand: string,
-  model: string,
-  year: string,
-  engine: any
+// Detailed query för import-verifiering
+export async function getBrandDetails(brandName: string) {
+  const query = `*[_type == "brand" && lower(name) == lower($brandName)][0]{
+    _id,
+    name,
+    models[]{
+      name,
+      years[]{
+        range,
+        engines[]{
+          label,
+          fuel,
+          stages[]{
+            name,
+            origHk,
+            tunedHk,
+            origNm,
+            tunedNm,
+            price
+          }
+        }
+      }
+    }
+  }`;
+  return sanity.fetch(query, {brandName});
+}
+
+// Validera att import lyckades
+export async function verifyImport(
+  brandName: string,
+  modelName: string,
+  yearRange: string,
+  engineLabel: string
 ) {
-  const patchQuery = `
-    *[_type == "brand" && name == $brand][0].models[name == $model].years[range == $year]
-  `;
-  const doc = await sanity.fetch(patchQuery, {brand, model, year});
-  if (!doc) throw new Error("Ingen matchande årmodell hittades");
+  const brand = await getBrandDetails(brandName);
 
-  const newEngine = {
-    _key: crypto.randomUUID(),
-    label: engine.label,
-    fuel: engine.fuel,
-    stages: [
-      {
-        _key: crypto.randomUUID(),
-        name: "Steg 1",
-        origHk: engine.origHk,
-        tunedHk: engine.tunedHk,
-        origNm: engine.origNm,
-        tunedNm: engine.tunedNm,
-        price: engine.price,
-      },
-    ],
-  };
+  if (!brand) return false;
 
-  return sanity.patch(doc._id).append("engines", [newEngine]).commit();
+  const model = brand.models?.find(
+    (m: any) => m.name.toLowerCase() === modelName.toLowerCase()
+  );
+
+  if (!model) return false;
+
+  const year = model.years?.find(
+    (y: any) => y.range.toLowerCase() === yearRange.toLowerCase()
+  );
+
+  if (!year) return false;
+
+  const engine = year.engines?.find(
+    (e: any) =>
+      e.label.toLowerCase().includes(engineLabel.toLowerCase()) ||
+      engineLabel.toLowerCase().includes(e.label.toLowerCase())
+  );
+
+  return !!engine;
 }

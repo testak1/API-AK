@@ -5,6 +5,29 @@ export const config = {
   api: {bodyParser: {sizeLimit: "10mb"}},
 };
 
+interface ImportItem {
+  brand: string;
+  model?: string;
+  year?: string;
+  engine?: string;
+  fuel?: string;
+  origHk?: number;
+  tunedHk?: number;
+  origNm?: number;
+  tunedNm?: number;
+  price?: number;
+}
+
+interface ImportResult {
+  brand: string;
+  model?: string;
+  year?: string;
+  engine?: string;
+  status: "created" | "exists" | "error";
+  action?: string;
+  message?: string;
+}
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -19,156 +42,171 @@ export default async function handler(
       return res.status(400).json({message: "Tom importlista"});
     }
 
-    const results = [];
+    const results: ImportResult[] = [];
 
     for (const item of items) {
-      const brandName = item.brand?.trim();
-      const modelName = item.model?.trim();
-      const yearRange = item.year?.trim();
-      const engineLabel = item.engine?.trim();
-
-      const stage = {
-        name: "Steg 1",
-        origHk: item.origHk,
-        tunedHk: item.tunedHk,
-        origNm: item.origNm,
-        tunedNm: item.tunedNm,
-        price: item.price,
-      };
-
-      // 🔍 Hitta branden
-      const brandDoc = await sanityClient.fetch(
-        `*[_type == "brand" && lower(name) == lower($name)][0]{_id, models}`,
-        {name: brandName}
-      );
-
-      if (!brandDoc?._id) {
-        console.warn(`⚠️ Hittade inte brand: ${brandName}`);
-        results.push({brand: brandName, ok: false, reason: "brand not found"});
-        continue;
-      }
-
-      // 🔎 Sök efter modellen
-      const modelIndex = brandDoc.models?.findIndex(
-        (m: any) => m.name.toLowerCase() === modelName.toLowerCase()
-      );
-
-      // 🧱 Om modellen inte finns, skapa den
-      if (modelIndex === -1 || modelIndex === undefined) {
-        await sanityClient
-          .patch(brandDoc._id)
-          .setIfMissing({models: []})
-          .insert("after", "models[-1]", [
-            {
-              name: modelName,
-              years: [
-                {
-                  range: yearRange,
-                  engines: [
-                    {
-                      fuel: "Bensin", // du kan ändra logiken här
-                      label: engineLabel,
-                      stages: [stage],
-                    },
-                  ],
-                },
-              ],
-            },
-          ])
-          .commit();
-
+      try {
+        const result = await processImportItem(item);
+        results.push(result);
+      } catch (error: any) {
         results.push({
-          brand: brandName,
-          model: modelName,
-          created: "new model",
-        });
-        continue;
-      }
-
-      // Om modellen finns, hämta dess years-array
-      const model = brandDoc.models[modelIndex];
-      const yearIndex = model.years?.findIndex(
-        (y: any) => y.range.toLowerCase() === yearRange.toLowerCase()
-      );
-
-      if (yearIndex === -1 || yearIndex === undefined) {
-        await sanityClient
-          .patch(brandDoc._id)
-          .insert(`after`, `models[${modelIndex}].years[-1]`, [
-            {
-              range: yearRange,
-              engines: [
-                {
-                  fuel: "Bensin",
-                  label: engineLabel,
-                  stages: [stage],
-                },
-              ],
-            },
-          ])
-          .commit();
-
-        results.push({
-          brand: brandName,
-          model: modelName,
-          year: yearRange,
-          created: "new year",
-        });
-        continue;
-      }
-
-      // Om år finns, lägg till motorn om den saknas
-      const year = model.years[yearIndex];
-      const engineExists = year.engines?.some(
-        (e: any) => e.label.toLowerCase() === engineLabel.toLowerCase()
-      );
-
-      if (!engineExists) {
-        await sanityClient
-          .patch(brandDoc._id)
-          .insert(
-            "after",
-            `models[${modelIndex}].years[${yearIndex}].engines[-1]`,
-            [
-              {
-                fuel: "Bensin",
-                label: engineLabel,
-                stages: [stage],
-              },
-            ]
-          )
-          .commit();
-
-        results.push({
-          brand: brandName,
-          model: modelName,
-          year: yearRange,
-          engine: engineLabel,
-          created: "new engine",
-        });
-      } else {
-        results.push({
-          brand: brandName,
-          model: modelName,
-          year: yearRange,
-          engine: engineLabel,
-          created: "already exists",
+          brand: item.brand,
+          model: item.model,
+          year: item.year,
+          engine: item.engine,
+          status: "error",
+          message: error.message,
         });
       }
     }
 
+    const summary = {
+      total: results.length,
+      created: results.filter(r => r.status === "created").length,
+      exists: results.filter(r => r.status === "exists").length,
+      errors: results.filter(r => r.status === "error").length,
+    };
+
     res.status(200).json({
       message: "Import klar",
-      summary: {
-        total: results.length,
-        created: results.filter(
-          r => r.created && r.created !== "already exists"
-        ).length,
-      },
+      summary,
       results,
     });
   } catch (err: any) {
     console.error("🔥 Importfel:", err);
     res.status(500).json({message: "Server error", error: err.message});
   }
+}
+
+async function processImportItem(item: ImportItem): Promise<ImportResult> {
+  const brandName = item.brand?.trim();
+  const modelName = item.model?.trim();
+  const yearRange = item.year?.trim();
+  const engineLabel = item.engine?.trim();
+  const fuelType = item.fuel || "Bensin";
+
+  if (!brandName) {
+    throw new Error("Brand name saknas");
+  }
+
+  // Hämta hela brand-dokumentet med alla modeller, years och engines
+  const brandDoc = await sanityClient.fetch(
+    `*[_type == "brand" && lower(name) == lower($name)][0]{
+      _id,
+      name,
+      models
+    }`,
+    {name: brandName}
+  );
+
+  if (!brandDoc?._id) {
+    throw new Error(`Brand '${brandName}' hittades inte`);
+  }
+
+  // Skapa stage objekt
+  const stage = {
+    _key: generateKey(),
+    name: "Steg 1",
+    type: "performance",
+    origHk: item.origHk,
+    tunedHk: item.tunedHk,
+    origNm: item.origNm,
+    tunedNm: item.tunedNm,
+    price: item.price,
+  };
+
+  // Skapa engine objekt
+  const newEngine = {
+    _key: generateKey(),
+    fuel: fuelType,
+    label: engineLabel,
+    stages: [stage],
+  };
+
+  let action = "";
+  let patch = sanityClient.patch(brandDoc._id);
+
+  // Hitta eller skapa model
+  const modelIndex = brandDoc.models?.findIndex(
+    (m: any) => m?.name?.toLowerCase() === modelName?.toLowerCase()
+  );
+
+  if (modelIndex === -1 || !brandDoc.models?.[modelIndex]) {
+    // Skapa ny model med year och engine
+    patch = patch.append("models", [
+      {
+        _key: generateKey(),
+        name: modelName,
+        years: [
+          {
+            _key: generateKey(),
+            range: yearRange,
+            engines: [newEngine],
+          },
+        ],
+      },
+    ]);
+    action = "new_model";
+  } else {
+    // Model finns, hitta eller skapa year
+    const model = brandDoc.models[modelIndex];
+    const yearIndex = model.years?.findIndex(
+      (y: any) => y?.range?.toLowerCase() === yearRange?.toLowerCase()
+    );
+
+    if (yearIndex === -1 || !model.years?.[yearIndex]) {
+      // Skapa ny year i befintlig model
+      patch = patch.append(`models[${modelIndex}].years`, [
+        {
+          _key: generateKey(),
+          range: yearRange,
+          engines: [newEngine],
+        },
+      ]);
+      action = "new_year";
+    } else {
+      // Year finns, kolla om engine redan finns
+      const year = model.years[yearIndex];
+      const engineExists = year.engines?.some(
+        (e: any) => e?.label?.toLowerCase() === engineLabel?.toLowerCase()
+      );
+
+      if (engineExists) {
+        return {
+          brand: brandName,
+          model: modelName,
+          year: yearRange,
+          engine: engineLabel,
+          status: "exists",
+          action: "engine_exists",
+        };
+      } else {
+        // Lägg till engine i befintlig year
+        patch = patch.append(
+          `models[${modelIndex}].years[${yearIndex}].engines`,
+          [newEngine]
+        );
+        action = "new_engine";
+      }
+    }
+  }
+
+  // Utför patch
+  await patch.commit();
+
+  return {
+    brand: brandName,
+    model: modelName,
+    year: yearRange,
+    engine: engineLabel,
+    status: "created",
+    action,
+  };
+}
+
+function generateKey(): string {
+  return (
+    Math.random().toString(36).substring(2, 15) +
+    Math.random().toString(36).substring(2, 15)
+  );
 }
