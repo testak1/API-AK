@@ -1,6 +1,14 @@
 import {NextApiRequest, NextApiResponse} from "next";
 import {getAllData} from "@/lib/sanityImport";
 
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: "15mb",
+    },
+  },
+};
+
 function normalize(text = "") {
   return text.toLowerCase().replace(/\s|[^a-z0-9]/g, "");
 }

@@ -1,4 +1,4 @@
-export default function ImportTable({ missing, selected, onToggle }) {
+export default function ImportTable({missing, selected, onToggle}) {
   return (
     <table className="w-full border border-gray-300 text-sm">
       <thead className="bg-gray-100">

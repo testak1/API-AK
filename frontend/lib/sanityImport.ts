@@ -1,10 +1,10 @@
-import { createClient } from "@sanity/client";
+import {createClient} from "@sanity/client";
 
 export const sanity = createClient({
   projectId: process.env.SANITY_PROJECT_ID!,
   dataset: process.env.SANITY_DATASET || "production",
   token: process.env.SANITY_WRITE_TOKEN,
-  apiVersion: "2023-10-01",
+  apiVersion: "2025-10-01",
   useCdn: false,
 });
 
@@ -22,11 +22,16 @@ export async function getAllData() {
   return sanity.fetch(query);
 }
 
-export async function addEngine(brand: string, model: string, year: string, engine: any) {
+export async function addEngine(
+  brand: string,
+  model: string,
+  year: string,
+  engine: any
+) {
   const patchQuery = `
     *[_type == "brand" && name == $brand][0].models[name == $model].years[range == $year]
   `;
-  const doc = await sanity.fetch(patchQuery, { brand, model, year });
+  const doc = await sanity.fetch(patchQuery, {brand, model, year});
   if (!doc) throw new Error("Ingen matchande årmodell hittades");
 
   const newEngine = {
@@ -46,8 +51,5 @@ export async function addEngine(brand: string, model: string, year: string, engi
     ],
   };
 
-  return sanity
-    .patch(doc._id)
-    .append("engines", [newEngine])
-    .commit();
+  return sanity.patch(doc._id).append("engines", [newEngine]).commit();
 }
