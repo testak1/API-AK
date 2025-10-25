@@ -29,7 +29,7 @@ export default async function handler(
 
       // 💡 Hämta brand dokumentet (måste redan finnas i Sanity)
       const brandDoc = await sanityClient.fetch(
-        `*[_type == "brand" && name match $name][0]{ _id }`,
+        `*[_type == "brand" && lower(name) == lower($name)][0]{ _id }`,
         {name: brandName}
       );
 
