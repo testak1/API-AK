@@ -186,7 +186,7 @@ export function JetSkiSection({
                         >
                           {/* Modell och År */}
                           <strong className="text-lg font-semibold text-gray-900 block">
-                            {model.model} ({model.year}) ({model.engine})
+                            {model.model} [{model.year}] - {model.engine}
                           </strong>
 
                           {/* HK VISNING - Förbättrad och mer framträdande */}
@@ -235,7 +235,7 @@ export function JetSkiSection({
                               <button
                                 onClick={() => {
                                   // Skapar titel baserat på modellen, året och motorn
-                                  const modalTitle = `${brand.name} ${model.model} (${model.year}) (${model.engine})`;
+                                  const modalTitle = `${brand.name} ${model.model} [${model.year}] - ${model.engine}`;
 
                                   setContactModalData({
                                     isOpen: true,
