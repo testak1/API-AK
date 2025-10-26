@@ -1,6 +1,6 @@
 "use client";
 
-import {useState} from "react"; // Tog bort useEffect
+import {useState} from "react";
 // Du måste importera din urlFor-funktion.
 import {urlFor} from "@/lib/sanity";
 
@@ -45,18 +45,13 @@ export function JetSkiSection({
   translate,
 }: JetSkiSectionProps) {
   const [brands, setBrands] = useState<JetSkiBrand[]>([]);
-  // ÄNDRING: false initialt, eftersom vi inte laddar direkt
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // NY STATE: Håller koll på om data har laddats en gång
   const [hasLoaded, setHasLoaded] = useState(false);
-  // NY STATE: Speglar om details-elementet är öppet
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // NY FUNKTION: Logiken för att hämta data
   const fetchData = async () => {
-    // Förhindra dubbelladdning
     if (hasLoaded || isLoading) return;
 
     setIsLoading(true);
@@ -77,31 +72,22 @@ export function JetSkiSection({
     }
   };
 
-  // NY EVENT HANDLER: Trigger datahämtning och uppdatera state
   const handleToggle = (e: React.MouseEvent<HTMLElement>) => {
-    // Om vi klickar och sektionen är stängd OCH datan inte laddats, ladda datan
     if (!isExpanded && !hasLoaded) {
       fetchData();
     }
-    // Uppdatera expanded state FÖRE React's native details-hantering
     setIsExpanded(!isExpanded);
   };
 
-  // Vi renderar alltid komponenten för att ge användaren något att klicka på
-  // om det finns data.
   if (brands.length === 0 && hasLoaded && !isLoading) {
     return null; // Returnera null om vi har försökt ladda men listan är tom.
   }
 
   return (
-    // mt-8 för utrymme ovanför
     <div className="mt-8 mb-6">
       <details
-        // open={false} är standard
         className="bg-white border border-gray-300 rounded-xl shadow-lg"
-        // Använd onClick på summary för att hantera expandering och laddning
         onClick={e => {
-          // Kontrollera att klicket kommer från summary-elementet
           if ((e.target as HTMLElement).closest("summary")) {
             handleToggle(e as React.MouseEvent<HTMLElement>);
           }
@@ -122,15 +108,14 @@ export function JetSkiSection({
               <span className="text-sm">Laddar...</span>
             ) : error ? (
               <span className="text-sm text-red-500">Fel!</span>
-            ) : hasLoaded ? (
-              <span className="text-sm font-medium">
-                {brands.length} Märken
-              </span>
             ) : (
-              // NY TEXT: Vägleder användaren att klicka innan laddning
-              <span className="text-sm font-medium">
-                Klicka för att se modeller
-              </span>
+              // Visar "Klicka för att se modeller" endast om datan ännu inte har laddats
+              !hasLoaded && (
+                <span className="text-sm font-medium">
+                  Klicka för att se modeller
+                </span>
+              )
+              // Om hasLoaded är true och ingen laddning/fel finns, visas ingen extra text här.
             )}
 
             <svg
@@ -190,11 +175,8 @@ export function JetSkiSection({
                     </span>
                   </div>
 
-                  {/* Höger sida: Antal modeller och Expand-ikon */}
+                  {/* Höger sida: Endast Expand-ikon (Antal modeller borttaget) */}
                   <div className="flex items-center gap-4 text-gray-500">
-                    <span className="text-sm font-medium">
-                      {brand.models?.length || 0} modeller
-                    </span>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className="h-5 w-5 transform transition-transform details-arrow"
@@ -223,7 +205,7 @@ export function JetSkiSection({
                             {model.model} [{model.year}] - {model.engine}
                           </strong>
 
-                          {/* HK VISNING - FIXAD OCH SNYGGARE */}
+                          {/* HK VISNING */}
                           {model.origHk && model.tunedHk ? (
                             <div className="mt-2 mb-3 border-b border-gray-100 pb-2">
                               {/* Rad 1: Original HK */}
