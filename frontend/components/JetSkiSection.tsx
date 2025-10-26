@@ -111,7 +111,7 @@ export function JetSkiSection({
             ) : (
               // Visar "Klicka för att se modeller" endast om datan ännu inte har laddats
               !hasLoaded && (
-                <span className="text-sm font-medium">
+                <span className="text-sm font-bold">
                   {translate(currentLanguage, "expandjetski")}
                 </span>
               )
