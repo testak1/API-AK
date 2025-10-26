@@ -198,7 +198,7 @@ export function JetSkiSection({
                       {brand.models?.map(model => (
                         <div
                           key={model._id}
-                          className="model-item bg-white p-4 rounded-lg border border-gray-200 shadow-sm transition hover:border-orange-400"
+                          className="model-item bg-white p-4 rounded-lg border border-gray-200 shadow-sm transition hover:border-red-600"
                         >
                           {/* Modell och År */}
                           <strong className="text-lg font-semibold text-gray-900 block">
