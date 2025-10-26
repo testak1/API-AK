@@ -1,10 +1,10 @@
 "use client";
 
-import {useState, useEffect} from "react";
+import {useState} from "react"; // Tog bort useEffect
 // Du måste importera din urlFor-funktion.
 import {urlFor} from "@/lib/sanity";
 
-// --- NYA TYPDEFINITIONER FÖR MODALFUNKTIONEN ---
+// --- TYPDEFINITIONER (oförändrade) ---
 interface ContactModalData {
   isOpen: boolean;
   stageOrOption: string;
@@ -13,7 +13,6 @@ interface ContactModalData {
 }
 type SetContactModalData = (data: ContactModalData) => void;
 
-// --- UPPDATERADE TYPDEFINITIONER FÖR DATAMODELLEN ---
 interface JetSkiModel {
   _id: string;
   model: string;
@@ -33,7 +32,6 @@ interface JetSkiBrand {
   models: JetSkiModel[];
 }
 
-// --- NYA PROPS FÖR KOMPONENTEN ---
 interface JetSkiSectionProps {
   setContactModalData: SetContactModalData;
   currentLanguage: string;
@@ -47,39 +45,67 @@ export function JetSkiSection({
   translate,
 }: JetSkiSectionProps) {
   const [brands, setBrands] = useState<JetSkiBrand[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  // ÄNDRING: false initialt, eftersom vi inte laddar direkt
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const res = await fetch("/api/jetski-brands");
-        if (!res.ok) {
-          throw new Error("Nätverkssvar var inte ok");
-        }
-        const data = await res.json();
-        setBrands(data.brands || []);
-      } catch (err: any) {
-        console.error("Kunde inte hämta vattenskoterdata", err);
-        setError("Kunde inte ladda vattenskotrar.");
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    fetchData();
-  }, []);
+  // NY STATE: Håller koll på om data har laddats en gång
+  const [hasLoaded, setHasLoaded] = useState(false);
+  // NY STATE: Speglar om details-elementet är öppet
+  const [isExpanded, setIsExpanded] = useState(false);
 
-  if (brands.length === 0 && !isLoading) {
-    return null;
+  // NY FUNKTION: Logiken för att hämta data
+  const fetchData = async () => {
+    // Förhindra dubbelladdning
+    if (hasLoaded || isLoading) return;
+
+    setIsLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/jetski-brands");
+      if (!res.ok) {
+        throw new Error("Nätverkssvar var inte ok");
+      }
+      const data = await res.json();
+      setBrands(data.brands || []);
+      setHasLoaded(true); // Markera som laddad
+    } catch (err: any) {
+      console.error("Kunde inte hämta vattenskoterdata", err);
+      setError("Kunde inte ladda vattenskotrar.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // NY EVENT HANDLER: Trigger datahämtning och uppdatera state
+  const handleToggle = (e: React.MouseEvent<HTMLElement>) => {
+    // Om vi klickar och sektionen är stängd OCH datan inte laddats, ladda datan
+    if (!isExpanded && !hasLoaded) {
+      fetchData();
+    }
+    // Uppdatera expanded state FÖRE React's native details-hantering
+    setIsExpanded(!isExpanded);
+  };
+
+  // Vi renderar alltid komponenten för att ge användaren något att klicka på
+  // om det finns data.
+  if (brands.length === 0 && hasLoaded && !isLoading) {
+    return null; // Returnera null om vi har försökt ladda men listan är tom.
   }
 
   return (
-    // 1. Lade till mt-8 för utrymme ovanför (mellan lastbilar och denna sektion)
+    // mt-8 för utrymme ovanför
     <div className="mt-8 mb-6">
-      {/* 2. Kapslar in hela sektionen i en yttre, expanderbar details-tagg */}
       <details
-        open={false} // Stängd som standard
+        // open={false} är standard
         className="bg-white border border-gray-300 rounded-xl shadow-lg"
+        // Använd onClick på summary för att hantera expandering och laddning
+        onClick={e => {
+          // Kontrollera att klicket kommer från summary-elementet
+          if ((e.target as HTMLElement).closest("summary")) {
+            handleToggle(e as React.MouseEvent<HTMLElement>);
+          }
+        }}
       >
         <summary
           className="cursor-pointer p-4 flex items-center justify-between hover:bg-gray-50 rounded-xl"
@@ -90,14 +116,18 @@ export function JetSkiSection({
             Vattenskotrar (Jet Skis)
           </h3>
 
-          {/* Status och Expand-ikon (Antal märken borttaget) */}
+          {/* Status och Expand-ikon */}
           <div className="flex items-center gap-4 text-gray-500">
             {isLoading ? (
               <span className="text-sm">Laddar...</span>
             ) : error ? (
               <span className="text-sm text-red-500">Fel!</span>
+            ) : hasLoaded ? (
+              <span className="text-sm font-medium">
+                {brands.length} Märken
+              </span>
             ) : (
-              // NY TEXT: Vägleder användaren att klicka
+              // NY TEXT: Vägleder användaren att klicka innan laddning
               <span className="text-sm font-medium">
                 Klicka för att se modeller
               </span>
@@ -133,8 +163,9 @@ export function JetSkiSection({
             </p>
           )}
 
-          {/* Lista med vattenskotermärken */}
-          {!isLoading &&
+          {/* Lista med vattenskotermärken - Renderas bara om hasLoaded är true */}
+          {hasLoaded &&
+            !error &&
             brands.map(brand => (
               <details
                 key={brand._id}
@@ -159,8 +190,11 @@ export function JetSkiSection({
                     </span>
                   </div>
 
-                  {/* Höger sida: Expand-ikon (Antal modeller borttaget) */}
+                  {/* Höger sida: Antal modeller och Expand-ikon */}
                   <div className="flex items-center gap-4 text-gray-500">
+                    <span className="text-sm font-medium">
+                      {brand.models?.length || 0} modeller
+                    </span>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className="h-5 w-5 transform transition-transform details-arrow"
@@ -189,28 +223,26 @@ export function JetSkiSection({
                             {model.model} [{model.year}] - {model.engine}
                           </strong>
 
-                          {/* HK VISNING - Förbättrad och mer framträdande */}
+                          {/* HK VISNING */}
                           {model.origHk && model.tunedHk ? (
                             <div className="flex items-baseline mt-1 mb-2">
                               <span className="text-sm text-gray-500 mr-2">
                                 HK:
                               </span>
-                              {/* Original HK: Lite mindre och orange */}
                               <span className="text-base font-medium text-orange-500">
                                 {model.origHk}
                               </span>
                               <span className="text-base text-gray-500 mx-1">
                                 →
                               </span>
-                              {/* Tuned HK: Större och fetare i grönt */}
                               <span className="text-xl font-extrabold text-green-600">
                                 {model.tunedHk}
                               </span>
                             </div>
                           ) : null}
 
+                          {/* NM-visning */}
                           <div className="mt-2 text-sm space-y-1">
-                            {/* NM-visning, fortfarande kompakt */}
                             {model.origNm && model.tunedNm ? (
                               <p className="text-xs font-medium text-gray-500">
                                 NM: {model.origNm} →{" "}
