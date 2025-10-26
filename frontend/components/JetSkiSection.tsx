@@ -223,26 +223,33 @@ export function JetSkiSection({
                             {model.model} [{model.year}] - {model.engine}
                           </strong>
 
-                          {/* HK VISNING */}
+                          {/* HK VISNING - FIXAD OCH SNYGGARE */}
                           {model.origHk && model.tunedHk ? (
-                            <div className="flex items-baseline mt-1 mb-2">
-                              <span className="text-sm text-gray-500 mr-2">
-                                ORG HK:
-                              </span>
-                              <span className="text-base font-medium text-orange-500">
-                                {model.origHk}
-                              </span>
-                              <span className="text-sm text-gray-500 mr-2">
-                                OPTIMERAD HK:
-                              </span>
-                              <span className="text-xl font-extrabold text-green-600">
-                                {model.tunedHk}
-                              </span>
+                            <div className="mt-2 mb-3 border-b border-gray-100 pb-2">
+                              {/* Rad 1: Original HK */}
+                              <div className="flex justify-between text-sm text-gray-600">
+                                <span className="font-semibold uppercase tracking-wider">
+                                  ORG HK:
+                                </span>
+                                <span className="font-bold text-orange-500">
+                                  {model.origHk} HK
+                                </span>
+                              </div>
+
+                              {/* Rad 2: Optimerad HK (Mer framträdande) */}
+                              <div className="flex justify-between items-baseline mt-1">
+                                <span className="text-sm font-semibold uppercase tracking-wider text-gray-700">
+                                  OPTIMERAD HK:
+                                </span>
+                                <span className="text-xl font-extrabold text-green-600">
+                                  {model.tunedHk} HK
+                                </span>
+                              </div>
                             </div>
                           ) : null}
 
-                          {/* NM-visning */}
-                          <div className="mt-2 text-sm space-y-1">
+                          {/* NM-visning, fortfarande kompakt */}
+                          <div className="text-sm space-y-1">
                             {model.origNm && model.tunedNm ? (
                               <p className="text-xs font-medium text-gray-500">
                                 NM: {model.origNm} →{" "}
