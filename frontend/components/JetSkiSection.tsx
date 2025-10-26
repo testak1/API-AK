@@ -1,9 +1,10 @@
 "use client";
 
 import {useState, useEffect} from "react";
+// Du måste importera din urlFor-funktion.
 import {urlFor} from "@/lib/sanity";
 
-// Definiera typen för modal-funktionen (Anpassa om din typ ser annorlunda ut)
+// --- NYA TYPDEFINITIONER FÖR MODALFUNKTIONEN ---
 interface ContactModalData {
   isOpen: boolean;
   stageOrOption: string;
@@ -12,6 +13,7 @@ interface ContactModalData {
 }
 type SetContactModalData = (data: ContactModalData) => void;
 
+// --- UPPDATERADE TYPDEFINITIONER FÖR DATAMODELLEN ---
 interface JetSkiModel {
   _id: string;
   model: string;
@@ -19,8 +21,8 @@ interface JetSkiModel {
   engine: string;
   origHk?: number;
   tunedHk?: number;
-  origNm?: number;
-  tunedNm?: number;
+  origNm?: number; // Lades till för att lösa TypeScript-felet
+  tunedNm?: number; // Lades till för att lösa TypeScript-felet
   price?: number;
 }
 
@@ -31,36 +33,42 @@ interface JetSkiBrand {
   models: JetSkiModel[];
 }
 
-// --- ÄNDRING 1: ACCEPTERA PROPPEN FÖR MODALFUNKTIONEN ---
+// --- NYA PROPS FÖR KOMPONENTEN ---
 interface JetSkiSectionProps {
   setContactModalData: SetContactModalData;
-  // Lägg till andra props du kan behöva, t.ex. currentLanguage
   currentLanguage: string;
   translate: (lang: string, key: string) => string;
 }
 
-// Exportera den nya komponenten med props
 export function JetSkiSection({
   setContactModalData,
   currentLanguage,
   translate,
 }: JetSkiSectionProps) {
-  // ... (oförändrad useState och useEffect)
-
   const [brands, setBrands] = useState<JetSkiBrand[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // ... (datainhämtningslogik)
     async function fetchData() {
-      // ...
+      try {
+        const res = await fetch("/api/jetski-brands");
+        if (!res.ok) {
+          throw new Error("Nätverkssvar var inte ok");
+        }
+        const data = await res.json();
+        setBrands(data.brands || []);
+      } catch (err: any) {
+        console.error("Kunde inte hämta vattenskoterdata", err);
+        setError("Kunde inte ladda vattenskotrar.");
+      } finally {
+        setIsLoading(false);
+      }
     }
     fetchData();
   }, []);
 
   if (isLoading) {
-    // ... (laddningsvy)
     return (
       <section className="vehicle-section mb-6">
         <h3 className="uppercase tracking-wide text-gray-600 text-sm font-semibold mb-3 border-b border-gray-200 pb-1">
@@ -72,7 +80,6 @@ export function JetSkiSection({
   }
 
   if (error) {
-    // ... (felvy)
     return (
       <section className="vehicle-section mb-6">
         <h3 className="uppercase tracking-wide text-gray-600 text-sm font-semibold mb-3 border-b border-gray-200 pb-1">
@@ -87,7 +94,6 @@ export function JetSkiSection({
     return null;
   }
 
-  // --- RENDERING OCH KNAPP IMPLEMENTERING ---
   return (
     <div className="mb-6">
       <h3 className="uppercase tracking-wide text-gray-600 text-sm font-semibold mb-3 border-b border-gray-200 pb-1">
@@ -100,7 +106,6 @@ export function JetSkiSection({
           open={false}
           className="mb-4 bg-white border border-gray-200 rounded-xl shadow-md transition duration-300 hover:shadow-lg"
         >
-          {/* ... (summary-delen är oförändrad) ... */}
           <summary
             className="brand-summary cursor-pointer p-4 flex items-center justify-between hover:bg-gray-50 rounded-xl"
             style={{listStyle: "none"}}
@@ -124,6 +129,7 @@ export function JetSkiSection({
               <span className="text-sm font-medium">
                 {brand.models?.length || 0} modeller
               </span>
+              {/* Enkel roterande pil */}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-5 w-5 transform transition-transform details-arrow"
@@ -139,6 +145,7 @@ export function JetSkiSection({
             </div>
           </summary>
 
+          {/* Stilar för att rotera pilen när details är öppen */}
           <style jsx global>{`
             details[open] > summary .details-arrow {
               transform: rotate(90deg);
@@ -189,7 +196,7 @@ export function JetSkiSection({
                       ) : null}
                     </div>
 
-                    {/* --- ÄNDRING 2: PRIS OCH KONTAKTKNAPP --- */}
+                    {/* Pris och Kontaktknapp */}
                     {model.price && (
                       <div className="mt-3 pt-3 border-t flex justify-between items-center">
                         <p className="text-xl font-extrabold text-orange-500">
@@ -209,12 +216,13 @@ export function JetSkiSection({
                               isOpen: true,
                               stageOrOption: modalTitle,
                               link: window.location.href,
-                              scrollPosition: 0, // Öppna modalen högst upp
+                              scrollPosition: 0,
                             });
                           }}
                           className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 text-sm rounded-lg font-bold transition focus:outline-none focus:ring-2 focus:ring-green-500"
                         >
-                          {translate(currentLanguage, "bookNow")}
+                          📅 {translate(currentLanguage, "bookNow")}
+                          {/* OBS: Antar att "bookNow" är nyckeln för "Boka nu" i dina översättningar */}
                         </button>
                       </div>
                     )}
