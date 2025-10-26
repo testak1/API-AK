@@ -89,17 +89,26 @@ export default async function handler(
       return res.status(400).json({error: "Missing Jet-Ski JSON data"});
     }
 
+    console.log("🔍 Starting Jet-Ski comparison...");
+
     // Hämta alla befintliga Jet-Skis från Sanity
     const existingJetSkis = await sanityClient.fetch(`
       *[_type == "jetSki"]{
+        _id,
         brand,
         model,
         year,
-        engine
+        engine,
+        fuelType
       }
     `);
 
+    console.log(
+      `📊 Found ${existingJetSkis.length} existing Jet-Skis in Sanity`
+    );
+
     const missing: MissingJetSki[] = [];
+    let processedCount = 0;
 
     // Iterera genom Jet-Ski data och jämför med Sanity
     for (const [brandName, brandData] of Object.entries(jetSkiData)) {
@@ -114,6 +123,8 @@ export default async function handler(
           for (const [engineName, engineData] of Object.entries(
             yearData.engines
           )) {
+            processedCount++;
+
             // Kolla om denna Jet-Ski redan finns
             const exists = existingJetSkis.some(
               (existing: any) =>
@@ -127,8 +138,8 @@ export default async function handler(
 
             if (!exists) {
               const stage1 =
-                engineData.stages["Stage 1"] ||
-                Object.values(engineData.stages)[0];
+                engineData.stages?.["Stage 1"] ||
+                Object.values(engineData.stages || {})[0];
 
               missing.push({
                 brand: brandName,
@@ -149,19 +160,26 @@ export default async function handler(
       }
     }
 
+    console.log(
+      `✅ Comparison complete: ${processedCount} processed, ${missing.length} missing`
+    );
+
     res.json({
       missing,
       summary: {
         totalMissing: missing.length,
         brands: [...new Set(missing.map(m => m.brand))].length,
         models: [...new Set(missing.map(m => `${m.brand}-${m.model}`))].length,
+        processed: processedCount,
+        existing: existingJetSkis.length,
       },
     });
   } catch (error: any) {
-    console.error("Jet-Ski compare error:", error);
+    console.error("🔥 Jet-Ski compare error:", error);
     res.status(500).json({
       error: "Internal server error",
       details: error.message,
+      stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
     });
   }
 }

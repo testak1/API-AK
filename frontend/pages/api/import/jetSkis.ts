@@ -1,3 +1,4 @@
+// jetSkis.ts - Uppdaterad version
 import {NextApiRequest, NextApiResponse} from "next";
 import {sanityClient} from "@/lib/sanity.server";
 
@@ -11,15 +12,11 @@ interface JetSkiImportItem {
   year: string;
   engine: string;
   type: string;
-  stages: {
-    [stageName: string]: {
-      origHk?: number;
-      tunedHk?: number;
-      origNm?: number;
-      tunedNm?: number;
-      price?: number;
-    };
-  };
+  origHk?: number;
+  tunedHk?: number;
+  origNm?: number;
+  tunedNm?: number;
+  price?: number;
 }
 
 interface ImportResult {
@@ -84,14 +81,18 @@ export default async function handler(
 async function processJetSkiImport(
   item: JetSkiImportItem
 ): Promise<ImportResult> {
-  const {brand, model, year, engine, type, stages} = item;
-
-  // Hämta Stage 1 data (vi använder första stage som default)
-  const stage1 = stages["Stage 1"] || Object.values(stages)[0];
-
-  if (!stage1) {
-    throw new Error("Ingen stage data hittades");
-  }
+  const {
+    brand,
+    model,
+    year,
+    engine,
+    type,
+    origHk,
+    tunedHk,
+    origNm,
+    tunedNm,
+    price,
+  } = item;
 
   // Kolla om Jet-Ski redan finns
   const existingJetSki = await sanityClient.fetch(
@@ -119,7 +120,7 @@ async function processJetSkiImport(
   // Konvertera bränsletyp
   const fuelType = type.toLowerCase() === "electric" ? "electric" : "gasoline";
 
-  // Skapa Jet-Ski dokument
+  // Skapa Jet-Ski dokument med korrekt struktur
   const jetSkiDoc = {
     _type: "jetSki",
     brand: brand.trim(),
@@ -127,11 +128,11 @@ async function processJetSkiImport(
     year: year.trim(),
     engine: engine.trim(),
     fuelType,
-    origHk: stage1.origHk,
-    tunedHk: stage1.tunedHk,
-    origNm: stage1.origNm,
-    tunedNm: stage1.tunedNm,
-    price: convertPriceToSEK(stage1.price || 550), // Default 550 EUR -> SEK
+    origHk: origHk,
+    tunedHk: tunedHk,
+    origNm: origNm,
+    tunedNm: tunedNm,
+    price: convertPriceToSEK(price || 550),
     descriptionRef: stage1Description
       ? {
           _type: "reference",
@@ -152,7 +153,7 @@ async function processJetSkiImport(
 }
 
 async function findStage1Description(): Promise<any> {
-  const query = `*[_type == "stageDescription" && stageName match "steg 1" || stageName match "stage 1"][0]{
+  const query = `*[_type == "stageDescription" && (stageName match "steg 1" || stageName match "stage 1")][0]{
     _id,
     stageName
   }`;
@@ -168,7 +169,9 @@ async function findStage1Description(): Promise<any> {
   return description;
 }
 
-function convertPriceToSEK(eurPrice: number): number {
+function convertPriceToSEK(eurPrice?: number): number {
+  if (!eurPrice) return 6325; // Default 550 EUR -> 6325 SEK
+
   // EUR till SEK konvertering (ungefärlig)
   const exchangeRate = 11.5;
   return Math.round(eurPrice * exchangeRate);
