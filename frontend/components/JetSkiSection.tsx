@@ -99,7 +99,7 @@ export function JetSkiSection({
         >
           {/* Rubrik för den expanderbara sektionen */}
           <h3 className="uppercase tracking-wide text-gray-800 text-lg font-bold">
-            Vattenskotrar (Jet Skis)
+            {translate(currentLanguage, "JETSKI")}
           </h3>
 
           {/* Status och Expand-ikon */}
@@ -112,7 +112,7 @@ export function JetSkiSection({
               // Visar "Klicka för att se modeller" endast om datan ännu inte har laddats
               !hasLoaded && (
                 <span className="text-sm font-medium">
-                  Klicka för att se modeller
+                  {translate(currentLanguage, "expandjetski")}
                 </span>
               )
               // Om hasLoaded är true och ingen laddning/fel finns, visas ingen extra text här.
@@ -211,7 +211,7 @@ export function JetSkiSection({
                               {/* Rad 1: Original HK */}
                               <div className="flex justify-between text-sm text-gray-600">
                                 <span className="font-semibold uppercase tracking-wider">
-                                  ORG HK:
+                                  {translate(currentLanguage, "originalHp")}
                                 </span>
                                 <span className="font-bold text-orange-500">
                                   {model.origHk} HK
@@ -221,7 +221,7 @@ export function JetSkiSection({
                               {/* Rad 2: Optimerad HK (Mer framträdande) */}
                               <div className="flex justify-between items-baseline mt-1">
                                 <span className="text-sm font-semibold uppercase tracking-wider text-gray-700">
-                                  OPTIMERAD HK:
+                                  {translate(currentLanguage, "OPPTIMERADHK")}
                                 </span>
                                 <span className="text-xl font-extrabold text-green-600">
                                   {model.tunedHk} HK
