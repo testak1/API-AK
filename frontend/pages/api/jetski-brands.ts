@@ -1,14 +1,14 @@
 import {NextApiRequest, NextApiResponse} from "next";
-// Importera din befintliga sanity-klient för servern
 import {sanityClient} from "@/lib/sanity.server";
 
-// 1. GROQ-frågan vi definierade tidigare
+// 1. UPPDATERAD GROQ-FRÅGA
 const jetSkiQuery = `
   *[_type == "jetSkiBrand"] | order(name asc) {
     _id,
     name,
     logo,
-    "models": models[]->{ // Följer referensen från brand till jetSki
+    // Använd coalesce() för att garantera en array, även om models är null
+    "models": coalesce(models[]->{
       _id,
       model,
       year,
@@ -16,7 +16,7 @@ const jetSkiQuery = `
       origHk,
       tunedHk,
       price
-    } | order(model asc) // Sorterar modellerna i bokstavsordning
+    } | order(model asc), []) // <--- HÄR ÄR ÄNDRINGEN
   }
 `;
 
@@ -29,9 +29,7 @@ export default async function handler(
   }
 
   try {
-    // 2. Hämta datan från Sanity
     const brands = await sanityClient.fetch(jetSkiQuery);
-    // 3. Skicka tillbaka datan som JSON
     res.status(200).json({brands});
   } catch (err: any) {
     console.error("🔥 Fel vid hämtning av jetski-data:", err);

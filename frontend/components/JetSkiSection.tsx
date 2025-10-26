@@ -1,9 +1,10 @@
-"use client"; // Bra vana, indikerar att detta är en klientkomponent
+"use client";
 
 import {useState, useEffect} from "react";
-import {urlFor} from "@/lib/sanity"; // Återanvänd din urlFor-funktion
+// Du måste importera din urlFor-funktion.
+// Den finns i index.tsx, så den ligger nog i /lib/sanity.ts
+import {urlFor} from "@/lib/sanity";
 
-// 1. Definiera Typer (samma som tidigare)
 interface JetSkiModel {
   _id: string;
   model: string;
@@ -17,21 +18,18 @@ interface JetSkiModel {
 interface JetSkiBrand {
   _id: string;
   name: string;
-  logo: any; // Sanity image type
-  models: JetSkiModel[];
+  logo: any;
+  models: JetSkiModel[]; // Vi vet att detta nu är en array tack vare API-fixen
 }
 
 export function JetSkiSection() {
-  // 2. State för att hålla data och laddningsstatus
   const [brands, setBrands] = useState<JetSkiBrand[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // 3. Hämta data när komponenten laddas
   useEffect(() => {
     async function fetchData() {
       try {
-        // Anropa din nya API-rutt
         const res = await fetch("/api/jetski-brands");
         if (!res.ok) {
           throw new Error("Nätverkssvar var inte ok");
@@ -46,7 +44,7 @@ export function JetSkiSection() {
       }
     }
     fetchData();
-  }, []); // Körs en gång när komponenten monteras
+  }, []);
 
   if (isLoading) {
     return (
@@ -71,20 +69,16 @@ export function JetSkiSection() {
   }
 
   if (brands.length === 0) {
-    return null; // Rendera ingenting om det inte finns några vattenskotrar
+    return null;
   }
 
-  // 4. Rendera sektionen (samma JSX som tidigare)
   return (
-    <section className="vehicle-section mb-6">
+    // UPPDATERAD SEKTIONSTITEL FÖR ATT MATCHA PERSONBILAR/LASTBILAR
+    <div className="mb-6">
       <h3 className="uppercase tracking-wide text-gray-600 text-sm font-semibold mb-3 border-b border-gray-200 pb-1">
         Vattenskotrar
       </h3>
 
-      {/* Använd <details> för att matcha din önskan om "inte expanderat".
-        Denna UI är SEPARAT från din vanliga val-logik (brand/model/year/engine)
-        eftersom datastrukturen är annorlunda.
-      */}
       {brands.map(brand => (
         <details
           key={brand._id}
@@ -100,14 +94,20 @@ export function JetSkiSection() {
               />
             )}
             <span className="text-lg font-medium text-gray-800">
-              {brand.name} ({brand.models.length} modeller)
+              {/*
+                HÄR LÄGGER VI TILL SÄKERHETSKOLLARNA:
+                1. brand.models?.length (optional chaining)
+                2. || 0 (om längden är undefined, visa 0)
+              */}
+              {brand.name} ({brand.models?.length || 0} modeller)
             </span>
           </summary>
 
-          {/* Här listas alla modeller för märket */}
           <div className="model-list p-4 border-t border-gray-200 grid grid-cols-1 md:grid-cols-2 gap-4">
-            {brand.models.length > 0 ? (
-              brand.models.map(model => (
+            {/* HÄR LÄGGER VI TILL EN SÄKERHETSKOLL (?.length) */}
+            {(brand.models?.length || 0) > 0 ? (
+              // OCH HÄR (?.map)
+              brand.models?.map(model => (
                 <div
                   key={model._id}
                   className="model-item bg-gray-50 p-3 rounded-lg border border-gray-200"
@@ -129,7 +129,6 @@ export function JetSkiSection() {
                       Pris: {model.price.toLocaleString()} SEK
                     </p>
                   )}
-                  {/* Du kan lägga till en "Kontakta oss"-knapp här om du vill */}
                 </div>
               ))
             ) : (
@@ -140,6 +139,6 @@ export function JetSkiSection() {
           </div>
         </details>
       ))}
-    </section>
+    </div> // Avsluta med </div> istället för <section>
   );
 }
