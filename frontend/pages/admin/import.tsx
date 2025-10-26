@@ -1,5 +1,6 @@
 import {useState, useEffect} from "react";
 import ImportTable from "../../components/import/ImportTable";
+import JetSkiImport from "../../components/import/JetSkiImport";
 
 interface MissingItem {
   brand: string;
@@ -27,7 +28,9 @@ interface ImportResult {
 // Nyckel för localStorage
 const IMPORT_HISTORY_KEY = "sanity-import-history";
 
-export default function ImportPage() {
+type ImportTab = "cars" | "jetskis" | "bikes";
+
+function CarImport() {
   const [missing, setMissing] = useState<MissingItem[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -233,18 +236,10 @@ export default function ImportPage() {
   };
 
   return (
-    <div
-      style={{
-        padding: 30,
-        fontFamily: "sans-serif",
-        maxWidth: 1400,
-        margin: "0 auto",
-      }}
-    >
-      <h1>⚙️ Sanity Importverktyg</h1>
+    <div>
       <p>
         Välj <strong>missing_import.json</strong> för att granska och importera
-        saknade poster.
+        saknade bilar.
       </p>
 
       {/* Filuppladdning */}
@@ -528,9 +523,85 @@ export default function ImportPage() {
         <div
           style={{textAlign: "center", padding: "40px 20px", color: "#6c757d"}}
         >
-          Ladda upp en JSON-fil för att börja importera
+          Ladda upp en JSON-fil för att börja importera bilar
         </div>
       )}
+    </div>
+  );
+}
+
+export default function ImportPage() {
+  const [activeTab, setActiveTab] = useState<ImportTab>("cars");
+
+  return (
+    <div
+      style={{
+        padding: 30,
+        fontFamily: "sans-serif",
+        maxWidth: 1400,
+        margin: "0 auto",
+      }}
+    >
+      <h1>⚙️ Sanity Importverktyg</h1>
+
+      {/* Tab Navigation */}
+      <div style={{marginBottom: 20, borderBottom: "1px solid #ccc"}}>
+        <div style={{display: "flex", gap: 10}}>
+          <button
+            onClick={() => setActiveTab("cars")}
+            style={{
+              padding: "10px 20px",
+              background: activeTab === "cars" ? "#007bff" : "transparent",
+              color: activeTab === "cars" ? "white" : "#007bff",
+              border: "1px solid #007bff",
+              borderRadius: "4px 4px 0 0",
+              cursor: "pointer",
+            }}
+          >
+            🚗 Bilar
+          </button>
+          <button
+            onClick={() => setActiveTab("jetskis")}
+            style={{
+              padding: "10px 20px",
+              background: activeTab === "jetskis" ? "#007bff" : "transparent",
+              color: activeTab === "jetskis" ? "white" : "#007bff",
+              border: "1px solid #007bff",
+              borderRadius: "4px 4px 0 0",
+              cursor: "pointer",
+            }}
+          >
+            🛥️ Jet-Skis
+          </button>
+          <button
+            onClick={() => setActiveTab("bikes")}
+            style={{
+              padding: "10px 20px",
+              background: activeTab === "bikes" ? "#007bff" : "transparent",
+              color: activeTab === "bikes" ? "white" : "#007bff",
+              border: "1px solid #007bff",
+              borderRadius: "4px 4px 0 0",
+              cursor: "pointer",
+              opacity: 0.6,
+            }}
+            disabled
+          >
+            🏍️ Bikes/Quads (Kommer snart)
+          </button>
+        </div>
+      </div>
+
+      {/* Tab Content */}
+      <div>
+        {activeTab === "cars" && <CarImport />}
+        {activeTab === "jetskis" && <JetSkiImport />}
+        {activeTab === "bikes" && (
+          <div style={{padding: 40, textAlign: "center", color: "#666"}}>
+            <h3>Bikes/Quads Import</h3>
+            <p>Kommer snart...</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
