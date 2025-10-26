@@ -1,3 +1,4 @@
+// pages/api/jetski-brands.ts
 import {NextApiRequest, NextApiResponse} from "next";
 import {sanityClient} from "@/lib/sanity.server";
 
@@ -7,8 +8,9 @@ const jetSkiQuery = `
     _id,
     name,
     logo,
-    // Använd coalesce() för att garantera en array, även om models är null
-    "models": coalesce(models[]->{
+    // "models" är nu en sub-query som hittar alla jetSki-dokument
+    // som har en referens (via fältet 'brand') till det överordnade märkets _id ( ^._id )
+    "models": *[_type == "jetSki" && brand._ref == ^._id] | order(model asc) {
       _id,
       model,
       year,
@@ -16,7 +18,7 @@ const jetSkiQuery = `
       origHk,
       tunedHk,
       price
-    } | order(model asc), []) // <--- HÄR ÄR ÄNDRINGEN
+    }
   }
 `;
 
