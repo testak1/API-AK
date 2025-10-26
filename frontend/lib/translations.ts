@@ -14,7 +14,7 @@ export const translations = {
     expandjetski: "Klicka för att se modeller",
     AktPlusOption: "AKT+",
     Personbilar: "BILAR",
-    JETSKI: "Vattenskotrar",
+    JETSKI: "VATTENSKOTER [JETSKI]",
     BACKTO: "Tillbaka till",
     backtostart: "Tillbaka till startsidan",
     BACKTOMARKE: "Tillbaka till början",

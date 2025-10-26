@@ -211,7 +211,7 @@ export function JetSkiSection({
                               {/* Rad 1: Original HK */}
                               <div className="flex justify-between text-sm text-gray-600">
                                 <span className="font-semibold uppercase tracking-wider">
-                                  {translate(currentLanguage, "originalHp")}
+                                  {translate(currentLanguage, "originalHp")}:
                                 </span>
                                 <span className="font-bold text-orange-500">
                                   {model.origHk} HK
@@ -221,7 +221,7 @@ export function JetSkiSection({
                               {/* Rad 2: Optimerad HK (Mer framträdande) */}
                               <div className="flex justify-between items-baseline mt-1">
                                 <span className="text-sm font-semibold uppercase tracking-wider text-gray-700">
-                                  {translate(currentLanguage, "OPPTIMERADHK")}
+                                  {translate(currentLanguage, "OPPTIMERADHK")}:
                                 </span>
                                 <span className="text-xl font-extrabold text-green-600">
                                   {model.tunedHk} HK
