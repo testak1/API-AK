@@ -227,13 +227,13 @@ export function JetSkiSection({
                           {model.origHk && model.tunedHk ? (
                             <div className="flex items-baseline mt-1 mb-2">
                               <span className="text-sm text-gray-500 mr-2">
-                                HK:
+                                ORG HK:
                               </span>
                               <span className="text-base font-medium text-orange-500">
                                 {model.origHk}
                               </span>
-                              <span className="text-base text-gray-500 mx-1">
-                                →
+                              <span className="text-sm text-gray-500 mr-2">
+                                OPTIMERAD HK:
                               </span>
                               <span className="text-xl font-extrabold text-green-600">
                                 {model.tunedHk}
