@@ -1504,7 +1504,11 @@ export default function TuningViewer() {
 
                 {/* 🌊 VATTENSKOTRAR */}
 
-                <JetSkiSection />
+                <JetSkiSection
+                  setContactModalData={setContactModalData}
+                  currentLanguage={currentLanguage}
+                  translate={translate}
+                />
               </>
             )}
 

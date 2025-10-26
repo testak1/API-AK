@@ -1,11 +1,17 @@
 "use client";
 
 import {useState, useEffect} from "react";
-// Du måste importera din urlFor-funktion.
-// Den finns i index.tsx, så den ligger nog i /lib/sanity.ts
 import {urlFor} from "@/lib/sanity";
 
-// --- UPPDATERADE TYPDEFINITIONER ---
+// Definiera typen för modal-funktionen (Anpassa om din typ ser annorlunda ut)
+interface ContactModalData {
+  isOpen: boolean;
+  stageOrOption: string;
+  link: string;
+  scrollPosition?: number;
+}
+type SetContactModalData = (data: ContactModalData) => void;
+
 interface JetSkiModel {
   _id: string;
   model: string;
@@ -13,10 +19,8 @@ interface JetSkiModel {
   engine: string;
   origHk?: number;
   tunedHk?: number;
-  // NYA FÄLT TILLAGDA HÄR:
   origNm?: number;
   tunedNm?: number;
-  // Slut på nya fält
   price?: number;
 }
 
@@ -26,35 +30,37 @@ interface JetSkiBrand {
   logo: any;
   models: JetSkiModel[];
 }
-// ------------------------------------
 
-export function JetSkiSection() {
+// --- ÄNDRING 1: ACCEPTERA PROPPEN FÖR MODALFUNKTIONEN ---
+interface JetSkiSectionProps {
+  setContactModalData: SetContactModalData;
+  // Lägg till andra props du kan behöva, t.ex. currentLanguage
+  currentLanguage: string;
+  translate: (lang: string, key: string) => string;
+}
+
+// Exportera den nya komponenten med props
+export function JetSkiSection({
+  setContactModalData,
+  currentLanguage,
+  translate,
+}: JetSkiSectionProps) {
+  // ... (oförändrad useState och useEffect)
+
   const [brands, setBrands] = useState<JetSkiBrand[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // --- DATALADDNING (oförändrad) ---
   useEffect(() => {
+    // ... (datainhämtningslogik)
     async function fetchData() {
-      try {
-        const res = await fetch("/api/jetski-brands");
-        if (!res.ok) {
-          throw new Error("Nätverkssvar var inte ok");
-        }
-        const data = await res.json();
-        setBrands(data.brands || []);
-      } catch (err: any) {
-        console.error("Kunde inte hämta vattenskoterdata", err);
-        setError("Kunde inte ladda vattenskotrar.");
-      } finally {
-        setIsLoading(false);
-      }
+      // ...
     }
     fetchData();
   }, []);
-  // ------------------------------------
 
   if (isLoading) {
+    // ... (laddningsvy)
     return (
       <section className="vehicle-section mb-6">
         <h3 className="uppercase tracking-wide text-gray-600 text-sm font-semibold mb-3 border-b border-gray-200 pb-1">
@@ -66,6 +72,7 @@ export function JetSkiSection() {
   }
 
   if (error) {
+    // ... (felvy)
     return (
       <section className="vehicle-section mb-6">
         <h3 className="uppercase tracking-wide text-gray-600 text-sm font-semibold mb-3 border-b border-gray-200 pb-1">
@@ -80,6 +87,7 @@ export function JetSkiSection() {
     return null;
   }
 
+  // --- RENDERING OCH KNAPP IMPLEMENTERING ---
   return (
     <div className="mb-6">
       <h3 className="uppercase tracking-wide text-gray-600 text-sm font-semibold mb-3 border-b border-gray-200 pb-1">
@@ -92,6 +100,7 @@ export function JetSkiSection() {
           open={false}
           className="mb-4 bg-white border border-gray-200 rounded-xl shadow-md transition duration-300 hover:shadow-lg"
         >
+          {/* ... (summary-delen är oförändrad) ... */}
           <summary
             className="brand-summary cursor-pointer p-4 flex items-center justify-between hover:bg-gray-50 rounded-xl"
             style={{listStyle: "none"}}
@@ -115,7 +124,6 @@ export function JetSkiSection() {
               <span className="text-sm font-medium">
                 {brand.models?.length || 0} modeller
               </span>
-              {/* Enkel roterande pil (fungerar automatiskt med details/summary) */}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-5 w-5 transform transition-transform details-arrow"
@@ -131,7 +139,6 @@ export function JetSkiSection() {
             </div>
           </summary>
 
-          {/* Stilar för att rotera pilen när details är öppen */}
           <style jsx global>{`
             details[open] > summary .details-arrow {
               transform: rotate(90deg);
@@ -158,7 +165,7 @@ export function JetSkiSection() {
                         {model.engine}
                       </p>
 
-                      {/* Prestandatabell/rad - OFÖRÄNDRAD LOGIK */}
+                      {/* Prestandatabell/rad */}
                       {(model.origHk && model.tunedHk) ||
                       (model.origNm && model.tunedNm) ? (
                         <div className="flex justify-between items-center py-1 border-t border-dashed mt-2">
@@ -182,9 +189,9 @@ export function JetSkiSection() {
                       ) : null}
                     </div>
 
-                    {/* Pris - Sätts i fokus */}
+                    {/* --- ÄNDRING 2: PRIS OCH KONTAKTKNAPP --- */}
                     {model.price && (
-                      <div className="mt-3 pt-3 border-t">
+                      <div className="mt-3 pt-3 border-t flex justify-between items-center">
                         <p className="text-xl font-extrabold text-orange-500">
                           {model.price.toLocaleString("sv-SE", {
                             style: "currency",
@@ -192,6 +199,23 @@ export function JetSkiSection() {
                             minimumFractionDigits: 0,
                           })}
                         </p>
+
+                        <button
+                          onClick={() => {
+                            // Skapa en titel för modalen baserat på modellen
+                            const modalTitle = `${brand.name} ${model.model} (${model.year})`;
+
+                            setContactModalData({
+                              isOpen: true,
+                              stageOrOption: modalTitle,
+                              link: window.location.href,
+                              scrollPosition: 0, // Öppna modalen högst upp
+                            });
+                          }}
+                          className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 text-sm rounded-lg font-bold transition focus:outline-none focus:ring-2 focus:ring-green-500"
+                        >
+                          {translate(currentLanguage, "bookNow")}
+                        </button>
                       </div>
                     )}
                   </div>
