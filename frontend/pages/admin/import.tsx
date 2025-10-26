@@ -1,6 +1,8 @@
-import {useState, useEffect} from "react";
+import {useState, useEffect, Suspense, lazy} from "react";
 import ImportTable from "../../components/import/ImportTable";
-import JetSkiImport from "../../components/import/JetSkiImport";
+
+// Lazy load JetSkiImport för bättre prestanda
+const JetSkiImport = lazy(() => import("../../components/import/JetSkiImport"));
 
 interface MissingItem {
   brand: string;
@@ -29,6 +31,21 @@ interface ImportResult {
 const IMPORT_HISTORY_KEY = "sanity-import-history";
 
 type ImportTab = "cars" | "jetskis" | "bikes";
+
+// Loading komponent för lazy loading
+function LoadingFallback() {
+  return (
+    <div
+      style={{
+        padding: 40,
+        textAlign: "center",
+        color: "#666",
+      }}
+    >
+      <p>Laddar...</p>
+    </div>
+  );
+}
 
 function CarImport() {
   const [missing, setMissing] = useState<MissingItem[]>([]);
@@ -594,7 +611,11 @@ export default function ImportPage() {
       {/* Tab Content */}
       <div>
         {activeTab === "cars" && <CarImport />}
-        {activeTab === "jetskis" && <JetSkiImport />}
+        {activeTab === "jetskis" && (
+          <Suspense fallback={<LoadingFallback />}>
+            <JetSkiImport />
+          </Suspense>
+        )}
         {activeTab === "bikes" && (
           <div style={{padding: 40, textAlign: "center", color: "#666"}}>
             <h3>Bikes/Quads Import</h3>
