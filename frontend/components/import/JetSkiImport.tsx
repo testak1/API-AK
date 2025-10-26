@@ -55,7 +55,7 @@ export default function JetSkiImport() {
     }
   }, [importHistory]);
 
-  const getJetSkiId = (item: MissingJetSki) =>
+  const getJetSkiId = (item: MissingJetSki | ImportResult) =>
     `${item.brand}-${item.model}-${item.year}-${item.engine}`
       .replace(/\s+/g, "_")
       .toLowerCase();
@@ -187,17 +187,19 @@ export default function JetSkiImport() {
           `Import klar. ${data.summary?.created} nya Jet-Skis skapade.`
       );
 
-      // Uppdatera missing-listan
+      // Uppdatera missing-listan - FIX: Använd selectedItems istället för att konvertera ImportResult
       if (data.results) {
-        const successfullyImported = data.results
+        const successfullyImportedIds = data.results
           .filter((r: ImportResult) => r.status === "created")
-          .map((r: ImportResult) => getJetSkiId(r as MissingJetSki));
+          .map((r: ImportResult) => getJetSkiId(r));
 
         setMissing(prev =>
-          prev.filter(item => !successfullyImported.includes(getJetSkiId(item)))
+          prev.filter(
+            item => !successfullyImportedIds.includes(getJetSkiId(item))
+          )
         );
         setSelected(prev =>
-          prev.filter(id => !successfullyImported.includes(id))
+          prev.filter(id => !successfullyImportedIds.includes(id))
         );
       }
     } catch (err) {
