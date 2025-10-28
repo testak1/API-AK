@@ -3,7 +3,6 @@ import ImportTable from "../../components/import/ImportTable";
 
 // Lazy load JetSkiImport för bättre prestanda
 const JetSkiImport = lazy(() => import("../../components/import/JetSkiImport"));
-
 const BikeImport = lazy(() => import("../../components/import/BikeImport"));
 
 interface MissingItem {
@@ -129,6 +128,33 @@ function CarImport() {
     return true;
   });
 
+  // NY: Välj specifikt antal nya objekt
+  const selectSpecificCount = (count: number) => {
+    const newItems = filteredMissing.filter(item => !isAlreadyImported(item));
+    const itemsToSelect = newItems.slice(0, count);
+    const newSelected = new Set(selected);
+
+    itemsToSelect.forEach(item => {
+      newSelected.add(getEngineId(item));
+    });
+
+    setSelected(Array.from(newSelected));
+    setStatus(`Valde ${itemsToSelect.length} nya objekt`);
+  };
+
+  // NY: Välj specifikt antal från alla filtrerade
+  const selectSpecificCountFromAll = (count: number) => {
+    const itemsToSelect = filteredMissing.slice(0, count);
+    const newSelected = new Set(selected);
+
+    itemsToSelect.forEach(item => {
+      newSelected.add(getEngineId(item));
+    });
+
+    setSelected(Array.from(newSelected));
+    setStatus(`Valde ${itemsToSelect.length} objekt från filtrerade listan`);
+  };
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -183,6 +209,15 @@ function CarImport() {
 
   const handleImport = async () => {
     if (!selected.length) return alert("Välj minst ett objekt.");
+
+    // Varning om många objekt
+    if (selected.length > 500) {
+      const confirmed = confirm(
+        `Du håller på att importera ${selected.length} objekt. Detta kan ta flera minuter. Vill du fortsätta?`
+      );
+      if (!confirmed) return;
+    }
+
     setLoading(true);
     setImportResults([]);
 
@@ -360,6 +395,70 @@ function CarImport() {
               />
             </div>
 
+            {/* NY: Knappar för att välja specifika antal */}
+            <div style={{display: "flex", gap: 5, flexWrap: "wrap"}}>
+              <button
+                onClick={() => selectSpecificCount(100)}
+                disabled={stats.new < 100}
+                style={{
+                  padding: "5px 10px",
+                  background: stats.new >= 100 ? "#17a2b8" : "#ccc",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 4,
+                  cursor: stats.new >= 100 ? "pointer" : "not-allowed",
+                }}
+                title="Välj 100 nya"
+              >
+                100 nya
+              </button>
+              <button
+                onClick={() => selectSpecificCount(200)}
+                disabled={stats.new < 200}
+                style={{
+                  padding: "5px 10px",
+                  background: stats.new >= 200 ? "#17a2b8" : "#ccc",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 4,
+                  cursor: stats.new >= 200 ? "pointer" : "not-allowed",
+                }}
+                title="Välj 200 nya"
+              >
+                200 nya
+              </button>
+              <button
+                onClick={() => selectSpecificCount(500)}
+                disabled={stats.new < 500}
+                style={{
+                  padding: "5px 10px",
+                  background: stats.new >= 500 ? "#17a2b8" : "#ccc",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 4,
+                  cursor: stats.new >= 500 ? "pointer" : "not-allowed",
+                }}
+                title="Välj 500 nya"
+              >
+                500 nya
+              </button>
+              <button
+                onClick={() => selectSpecificCountFromAll(100)}
+                disabled={stats.filtered < 100}
+                style={{
+                  padding: "5px 10px",
+                  background: stats.filtered >= 100 ? "#6f42c1" : "#ccc",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 4,
+                  cursor: stats.filtered >= 100 ? "pointer" : "not-allowed",
+                }}
+                title="Välj 100 från filtrerade"
+              >
+                100 filtrerade
+              </button>
+            </div>
+
             <button
               onClick={clearHistory}
               style={{
@@ -403,7 +502,7 @@ function CarImport() {
                 cursor: "pointer",
               }}
             >
-              Markera alla nya
+              Markera alla nya ({stats.new})
             </button>
 
             <button

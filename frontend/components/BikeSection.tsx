@@ -99,7 +99,7 @@ export function BikeSection({
         >
           {/* Rubrik för den expanderbara sektionen */}
           <h3 className="uppercase tracking-wide text-gray-800 text-lg font-bold">
-            🏍️ {translate(currentLanguage, "BIKES_QUADS") || "Bikes & Quads"}
+            {translate(currentLanguage, "BIKES_QUADS") || "Bikes & Quads"}
           </h3>
 
           {/* Status och Expand-ikon */}
