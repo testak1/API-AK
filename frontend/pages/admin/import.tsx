@@ -4,6 +4,8 @@ import ImportTable from "../../components/import/ImportTable";
 // Lazy load JetSkiImport för bättre prestanda
 const JetSkiImport = lazy(() => import("../../components/import/JetSkiImport"));
 
+const BikeImport = lazy(() => import("../../components/import/BikeImport"));
+
 interface MissingItem {
   brand: string;
   model?: string;
@@ -599,11 +601,9 @@ export default function ImportPage() {
               border: "1px solid #007bff",
               borderRadius: "4px 4px 0 0",
               cursor: "pointer",
-              opacity: 0.6,
             }}
-            disabled
           >
-            🏍️ Bikes/Quads (Kommer snart)
+            🏍️ Bikes/Quads
           </button>
         </div>
       </div>
@@ -617,10 +617,9 @@ export default function ImportPage() {
           </Suspense>
         )}
         {activeTab === "bikes" && (
-          <div style={{padding: 40, textAlign: "center", color: "#666"}}>
-            <h3>Bikes/Quads Import</h3>
-            <p>Kommer snart...</p>
-          </div>
+          <Suspense fallback={<LoadingFallback />}>
+            <BikeImport />
+          </Suspense>
         )}
       </div>
     </div>

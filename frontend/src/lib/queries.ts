@@ -134,6 +134,116 @@ export const engineByParamsQuery = `
   }
 `;
 
+// Bike Brands Query
+export const bikeBrandsQuery = `
+*[_type == "bikeBrand"]{
+  _id,
+  name,
+  "slug": slug.current,
+  logo {
+    "asset": asset->{
+      _id,
+      url
+    },
+    alt
+  },
+  description,
+  type
+}
+`;
+
+// Bike Models Query
+export const bikeModelsQuery = `
+*[_type == "bikeBrand" && name == $brand][0]{
+  name,
+  "models": *[_type == "bike" && references(^._id)]{
+    _id,
+    model,
+    year,
+    engine,
+    vehicleType
+  }
+}
+`;
+
+// Bike Years Query
+export const bikeYearsQuery = `
+*[_type == "bikeBrand" && name == $brand][0]{
+  name,
+  "years": *[_type == "bike" && references(^._id) && model == $model]{
+    year
+  }
+}
+`;
+
+// Bike Engines Query
+export const bikeEnginesQuery = `
+*[_type == "bike" && brand->name == $brand && model == $model && year == $year]{
+  _id,
+  engine,
+  fuelType,
+  vehicleType,
+  origHk,
+  tunedHk,
+  origNm,
+  tunedNm,
+  price,
+  descriptionRef->{
+    _id,
+    stageName,
+    "description": description[$lang]
+  }
+}
+`;
+
+// Updated Combined Brands Query
+export const combinedBrandsQuery = `
+{
+  "carBrands": *[_type == "brand"]{
+    _id,
+    name,
+    "slug": slug.current,
+    logo {
+      "asset": asset->{
+        _id,
+        url
+      },
+      alt
+    },
+    "models": models[]{
+      name
+    }
+  },
+  "jetSkiBrands": *[_type == "jetSkiBrand"]{
+    _id,
+    name,
+    "slug": slug.current,
+    logo {
+      "asset": asset->{
+        _id,
+        url
+      },
+      alt
+    },
+    description
+  },
+  "bikeBrands": *[_type == "bikeBrand"]{
+    _id,
+    name,
+    "slug": slug.current,
+    logo {
+      "asset": asset->{
+        _id,
+        url
+      },
+      alt
+    },
+    description,
+    type
+  }
+}
+`;
+
 export const resellerOverrideQuery = groq`
   *[_type == "resellerOverride" && resellerId == $resellerId &&
      brand == $brand && model == $model && year == $year && engine == $engine][0] {
