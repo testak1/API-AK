@@ -161,11 +161,7 @@ export function BikeSection({
                         {/* Modell och År */}
                         <strong className="text-lg font-semibold text-gray-900 block">
                           {model.model} [{model.year}] - {model.engine}
-                          {model.vehicleType && (
-                            <span className="text-sm font-normal text-gray-500 ml-2">
-                              ({model.vehicleType})
-                            </span>
-                          )}
+                          {model.vehicleType}
                         </strong>
 
                         {/* --- HK & NM VISNING --- */}
