@@ -18,6 +18,7 @@ import ContactModal from "@/components/ContactModal";
 import {urlFor} from "@/lib/sanity";
 import PublicLanguageDropdown from "@/components/PublicLanguageSwitcher";
 import {JetSkiSection} from "@/components/JetSkiSection";
+import {BikeSection} from "@/components/BikeSection";
 import {LayoutGrid, List} from "lucide-react";
 import {t as translate} from "@/lib/translations";
 import type {
@@ -1505,6 +1506,12 @@ export default function TuningViewer() {
                 {/* 🌊 VATTENSKOTRAR */}
 
                 <JetSkiSection
+                  setContactModalData={setContactModalData}
+                  currentLanguage={currentLanguage}
+                  translate={translate}
+                />
+
+                <BikeSection
                   setContactModalData={setContactModalData}
                   currentLanguage={currentLanguage}
                   translate={translate}
