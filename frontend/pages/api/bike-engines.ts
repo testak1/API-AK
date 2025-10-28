@@ -36,8 +36,7 @@ export default async function handler(
           origNm: engine.origNm,
           tunedNm: engine.tunedNm,
           price: engine.price,
-          description: engine.descriptionRef?.description || [],
-          descriptionRef: engine.descriptionRef,
+          // Ta bort description och descriptionRef eftersom de inte finns längre
         },
       ],
     }));
