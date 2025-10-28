@@ -8,7 +8,7 @@ export const translations = {
     aktPlusOptions: "AK-Tuning Plus Alternativ",
     ring1: "RING OSS",
     INSELECT: "FÖRFRÅGAN FÖR:",
-    BIKES_QUADS: "Bikes & Quads",
+    BIKES_QUADS: "MC & ATV",
     expandbikes: "Klicka för att se modeller",
     lang: "VÄLJ SPRÅK",
     OPPTIMERADHK: "OPTIMERAD HK",

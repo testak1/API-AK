@@ -133,7 +133,6 @@ export const engineByParamsQuery = `
     }
   }
 `;
-
 // Bike Brands Query
 export const bikeBrandsQuery = `
 *[_type == "bikeBrand"]{
@@ -176,7 +175,7 @@ export const bikeYearsQuery = `
 }
 `;
 
-// Bike Engines Query
+// Bike Engines Query - UPPDATERAD: tagit bort descriptionRef
 export const bikeEnginesQuery = `
 *[_type == "bike" && brand->name == $brand && model == $model && year == $year]{
   _id,
@@ -187,12 +186,7 @@ export const bikeEnginesQuery = `
   tunedHk,
   origNm,
   tunedNm,
-  price,
-  descriptionRef->{
-    _id,
-    stageName,
-    "description": description[$lang]
-  }
+  price
 }
 `;
 
@@ -240,6 +234,27 @@ export const combinedBrandsQuery = `
     },
     description,
     type
+  }
+}
+`;
+
+// NY: Query för att hämta bikes med modeller (för BikeSection)
+export const bikeBrandsWithModelsQuery = `
+*[_type == "bikeBrand"] | order(name asc) {
+  _id,
+  name,
+  logo,
+  "models": *[_type == "bike" && brand._ref == ^._id] | order(model asc, year desc) {
+    _id,
+    model,
+    year,
+    engine,
+    vehicleType,
+    origHk,
+    tunedHk,
+    origNm,
+    tunedNm,
+    price
   }
 }
 `;

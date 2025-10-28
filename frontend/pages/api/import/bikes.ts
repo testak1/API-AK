@@ -133,10 +133,7 @@ async function processBikeImport(item: BikeImportItem): Promise<ImportResult> {
     });
   }
 
-  // Hämta Stage 1 description reference
-  const stage1Description = await findStage1Description();
-
-  // Skapa Bike dokument
+  // Skapa Bike dokument med standardpris 7995 kr
   const bikeDoc = {
     _type: "bike",
     brand: {
@@ -152,13 +149,7 @@ async function processBikeImport(item: BikeImportItem): Promise<ImportResult> {
     tunedHk: tunedHk,
     origNm: origNm,
     tunedNm: tunedNm,
-    price: convertPriceToSEK(price || 450), // Default 450 EUR -> SEK
-    descriptionRef: stage1Description
-      ? {
-          _type: "reference",
-          _ref: stage1Description._id,
-        }
-      : undefined,
+    price: 7995, // Standardpris 7995 kr
   };
 
   await sanityClient.create(bikeDoc);
@@ -170,26 +161,4 @@ async function processBikeImport(item: BikeImportItem): Promise<ImportResult> {
     engine,
     status: "created",
   };
-}
-
-async function findStage1Description(): Promise<any> {
-  const query = `*[_type == "stageDescription" && (stageName match "steg 1" || stageName match "stage 1")][0]{
-    _id,
-    stageName
-  }`;
-
-  const description = await sanityClient.fetch(query);
-
-  if (!description) {
-    const fallbackQuery = `*[_type == "stageDescription"][0]{_id, stageName}`;
-    return await sanityClient.fetch(fallbackQuery);
-  }
-
-  return description;
-}
-
-function convertPriceToSEK(eurPrice?: number): number {
-  if (!eurPrice) return 5175; // Default 450 EUR -> 5175 SEK
-  const exchangeRate = 11.5;
-  return Math.round(eurPrice * exchangeRate);
 }
