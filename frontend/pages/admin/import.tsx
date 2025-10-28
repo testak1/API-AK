@@ -1,13 +1,16 @@
-// components/import/BikeImport.tsx
-import {useState, useEffect} from "react";
+import {useState, useEffect, Suspense, lazy} from "react";
+import ImportTable from "../../components/import/ImportTable";
 
-interface MissingBike {
+// Lazy load JetSkiImport för bättre prestanda
+const JetSkiImport = lazy(() => import("../../components/import/JetSkiImport"));
+const BikeImport = lazy(() => import("../../components/import/BikeImport"));
+
+interface MissingItem {
   brand: string;
-  model: string;
-  year: string;
-  engine: string;
-  type: string;
-  vehicleType?: string;
+  model?: string;
+  year?: string;
+  engine?: string;
+  fuel?: string;
   origHk?: number;
   tunedHk?: number;
   origNm?: number;
@@ -17,17 +20,36 @@ interface MissingBike {
 
 interface ImportResult {
   brand: string;
-  model: string;
-  year: string;
-  engine: string;
+  model?: string;
+  year?: string;
+  engine?: string;
   status: "created" | "exists" | "error";
+  action?: string;
   message?: string;
 }
 
-const IMPORT_HISTORY_KEY = "bike-import-history";
+// Nyckel för localStorage
+const IMPORT_HISTORY_KEY = "sanity-import-history";
 
-export default function BikeImport() {
-  const [missing, setMissing] = useState<MissingBike[]>([]);
+type ImportTab = "cars" | "jetskis" | "bikes";
+
+// Loading komponent för lazy loading
+function LoadingFallback() {
+  return (
+    <div
+      style={{
+        padding: 40,
+        textAlign: "center",
+        color: "#666",
+      }}
+    >
+      <p>Laddar...</p>
+    </div>
+  );
+}
+
+function CarImport() {
+  const [missing, setMissing] = useState<MissingItem[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState("");
@@ -39,7 +61,7 @@ export default function BikeImport() {
     showOnlyNew: true,
   });
 
-  // Ladda import-historik
+  // Ladda import-historik vid start
   useEffect(() => {
     const savedHistory = localStorage.getItem(IMPORT_HISTORY_KEY);
     if (savedHistory) {
@@ -52,7 +74,7 @@ export default function BikeImport() {
     }
   }, []);
 
-  // Spara import-historik
+  // Spara import-historik när den ändras
   useEffect(() => {
     if (importHistory.size > 0) {
       localStorage.setItem(
@@ -62,22 +84,23 @@ export default function BikeImport() {
     }
   }, [importHistory]);
 
-  const getBikeId = (item: MissingBike | ImportResult) =>
+  // Lägg till importerade motorer i historiken
+  const addToImportHistory = (items: MissingItem[]) => {
+    const newHistory = new Set(importHistory);
+    items.forEach(item => {
+      const engineId = getEngineId(item);
+      newHistory.add(engineId);
+    });
+    setImportHistory(newHistory);
+  };
+
+  const getEngineId = (item: MissingItem) =>
     `${item.brand}-${item.model}-${item.year}-${item.engine}`
       .replace(/\s+/g, "_")
       .toLowerCase();
 
-  const isAlreadyImported = (item: MissingBike) =>
-    importHistory.has(getBikeId(item));
-
-  const addToImportHistory = (items: MissingBike[]) => {
-    const newHistory = new Set(importHistory);
-    items.forEach(item => {
-      const bikeId = getBikeId(item);
-      newHistory.add(bikeId);
-    });
-    setImportHistory(newHistory);
-  };
+  const isAlreadyImported = (item: MissingItem) =>
+    importHistory.has(getEngineId(item));
 
   // Filtrera bort redan importerade och applicera sökfilter
   const filteredMissing = missing.filter(item => {
@@ -97,7 +120,7 @@ export default function BikeImport() {
     // Applicera model filter
     if (
       filters.model &&
-      !item.model.toLowerCase().includes(filters.model.toLowerCase())
+      !item.model?.toLowerCase().includes(filters.model.toLowerCase())
     ) {
       return false;
     }
@@ -112,11 +135,11 @@ export default function BikeImport() {
     const newSelected = new Set(selected);
 
     itemsToSelect.forEach(item => {
-      newSelected.add(getBikeId(item));
+      newSelected.add(getEngineId(item));
     });
 
     setSelected(Array.from(newSelected));
-    setStatus(`Valde ${itemsToSelect.length} nya Bikes/Quads`);
+    setStatus(`Valde ${itemsToSelect.length} nya objekt`);
   };
 
   // NY: Välj specifikt antal från alla filtrerade
@@ -125,13 +148,11 @@ export default function BikeImport() {
     const newSelected = new Set(selected);
 
     itemsToSelect.forEach(item => {
-      newSelected.add(getBikeId(item));
+      newSelected.add(getEngineId(item));
     });
 
     setSelected(Array.from(newSelected));
-    setStatus(
-      `Valde ${itemsToSelect.length} Bikes/Quads från filtrerade listan`
-    );
+    setStatus(`Valde ${itemsToSelect.length} objekt från filtrerade listan`);
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -142,90 +163,39 @@ export default function BikeImport() {
       const text = await file.text();
       const json = JSON.parse(text);
 
-      // Konvertera Bike/Quad JSON till vårt format
-      const bikes: MissingBike[] = [];
-
-      for (const [brandName, brandData] of Object.entries(json)) {
-        for (const [modelName, modelData] of Object.entries(
-          (brandData as any).models || {}
-        )) {
-          for (const [yearName, yearData] of Object.entries(
-            (modelData as any).years || {}
-          )) {
-            for (const [engineName, engineData] of Object.entries(
-              (yearData as any).engines || {}
-            )) {
-              const engine = engineData as any;
-              const stage1 =
-                engine.stages?.["Stage 1"] ||
-                Object.values(engine.stages || {})[0];
-
-              // Bestäm vehicleType baserat på model/brand
-              const vehicleType = determineVehicleType(brandName, modelName);
-
-              bikes.push({
-                brand: brandName,
-                model: modelName,
-                year: yearName,
-                engine: engineName,
-                type: engine.type,
-                vehicleType,
-                origHk: stage1?.origHk,
-                tunedHk: stage1?.tunedHk,
-                origNm: stage1?.origNm,
-                tunedNm: stage1?.tunedNm,
-                price: stage1?.price,
-              });
-            }
-          }
-        }
+      if (!Array.isArray(json)) {
+        alert("Ogiltig JSON-fil. Välj missing_import.json.");
+        return;
       }
 
-      setMissing(bikes);
+      setMissing(json);
       setSelected([]);
       setImportResults([]);
 
-      const alreadyImportedCount = bikes.filter(item =>
+      const alreadyImportedCount = json.filter(item =>
         isAlreadyImported(item)
       ).length;
-      const newItemsCount = bikes.length - alreadyImportedCount;
+      const newItemsCount = json.length - alreadyImportedCount;
 
       setStatus(
-        `Laddade ${bikes.length} Bikes/Quads (${newItemsCount} nya, ${alreadyImportedCount} redan importerade)`
+        `Laddade ${json.length} objekt (${newItemsCount} nya, ${alreadyImportedCount} redan importerade)`
       );
     } catch (err) {
       console.error("Fel vid uppladdning:", err);
-      alert("Kunde inte läsa Bike/Quad filen.");
+      alert("Kunde inte läsa filen.");
     }
   };
 
-  const determineVehicleType = (brand: string, model: string): string => {
-    const lowerBrand = brand.toLowerCase();
-    const lowerModel = model.toLowerCase();
-
-    if (
-      lowerModel.includes("atv") ||
-      lowerModel.includes("quad") ||
-      lowerBrand.includes("atv")
-    ) {
-      return "atv";
-    }
-    if (lowerModel.includes("scooter") || lowerBrand.includes("scooter")) {
-      return "scooter";
-    }
-    return "motorcycle";
-  };
-
-  const toggleSelect = (bikeId: string) => {
+  const toggleSelect = (engineId: string) => {
     setSelected(prev =>
-      prev.includes(bikeId)
-        ? prev.filter(id => id !== bikeId)
-        : [...prev, bikeId]
+      prev.includes(engineId)
+        ? prev.filter(id => id !== engineId)
+        : [...prev, engineId]
     );
   };
 
   const selectAll = () => {
-    setSelected(filteredMissing.map(item => getBikeId(item)));
+    setSelected(filteredMissing.map(item => getEngineId(item)));
   };
 
   const deselectAll = () => {
@@ -234,16 +204,16 @@ export default function BikeImport() {
 
   const selectOnlyNew = () => {
     const newItems = filteredMissing.filter(item => !isAlreadyImported(item));
-    setSelected(newItems.map(item => getBikeId(item)));
+    setSelected(newItems.map(item => getEngineId(item)));
   };
 
   const handleImport = async () => {
-    if (!selected.length) return alert("Välj minst en Bike/Quad.");
+    if (!selected.length) return alert("Välj minst ett objekt.");
 
     // Varning om många objekt
     if (selected.length > 500) {
       const confirmed = confirm(
-        `Du håller på att importera ${selected.length} Bikes/Quads. Detta kan ta flera minuter. Vill du fortsätta?`
+        `Du håller på att importera ${selected.length} objekt. Detta kan ta flera minuter. Vill du fortsätta?`
       );
       if (!confirmed) return;
     }
@@ -252,11 +222,12 @@ export default function BikeImport() {
     setImportResults([]);
 
     try {
+      // Hämta de valda objekten
       const selectedItems = missing.filter(item =>
-        selected.includes(getBikeId(item))
+        selected.includes(getEngineId(item))
       );
 
-      const res = await fetch("/api/import/bikes", {
+      const res = await fetch("/api/import/importMissing", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({items: selectedItems}),
@@ -275,23 +246,20 @@ export default function BikeImport() {
       }
 
       setStatus(
-        data.message ||
-          `Import klar. ${data.summary?.created} nya Bikes/Quads skapade.`
+        data.message || `Import klar. ${data.summary?.created} nya skapade.`
       );
 
-      // Uppdatera missing-listan
+      // Uppdatera missing-listan baserat på resultat
       if (data.results) {
-        const successfullyImportedIds = data.results
+        const successfullyImported = data.results
           .filter((r: ImportResult) => r.status === "created")
-          .map((r: ImportResult) => getBikeId(r));
+          .map((r: ImportResult) => getEngineId(r as MissingItem));
 
         setMissing(prev =>
-          prev.filter(
-            item => !successfullyImportedIds.includes(getBikeId(item))
-          )
+          prev.filter(item => !successfullyImported.includes(getEngineId(item)))
         );
         setSelected(prev =>
-          prev.filter(id => !successfullyImportedIds.includes(id))
+          prev.filter(id => !successfullyImported.includes(id))
         );
       }
     } catch (err) {
@@ -303,12 +271,10 @@ export default function BikeImport() {
   };
 
   const clearHistory = () => {
-    if (
-      confirm("Är du säker på att du vill radera Bike/Quad import-historiken?")
-    ) {
+    if (confirm("Är du säker på att du vill radera import-historiken?")) {
       setImportHistory(new Set());
       localStorage.removeItem(IMPORT_HISTORY_KEY);
-      setStatus("Bike/Quad import-historik raderad");
+      setStatus("Import-historik raderad");
     }
   };
 
@@ -318,30 +284,24 @@ export default function BikeImport() {
     imported: missing.filter(item => isAlreadyImported(item)).length,
     filtered: filteredMissing.length,
     selectedNew: selected.filter(id => {
-      const item = missing.find(m => getBikeId(m) === id);
+      const item = missing.find(m => getEngineId(m) === id);
       return item && !isAlreadyImported(item);
     }).length,
   };
 
   return (
-    <div
-      style={{
-        padding: 30,
-        fontFamily: "sans-serif",
-        maxWidth: 1400,
-        margin: "0 auto",
-      }}
-    >
-      <h1>🏍️ Bikes & Quads Import</h1>
+    <div>
       <p>
-        Välj <strong>br_performance_bikes_complete.json</strong> för att
-        importera Bikes & Quads.
+        Välj <strong>missing_import.json</strong> för att granska och importera
+        saknade bilar.
       </p>
 
+      {/* Filuppladdning */}
       <div style={{marginBottom: 20}}>
         <input type="file" accept=".json" onChange={handleFileUpload} />
       </div>
 
+      {/* Statistik */}
       {missing.length > 0 && (
         <div
           style={{
@@ -448,7 +408,7 @@ export default function BikeImport() {
                   borderRadius: 4,
                   cursor: stats.new >= 100 ? "pointer" : "not-allowed",
                 }}
-                title="Välj 100 nya Bikes/Quads"
+                title="Välj 100 nya"
               >
                 100 nya
               </button>
@@ -463,7 +423,7 @@ export default function BikeImport() {
                   borderRadius: 4,
                   cursor: stats.new >= 200 ? "pointer" : "not-allowed",
                 }}
-                title="Välj 200 nya Bikes/Quads"
+                title="Välj 200 nya"
               >
                 200 nya
               </button>
@@ -478,7 +438,7 @@ export default function BikeImport() {
                   borderRadius: 4,
                   cursor: stats.new >= 500 ? "pointer" : "not-allowed",
                 }}
-                title="Välj 500 nya Bikes/Quads"
+                title="Välj 500 nya"
               >
                 500 nya
               </button>
@@ -493,7 +453,7 @@ export default function BikeImport() {
                   borderRadius: 4,
                   cursor: stats.filtered >= 100 ? "pointer" : "not-allowed",
                 }}
-                title="Välj 100 från filtrerade Bikes/Quads"
+                title="Välj 100 från filtrerade"
               >
                 100 filtrerade
               </button>
@@ -518,244 +478,55 @@ export default function BikeImport() {
 
       {missing.length > 0 && (
         <>
-          <div style={{marginBottom: 20}}>
-            <div style={{display: "flex", gap: 10, flexWrap: "wrap"}}>
-              <button
-                onClick={selectOnlyNew}
-                style={{
-                  padding: "8px 15px",
-                  background: "#17a2b8",
-                  color: "white",
-                  border: "none",
-                  borderRadius: 4,
-                  cursor: "pointer",
-                }}
-              >
-                Markera alla nya ({stats.new})
-              </button>
-              <button
-                onClick={selectAll}
-                style={{
-                  padding: "8px 15px",
-                  background: "#007bff",
-                  color: "white",
-                  border: "none",
-                  borderRadius: 4,
-                  cursor: "pointer",
-                }}
-              >
-                Markera alla
-              </button>
-              <button
-                onClick={deselectAll}
-                style={{
-                  padding: "8px 15px",
-                  background: "#6c757d",
-                  color: "white",
-                  border: "none",
-                  borderRadius: 4,
-                  cursor: "pointer",
-                }}
-              >
-                Avmarkera alla
-              </button>
-            </div>
-          </div>
+          <ImportTable
+            missing={filteredMissing}
+            selected={selected}
+            onToggle={toggleSelect}
+            onSelectAll={selectAll}
+            onDeselectAll={deselectAll}
+            onSelectOnlyNew={selectOnlyNew}
+            isAlreadyImported={isAlreadyImported}
+          />
 
-          <div style={{overflowX: "auto"}}>
-            <table
+          <div
+            style={{marginTop: 20, display: "flex", gap: 10, flexWrap: "wrap"}}
+          >
+            <button
+              onClick={selectOnlyNew}
               style={{
-                width: "100%",
-                borderCollapse: "collapse",
-                fontSize: "14px",
+                padding: "10px 15px",
+                background: "#17a2b8",
+                color: "white",
+                border: "none",
+                borderRadius: 4,
+                cursor: "pointer",
               }}
             >
-              <thead>
-                <tr style={{background: "#eee"}}>
-                  <th style={{padding: 8, border: "1px solid #ccc"}}>
-                    <input
-                      type="checkbox"
-                      checked={selected.length === filteredMissing.length}
-                      onChange={() =>
-                        selected.length === filteredMissing.length
-                          ? deselectAll()
-                          : selectAll()
-                      }
-                    />
-                  </th>
-                  <th
-                    style={{
-                      padding: 8,
-                      border: "1px solid #ccc",
-                      textAlign: "left",
-                    }}
-                  >
-                    Status
-                  </th>
-                  <th
-                    style={{
-                      padding: 8,
-                      border: "1px solid #ccc",
-                      textAlign: "left",
-                    }}
-                  >
-                    Brand
-                  </th>
-                  <th
-                    style={{
-                      padding: 8,
-                      border: "1px solid #ccc",
-                      textAlign: "left",
-                    }}
-                  >
-                    Model
-                  </th>
-                  <th
-                    style={{
-                      padding: 8,
-                      border: "1px solid #ccc",
-                      textAlign: "left",
-                    }}
-                  >
-                    Year
-                  </th>
-                  <th
-                    style={{
-                      padding: 8,
-                      border: "1px solid #ccc",
-                      textAlign: "left",
-                    }}
-                  >
-                    Engine
-                  </th>
-                  <th
-                    style={{
-                      padding: 8,
-                      border: "1px solid #ccc",
-                      textAlign: "left",
-                    }}
-                  >
-                    Type
-                  </th>
-                  <th
-                    style={{
-                      padding: 8,
-                      border: "1px solid #ccc",
-                      textAlign: "left",
-                    }}
-                  >
-                    Vehicle
-                  </th>
-                  <th
-                    style={{
-                      padding: 8,
-                      border: "1px solid #ccc",
-                      textAlign: "left",
-                    }}
-                  >
-                    HK
-                  </th>
-                  <th
-                    style={{
-                      padding: 8,
-                      border: "1px solid #ccc",
-                      textAlign: "left",
-                    }}
-                  >
-                    Price
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredMissing.map((item, index) => {
-                  const bikeId = getBikeId(item);
-                  const isSelected = selected.includes(bikeId);
-                  const isImported = isAlreadyImported(item);
+              Markera alla nya ({stats.new})
+            </button>
 
-                  return (
-                    <tr
-                      key={bikeId}
-                      style={{
-                        background: isSelected ? "#e3f2fd" : "transparent",
-                        opacity: isImported ? 0.6 : 1,
-                      }}
-                    >
-                      <td style={{padding: 8, border: "1px solid #ccc"}}>
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={() => toggleSelect(bikeId)}
-                          disabled={isImported}
-                        />
-                      </td>
-                      <td style={{padding: 8, border: "1px solid #ccc"}}>
-                        {isImported ? (
-                          <span
-                            style={{color: "green"}}
-                            title="Redan importerad"
-                          >
-                            ✓
-                          </span>
-                        ) : (
-                          <span style={{color: "blue"}} title="Ny">
-                            Ny
-                          </span>
-                        )}
-                      </td>
-                      <td style={{padding: 8, border: "1px solid #ccc"}}>
-                        {item.brand}
-                      </td>
-                      <td style={{padding: 8, border: "1px solid #ccc"}}>
-                        {item.model}
-                      </td>
-                      <td style={{padding: 8, border: "1px solid #ccc"}}>
-                        {item.year}
-                      </td>
-                      <td style={{padding: 8, border: "1px solid #ccc"}}>
-                        {item.engine}
-                      </td>
-                      <td style={{padding: 8, border: "1px solid #ccc"}}>
-                        {item.type}
-                      </td>
-                      <td style={{padding: 8, border: "1px solid #ccc"}}>
-                        {item.vehicleType}
-                      </td>
-                      <td style={{padding: 8, border: "1px solid #ccc"}}>
-                        {item.origHk && item.tunedHk
-                          ? `${item.origHk}→${item.tunedHk}`
-                          : "-"}
-                      </td>
-                      <td style={{padding: 8, border: "1px solid #ccc"}}>
-                        {item.price ? `${item.price} EUR` : "-"}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+            <button
+              onClick={handleImport}
+              disabled={loading || selected.length === 0}
+              style={{
+                padding: "10px 20px",
+                background: loading ? "#6c757d" : "#28a745",
+                color: "white",
+                border: "none",
+                borderRadius: 4,
+                cursor: selected.length > 0 ? "pointer" : "not-allowed",
+                opacity: selected.length > 0 ? 1 : 0.6,
+              }}
+            >
+              {loading
+                ? "Importerar..."
+                : `Importera valda (${selected.length})`}
+            </button>
           </div>
-
-          <button
-            onClick={handleImport}
-            disabled={loading || selected.length === 0}
-            style={{
-              marginTop: 20,
-              padding: "10px 20px",
-              background: loading ? "#6c757d" : "#28a745",
-              color: "white",
-              border: "none",
-              borderRadius: 4,
-              cursor: selected.length > 0 ? "pointer" : "not-allowed",
-              opacity: selected.length > 0 ? 1 : 0.6,
-            }}
-          >
-            {loading
-              ? "Importerar..."
-              : `Importera valda Bikes/Quads (${selected.length})`}
-          </button>
         </>
       )}
 
+      {/* Importresultat */}
       {importResults.length > 0 && (
         <div style={{marginTop: 30}}>
           <h3>Importresultat</h3>
@@ -814,6 +585,15 @@ export default function BikeImport() {
                   >
                     Status
                   </th>
+                  <th
+                    style={{
+                      padding: 8,
+                      border: "1px solid #ccc",
+                      textAlign: "left",
+                    }}
+                  >
+                    Action
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -846,6 +626,9 @@ export default function BikeImport() {
                     >
                       {result.status}
                     </td>
+                    <td style={{padding: 8, border: "1px solid #ccc"}}>
+                      {result.action}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -853,6 +636,91 @@ export default function BikeImport() {
           </div>
         </div>
       )}
+
+      {missing.length === 0 && (
+        <div
+          style={{textAlign: "center", padding: "40px 20px", color: "#6c757d"}}
+        >
+          Ladda upp en JSON-fil för att börja importera bilar
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function ImportPage() {
+  const [activeTab, setActiveTab] = useState<ImportTab>("cars");
+
+  return (
+    <div
+      style={{
+        padding: 30,
+        fontFamily: "sans-serif",
+        maxWidth: 1400,
+        margin: "0 auto",
+      }}
+    >
+      <h1>⚙️ Sanity Importverktyg</h1>
+
+      {/* Tab Navigation */}
+      <div style={{marginBottom: 20, borderBottom: "1px solid #ccc"}}>
+        <div style={{display: "flex", gap: 10}}>
+          <button
+            onClick={() => setActiveTab("cars")}
+            style={{
+              padding: "10px 20px",
+              background: activeTab === "cars" ? "#007bff" : "transparent",
+              color: activeTab === "cars" ? "white" : "#007bff",
+              border: "1px solid #007bff",
+              borderRadius: "4px 4px 0 0",
+              cursor: "pointer",
+            }}
+          >
+            🚗 Bilar
+          </button>
+          <button
+            onClick={() => setActiveTab("jetskis")}
+            style={{
+              padding: "10px 20px",
+              background: activeTab === "jetskis" ? "#007bff" : "transparent",
+              color: activeTab === "jetskis" ? "white" : "#007bff",
+              border: "1px solid #007bff",
+              borderRadius: "4px 4px 0 0",
+              cursor: "pointer",
+            }}
+          >
+            🛥️ Jet-Skis
+          </button>
+          <button
+            onClick={() => setActiveTab("bikes")}
+            style={{
+              padding: "10px 20px",
+              background: activeTab === "bikes" ? "#007bff" : "transparent",
+              color: activeTab === "bikes" ? "white" : "#007bff",
+              border: "1px solid #007bff",
+              borderRadius: "4px 4px 0 0",
+              cursor: "pointer",
+            }}
+          >
+            🏍️ Bikes/Quads
+          </button>
+        </div>
+      </div>
+
+      {/* Tab Content */}
+      <div>
+        {activeTab === "cars" && <CarImport />}
+        {activeTab === "jetskis" && (
+          <Suspense fallback={<LoadingFallback />}>
+            <JetSkiImport />
+          </Suspense>
+        )}
+        {activeTab === "bikes" && (
+          <Suspense fallback={<LoadingFallback />}>
+            <BikeImport />
+          </Suspense>
+        )}
+      </div>
     </div>
   );
 }

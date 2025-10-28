@@ -33,6 +33,11 @@ export default function BikeImport() {
   const [status, setStatus] = useState("");
   const [importResults, setImportResults] = useState<ImportResult[]>([]);
   const [importHistory, setImportHistory] = useState<Set<string>>(new Set());
+  const [filters, setFilters] = useState({
+    brand: "",
+    model: "",
+    showOnlyNew: true,
+  });
 
   // Ladda import-historik
   useEffect(() => {
@@ -72,6 +77,61 @@ export default function BikeImport() {
       newHistory.add(bikeId);
     });
     setImportHistory(newHistory);
+  };
+
+  // Filtrera bort redan importerade och applicera sökfilter
+  const filteredMissing = missing.filter(item => {
+    // Filtrera bort redan importerade om "Visa bara nya" är aktiverat
+    if (filters.showOnlyNew && isAlreadyImported(item)) {
+      return false;
+    }
+
+    // Applicera brand filter
+    if (
+      filters.brand &&
+      !item.brand.toLowerCase().includes(filters.brand.toLowerCase())
+    ) {
+      return false;
+    }
+
+    // Applicera model filter
+    if (
+      filters.model &&
+      !item.model.toLowerCase().includes(filters.model.toLowerCase())
+    ) {
+      return false;
+    }
+
+    return true;
+  });
+
+  // NY: Välj specifikt antal nya objekt
+  const selectSpecificCount = (count: number) => {
+    const newItems = filteredMissing.filter(item => !isAlreadyImported(item));
+    const itemsToSelect = newItems.slice(0, count);
+    const newSelected = new Set(selected);
+
+    itemsToSelect.forEach(item => {
+      newSelected.add(getBikeId(item));
+    });
+
+    setSelected(Array.from(newSelected));
+    setStatus(`Valde ${itemsToSelect.length} nya Bikes/Quads`);
+  };
+
+  // NY: Välj specifikt antal från alla filtrerade
+  const selectSpecificCountFromAll = (count: number) => {
+    const itemsToSelect = filteredMissing.slice(0, count);
+    const newSelected = new Set(selected);
+
+    itemsToSelect.forEach(item => {
+      newSelected.add(getBikeId(item));
+    });
+
+    setSelected(Array.from(newSelected));
+    setStatus(
+      `Valde ${itemsToSelect.length} Bikes/Quads från filtrerade listan`
+    );
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -165,7 +225,7 @@ export default function BikeImport() {
   };
 
   const selectAll = () => {
-    setSelected(missing.map(item => getBikeId(item)));
+    setSelected(filteredMissing.map(item => getBikeId(item)));
   };
 
   const deselectAll = () => {
@@ -173,12 +233,21 @@ export default function BikeImport() {
   };
 
   const selectOnlyNew = () => {
-    const newItems = missing.filter(item => !isAlreadyImported(item));
+    const newItems = filteredMissing.filter(item => !isAlreadyImported(item));
     setSelected(newItems.map(item => getBikeId(item)));
   };
 
   const handleImport = async () => {
     if (!selected.length) return alert("Välj minst en Bike/Quad.");
+
+    // Varning om många objekt
+    if (selected.length > 500) {
+      const confirmed = confirm(
+        `Du håller på att importera ${selected.length} Bikes/Quads. Detta kan ta flera minuter. Vill du fortsätta?`
+      );
+      if (!confirmed) return;
+    }
+
     setLoading(true);
     setImportResults([]);
 
@@ -233,10 +302,25 @@ export default function BikeImport() {
     }
   };
 
+  const clearHistory = () => {
+    if (
+      confirm("Är du säker på att du vill radera Bike/Quad import-historiken?")
+    ) {
+      setImportHistory(new Set());
+      localStorage.removeItem(IMPORT_HISTORY_KEY);
+      setStatus("Bike/Quad import-historik raderad");
+    }
+  };
+
   const stats = {
     total: missing.length,
     new: missing.filter(item => !isAlreadyImported(item)).length,
     imported: missing.filter(item => isAlreadyImported(item)).length,
+    filtered: filteredMissing.length,
+    selectedNew: selected.filter(id => {
+      const item = missing.find(m => getBikeId(m) === id);
+      return item && !isAlreadyImported(item);
+    }).length,
   };
 
   return (
@@ -278,14 +362,159 @@ export default function BikeImport() {
             <div style={{color: "#6c757d"}}>
               <strong>Importerade:</strong> {stats.imported}
             </div>
+            <div>
+              <strong>Filtrerade:</strong> {stats.filtered}
+            </div>
             <div style={{color: "#007bff"}}>
-              <strong>Valda:</strong> {selected.length}
+              <strong>Valda (nya):</strong> {selected.length} (
+              {stats.selectedNew})
             </div>
           </div>
         </div>
       )}
 
       <p>{status}</p>
+
+      {/* Filter och kontroller */}
+      {missing.length > 0 && (
+        <div style={{marginBottom: 20}}>
+          <div
+            style={{
+              display: "flex",
+              gap: 15,
+              flexWrap: "wrap",
+              alignItems: "center",
+            }}
+          >
+            <div>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={filters.showOnlyNew}
+                  onChange={e =>
+                    setFilters(prev => ({
+                      ...prev,
+                      showOnlyNew: e.target.checked,
+                    }))
+                  }
+                  style={{marginRight: 8}}
+                />
+                Visa bara nya
+              </label>
+            </div>
+
+            <div>
+              <input
+                type="text"
+                placeholder="Filtrera märke..."
+                value={filters.brand}
+                onChange={e =>
+                  setFilters(prev => ({...prev, brand: e.target.value}))
+                }
+                style={{
+                  padding: "5px 10px",
+                  border: "1px solid #ccc",
+                  borderRadius: 4,
+                }}
+              />
+            </div>
+
+            <div>
+              <input
+                type="text"
+                placeholder="Filtrera modell..."
+                value={filters.model}
+                onChange={e =>
+                  setFilters(prev => ({...prev, model: e.target.value}))
+                }
+                style={{
+                  padding: "5px 10px",
+                  border: "1px solid #ccc",
+                  borderRadius: 4,
+                }}
+              />
+            </div>
+
+            {/* NY: Knappar för att välja specifika antal */}
+            <div style={{display: "flex", gap: 5, flexWrap: "wrap"}}>
+              <button
+                onClick={() => selectSpecificCount(100)}
+                disabled={stats.new < 100}
+                style={{
+                  padding: "5px 10px",
+                  background: stats.new >= 100 ? "#17a2b8" : "#ccc",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 4,
+                  cursor: stats.new >= 100 ? "pointer" : "not-allowed",
+                }}
+                title="Välj 100 nya Bikes/Quads"
+              >
+                100 nya
+              </button>
+              <button
+                onClick={() => selectSpecificCount(200)}
+                disabled={stats.new < 200}
+                style={{
+                  padding: "5px 10px",
+                  background: stats.new >= 200 ? "#17a2b8" : "#ccc",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 4,
+                  cursor: stats.new >= 200 ? "pointer" : "not-allowed",
+                }}
+                title="Välj 200 nya Bikes/Quads"
+              >
+                200 nya
+              </button>
+              <button
+                onClick={() => selectSpecificCount(500)}
+                disabled={stats.new < 500}
+                style={{
+                  padding: "5px 10px",
+                  background: stats.new >= 500 ? "#17a2b8" : "#ccc",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 4,
+                  cursor: stats.new >= 500 ? "pointer" : "not-allowed",
+                }}
+                title="Välj 500 nya Bikes/Quads"
+              >
+                500 nya
+              </button>
+              <button
+                onClick={() => selectSpecificCountFromAll(100)}
+                disabled={stats.filtered < 100}
+                style={{
+                  padding: "5px 10px",
+                  background: stats.filtered >= 100 ? "#6f42c1" : "#ccc",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 4,
+                  cursor: stats.filtered >= 100 ? "pointer" : "not-allowed",
+                }}
+                title="Välj 100 från filtrerade Bikes/Quads"
+              >
+                100 filtrerade
+              </button>
+            </div>
+
+            <button
+              onClick={clearHistory}
+              style={{
+                padding: "5px 10px",
+                background: "#dc3545",
+                color: "white",
+                border: "none",
+                borderRadius: 4,
+                cursor: "pointer",
+              }}
+            >
+              Rensa historik
+            </button>
+          </div>
+        </div>
+      )}
 
       {missing.length > 0 && (
         <>
@@ -346,9 +575,9 @@ export default function BikeImport() {
                   <th style={{padding: 8, border: "1px solid #ccc"}}>
                     <input
                       type="checkbox"
-                      checked={selected.length === missing.length}
+                      checked={selected.length === filteredMissing.length}
                       onChange={() =>
-                        selected.length === missing.length
+                        selected.length === filteredMissing.length
                           ? deselectAll()
                           : selectAll()
                       }
@@ -438,7 +667,7 @@ export default function BikeImport() {
                 </tr>
               </thead>
               <tbody>
-                {missing.map((item, index) => {
+                {filteredMissing.map((item, index) => {
                   const bikeId = getBikeId(item);
                   const isSelected = selected.includes(bikeId);
                   const isImported = isAlreadyImported(item);
