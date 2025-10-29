@@ -2,10 +2,8 @@
 
 import {useState, useCallback, useMemo} from "react";
 import {urlFor} from "@/lib/sanity";
-// Använder lucide-react för snyggare ikoner
-import {ChevronDown, Loader2} from "lucide-react";
+import {ChevronDown, Loader2, ArrowRight} from "lucide-react";
 
-// --- TYPDEFINITIONER (oförändrade) ---
 interface ContactModalData {
   isOpen: boolean;
   stageOrOption: string;
@@ -39,38 +37,27 @@ interface BikeSectionProps {
   currentLanguage: string;
   translate: (lang: string, key: string) => string;
 }
-// ------------------------------------
 
 export function BikeSection({
   setContactModalData,
   currentLanguage,
   translate,
 }: BikeSectionProps) {
-  // Globalt tillstånd för datahämtning
   const [brands, setBrands] = useState<BikeBrand[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasLoaded, setHasLoaded] = useState(false);
-
-  // Tillstånd för att hantera den yttre sektionens expansion
   const [isSectionExpanded, setIsSectionExpanded] = useState(false);
-
-  // Håller ID för det märke som är expanderat. Null = inget är öppet.
   const [expandedBrandId, setExpandedBrandId] = useState<string | null>(null);
+  const [expandedModel, setExpandedModel] = useState<string | null>(null);
 
-  // Använder useCallback för att förhindra onödig omrendering av fetchData-funktionen
   const fetchData = useCallback(async () => {
-    // Stoppar om data redan har laddats eller laddas just nu
     if (hasLoaded || isLoading) return;
-
     setIsLoading(true);
     setError(null);
     try {
-      // HÄMTNINGEN SKER HÄR
       const res = await fetch("/api/bike-brands-with-models");
-      if (!res.ok) {
-        throw new Error("Nätverkssvar var inte ok");
-      }
+      if (!res.ok) throw new Error("Nätverkssvar var inte ok");
       const data = await res.json();
       setBrands(data.brands || data.result || []);
       setHasLoaded(true);
@@ -80,55 +67,140 @@ export function BikeSection({
     } finally {
       setIsLoading(false);
     }
-  }, [hasLoaded, isLoading]); // Lägger till beroenden
+  }, [hasLoaded, isLoading]);
 
-  // Hantera expansion av den yttre sektionen (Hämtar data vid första expansion)
   const handleSectionToggle = (e: React.MouseEvent<HTMLElement>) => {
-    e.preventDefault(); // Förhindra standarddetails-beteende
+    e.preventDefault();
     const newState = !isSectionExpanded;
     setIsSectionExpanded(newState);
-
-    // LAZY LOADING: Laddar data endast vid expansion OCH om det inte redan är laddat
-    if (newState && !hasLoaded) {
-      fetchData();
-    }
-
-    // Stänger eventuellt öppet märke när huvudsektionen stängs
+    if (newState && !hasLoaded) fetchData();
     if (!newState) {
       setExpandedBrandId(null);
+      setExpandedModel(null);
     }
   };
 
-  // Hantera expansion av enskilt märke (endast ett får vara öppet)
   const handleBrandToggle = (brandId: string) => {
-    setExpandedBrandId(prevId => (prevId === brandId ? null : brandId));
+    setExpandedBrandId(prev => (prev === brandId ? null : brandId));
+    setExpandedModel(null);
   };
 
-  // Undvik rendering om inga märken finns efter laddning OCH sektionen är stängd
-  if (brands.length === 0 && hasLoaded && !isLoading && !isSectionExpanded) {
-    return null;
-  }
+  const handleModelToggle = (modelName: string) => {
+    setExpandedModel(prev => (prev === modelName ? null : modelName));
+  };
 
-  // Använder useMemo för att memoizera BrandItem och optimera renderingar
+  // Komponent för HK/NM visning
+  const PerformanceDisplay = ({model}: {model: BikeModel}) => (
+    <div className="space-y-2">
+      {(model.origHk || model.tunedHk) && (
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+            HK
+          </span>
+          <div className="flex items-center gap-2">
+            {model.origHk && (
+              <span className="text-sm font-bold text-gray-700">
+                {model.origHk} HK
+              </span>
+            )}
+            {model.origHk && model.tunedHk && (
+              <ArrowRight className="h-3 w-3 text-gray-400" />
+            )}
+            {model.tunedHk && (
+              <span className="text-lg font-extrabold text-green-600">
+                {model.tunedHk} HK
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+
+      {(model.origNm || model.tunedNm) && (
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+            NM
+          </span>
+          <div className="flex items-center gap-2">
+            {model.origNm && (
+              <span className="text-sm font-bold text-gray-700">
+                {model.origNm} NM
+              </span>
+            )}
+            {model.origNm && model.tunedNm && (
+              <ArrowRight className="h-3 w-3 text-gray-400" />
+            )}
+            {model.tunedNm && (
+              <span className="text-lg font-extrabold text-green-600">
+                {model.tunedNm} NM
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
   const BrandItem = useMemo(
     () =>
       ({brand}: {brand: BikeBrand}) => {
-        const isThisBrandExpanded = expandedBrandId === brand._id;
+        const isExpanded = expandedBrandId === brand._id;
+
+        // Gruppera och sortera modeller
+        const groupedModels = useMemo(() => {
+          const groups = brand.models.reduce(
+            (acc, m) => {
+              if (!acc[m.model]) acc[m.model] = {};
+              if (!acc[m.model][m.year]) acc[m.model][m.year] = [];
+              acc[m.model][m.year].push(m);
+              return acc;
+            },
+            {} as Record<string, Record<string, BikeModel[]>>
+          );
+
+          // Sortera årsmodeller i fallande ordning (nyaste först) för varje modell
+          Object.keys(groups).forEach(modelName => {
+            const years = groups[modelName];
+            const sortedYears = Object.keys(years)
+              .sort((a, b) => parseInt(b) - parseInt(a))
+              .reduce(
+                (acc, year) => {
+                  acc[year] = years[year];
+                  return acc;
+                },
+                {} as Record<string, BikeModel[]>
+              );
+
+            groups[modelName] = sortedYears;
+          });
+
+          return groups;
+        }, [brand.models]);
+
+        // Hämta årsintervall för modell
+        const getYearRange = (years: Record<string, BikeModel[]>) => {
+          const yearKeys = Object.keys(years);
+          if (yearKeys.length === 0) return "";
+          if (yearKeys.length === 1) return yearKeys[0];
+
+          const sortedYears = yearKeys.sort(
+            (a, b) => parseInt(a) - parseInt(b)
+          );
+          return `${sortedYears[0]} → ${sortedYears[sortedYears.length - 1]}`;
+        };
 
         return (
           <div
-            // Kontrollerar expansion via state, inte details-tagg
             className={`mb-4 bg-white border rounded-xl shadow-md transition duration-300 ${
-              isThisBrandExpanded
+              isExpanded
                 ? "border-red-600 shadow-xl"
                 : "border-gray-200 hover:shadow-lg"
             }`}
           >
+            {/* Brand Header */}
             <div
-              className="brand-summary cursor-pointer p-4 flex items-center justify-between hover:bg-gray-50 rounded-xl"
-              onClick={() => handleBrandToggle(brand._id)} // Styr expansionen här
+              className="p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 rounded-xl"
+              onClick={() => handleBrandToggle(brand._id)}
             >
-              {/* Vänster sida: Logotyp och Namn */}
               <div className="flex items-center gap-4">
                 {brand.logo?.asset && (
                   <img
@@ -137,162 +209,146 @@ export function BikeSection({
                     className="w-12 h-12 object-contain"
                   />
                 )}
-                <span className="text-lg font-bold text-gray-800">
-                  {brand.name}
-                </span>
+                <div className="flex flex-col">
+                  <span className="text-lg font-bold text-gray-800">
+                    {brand.name}
+                  </span>
+                </div>
               </div>
-
-              {/* Höger sida: Expand-ikon */}
               <ChevronDown
-                className={`h-5 w-5 transform transition-transform text-gray-500 ${isThisBrandExpanded ? "rotate-180 text-red-600" : "rotate-0"}`}
+                className={`h-5 w-5 transform transition-transform text-gray-500 ${
+                  isExpanded ? "rotate-180 text-red-600" : ""
+                }`}
               />
             </div>
 
-            {/* Modeller visas ENDAST om detta märke är expanderat */}
-            {isThisBrandExpanded && (
-              <div className="model-list p-4 border-t border-gray-200">
-                {(brand.models?.length || 0) > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {brand.models?.map(model => (
+            {isExpanded && (
+              <div className="p-4 border-t border-gray-200 bg-gray-50 rounded-b-xl">
+                {Object.entries(groupedModels).map(([modelName, years]) => {
+                  const isModelExpanded = expandedModel === modelName;
+                  const yearRange = getYearRange(years);
+
+                  return (
+                    <div
+                      key={modelName}
+                      className="border border-gray-300 rounded-lg mb-3 bg-white overflow-hidden"
+                    >
+                      {/* Model Header */}
                       <div
-                        key={model._id}
-                        className="model-item bg-gray-50 p-4 rounded-lg border border-gray-200 shadow-sm transition hover:border-green-600"
+                        className="p-4 flex justify-between items-center cursor-pointer hover:bg-gray-50 transition-colors"
+                        onClick={() => handleModelToggle(modelName)}
                       >
-                        {/* Modell och År */}
-                        <strong className="text-lg font-semibold text-gray-900 block">
-                          {model.model} [{model.year}] - {model.engine}
-                          {model.vehicleType}
-                        </strong>
-
-                        {/* --- HK & NM VISNING --- */}
-                        {(model.origHk ||
-                          model.tunedHk ||
-                          model.origNm ||
-                          model.tunedNm) && (
-                          <div className="mt-2 mb-3 border-b border-gray-100 pb-2">
-                            {/* HK VISNING */}
-                            {(model.origHk || model.tunedHk) && (
-                              <>
-                                {model.origHk && (
-                                  <div className="flex justify-between text-sm text-gray-600">
-                                    <span className="font-semibold uppercase tracking-wider">
-                                      {translate(
-                                        currentLanguage,
-                                        "originalHp"
-                                      ) || "Original HK"}
-                                      :
-                                    </span>
-                                    <span className="font-bold text-orange-500">
-                                      {model.origHk} HK
-                                    </span>
-                                  </div>
-                                )}
-
-                                {model.tunedHk && (
-                                  <div className="flex justify-between items-baseline mt-1">
-                                    <span className="text-sm font-semibold uppercase tracking-wider text-gray-700">
-                                      {translate(
-                                        currentLanguage,
-                                        "OPPTIMERADHK"
-                                      ) || "Optimerad HK"}
-                                      :
-                                    </span>
-                                    <span className="text-xl font-extrabold text-green-600">
-                                      {model.tunedHk} HK
-                                    </span>
-                                  </div>
-                                )}
-                                {/* Separator om både HK och NM finns */}
-                                {(model.origNm || model.tunedNm) && (
-                                  <div className="h-2"></div>
-                                )}
-                              </>
-                            )}
-
-                            {/* NM VISNING (Nu fixad med samma stil) */}
-                            {(model.origNm || model.tunedNm) && (
-                              <>
-                                {model.origNm && (
-                                  <div className="flex justify-between text-sm text-gray-600">
-                                    <span className="font-semibold uppercase tracking-wider">
-                                      {translate(
-                                        currentLanguage,
-                                        "originalNm"
-                                      ) || "Original NM"}
-                                      :
-                                    </span>
-                                    <span className="font-bold text-orange-500">
-                                      {model.origNm} NM
-                                    </span>
-                                  </div>
-                                )}
-                                {model.tunedNm && (
-                                  <div className="flex justify-between items-baseline mt-1">
-                                    <span className="text-sm font-semibold uppercase tracking-wider text-gray-700">
-                                      {translate(
-                                        currentLanguage,
-                                        "OPPTIMERADNM"
-                                      ) || "Optimerad NM"}
-                                      :
-                                    </span>
-                                    <span className="text-xl font-extrabold text-green-600">
-                                      {model.tunedNm} NM
-                                    </span>
-                                  </div>
-                                )}
-                              </>
-                            )}
-                          </div>
-                        )}
-                        {/* --- SLUT PÅ HK & NM VISNING --- */}
-
-                        {/* Pris och Kontaktknapp */}
-                        <div className="mt-3 pt-3 border-t flex justify-between items-center">
-                          {model.price ? (
-                            <p className="text-xl font-extrabold text-orange-500">
-                              {model.price.toLocaleString("sv-SE", {
-                                style: "currency",
-                                currency: "SEK",
-                                minimumFractionDigits: 0,
-                              })}
-                            </p>
-                          ) : (
-                            <p className="text-xs text-gray-400">Pris saknas</p>
-                          )}
-
-                          <button
-                            onClick={() => {
-                              const modalTitle = `${brand.name} ${model.model} [${model.year}] - ${model.engine}`;
-
-                              setContactModalData({
-                                isOpen: true,
-                                stageOrOption: modalTitle,
-                                link: window.location.href,
-                                scrollPosition: 0,
-                              });
-                            }}
-                            className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 text-sm rounded-lg font-bold transition focus:outline-none focus:ring-2 focus:ring-green-500"
-                          >
-                            📩{" "}
-                            {translate(currentLanguage, "contactvalue") ||
-                              "Kontakta oss"}
-                          </button>
+                        <div className="flex flex-col">
+                          <span className="font-bold text-gray-800 text-lg">
+                            {modelName}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <ChevronDown
+                            className={`h-5 w-5 transform transition-transform text-gray-400 ${
+                              isModelExpanded ? "rotate-180" : ""
+                            }`}
+                          />
                         </div>
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-gray-500 p-2">
-                    Inga modeller hittades för detta märke.
-                  </p>
-                )}
+
+                      {/* Model Content */}
+                      {isModelExpanded && (
+                        <div className="border-t border-gray-200">
+                          {Object.entries(years).map(([year, engines]) => (
+                            <div
+                              key={year}
+                              className="border-b border-gray-100 last:border-b-0"
+                            >
+                              <div className="p-4 bg-white">
+                                <h4 className="text-md font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-200">
+                                  {year}
+                                </h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                  {engines.map(engine => (
+                                    <div
+                                      key={engine._id}
+                                      className="p-4 bg-gray-50 border border-gray-200 rounded-lg shadow-sm hover:border-green-600 transition-colors"
+                                    >
+                                      {/* Motor info */}
+                                      <div className="mb-3">
+                                        <strong className="text-gray-900 block text-sm font-semibold">
+                                          {engine.engine} - {engine.origHk} HK
+                                        </strong>
+                                      </div>
+
+                                      {/* Prestanda */}
+                                      <div className="mb-4 p-3 bg-white rounded border">
+                                        <PerformanceDisplay model={engine} />
+                                      </div>
+
+                                      {/* Pris och kontakt */}
+                                      <div className="flex justify-between items-center pt-3 border-t border-gray-200">
+                                        {engine.price ? (
+                                          <p className="text-lg font-extrabold text-orange-500">
+                                            {engine.price.toLocaleString(
+                                              "sv-SE",
+                                              {
+                                                style: "currency",
+                                                currency: "SEK",
+                                                minimumFractionDigits: 0,
+                                              }
+                                            )}
+                                          </p>
+                                        ) : (
+                                          <p className="text-xs text-gray-400">
+                                            Pris saknas
+                                          </p>
+                                        )}
+
+                                        <button
+                                          onClick={e => {
+                                            e.stopPropagation();
+                                            const modalTitle = `${brand.name} ${modelName} ${year} - ${engine.engine} ${engine.origHk} HK`;
+                                            setContactModalData({
+                                              isOpen: true,
+                                              stageOrOption: modalTitle,
+                                              link: window.location.href,
+                                              scrollPosition: 0,
+                                            });
+                                          }}
+                                          className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 text-sm rounded-lg font-bold transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-1"
+                                        >
+                                          📩{" "}
+                                          {translate(
+                                            currentLanguage,
+                                            "contactvalue"
+                                          ) || "Kontakt"}
+                                        </button>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
         );
       },
-    [expandedBrandId, setContactModalData, currentLanguage, translate]
+    [
+      expandedBrandId,
+      expandedModel,
+      setContactModalData,
+      currentLanguage,
+      translate,
+    ]
   );
+
+  if (brands.length === 0 && hasLoaded && !isLoading && !isSectionExpanded) {
+    return null;
+  }
 
   return (
     <div className="mt-8 mb-6">
@@ -305,12 +361,10 @@ export function BikeSection({
           style={{listStyle: "none"}}
           onClick={handleSectionToggle}
         >
-          {/* Rubrik för den expanderbara sektionen */}
           <h3 className="uppercase tracking-wide text-gray-800 text-lg font-bold">
             {translate(currentLanguage, "BIKES_QUADS") || "Bikes & Quads"}
           </h3>
 
-          {/* Status och Expand-ikon */}
           <div className="flex items-center gap-4 text-gray-500">
             {isLoading ? (
               <span className="text-sm flex items-center gap-2">
@@ -326,15 +380,14 @@ export function BikeSection({
                 </span>
               )
             )}
-
-            {/* Ikon för sektionsöversikt */}
             <ChevronDown
-              className={`h-5 w-5 transform transition-transform ${isSectionExpanded ? "rotate-180" : "rotate-0"}`}
+              className={`h-5 w-5 transform transition-transform ${
+                isSectionExpanded ? "rotate-180" : ""
+              }`}
             />
           </div>
         </summary>
 
-        {/* INNEHÅLL - renderas endast om sektionen är expanderad */}
         {isSectionExpanded && (
           <div className="p-4 border-t border-gray-200">
             {(isLoading || error) && (
@@ -343,7 +396,6 @@ export function BikeSection({
               </p>
             )}
 
-            {/* Lista med bike/quad-märken */}
             {hasLoaded && !error && brands.length > 0 && (
               <div className="mt-4">
                 {brands.map(brand => (
