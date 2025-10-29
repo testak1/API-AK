@@ -1,8 +1,12 @@
+// BikeSection.tsx (Fullständig kod i en fil, med prestandaförbättringar)
+
 "use client";
 
-import {useState, useCallback, useMemo} from "react";
+import {useState, useCallback, useMemo, memo} from "react";
 import {urlFor} from "@/lib/sanity";
 import {ChevronDown, Loader2, ArrowRight} from "lucide-react";
+
+// --- Interfaces ---
 
 interface ContactModalData {
   isOpen: boolean;
@@ -38,6 +42,268 @@ interface BikeSectionProps {
   translate: (lang: string, key: string) => string;
 }
 
+// --- Hjälpkomponenter (definieras utanför BikeSection för att de ska vara statiska) ---
+
+// Komponent för HK/NM visning - Använder memo för att undvika onödiga omrenderingar
+const PerformanceDisplay = memo(({model}: {model: BikeModel}) => (
+  <div className="space-y-2">
+    {(model.origHk || model.tunedHk) && (
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+          HK
+        </span>
+        <div className="flex items-center gap-2">
+          {model.origHk && (
+            <span className="text-sm font-bold text-gray-700">
+              {model.origHk} HK
+            </span>
+          )}
+          {model.origHk && model.tunedHk && (
+            <ArrowRight className="h-3 w-3 text-gray-400" />
+          )}
+          {model.tunedHk && (
+            <span className="text-lg font-extrabold text-green-600">
+              {model.tunedHk} HK
+            </span>
+          )}
+        </div>
+      </div>
+    )}
+
+    {(model.origNm || model.tunedNm) && (
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+          NM
+        </span>
+        <div className="flex items-center gap-2">
+          {model.origNm && (
+            <span className="text-sm font-bold text-gray-700">
+              {model.origNm} NM
+            </span>
+          )}
+          {model.origNm && model.tunedNm && (
+            <ArrowRight className="h-3 w-3 text-gray-400" />
+          )}
+          {model.tunedNm && (
+            <span className="text-lg font-extrabold text-green-600">
+              {model.tunedNm} NM
+            </span>
+          )}
+        </div>
+      </div>
+    )}
+  </div>
+));
+PerformanceDisplay.displayName = "PerformanceDisplay";
+
+// BrandItem-komponenten definieras som en funktion HÄR för att kunna använda memo.
+// Denna funktion MÅSTE DEFINIERAS UTANFÖR BikeSection för maximal prestandavinst.
+interface BrandItemProps {
+  brand: BikeBrand;
+  expandedBrandId: string | null;
+  expandedModel: string | null;
+  handleBrandToggle: (brandId: string) => void;
+  handleModelToggle: (modelName: string) => void;
+  setContactModalData: SetContactModalData;
+  currentLanguage: string;
+  translate: (lang: string, key: string) => string;
+}
+
+const BrandItemComponent = ({
+  brand,
+  expandedBrandId,
+  expandedModel,
+  handleBrandToggle,
+  handleModelToggle,
+  setContactModalData,
+  currentLanguage,
+  translate,
+}: BrandItemProps) => {
+  const isExpanded = expandedBrandId === brand._id;
+
+  // Gruppera och sortera modeller (Memoized)
+  const groupedModels = useMemo(() => {
+    const groups = brand.models.reduce(
+      (acc, m) => {
+        if (!acc[m.model]) acc[m.model] = {};
+        if (!acc[m.model][m.year]) acc[m.model][m.year] = [];
+        acc[m.model][m.year].push(m);
+        return acc;
+      },
+      {} as Record<string, Record<string, BikeModel[]>>
+    );
+
+    // Sortera årsmodeller i fallande ordning (nyaste först) för varje modell
+    Object.keys(groups).forEach(modelName => {
+      const years = groups[modelName];
+      const sortedYears = Object.keys(years)
+        .sort((a, b) => parseInt(b) - parseInt(a))
+        .reduce(
+          (acc, year) => {
+            acc[year] = years[year];
+            return acc;
+          },
+          {} as Record<string, BikeModel[]>
+        );
+
+      groups[modelName] = sortedYears;
+    });
+
+    return groups;
+  }, [brand.models]);
+
+  return (
+    <div
+      className={`mb-4 bg-white border rounded-xl shadow-md transition duration-300 ${
+        isExpanded
+          ? "border-red-600 shadow-xl"
+          : "border-gray-200 hover:shadow-lg"
+      }`}
+    >
+      {/* Brand Header */}
+      <div
+        className="p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 rounded-xl"
+        onClick={() => handleBrandToggle(brand._id)}
+      >
+        <div className="flex items-center gap-4">
+          {brand.logo?.asset && (
+            <img
+              src={urlFor(brand.logo).width(60).url()}
+              alt={`${brand.name} logo`}
+              className="w-12 h-12 object-contain"
+            />
+          )}
+          <div className="flex flex-col">
+            <span className="text-lg font-bold text-gray-800">
+              {brand.name}
+            </span>
+          </div>
+        </div>
+        <ChevronDown
+          className={`h-5 w-5 transform transition-transform text-gray-500 ${
+            isExpanded ? "rotate-180 text-red-600" : ""
+          }`}
+        />
+      </div>
+
+      {isExpanded && (
+        <div className="p-4 border-t border-gray-200 bg-gray-50 rounded-b-xl">
+          {Object.entries(groupedModels).map(([modelName, years]) => {
+            const isModelExpanded = expandedModel === modelName;
+
+            return (
+              <div
+                key={modelName}
+                className="border border-gray-300 rounded-lg mb-3 bg-white overflow-hidden"
+              >
+                {/* Model Header */}
+                <div
+                  className="p-4 flex justify-between items-center cursor-pointer hover:bg-gray-50 transition-colors"
+                  onClick={() => handleModelToggle(modelName)}
+                >
+                  <div className="flex flex-col">
+                    <span className="font-bold text-gray-800 text-lg">
+                      {modelName}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <ChevronDown
+                      className={`h-5 w-5 transform transition-transform text-gray-400 ${
+                        isModelExpanded ? "rotate-180" : ""
+                      }`}
+                    />
+                  </div>
+                </div>
+
+                {/* Model Content */}
+                {isModelExpanded && (
+                  <div className="border-t border-gray-200">
+                    {Object.entries(years).map(([year, engines]) => (
+                      <div
+                        key={year}
+                        className="border-b border-gray-100 last:border-b-0"
+                      >
+                        <div className="p-4 bg-white">
+                          <h4 className="text-md font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-200">
+                            {year}
+                          </h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {engines.map(engine => (
+                              <div
+                                key={engine._id}
+                                className="p-4 bg-gray-50 border border-gray-200 rounded-lg shadow-sm hover:border-green-600 transition-colors"
+                              >
+                                {/* Motor info */}
+                                <div className="mb-3">
+                                  <strong className="text-gray-900 block text-sm font-semibold">
+                                    {engine.engine} - {engine.origHk} HK
+                                  </strong>
+                                </div>
+
+                                {/* Prestanda */}
+                                <div className="mb-4 p-3 bg-white rounded border">
+                                  <PerformanceDisplay model={engine} />
+                                </div>
+
+                                {/* Pris och kontakt */}
+                                <div className="flex justify-between items-center pt-3 border-t border-gray-200">
+                                  {engine.price ? (
+                                    <p className="text-lg font-extrabold text-orange-500">
+                                      {engine.price.toLocaleString("sv-SE", {
+                                        style: "currency",
+                                        currency: "SEK",
+                                        minimumFractionDigits: 0,
+                                      })}
+                                    </p>
+                                  ) : (
+                                    <p className="text-xs text-gray-400">
+                                      Pris saknas
+                                    </p>
+                                  )}
+
+                                  <button
+                                    onClick={e => {
+                                      e.stopPropagation();
+                                      const modalTitle = `${brand.name} ${modelName} ${year} - ${engine.engine} ${engine.origHk} HK`;
+                                      setContactModalData({
+                                        isOpen: true,
+                                        stageOrOption: modalTitle,
+                                        link: window.location.href,
+                                        scrollPosition: 0,
+                                      });
+                                    }}
+                                    className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 text-sm rounded-lg font-bold transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-1"
+                                  >
+                                    📩{" "}
+                                    {translate(
+                                      currentLanguage,
+                                      "contactvalue"
+                                    ) || "Kontakt"}
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+BrandItemComponent.displayName = "BrandItemComponent";
+
+// Memoizera BrandItem-komponenten för att hoppa över rendering om props inte ändrats.
+const BrandItem = memo(BrandItemComponent);
+
+// --- Huvudkomponent ---
+
 export function BikeSection({
   setContactModalData,
   currentLanguage,
@@ -51,6 +317,7 @@ export function BikeSection({
   const [expandedBrandId, setExpandedBrandId] = useState<string | null>(null);
   const [expandedModel, setExpandedModel] = useState<string | null>(null);
 
+  // Använder useCallback för att förhindra att funktionen återskapas vid varje render.
   const fetchData = useCallback(async () => {
     if (hasLoaded || isLoading) return;
     setIsLoading(true);
@@ -67,284 +334,33 @@ export function BikeSection({
     } finally {
       setIsLoading(false);
     }
-  }, [hasLoaded, isLoading]);
+  }, [hasLoaded, isLoading]); // hasLoaded och isLoading är dependencies
 
-  const handleSectionToggle = (e: React.MouseEvent<HTMLElement>) => {
-    e.preventDefault();
-    const newState = !isSectionExpanded;
-    setIsSectionExpanded(newState);
-    if (newState && !hasLoaded) fetchData();
-    if (!newState) {
-      setExpandedBrandId(null);
-      setExpandedModel(null);
-    }
-  };
+  // Använder useCallback
+  const handleSectionToggle = useCallback(
+    (e: React.MouseEvent<HTMLElement>) => {
+      e.preventDefault();
+      const newState = !isSectionExpanded;
+      setIsSectionExpanded(newState);
+      if (newState && !hasLoaded) fetchData();
+      if (!newState) {
+        setExpandedBrandId(null);
+        setExpandedModel(null);
+      }
+    },
+    [isSectionExpanded, hasLoaded, fetchData] // Uppdaterade dependencies
+  );
 
-  const handleBrandToggle = (brandId: string) => {
+  // Använder useCallback
+  const handleBrandToggle = useCallback((brandId: string) => {
     setExpandedBrandId(prev => (prev === brandId ? null : brandId));
     setExpandedModel(null);
-  };
+  }, []);
 
-  const handleModelToggle = (modelName: string) => {
+  // Använder useCallback
+  const handleModelToggle = useCallback((modelName: string) => {
     setExpandedModel(prev => (prev === modelName ? null : modelName));
-  };
-
-  // Komponent för HK/NM visning
-  const PerformanceDisplay = ({model}: {model: BikeModel}) => (
-    <div className="space-y-2">
-      {(model.origHk || model.tunedHk) && (
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
-            HK
-          </span>
-          <div className="flex items-center gap-2">
-            {model.origHk && (
-              <span className="text-sm font-bold text-gray-700">
-                {model.origHk} HK
-              </span>
-            )}
-            {model.origHk && model.tunedHk && (
-              <ArrowRight className="h-3 w-3 text-gray-400" />
-            )}
-            {model.tunedHk && (
-              <span className="text-lg font-extrabold text-green-600">
-                {model.tunedHk} HK
-              </span>
-            )}
-          </div>
-        </div>
-      )}
-
-      {(model.origNm || model.tunedNm) && (
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
-            NM
-          </span>
-          <div className="flex items-center gap-2">
-            {model.origNm && (
-              <span className="text-sm font-bold text-gray-700">
-                {model.origNm} NM
-              </span>
-            )}
-            {model.origNm && model.tunedNm && (
-              <ArrowRight className="h-3 w-3 text-gray-400" />
-            )}
-            {model.tunedNm && (
-              <span className="text-lg font-extrabold text-green-600">
-                {model.tunedNm} NM
-              </span>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-
-  const BrandItem = useMemo(
-    () =>
-      ({brand}: {brand: BikeBrand}) => {
-        const isExpanded = expandedBrandId === brand._id;
-
-        // Gruppera och sortera modeller
-        const groupedModels = useMemo(() => {
-          const groups = brand.models.reduce(
-            (acc, m) => {
-              if (!acc[m.model]) acc[m.model] = {};
-              if (!acc[m.model][m.year]) acc[m.model][m.year] = [];
-              acc[m.model][m.year].push(m);
-              return acc;
-            },
-            {} as Record<string, Record<string, BikeModel[]>>
-          );
-
-          // Sortera årsmodeller i fallande ordning (nyaste först) för varje modell
-          Object.keys(groups).forEach(modelName => {
-            const years = groups[modelName];
-            const sortedYears = Object.keys(years)
-              .sort((a, b) => parseInt(b) - parseInt(a))
-              .reduce(
-                (acc, year) => {
-                  acc[year] = years[year];
-                  return acc;
-                },
-                {} as Record<string, BikeModel[]>
-              );
-
-            groups[modelName] = sortedYears;
-          });
-
-          return groups;
-        }, [brand.models]);
-
-        // Hämta årsintervall för modell
-        const getYearRange = (years: Record<string, BikeModel[]>) => {
-          const yearKeys = Object.keys(years);
-          if (yearKeys.length === 0) return "";
-          if (yearKeys.length === 1) return yearKeys[0];
-
-          const sortedYears = yearKeys.sort(
-            (a, b) => parseInt(a) - parseInt(b)
-          );
-          return `${sortedYears[0]} → ${sortedYears[sortedYears.length - 1]}`;
-        };
-
-        return (
-          <div
-            className={`mb-4 bg-white border rounded-xl shadow-md transition duration-300 ${
-              isExpanded
-                ? "border-red-600 shadow-xl"
-                : "border-gray-200 hover:shadow-lg"
-            }`}
-          >
-            {/* Brand Header */}
-            <div
-              className="p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 rounded-xl"
-              onClick={() => handleBrandToggle(brand._id)}
-            >
-              <div className="flex items-center gap-4">
-                {brand.logo?.asset && (
-                  <img
-                    src={urlFor(brand.logo).width(60).url()}
-                    alt={`${brand.name} logo`}
-                    className="w-12 h-12 object-contain"
-                  />
-                )}
-                <div className="flex flex-col">
-                  <span className="text-lg font-bold text-gray-800">
-                    {brand.name}
-                  </span>
-                </div>
-              </div>
-              <ChevronDown
-                className={`h-5 w-5 transform transition-transform text-gray-500 ${
-                  isExpanded ? "rotate-180 text-red-600" : ""
-                }`}
-              />
-            </div>
-
-            {isExpanded && (
-              <div className="p-4 border-t border-gray-200 bg-gray-50 rounded-b-xl">
-                {Object.entries(groupedModels).map(([modelName, years]) => {
-                  const isModelExpanded = expandedModel === modelName;
-                  const yearRange = getYearRange(years);
-
-                  return (
-                    <div
-                      key={modelName}
-                      className="border border-gray-300 rounded-lg mb-3 bg-white overflow-hidden"
-                    >
-                      {/* Model Header */}
-                      <div
-                        className="p-4 flex justify-between items-center cursor-pointer hover:bg-gray-50 transition-colors"
-                        onClick={() => handleModelToggle(modelName)}
-                      >
-                        <div className="flex flex-col">
-                          <span className="font-bold text-gray-800 text-lg">
-                            {modelName}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <ChevronDown
-                            className={`h-5 w-5 transform transition-transform text-gray-400 ${
-                              isModelExpanded ? "rotate-180" : ""
-                            }`}
-                          />
-                        </div>
-                      </div>
-
-                      {/* Model Content */}
-                      {isModelExpanded && (
-                        <div className="border-t border-gray-200">
-                          {Object.entries(years).map(([year, engines]) => (
-                            <div
-                              key={year}
-                              className="border-b border-gray-100 last:border-b-0"
-                            >
-                              <div className="p-4 bg-white">
-                                <h4 className="text-md font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-200">
-                                  {year}
-                                </h4>
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                  {engines.map(engine => (
-                                    <div
-                                      key={engine._id}
-                                      className="p-4 bg-gray-50 border border-gray-200 rounded-lg shadow-sm hover:border-green-600 transition-colors"
-                                    >
-                                      {/* Motor info */}
-                                      <div className="mb-3">
-                                        <strong className="text-gray-900 block text-sm font-semibold">
-                                          {engine.engine} - {engine.origHk} HK
-                                        </strong>
-                                      </div>
-
-                                      {/* Prestanda */}
-                                      <div className="mb-4 p-3 bg-white rounded border">
-                                        <PerformanceDisplay model={engine} />
-                                      </div>
-
-                                      {/* Pris och kontakt */}
-                                      <div className="flex justify-between items-center pt-3 border-t border-gray-200">
-                                        {engine.price ? (
-                                          <p className="text-lg font-extrabold text-orange-500">
-                                            {engine.price.toLocaleString(
-                                              "sv-SE",
-                                              {
-                                                style: "currency",
-                                                currency: "SEK",
-                                                minimumFractionDigits: 0,
-                                              }
-                                            )}
-                                          </p>
-                                        ) : (
-                                          <p className="text-xs text-gray-400">
-                                            Pris saknas
-                                          </p>
-                                        )}
-
-                                        <button
-                                          onClick={e => {
-                                            e.stopPropagation();
-                                            const modalTitle = `${brand.name} ${modelName} ${year} - ${engine.engine} ${engine.origHk} HK`;
-                                            setContactModalData({
-                                              isOpen: true,
-                                              stageOrOption: modalTitle,
-                                              link: window.location.href,
-                                              scrollPosition: 0,
-                                            });
-                                          }}
-                                          className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 text-sm rounded-lg font-bold transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-1"
-                                        >
-                                          📩{" "}
-                                          {translate(
-                                            currentLanguage,
-                                            "contactvalue"
-                                          ) || "Kontakt"}
-                                        </button>
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        );
-      },
-    [
-      expandedBrandId,
-      expandedModel,
-      setContactModalData,
-      currentLanguage,
-      translate,
-    ]
-  );
+  }, []);
 
   if (brands.length === 0 && hasLoaded && !isLoading && !isSectionExpanded) {
     return null;
@@ -399,7 +415,17 @@ export function BikeSection({
             {hasLoaded && !error && brands.length > 0 && (
               <div className="mt-4">
                 {brands.map(brand => (
-                  <BrandItem key={brand._id} brand={brand} />
+                  <BrandItem
+                    key={brand._id}
+                    brand={brand}
+                    expandedBrandId={expandedBrandId} // Skicka ut statet istället för boolean isExpanded
+                    expandedModel={expandedModel}
+                    handleBrandToggle={handleBrandToggle}
+                    handleModelToggle={handleModelToggle}
+                    setContactModalData={setContactModalData}
+                    currentLanguage={currentLanguage}
+                    translate={translate}
+                  />
                 ))}
               </div>
             )}
