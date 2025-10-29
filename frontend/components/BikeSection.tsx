@@ -390,7 +390,7 @@ export function BikeSection({
               <span className="text-sm text-red-500">Fel!</span>
             ) : (
               !hasLoaded && (
-                <span className="text-sm font-bold text-gray-700">
+                <span className="text-sm font-bold">
                   {translate(currentLanguage, "expandbikes") ||
                     "Klicka för att se modeller"}
                 </span>
