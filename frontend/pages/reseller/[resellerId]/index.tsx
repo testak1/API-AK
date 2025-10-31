@@ -1,5 +1,4 @@
 // pages/reseller/[resellerId]/index.tsx;
-import Head from "next/head";
 import React, {useEffect, useState, useRef, useMemo} from "react";
 import {
   Chart as ChartJS,
@@ -23,8 +22,6 @@ import type {
   AktPlusOptionReference,
 } from "@/types/sanity";
 import ResellerContactModal from "@/components/ResellerContactModal";
-import {GlobeAltIcon} from "@heroicons/react/24/outline";
-import {link} from "fs";
 import {JetSkiSection} from "@/components/JetSkiSection";
 import {BikeSection} from "@/components/BikeSection";
 import {useRouter} from "next/router";

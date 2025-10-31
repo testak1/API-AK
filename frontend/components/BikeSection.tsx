@@ -45,6 +45,7 @@ interface BikeSectionProps {
 // --- Hjälpkomponenter (definieras utanför BikeSection för att de ska vara statiska) ---
 
 // Komponent för HK/NM visning - Använder memo för att undvika onödiga omrenderingar
+
 const PerformanceDisplay = memo(({model}: {model: BikeModel}) => (
   <div className="space-y-2">
     {(model.origHk || model.tunedHk) && (
