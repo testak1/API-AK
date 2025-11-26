@@ -150,7 +150,7 @@ const BlackFridayPopup = () => {
         {/* Image */}
         <div className="w-full relative">
           <img 
-            src="https://tuning.aktuning.se/BLACKFRIDAY.PNG" 
+            src="https://tuning.aktuning.se/BLACKFRIDAY.png" 
             alt="Black Friday Tuning" 
             className="w-full h-auto object-cover"
           />
