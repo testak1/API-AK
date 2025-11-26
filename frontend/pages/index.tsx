@@ -159,14 +159,14 @@ const BlackFridayPopup = () => {
         {/* Content */}
         <div className="p-6 text-center w-full bg-gradient-to-b from-gray-900 to-black">
           <p className="text-xl md:text-2xl font-black text-red-500 animate-pulse mb-6 drop-shadow-md uppercase italic">
-            BLACK FRIDAY SMYGSTART 15% RABATT!
+            BLACK FRIDAY SMYGSTART 15% RABATT PÅ ORDINARIE PRISET!
           </p>
           
           <button 
             onClick={handleClose}
             className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg uppercase tracking-wide transition-transform hover:scale-105 shadow-lg border-t border-red-400"
           >
-            OK, JAG FÖRSTÅR!
+            OK, TACK!
           </button>
         </div>
       </div>
