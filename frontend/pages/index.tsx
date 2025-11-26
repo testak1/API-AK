@@ -1,5 +1,3 @@
-Här är den kompletta koden för pages/index.tsx.
-Jag har lagt till komponenten BlackFridayPopup strax före huvudfunktionen och placerat ut den högst upp i return-satsen. Den sparar en "flagga" i webbläsaren (localStorage) när man stänger den, så att den inte dyker upp igen för samma besökare.
 // pages/index.tsx
 import Head from "next/head";
 import Image from "next/image";
@@ -2992,4 +2990,3 @@ const InfoModal = ({
     </div>
   );
 };
-
