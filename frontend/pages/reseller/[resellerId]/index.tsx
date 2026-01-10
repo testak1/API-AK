@@ -22,8 +22,6 @@ import type {
   AktPlusOptionReference,
 } from "@/types/sanity";
 import ResellerContactModal from "@/components/ResellerContactModal";
-import {JetSkiSection} from "@/components/JetSkiSection";
-import {BikeSection} from "@/components/BikeSection";
 import {useRouter} from "next/router";
 import {GetServerSideProps} from "next";
 import client from "@/lib/sanity";
@@ -1179,17 +1177,9 @@ export default function TuningViewer() {
                   </div>
                 </div>
 
-                <JetSkiSection
-                  setContactModalData={setResellerContactModalData}
-                  currentLanguage={currentLanguage}
-                  translate={translate}
-                />
+                
 
-                <BikeSection
-                  setContactModalData={setResellerContactModalData}
-                  currentLanguage={currentLanguage}
-                  translate={translate}
-                />
+                
               </>
             )}
 
