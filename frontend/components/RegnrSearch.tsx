@@ -1,5 +1,5 @@
 // components/RegnrSearch.tsx
-import React, { useState, useEffect, useRef } from "react";
+import React, {useState, useEffect, useRef} from "react";
 
 type OnVehicleFound = (vehicle: {
   brand: string;
@@ -76,63 +76,49 @@ export default function RegnrSearch({
       const parser = new DOMParser();
       const doc = parser.parseFromString(htmlContent, "text/html");
 
-      const summarySection = doc.querySelector("section#summary");
-      const technicalDataSection = doc.querySelector("section#technical-data");
-
-      if (!summarySection) {
-        throw new Error("Kunde inte hitta fordonsinformation.");
-      }
-
-      const h1 = summarySection.querySelector<HTMLElement>(
-        ".bar.summary .info h1",
-      );
-      const iconGrid =
-        summarySection.querySelector<HTMLElement>("ul.icon-grid");
-
-      if (!h1 || !iconGrid) {
-        throw new Error("Kunde inte läsa ut fordonsinformation.");
+      // 1. Hitta huvudrubriken (Märke & Modell)
+      const h1 = doc.querySelector("h1");
+      if (!h1) {
+        throw new Error("Kunde inte hitta fordonsinformation på sidan.");
       }
 
       const fullName = h1.innerText.trim();
       const brand = fullName.split(" ")[0];
       const model = fullName.substring(brand.length).trim();
 
+      // 2. Iterera genom specifikationslistorna för att hitta teknisk data
       let year: string | null = null;
       let fuel: string | null = null;
       let powerHp: string | null = null;
-      iconGrid.querySelectorAll("li").forEach((item) => {
-        const label = item
-          .querySelector<HTMLElement>("span")
-          ?.innerText.trim()
-          .toLowerCase();
-        const value = item.querySelector<HTMLElement>("em")?.innerText.trim();
-        if (label === "modellår") year = value?.match(/\d{4}/)?.[0] || null;
-        if (label === "bränsle") fuel = value || null;
-        if (label === "hästkrafter")
-          powerHp = value?.match(/(\d+)/)?.[0] || null;
+      let engineCm3: string | null = null;
+
+      // Biluppgifter använder ofta ul.list med span.label och span.value
+      const listItems = doc.querySelectorAll("ul.list li");
+
+      listItems.forEach(item => {
+        const label =
+          item.querySelector(".label")?.textContent?.trim().toLowerCase() || "";
+        const value = item.querySelector(".value")?.textContent?.trim() || "";
+
+        if (label.includes("modellår")) {
+          year = value.match(/\d{4}/)?.[0] || null;
+        } else if (label.includes("bränsle")) {
+          fuel = value;
+        } else if (label.includes("effekt") || label.includes("hästkrafter")) {
+          // Extraherar siffran innan "hk" eller bara siffran
+          powerHp =
+            value.match(/(\d+)\s*hk/)?.[1] || value.match(/(\d+)/)?.[0] || null;
+        } else if (label.includes("motorvolym")) {
+          // Tar bort mellanslag (t.ex. "3 982") och extraherar siffran
+          engineCm3 = value.replace(/\s/g, "").match(/(\d+)/)?.[0] || null;
+        }
       });
 
-      let engineCm3: string | null = null;
-      if (technicalDataSection) {
-        technicalDataSection
-          .querySelectorAll(".inner ul.list li")
-          .forEach((item) => {
-            const label = item
-              .querySelector<HTMLElement>("span.label")
-              ?.innerText.trim()
-              .toLowerCase();
-            if (label === "motorvolym") {
-              const value = item
-                .querySelector<HTMLElement>("span.value")
-                ?.innerText.trim();
-              engineCm3 = value?.match(/(\d+)/)?.[0] || null;
-            }
-          });
-      }
-
+      // Validering: Kontrollera att vi fick ut all nödvändig data
       if (!brand || !model || !year || !fuel || !powerHp || !engineCm3) {
         const missing = [
-          !brand && "Märke/Modell",
+          !brand && "Märke",
+          !model && "Modell",
           !year && "År",
           !fuel && "Bränsle",
           !powerHp && "Effekt",
@@ -140,10 +126,17 @@ export default function RegnrSearch({
         ]
           .filter(Boolean)
           .join(", ");
-        throw new Error(`Kunde inte extrahera: ${missing}.`);
+        throw new Error(`Kunde inte läsa ut följande: ${missing}.`);
       }
 
-      onVehicleFound({ brand, model, year, fuel, powerHp, engineCm3 });
+      onVehicleFound({
+        brand,
+        model,
+        year,
+        fuel,
+        powerHp,
+        engineCm3,
+      });
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Ett okänt fel uppstod.";
@@ -197,17 +190,16 @@ export default function RegnrSearch({
 
       <div className="p-4 border-t border-gray-700 bg-gray-900/70">
         <div className="flex flex-col sm:flex-row gap-3">
-          <div className="flex flex-col sm:flex-row gap-3">
-            {/* Input-fältet direkt utan extra container */}
+          <div className="relative flex-grow">
             <input
               type="text"
               value={regnr}
-              onChange={(e) =>
+              onChange={e =>
                 setRegnr(e.target.value.toUpperCase().replace(/\s/g, ""))
               }
               placeholder="ABC123"
-              className="flex-grow px-4 py-3 rounded-lg bg-gray-800 border border-gray-600 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500 text-center text-lg font-mono tracking-widest disabled:opacity-50 transition-all"
-              onKeyDown={(e) => {
+              className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-600 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500 text-center text-lg font-mono tracking-widest disabled:opacity-50 transition-all"
+              onKeyDown={e => {
                 if (e.key === "Enter" && !disabled) {
                   e.preventDefault();
                   handleSearch();
@@ -215,8 +207,7 @@ export default function RegnrSearch({
               }}
               disabled={disabled || isLoading}
             />
-            {/* Snurrande loader i input-fältet */}
-            {disabled && (
+            {isLoading && (
               <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                 <div className="animate-spin h-5 w-5 border-2 border-red-400 border-t-transparent rounded-full"></div>
               </div>
@@ -230,7 +221,6 @@ export default function RegnrSearch({
           >
             {isLoading ? (
               <div className="flex items-center gap-2">
-                <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
                 <span>Söker...</span>
               </div>
             ) : (
@@ -239,8 +229,7 @@ export default function RegnrSearch({
           </button>
         </div>
 
-        {/* Statusmeddelande för databasladdning */}
-        {disabled && (
+        {disabled && !isLoading && (
           <div className="flex items-center justify-center gap-2 mt-3 text-sm text-gray-400">
             <div className="animate-spin h-3 w-3 border-2 border-red-400 border-t-transparent rounded-full"></div>
             <span>Initierar sökmotor...</span>
