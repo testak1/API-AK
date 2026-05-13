@@ -1,5 +1,4 @@
-// components/RegnrSearch.tsx
-import React, {useState, useEffect, useRef} from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 type OnVehicleFound = (vehicle: {
   brand: string;
@@ -63,41 +62,36 @@ export default function RegnrSearch({
     setError(null);
     onError(null);
 
-    const targetUrl = `${process.env.NEXT_PUBLIC_REGNR_URL}/fordon/${formattedRegnr}`;
-    const proxyUrl = `${process.env.NEXT_PUBLIC_CORS_PROXY_URL}/?${encodeURIComponent(targetUrl)}`;
+    // Vi anropar nu vår egen API-route istället för en extern proxy
+    const proxyUrl = `/api/proxy-vehicle?reg=${formattedRegnr}`;
 
     try {
       const response = await fetch(proxyUrl);
       if (!response.ok) {
-        throw new Error(`Nätverksfel (Status: ${response.status}).`);
+        throw new Error(`Kunde inte hämta data (Status: ${response.status}).`);
       }
 
       const htmlContent = await response.text();
       const parser = new DOMParser();
       const doc = parser.parseFromString(htmlContent, "text/html");
 
-      // 1. Hitta huvudrubriken (Märke & Modell)
+      // 1. Extrahera Märke och Modell från H1
       const h1 = doc.querySelector("h1");
-      if (!h1) {
-        throw new Error("Kunde inte hitta fordonsinformation på sidan.");
-      }
-
+      if (!h1) throw new Error("Kunde inte hitta fordonsinformation på sidan.");
+      
       const fullName = h1.innerText.trim();
       const brand = fullName.split(" ")[0];
       const model = fullName.substring(brand.length).trim();
 
-      // 2. Iterera genom specifikationslistorna för att hitta teknisk data
+      // 2. Extrahera teknisk data från listan
       let year: string | null = null;
       let fuel: string | null = null;
       let powerHp: string | null = null;
       let engineCm3: string | null = null;
 
-      // Biluppgifter använder ofta ul.list med span.label och span.value
       const listItems = doc.querySelectorAll("ul.list li");
-
-      listItems.forEach(item => {
-        const label =
-          item.querySelector(".label")?.textContent?.trim().toLowerCase() || "";
+      listItems.forEach((item) => {
+        const label = item.querySelector(".label")?.textContent?.trim().toLowerCase() || "";
         const value = item.querySelector(".value")?.textContent?.trim() || "";
 
         if (label.includes("modellår")) {
@@ -105,41 +99,26 @@ export default function RegnrSearch({
         } else if (label.includes("bränsle")) {
           fuel = value;
         } else if (label.includes("effekt") || label.includes("hästkrafter")) {
-          // Extraherar siffran innan "hk" eller bara siffran
-          powerHp =
-            value.match(/(\d+)\s*hk/)?.[1] || value.match(/(\d+)/)?.[0] || null;
+          powerHp = value.match(/(\d+)\s*hk/)?.[1] || value.match(/(\d+)/)?.[0] || null;
         } else if (label.includes("motorvolym")) {
-          // Tar bort mellanslag (t.ex. "3 982") och extraherar siffran
           engineCm3 = value.replace(/\s/g, "").match(/(\d+)/)?.[0] || null;
         }
       });
 
-      // Validering: Kontrollera att vi fick ut all nödvändig data
       if (!brand || !model || !year || !fuel || !powerHp || !engineCm3) {
         const missing = [
           !brand && "Märke",
-          !model && "Modell",
           !year && "År",
           !fuel && "Bränsle",
           !powerHp && "Effekt",
           !engineCm3 && "Motorvolym",
-        ]
-          .filter(Boolean)
-          .join(", ");
-        throw new Error(`Kunde inte läsa ut följande: ${missing}.`);
+        ].filter(Boolean).join(", ");
+        throw new Error(`Kunde inte extrahera: ${missing}.`);
       }
 
-      onVehicleFound({
-        brand,
-        model,
-        year,
-        fuel,
-        powerHp,
-        engineCm3,
-      });
+      onVehicleFound({ brand, model, year, fuel, powerHp, engineCm3 });
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Ett okänt fel uppstod.";
+      const errorMessage = err instanceof Error ? err.message : "Ett okänt fel uppstod.";
       setError(errorMessage);
       onError(errorMessage);
     } finally {
@@ -154,37 +133,15 @@ export default function RegnrSearch({
     >
       <summary className="appearance-none marker:hidden p-4 flex justify-between items-center cursor-pointer list-none select-none transition-all hover:bg-gray-800">
         <div className="flex items-center gap-3">
-          <svg
-            className="h-6 w-6 text-red-400"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
+          <svg className="h-6 w-6 text-red-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
           <span className="text-white text-lg font-semibold tracking-wide">
             SÖK MED REGNR <span className="text-sm text-red-400">[BETA]</span>
           </span>
         </div>
-        <svg
-          className="w-5 h-5 text-gray-400 transform transition-transform duration-300 group-open:rotate-180"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M19 9l-7 7-7-7"
-          />
+        <svg className="w-5 h-5 text-gray-400 transform transition-transform duration-300 group-open:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </summary>
 
@@ -194,26 +151,13 @@ export default function RegnrSearch({
             <input
               type="text"
               value={regnr}
-              onChange={e =>
-                setRegnr(e.target.value.toUpperCase().replace(/\s/g, ""))
-              }
+              onChange={(e) => setRegnr(e.target.value.toUpperCase().replace(/\s/g, ""))}
               placeholder="ABC123"
               className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-600 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500 text-center text-lg font-mono tracking-widest disabled:opacity-50 transition-all"
-              onKeyDown={e => {
-                if (e.key === "Enter" && !disabled) {
-                  e.preventDefault();
-                  handleSearch();
-                }
-              }}
+              onKeyDown={(e) => { if (e.key === "Enter" && !disabled) { e.preventDefault(); handleSearch(); } }}
               disabled={disabled || isLoading}
             />
-            {isLoading && (
-              <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                <div className="animate-spin h-5 w-5 border-2 border-red-400 border-t-transparent rounded-full"></div>
-              </div>
-            )}
           </div>
-
           <button
             onClick={handleSearch}
             disabled={disabled || isLoading}
@@ -221,24 +165,13 @@ export default function RegnrSearch({
           >
             {isLoading ? (
               <div className="flex items-center gap-2">
+                <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
                 <span>Söker...</span>
               </div>
-            ) : (
-              "Sök fordon"
-            )}
+            ) : "Sök fordon"}
           </button>
         </div>
-
-        {disabled && !isLoading && (
-          <div className="flex items-center justify-center gap-2 mt-3 text-sm text-gray-400">
-            <div className="animate-spin h-3 w-3 border-2 border-red-400 border-t-transparent rounded-full"></div>
-            <span>Initierar sökmotor...</span>
-          </div>
-        )}
-
-        {error && (
-          <p className="text-red-400 mt-3 text-center text-sm">{error}</p>
-        )}
+        {error && <p className="text-red-400 mt-3 text-center text-sm">{error}</p>}
       </div>
     </details>
   );
