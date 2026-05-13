@@ -10,30 +10,40 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    // Vi använder Axios eftersom du redan har det installerat
-    // Det hanterar headers och Timeouts stabilare i Node-miljöer
     const response = await axios.get(`https://biluppgifter.se/fordon/${reg}`, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+        // En mycket specifik User-Agent
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
         'Accept-Language': 'sv-SE,sv;q=0.9,en-US;q=0.8,en;q=0.7',
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache',
+        'Sec-Ch-Ua': '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"',
+        'Sec-Ch-Ua-Mobile': '?0',
+        'Sec-Ch-Ua-Platform': '"Windows"',
+        'Sec-Fetch-Dest': 'document',
+        'Sec-Fetch-Mode': 'navigate',
+        'Sec-Fetch-Site': 'none',
+        'Sec-Fetch-User': '?1',
+        'Upgrade-Insecure-Requests': '1',
+        'Referer': 'https://www.google.com/' // Vi låtsas komma från Google
       },
-      timeout: 8000, // 8 sekunder timeout
+      timeout: 10000,
     });
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     return res.status(200).send(response.data);
   } catch (error: any) {
-    console.error('Proxy error details:', error.response?.status, error.message);
+    console.error('Proxy Error:', error.response?.status || error.message);
     
-    // Om Biluppgifter blockerar eller inte hittar bilen
-    if (error.response) {
-      return res.status(error.response.status).json({ 
-        error: 'Kunde inte hämta data från Biluppgifter',
-        status: error.response.status 
+    // Om vi fortfarande blir blockerade (403)
+    if (error.response?.status === 403) {
+      return res.status(403).json({ 
+        error: 'Åtkomst nekad av Biluppgifter. De blockerar tyvärr server-anrop just nu.',
+        status: 403 
       });
     }
-    
-    return res.status(500).json({ error: 'Internt serverfel i proxyn' });
+
+    return res.status(500).json({ error: 'Kunde inte hämta fordonsdata' });
   }
 }
