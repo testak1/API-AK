@@ -1,189 +1,155 @@
 // components/RegnrSearch.tsx
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
-type Vehicle = {
+type OnVehicleFound = (vehicle: {
   brand: string;
   model: string;
   year: string;
   fuel: string;
   powerHp: string;
   engineCm3: string;
-};
+}) => void;
 
-type Props = {
-  onVehicleFound: (vehicle: Vehicle) => void;
-  onError: (message: string | null) => void;
-  disabled: boolean;
-  onOpen?: () => void;
-};
-
-const REGNR_REGEX = /^[A-Z]{3}\d{2}[A-Z0-9]{1}$/;
-
-function normalizeRegnr(value: string) {
-  return value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6);
-}
-
-function isValidSwedishReg(regnr: string) {
-  return REGNR_REGEX.test(regnr);
-}
-
-function getText(parent: Element | Document, selector: string) {
-  return parent.querySelector<HTMLElement>(selector)?.innerText.trim() || "";
-}
-
-function getFirstNumber(value?: string | null) {
-  return value?.match(/\d+/)?.[0] || null;
-}
-
-function parseVehicleFromHtml(html: string): Vehicle {
-  const doc = new DOMParser().parseFromString(html, "text/html");
-
-  const summarySection = doc.querySelector("section#summary");
-  const technicalDataSection = doc.querySelector("section#technical-data");
-
-  if (!summarySection) {
-    throw new Error("Kunde inte hitta fordonsinformation.");
-  }
-
-  const fullName = getText(summarySection, ".bar.summary .info h1");
-  const iconGrid = summarySection.querySelector("ul.icon-grid");
-
-  if (!fullName || !iconGrid) {
-    throw new Error("Kunde inte läsa ut fordonsinformationen.");
-  }
-
-  const [brand = "", ...modelParts] = fullName.split(" ");
-  const model = modelParts.join(" ").trim();
-
-  let year: string | null = null;
-  let fuel: string | null = null;
-  let powerHp: string | null = null;
-  let engineCm3: string | null = null;
-
-  iconGrid.querySelectorAll("li").forEach((item) => {
-    const label = getText(item, "span").toLowerCase();
-    const value = getText(item, "em");
-
-    if (label === "modellår") year = value.match(/\d{4}/)?.[0] || null;
-    if (label === "bränsle") fuel = value || null;
-    if (label === "hästkrafter") powerHp = getFirstNumber(value);
-  });
-
-  technicalDataSection
-    ?.querySelectorAll(".inner ul.list li")
-    .forEach((item) => {
-      const label = getText(item, "span.label").toLowerCase();
-      const value = getText(item, "span.value");
-
-      if (label === "motorvolym") {
-        engineCm3 = getFirstNumber(value);
-      }
-    });
-
-  const missing = [
-    !brand && "Märke",
-    !model && "Modell",
-    !year && "År",
-    !fuel && "Bränsle",
-    !powerHp && "Effekt",
-    !engineCm3 && "Motorvolym",
-  ].filter(Boolean);
-
-  if (missing.length > 0) {
-    throw new Error(`Kunde inte extrahera: ${missing.join(", ")}.`);
-  }
-
-  return {
-    brand,
-    model,
-    year: year!,
-    fuel: fuel!,
-    powerHp: powerHp!,
-    engineCm3: engineCm3!,
-  };
-}
+type OnError = (message: string | null) => void;
+type OnOpen = () => void;
 
 export default function RegnrSearch({
   onVehicleFound,
   onError,
   disabled,
   onOpen,
-}: Props) {
+}: {
+  onVehicleFound: OnVehicleFound;
+  onError: OnError;
+  disabled: boolean;
+  onOpen?: OnOpen;
+}) {
   const [regnr, setRegnr] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const hasOpened = useRef(false);
 
-  const formattedRegnr = useMemo(() => normalizeRegnr(regnr), [regnr]);
-  const isValid = formattedRegnr.length === 6 && isValidSwedishReg(formattedRegnr);
-  const canSearch = isValid && !disabled && !isLoading;
+  const isValidSwedishReg = (reg: string) =>
+    /^[A-Z]{3}\d{2}[A-Z0-9]{1}$/.test(reg);
 
+  // Löpande validering vid inmatning
   useEffect(() => {
-    if (!formattedRegnr) {
-      setError(null);
-      return;
-    }
-
-    if (formattedRegnr.length === 6 && !isValid) {
-      setError("Ogiltigt registreringsnummer. Exempel: ABC123 eller ABC12D.");
+    if (regnr && !isValidSwedishReg(regnr)) {
+      setError("Ogiltigt registreringsnummer (format: ABC12D).");
     } else {
       setError(null);
     }
-  }, [formattedRegnr, isValid]);
-
-  const setErrorState = (message: string | null) => {
-    setError(message);
-    onError(message);
-  };
+  }, [regnr]);
 
   const handleToggle = (e: React.SyntheticEvent<HTMLDetailsElement>) => {
-    if (e.currentTarget.open && !hasOpened.current) {
-      onOpen?.();
+    if (e.currentTarget.open && !hasOpened.current && onOpen) {
+      onOpen();
       hasOpened.current = true;
     }
   };
 
   const handleSearch = async () => {
-    if (!formattedRegnr || disabled) return;
+    if (!regnr || disabled) return;
+
+    const formattedRegnr = regnr.toUpperCase().replace(/\s/g, "");
 
     if (!isValidSwedishReg(formattedRegnr)) {
-      setErrorState("Ogiltigt registreringsnummer. Exempel: ABC123 eller ABC12D.");
-      return;
-    }
-
-    const regnrBaseUrl = process.env.NEXT_PUBLIC_REGNR_URL;
-    const proxyBaseUrl = process.env.NEXT_PUBLIC_CORS_PROXY_URL;
-    const proxyKey = process.env.NEXT_PUBLIC_CORS_PROXY_KEY;
-
-    if (!regnrBaseUrl || !proxyBaseUrl || !proxyKey) {
-      setErrorState("Regnr-sökningen är inte korrekt konfigurerad.");
+      const message = "Ogiltigt registreringsnummer (format: ABC12D).";
+      setError(message);
+      onError(message);
       return;
     }
 
     setIsLoading(true);
-    setErrorState(null);
+    setError(null);
+    onError(null);
+
+    const baseUrl = process.env.NEXT_PUBLIC_REGNR_URL;
+    const proxyBase = process.env.NEXT_PUBLIC_CORS_PROXY_URL;
+    const proxyKey = process.env.NEXT_PUBLIC_CORS_PROXY_KEY;
+
+    if (!baseUrl || !proxyBase || !proxyKey) {
+      const configError = "Konfigurationsfel: Miljövariabler saknas.";
+      setError(configError);
+      onError(configError);
+      setIsLoading(false);
+      return;
+    }
+
+    const targetUrl = `${baseUrl}/fordon/${formattedRegnr}`;
+    const proxyUrl = `${proxyBase}/?key=${proxyKey}&url=${encodeURIComponent(targetUrl)}`;
 
     try {
-      const targetUrl = `${regnrBaseUrl}/fordon/${formattedRegnr}`;
-      const proxyUrl = `${proxyBaseUrl}/?key=${proxyKey}&url=${encodeURIComponent(
-        targetUrl,
-      )}`;
-
       const response = await fetch(proxyUrl);
-
       if (!response.ok) {
-        throw new Error(`Kunde inte hämta fordonsdata. Status: ${response.status}.`);
+        throw new Error(`Nätverksfel (Status: ${response.status}).`);
       }
 
-      const html = await response.text();
-      const vehicle = parseVehicleFromHtml(html);
+      const htmlContent = await response.text();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(htmlContent, "text/html");
 
-      onVehicleFound(vehicle);
-      setErrorState(null);
+      const summarySection = doc.querySelector("section#summary");
+      const technicalDataSection = doc.querySelector("section#technical-data");
+
+      if (!summarySection) {
+        throw new Error("Kunde inte hitta fordonsinformation på sidan.");
+      }
+
+      const h1 = summarySection.querySelector(".bar.summary .info h1");
+      const iconGrid = summarySection.querySelector("ul.icon-grid");
+
+      if (!h1 || !iconGrid) {
+        throw new Error("Kunde inte läsa ut fordonsinformation.");
+      }
+
+      const fullName = h1.textContent?.trim() || "";
+      const brand = fullName.split(" ")[0] || "";
+      const model = fullName.substring(brand.length).trim();
+
+      let year: string | null = null;
+      let fuel: string | null = null;
+      let powerHp: string | null = null;
+
+      iconGrid.querySelectorAll("li").forEach((item) => {
+        const label = item.querySelector("span")?.textContent?.trim().toLowerCase();
+        const value = item.querySelector("em")?.textContent?.trim();
+
+        if (label === "modellår") year = value?.match(/\d{4}/)?.[0] || null;
+        if (label === "bränsle") fuel = value || null;
+        if (label === "hästkrafter") powerHp = value?.match(/(\d+)/)?.[0] || null;
+      });
+
+      let engineCm3: string | null = null;
+      if (technicalDataSection) {
+        technicalDataSection.querySelectorAll(".inner ul.list li").forEach((item) => {
+          const label = item.querySelector("span.label")?.textContent?.trim().toLowerCase();
+          if (label === "motorvolym") {
+            const value = item.querySelector("span.value")?.textContent?.trim();
+            engineCm3 = value?.match(/(\d+)/)?.[0] || null;
+          }
+        });
+      }
+
+      // Validering av insamlad data
+      if (!brand || !model || !year || !fuel || !powerHp || !engineCm3) {
+        const missing = [
+          !brand && "Märke/Modell",
+          !year && "År",
+          !fuel && "Bränsle",
+          !powerHp && "Effekt",
+          !engineCm3 && "Motorvolym",
+        ]
+          .filter(Boolean)
+          .join(", ");
+        throw new Error(`Kunde inte extrahera fullständig data: ${missing}.`);
+      }
+
+      onVehicleFound({ brand, model, year, fuel, powerHp, engineCm3 });
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Ett okänt fel uppstod vid sökning.";
-      setErrorState(message);
+      const errorMessage = err instanceof Error ? err.message : "Ett okänt fel uppstod.";
+      setError(errorMessage);
+      onError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -191,38 +157,31 @@ export default function RegnrSearch({
 
   return (
     <details
-      className="group mx-auto mb-8 max-w-md overflow-hidden rounded-2xl border border-gray-700 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800 shadow-xl"
+      className="max-w-md mx-auto mb-8 rounded-xl bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 border border-gray-700 shadow-lg group overflow-hidden"
       onToggle={handleToggle}
     >
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-4 transition hover:bg-white/5 marker:hidden">
+      <summary className="appearance-none marker:hidden p-4 flex justify-between items-center cursor-pointer list-none select-none transition-all hover:bg-gray-800">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-500/10 text-red-400">
-            <svg
-              className="h-5 w-5"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
-          </div>
-
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-wider text-white">
-              Sök med regnr
-            </p>
-            <p className="text-xs text-gray-400">Hitta bilen automatiskt</p>
-          </div>
+          <svg
+            className="h-6 w-6 text-red-400"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
+          </svg>
+          <span className="text-white text-lg font-semibold tracking-wide">
+            SÖK MED REGNR <span className="text-sm text-red-400">[BETA]</span>
+          </span>
         </div>
-
         <svg
-          className="h-5 w-5 text-gray-400 transition-transform duration-300 group-open:rotate-180"
+          className="w-5 h-5 text-gray-400 transform transition-transform duration-300 group-open:rotate-180"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -237,55 +196,58 @@ export default function RegnrSearch({
         </svg>
       </summary>
 
-      <div className="border-t border-gray-700 bg-black/20 p-4">
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <div className="relative flex-1">
+      <div className="p-4 border-t border-gray-700 bg-gray-900/70">
+        <div className="flex flex-col sm:flex-row gap-3">
+          {/* Input-container satt till relative för att tillåta absolut-positionerad loader inuti */}
+          <div className="relative flex-grow">
             <input
               type="text"
               value={regnr}
-              onChange={(e) => setRegnr(normalizeRegnr(e.target.value))}
+              onChange={(e) => setRegnr(e.target.value.toUpperCase().replace(/\s/g, ""))}
               placeholder="ABC123"
-              inputMode="text"
-              autoComplete="off"
-              maxLength={6}
-              disabled={disabled || isLoading}
+              maxLength={7}
+              className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-600 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500 text-center text-lg font-mono tracking-widest disabled:opacity-50 transition-all"
               onKeyDown={(e) => {
-                if (e.key === "Enter") {
+                if (e.key === "Enter" && !disabled) {
                   e.preventDefault();
                   handleSearch();
                 }
               }}
-              className="w-full rounded-xl border border-gray-600 bg-gray-950 px-4 py-3 text-center font-mono text-lg font-bold uppercase tracking-[0.25em] text-white placeholder-gray-600 outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-500/30 disabled:cursor-not-allowed disabled:opacity-50"
+              disabled={disabled || isLoading}
             />
-
-            {isLoading && (
-              <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                <div className="h-5 w-5 animate-spin rounded-full border-2 border-red-400 border-t-transparent" />
+            {/* Visar endast loader i fältet när sökmotorn initieras */}
+            {disabled && (
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                <div className="animate-spin h-5 w-5 border-2 border-red-400 border-t-transparent rounded-full" />
               </div>
             )}
           </div>
 
           <button
-            type="button"
             onClick={handleSearch}
-            disabled={!canSearch}
-            className="min-w-[130px] rounded-xl bg-red-600 px-6 py-3 font-bold text-white shadow-lg transition hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-gray-700 disabled:text-gray-400"
+            disabled={disabled || isLoading}
+            className="px-6 py-3 bg-red-600 hover:bg-red-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold rounded-lg transition-all shadow-lg flex items-center justify-center min-w-[120px]"
           >
-            {isLoading ? "Söker..." : "Sök fordon"}
+            {isLoading ? (
+              <div className="flex items-center gap-2">
+                <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+                <span>Söker...</span>
+              </div>
+            ) : (
+              "Sök fordon"
+            )}
           </button>
         </div>
 
         {disabled && (
-          <div className="mt-3 flex items-center justify-center gap-2 text-sm text-gray-400">
-            <div className="h-3 w-3 animate-spin rounded-full border-2 border-red-400 border-t-transparent" />
+          <div className="flex items-center justify-center gap-2 mt-3 text-sm text-gray-400">
+            <div className="animate-spin h-3 w-3 border-2 border-red-400 border-t-transparent rounded-full" />
             <span>Initierar sökmotor...</span>
           </div>
         )}
 
         {error && (
-          <p className="mt-3 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-center text-sm text-red-300">
-            {error}
-          </p>
+          <p className="text-red-400 mt-3 text-center text-sm font-medium">{error}</p>
         )}
       </div>
     </details>
