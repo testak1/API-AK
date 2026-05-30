@@ -167,11 +167,6 @@ export default function TuningViewer() {
         setIsLoading(false);
       });
 
-    fetch("/data/all_models.json")
-      .then(res => res.json())
-      .then(data => setAllModels(data))
-      .catch(err => console.error("Fel vid inläsning av modellbilder:", err));
-
     const savedView = localStorage.getItem("viewMode");
     if (savedView === "dropdown") {
       setViewMode("dropdown");
@@ -701,6 +696,18 @@ export default function TuningViewer() {
       .replace(/[^\w\s-]/g, "")
       .replace(/\s+/g, "-")
       .replace(/-+/g, "-");
+
+  const loadModelImages = useCallback(async () => {
+    if (allModels.length > 0) return;
+
+    try {
+      const res = await fetch("/data/all_models.json");
+      const data = await res.json();
+      setAllModels(data);
+    } catch (err) {
+      console.error("Fel vid inläsning av modellbilder:", err);
+    }
+  }, [allModels.length]);
 
   const getModelImage = (modelName: string, brandName: string): string => {
     const normalize = (str: string) => str.toLowerCase().replace(/\s+/g, "");
@@ -1423,6 +1430,8 @@ export default function TuningViewer() {
                                 year: "",
                                 engine: "",
                               });
+
+                              loadModelImages();
 
                               window.parent.postMessage(
                                 {scrollToIframe: true},
