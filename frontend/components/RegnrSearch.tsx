@@ -64,7 +64,8 @@ export default function RegnrSearch({
     onError(null);
 
     const targetUrl = `${process.env.NEXT_PUBLIC_REGNR_URL}/fordon/${formattedRegnr}`;
-    const proxyUrl = `${process.env.NEXT_PUBLIC_CORS_PROXY_URL}/?${encodeURIComponent(targetUrl)}`;
+
+const proxyUrl = `${process.env.NEXT_PUBLIC_CORS_PROXY_URL}/?key=${process.env.NEXT_PUBLIC_CORS_PROXY_KEY}&url=${encodeURIComponent(targetUrl)}`;
 
     try {
       const response = await fetch(proxyUrl);
