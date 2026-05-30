@@ -1,32 +1,48 @@
 // components/RegnrSearch.tsx
+
 import React, {useState, useEffect, useRef} from "react";
 
 type OnVehicleFound = (vehicle: {
   brand: string;
+
   model: string;
+
   year: string;
+
   fuel: string;
+
   powerHp: string;
+
   engineCm3: string;
 }) => void;
 
 type OnError = (message: string | null) => void;
+
 type OnOpen = () => void;
 
 export default function RegnrSearch({
   onVehicleFound,
+
   onError,
+
   disabled,
+
   onOpen,
 }: {
   onVehicleFound: OnVehicleFound;
+
   onError: OnError;
+
   disabled: boolean;
+
   onOpen?: OnOpen;
 }) {
   const [regnr, setRegnr] = useState("");
+
   const [isLoading, setIsLoading] = useState(false);
+
   const [error, setError] = useState<string | null>(null);
+
   const hasOpened = useRef(false);
 
   const isValidSwedishReg = (reg: string) =>
@@ -43,6 +59,7 @@ export default function RegnrSearch({
   const handleToggle = (e: React.SyntheticEvent<HTMLDetailsElement>) => {
     if (e.currentTarget.open && !hasOpened.current && onOpen) {
       onOpen();
+
       hasOpened.current = true;
     }
   };
@@ -54,94 +71,142 @@ export default function RegnrSearch({
 
     if (!isValidSwedishReg(formattedRegnr)) {
       const message = "Ogiltigt registreringsnummer (format: ABC12D).";
+
       setError(message);
+
       onError(message);
+
       return;
     }
 
     setIsLoading(true);
+
     setError(null);
+
     onError(null);
 
     const targetUrl = `${process.env.NEXT_PUBLIC_REGNR_URL}/fordon/${formattedRegnr}`;
 
-const proxyUrl = `${process.env.NEXT_PUBLIC_CORS_PROXY_URL}/?key=${process.env.NEXT_PUBLIC_CORS_PROXY_KEY}&url=${encodeURIComponent(targetUrl)}`;
+    const proxyUrl = `${process.env.NEXT_PUBLIC_CORS_PROXY_URL}/?key=${process.env.NEXT_PUBLIC_CORS_PROXY_KEY}&url=${encodeURIComponent(targetUrl)}`;
 
     try {
       const response = await fetch(proxyUrl);
+
       if (!response.ok) {
         throw new Error(`Nätverksfel (Status: ${response.status}).`);
       }
 
       const htmlContent = await response.text();
+
       const parser = new DOMParser();
+
       const doc = parser.parseFromString(htmlContent, "text/html");
 
-      // 1. Hitta huvudrubriken (Märke & Modell)
-      const h1 = doc.querySelector("h1");
-      if (!h1) {
-        throw new Error("Kunde inte hitta fordonsinformation på sidan.");
+      const summarySection = doc.querySelector("section#summary");
+
+      const technicalDataSection = doc.querySelector("section#technical-data");
+
+      if (!summarySection) {
+        throw new Error("Kunde inte hitta fordonsinformation.");
+      }
+
+      const h1 = summarySection.querySelector<HTMLElement>(
+        ".bar.summary .info h1"
+      );
+
+      const iconGrid =
+        summarySection.querySelector<HTMLElement>("ul.icon-grid");
+
+      if (!h1 || !iconGrid) {
+        throw new Error("Kunde inte läsa ut fordonsinformation.");
       }
 
       const fullName = h1.innerText.trim();
+
       const brand = fullName.split(" ")[0];
+
       const model = fullName.substring(brand.length).trim();
 
-      // 2. Iterera genom specifikationslistorna för att hitta teknisk data
       let year: string | null = null;
+
       let fuel: string | null = null;
+
       let powerHp: string | null = null;
+
+      iconGrid.querySelectorAll("li").forEach(item => {
+        const label = item
+
+          .querySelector<HTMLElement>("span")
+
+          ?.innerText.trim()
+
+          .toLowerCase();
+
+        const value = item.querySelector<HTMLElement>("em")?.innerText.trim();
+
+        if (label === "modellår") year = value?.match(/\d{4}/)?.[0] || null;
+
+        if (label === "bränsle") fuel = value || null;
+
+        if (label === "hästkrafter")
+          powerHp = value?.match(/(\d+)/)?.[0] || null;
+      });
+
       let engineCm3: string | null = null;
 
-      // Biluppgifter använder ofta ul.list med span.label och span.value
-      const listItems = doc.querySelectorAll("ul.list li");
+      if (technicalDataSection) {
+        technicalDataSection
 
-      listItems.forEach(item => {
-        const label =
-          item.querySelector(".label")?.textContent?.trim().toLowerCase() || "";
-        const value = item.querySelector(".value")?.textContent?.trim() || "";
+          .querySelectorAll(".inner ul.list li")
 
-        if (label.includes("modellår")) {
-          year = value.match(/\d{4}/)?.[0] || null;
-        } else if (label.includes("bränsle")) {
-          fuel = value;
-        } else if (label.includes("effekt") || label.includes("hästkrafter")) {
-          // Extraherar siffran innan "hk" eller bara siffran
-          powerHp =
-            value.match(/(\d+)\s*hk/)?.[1] || value.match(/(\d+)/)?.[0] || null;
-        } else if (label.includes("motorvolym")) {
-          // Tar bort mellanslag (t.ex. "3 982") och extraherar siffran
-          engineCm3 = value.replace(/\s/g, "").match(/(\d+)/)?.[0] || null;
-        }
-      });
+          .forEach(item => {
+            const label = item
 
-      // Validering: Kontrollera att vi fick ut all nödvändig data
-      if (!brand || !model || !year || !fuel || !powerHp || !engineCm3) {
-        const missing = [
-          !brand && "Märke",
-          !model && "Modell",
-          !year && "År",
-          !fuel && "Bränsle",
-          !powerHp && "Effekt",
-          !engineCm3 && "Motorvolym",
-        ]
-          .filter(Boolean)
-          .join(", ");
-        throw new Error(`Kunde inte läsa ut följande: ${missing}.`);
+              .querySelector<HTMLElement>("span.label")
+
+              ?.innerText.trim()
+
+              .toLowerCase();
+
+            if (label === "motorvolym") {
+              const value = item
+
+                .querySelector<HTMLElement>("span.value")
+
+                ?.innerText.trim();
+
+              engineCm3 = value?.match(/(\d+)/)?.[0] || null;
+            }
+          });
       }
 
-      onVehicleFound({
-        brand,
-        model,
-        year,
-        fuel,
-        powerHp,
-        engineCm3,
-      });
+      if (!brand || !model || !year || !fuel || !powerHp || !engineCm3) {
+        const missing = [
+          !brand && "Märke/Modell",
+
+          !year && "År",
+
+          !fuel && "Bränsle",
+
+          !powerHp && "Effekt",
+
+          !engineCm3 && "Motorvolym",
+        ]
+
+          .filter(Boolean)
+
+          .join(", ");
+
+        throw new Error(`Kunde inte extrahera: ${missing}.`);
+      }
+
+      onVehicleFound({brand, model, year, fuel, powerHp, engineCm3});
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Ett okänt fel uppstod.";
+
       setError(errorMessage);
+
       onError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -169,10 +234,12 @@ const proxyUrl = `${process.env.NEXT_PUBLIC_CORS_PROXY_URL}/?key=${process.env.N
               d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
             />
           </svg>
+
           <span className="text-white text-lg font-semibold tracking-wide">
             SÖK MED REGNR <span className="text-sm text-red-400">[BETA]</span>
           </span>
         </div>
+
         <svg
           className="w-5 h-5 text-gray-400 transform transition-transform duration-300 group-open:rotate-180"
           xmlns="http://www.w3.org/2000/svg"
@@ -191,7 +258,9 @@ const proxyUrl = `${process.env.NEXT_PUBLIC_CORS_PROXY_URL}/?key=${process.env.N
 
       <div className="p-4 border-t border-gray-700 bg-gray-900/70">
         <div className="flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-grow">
+          <div className="flex flex-col sm:flex-row gap-3">
+            {/* Input-fältet direkt utan extra container */}
+
             <input
               type="text"
               value={regnr}
@@ -199,16 +268,20 @@ const proxyUrl = `${process.env.NEXT_PUBLIC_CORS_PROXY_URL}/?key=${process.env.N
                 setRegnr(e.target.value.toUpperCase().replace(/\s/g, ""))
               }
               placeholder="ABC123"
-              className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-600 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500 text-center text-lg font-mono tracking-widest disabled:opacity-50 transition-all"
+              className="flex-grow px-4 py-3 rounded-lg bg-gray-800 border border-gray-600 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500 text-center text-lg font-mono tracking-widest disabled:opacity-50 transition-all"
               onKeyDown={e => {
                 if (e.key === "Enter" && !disabled) {
                   e.preventDefault();
+
                   handleSearch();
                 }
               }}
               disabled={disabled || isLoading}
             />
-            {isLoading && (
+
+            {/* Snurrande loader i input-fältet */}
+
+            {disabled && (
               <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                 <div className="animate-spin h-5 w-5 border-2 border-red-400 border-t-transparent rounded-full"></div>
               </div>
@@ -222,6 +295,8 @@ const proxyUrl = `${process.env.NEXT_PUBLIC_CORS_PROXY_URL}/?key=${process.env.N
           >
             {isLoading ? (
               <div className="flex items-center gap-2">
+                <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+
                 <span>Söker...</span>
               </div>
             ) : (
@@ -230,9 +305,12 @@ const proxyUrl = `${process.env.NEXT_PUBLIC_CORS_PROXY_URL}/?key=${process.env.N
           </button>
         </div>
 
-        {disabled && !isLoading && (
+        {/* Statusmeddelande för databasladdning */}
+
+        {disabled && (
           <div className="flex items-center justify-center gap-2 mt-3 text-sm text-gray-400">
             <div className="animate-spin h-3 w-3 border-2 border-red-400 border-t-transparent rounded-full"></div>
+
             <span>Initierar sökmotor...</span>
           </div>
         )}
