@@ -1145,7 +1145,7 @@ export default function TuningViewer() {
         />
       </Head>
 
-      <div className="w-full max-w-6xl mx-auto px-2 py-4 sm:px-4">
+      <main className="w-full max-w-6xl mx-auto px-2 py-4 sm:px-4">
         {/* TOPBAR: logga, regnr, språk + vy */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between relative mb-8">
           {/* Vänster: Logga */}
@@ -2818,7 +2818,7 @@ export default function TuningViewer() {
           translate={translate}
           showBookButton={infoModal.type === "stage"}
         />
-      </div>
+      </main>
     </>
   );
 }
