@@ -1,11 +1,11 @@
 // pages/[brand]/[model]/[year]/index.tsx
 import Head from "next/head";
-import { GetServerSideProps } from "next";
+import {GetServerSideProps} from "next";
 import Link from "next/link";
 import client from "@/lib/sanity";
-import { brandBySlugQuery } from "@/src/lib/queries";
-import { Brand, Model, Year, Engine } from "@/types/sanity";
-import { urlFor } from "@/lib/sanity";
+import {brandBySlugQuery} from "@/src/lib/queries";
+import {Brand, Model, Year, Engine} from "@/types/sanity";
+import {urlFor} from "@/lib/sanity";
 import NextImage from "next/image";
 
 // --- slug helpers ---
@@ -46,41 +46,41 @@ interface YearPageProps {
   yearData: Year | null;
 }
 
-export const getServerSideProps: GetServerSideProps<YearPageProps> = async (
-  context,
-) => {
+export const getServerSideProps: GetServerSideProps<
+  YearPageProps
+> = async context => {
   const brand = decodeURIComponent((context.params?.brand as string) || "");
   const model = decodeURIComponent((context.params?.model as string) || "");
   const year = decodeURIComponent((context.params?.year as string) || "");
 
-  const brandData = await client.fetch(brandBySlugQuery, { brand });
-  if (!brandData) return { notFound: true };
+  const brandData = await client.fetch(brandBySlugQuery, {brand});
+  if (!brandData) return {notFound: true};
 
   const modelData =
     brandData.models?.find(
       (m: Model) =>
         getSlug(m.slug, m.name).toLowerCase() ===
-        getSlug(model, model).toLowerCase(),
+        getSlug(model, model).toLowerCase()
     ) || null;
 
-  if (!modelData) return { notFound: true };
+  if (!modelData) return {notFound: true};
 
   const yearData =
     modelData.years?.find(
       (y: Year) =>
         getSlug(y.slug, y.range, true).toLowerCase() ===
-        getSlug(year, year, true).toLowerCase(),
+        getSlug(year, year, true).toLowerCase()
     ) || null;
 
-  if (!yearData) return { notFound: true };
+  if (!yearData) return {notFound: true};
 
-  return { props: { brandData, modelData, yearData } };
+  return {props: {brandData, modelData, yearData}};
 };
 
 // --- fuel grouping helpers ---
 const normalizeFuel = (
   fuelRaw: string | undefined,
-  labelRaw: string | undefined,
+  labelRaw: string | undefined
 ) => {
   const fuel = (fuelRaw || "").toLowerCase().trim();
   const label = (labelRaw || "").toLowerCase();
@@ -101,7 +101,7 @@ const normalizeFuel = (
 
 const groupEnginesByFuel = (engines: Engine[]) => {
   const groups: Record<string, Engine[]> = {};
-  engines.forEach((e) => {
+  engines.forEach(e => {
     const key = normalizeFuel(e.fuel as any, e.label as any);
     if (!groups[key]) groups[key] = [];
     groups[key].push(e);
@@ -171,7 +171,7 @@ export default function YearPage({
 
   const modelName = cleanText(formatModelName(brandData.name, modelData.name));
   const pageTitle = cleanText(
-    `Motoroptimering för ${brandData.name} ${modelName} ${yearData.range} | AK-Tuning`,
+    `Motoroptimering för ${brandData.name} ${modelName} ${yearData.range} | AK-Tuning`
   );
   const pageDescription = `Motoroptimering för ${brandData.name} ${modelName} årsmodell ${yearData.range}. Välj bland ${yearData.engines?.length} för skräddarsydd mjukvara inkl 2 års garanti.`;
 
@@ -213,7 +213,7 @@ export default function YearPage({
               model: modelName,
               url: `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}`,
               mainEntityOfPage: `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}`,
-              hasVariant: yearData.engines?.map((engine) => ({
+              hasVariant: yearData.engines?.map(engine => ({
                 "@type": "Product",
                 name: `Motoroptimering till ${brandData.name} ${modelName} ${yearData.range} ${engine.label}`,
                 url: `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${getSlug(engine.slug, engine.label)}`,
@@ -328,7 +328,7 @@ export default function YearPage({
         </div>
 
         {/* Engines grouped by fuel */}
-        {["diesel", "bensin", "hybrid", "el", "other"].map((fuelKey) => {
+        {["diesel", "bensin", "hybrid", "el", "other"].map(fuelKey => {
           const engines = enginesGrouped[fuelKey] || [];
           if (!engines.length) return null;
 
@@ -360,12 +360,12 @@ export default function YearPage({
                 {heading}
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {engines.map((engine) => (
+                {engines.map(engine => (
                   <Link
                     key={engine._id}
                     href={`/${brandSlug}/${modelSlug}/${yearSlug}/${getSlug(
                       engine.slug,
-                      engine.label,
+                      engine.label
                     )}`}
                     className="relative p-4 bg-gray-800 hover:bg-gray-700 rounded-lg text-center text-white font-medium shadow"
                   >
@@ -382,19 +382,23 @@ export default function YearPage({
             Motoroptimering för {cleanText(modelName)}{" "}
             {cleanText(yearData.range)}
           </h2>
+
           <div className="prose prose-gray max-w-none">
             <p>
               AK-Tuning erbjuder professionell motoroptimering för{" "}
               {cleanText(modelName)} {cleanText(yearData.range)}.
-              <p className="mt-4">
-                Välj din motor ovan för att se exakta effektökningar och priser
-                för motoroptimering.
-              </p>
             </p>
+
+            <p className="mt-4">
+              Välj din motor ovan för att se exakta effektökningar och priser
+              för motoroptimering.
+            </p>
+
             <h3 className="text-lg font-semibold mt-4">
               Fördelar med {cleanText(modelName)} {cleanText(yearData.range)}{" "}
               optimering:
             </h3>
+
             <ul className="list-disc list-inside space-y-1">
               <li>Ökad effekt och vridmoment för bättre acceleration</li>
               <li>Förbättrad bränsleekonomi vid normalkörning</li>

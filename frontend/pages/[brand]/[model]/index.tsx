@@ -1,11 +1,11 @@
 // pages/[brand] / [model] / index.tsx;
 import Head from "next/head";
-import { GetServerSideProps } from "next";
+import {GetServerSideProps} from "next";
 import Link from "next/link";
 import client from "@/lib/sanity";
-import { brandBySlugQuery } from "@/src/lib/queries";
-import { Brand, Model, Year } from "@/types/sanity";
-import { urlFor } from "@/lib/sanity";
+import {brandBySlugQuery} from "@/src/lib/queries";
+import {Brand, Model, Year} from "@/types/sanity";
+import {urlFor} from "@/lib/sanity";
 import NextImage from "next/image";
 
 const slugifySafe = (str: string) => {
@@ -82,14 +82,14 @@ interface ModelPageProps {
   modelData: Model | null;
 }
 
-export const getServerSideProps: GetServerSideProps<ModelPageProps> = async (
-  context,
-) => {
+export const getServerSideProps: GetServerSideProps<
+  ModelPageProps
+> = async context => {
   const brand = decodeURIComponent((context.params?.brand as string) || "");
   const model = decodeURIComponent((context.params?.model as string) || "");
 
-  const brandData = await client.fetch(brandBySlugQuery, { brand });
-  if (!brandData) return { notFound: true };
+  const brandData = await client.fetch(brandBySlugQuery, {brand});
+  if (!brandData) return {notFound: true};
 
   const modelData =
     brandData.models?.find(
@@ -97,15 +97,15 @@ export const getServerSideProps: GetServerSideProps<ModelPageProps> = async (
         getSlug(m.slug, m.name).toLowerCase() ===
           getSlug(model, model).toLowerCase() ||
         m.name.toLowerCase().replace(/\s+/g, "-") ===
-          model.toLowerCase().replace(/\s+/g, "-"),
+          model.toLowerCase().replace(/\s+/g, "-")
     ) || null;
 
-  if (!modelData) return { notFound: true };
+  if (!modelData) return {notFound: true};
 
-  return { props: { brandData, modelData } };
+  return {props: {brandData, modelData}};
 };
 
-export default function ModelPage({ brandData, modelData }: ModelPageProps) {
+export default function ModelPage({brandData, modelData}: ModelPageProps) {
   const cleanText = (str: string | null | undefined) => {
     if (!str) return "";
     return str
@@ -120,7 +120,7 @@ export default function ModelPage({ brandData, modelData }: ModelPageProps) {
 
   const modelName = cleanText(formatModelName(brandData.name, modelData.name));
   const pageTitle = cleanText(
-    `Motoroptimering för ${brandData.name} ${modelName} | AK-Tuning`,
+    `Motoroptimering för ${brandData.name} ${modelName} | AK-Tuning`
   );
   const pageDescription = `Motoroptimering för ${brandData.name} ${modelName}. Få mer effekt, högre vridmoment och bättre körupplevelse med AK-Tuning.`;
 
@@ -246,7 +246,7 @@ export default function ModelPage({ brandData, modelData }: ModelPageProps) {
               href={`/${brandSlug}/${modelSlug}/${getSlug(
                 year.slug,
                 year.range,
-                true,
+                true
               )}`}
               className="p-4 bg-gray-800 hover:bg-gray-700 rounded-lg text-center text-white font-medium shadow"
             >
@@ -260,20 +260,24 @@ export default function ModelPage({ brandData, modelData }: ModelPageProps) {
             Motoroptimering för {cleanText(brandData.name)}{" "}
             {cleanText(modelName)}
           </h2>
+
           <div className="prose prose-gray max-w-none">
             <p>
               AK-Tuning erbjuder professionell motoroptimering för{" "}
-              {cleanText(brandData.name)} {cleanText(modelName)}
-              <p className="mt-4">
-                Välj din {cleanText(brandData.name)} {cleanText(modelName)}{" "}
-                modell ovan för att se exakta effektökningar och priser för
-                motoroptimering.
-              </p>
+              {cleanText(brandData.name)} {cleanText(modelName)}.
             </p>
+
+            <p className="mt-4">
+              Välj din {cleanText(brandData.name)} {cleanText(modelName)}{" "}
+              årsmodell ovan för att se exakta effektökningar och priser för
+              motoroptimering.
+            </p>
+
             <h3 className="text-lg font-semibold mt-4">
               Fördelar med {cleanText(brandData.name)} {cleanText(modelName)}{" "}
               optimering:
             </h3>
+
             <ul className="list-disc list-inside space-y-1">
               <li>Ökad effekt och vridmoment för bättre acceleration</li>
               <li>Förbättrad bränsleekonomi vid normalkörning</li>
