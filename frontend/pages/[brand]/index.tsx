@@ -1,12 +1,12 @@
 // pages/[brand]/index.tsx
 import Head from "next/head";
-import { GetServerSideProps } from "next";
+import {GetServerSideProps} from "next";
 import Link from "next/link";
-import { useRouter } from "next/router";
+import {useRouter} from "next/router";
 import client from "@/lib/sanity";
-import { brandBySlugQuery } from "@/src/lib/queries";
-import { Brand, Model } from "@/types/sanity";
-import { urlFor } from "@/lib/sanity";
+import {brandBySlugQuery} from "@/src/lib/queries";
+import {Brand, Model} from "@/types/sanity";
+import {urlFor} from "@/lib/sanity";
 import NextImage from "next/image";
 
 const slugifySafe = (str: string) => {
@@ -72,19 +72,19 @@ const formatModelName = (brand: string, model: string): string => {
   return model;
 };
 
-export const getServerSideProps: GetServerSideProps<BrandPageProps> = async (
-  context,
-) => {
+export const getServerSideProps: GetServerSideProps<
+  BrandPageProps
+> = async context => {
   const brand = decodeURIComponent((context.params?.brand as string) || "");
 
-  const brandData = await client.fetch(brandBySlugQuery, { brand });
+  const brandData = await client.fetch(brandBySlugQuery, {brand});
 
-  if (!brandData) return { notFound: true };
+  if (!brandData) return {notFound: true};
 
-  return { props: { brandData } };
+  return {props: {brandData}};
 };
 
-export default function BrandPage({ brandData }: BrandPageProps) {
+export default function BrandPage({brandData}: BrandPageProps) {
   const cleanText = (str: string | null | undefined) => {
     if (!str) return "";
     return str
@@ -291,17 +291,21 @@ export default function BrandPage({ brandData }: BrandPageProps) {
           <h2 className="text-xl font-bold text-gray-800 mb-4">
             Motoroptimering för {brandName}
           </h2>
+
           <div className="prose prose-gray max-w-none">
             <p>
               AK-Tuning erbjuder professionell motoroptimering för {brandName}.
-              <p className="mt-4">
-                Välj din {brandName} modell ovan för att se exakta
-                effektökningar och priser för motoroptimering.
-              </p>
             </p>
+
+            <p className="mt-4">
+              Välj din {brandName} modell ovan för att se exakta effektökningar
+              och priser för motoroptimering.
+            </p>
+
             <h3 className="text-lg font-semibold mt-4">
               Fördelar med {brandName} optimering:
             </h3>
+
             <ul className="list-disc list-inside space-y-1">
               <li>Ökad effekt och vridmoment för bättre acceleration</li>
               <li>Förbättrad bränsleekonomi vid normalkörning</li>
