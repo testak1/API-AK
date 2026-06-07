@@ -171,9 +171,9 @@ export default function YearPage({
 
   const modelName = cleanText(formatModelName(brandData.name, modelData.name));
   const pageTitle = cleanText(
-    `Motoroptimering för ${brandData.name} ${modelName} ${yearData.range} | AK-Tuning`
+    `Motoroptimering till ${brandData.name} ${modelName} ${yearData.range} | AK-Tuning`
   );
-  const pageDescription = `Motoroptimering för ${brandData.name} ${modelName} årsmodell ${yearData.range}. Välj bland ${yearData.engines?.length} för skräddarsydd mjukvara inkl 2 års garanti.`;
+  const pageDescription = `Motoroptimering till ${brandData.name} ${modelName} årsmodell ${yearData.range}. Välj bland ${yearData.engines?.length} för skräddarsydd mjukvara inkl 2 års garanti.`;
 
   const brandSlug = getSlug(brandData.slug, brandData.name);
   const modelSlug = getSlug(modelData.slug, modelData.name);
@@ -220,7 +220,7 @@ export default function YearPage({
                 image:
                   brandData.logo?.asset?.url ||
                   "https://tuning.aktuning.se/ak-logo1.png",
-                description: `Motoroptimering för ${brandData.name} ${modelName} ${yearData.range} ${engine.label}. Upplev mer effekt, högre vridmoment och bättre körglädje med AK-Tuning.`,
+                description: `Motoroptimering till ${brandData.name} ${modelName} ${yearData.range} ${engine.label}. Upplev mer effekt, högre vridmoment och bättre körglädje med AK-Tuning.`,
                 offers: {
                   "@type": "Offer",
                   price: "0",

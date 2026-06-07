@@ -120,9 +120,9 @@ export default function ModelPage({brandData, modelData}: ModelPageProps) {
 
   const modelName = cleanText(formatModelName(brandData.name, modelData.name));
   const pageTitle = cleanText(
-    `Motoroptimering för ${brandData.name} ${modelName} | AK-Tuning`
+    `Motoroptimering till ${brandData.name} ${modelName} | AK-Tuning`
   );
-  const pageDescription = `Motoroptimering för ${brandData.name} ${modelName}. Få mer effekt, högre vridmoment och bättre körupplevelse med AK-Tuning.`;
+  const pageDescription = `Motoroptimering till ${brandData.name} ${modelName}. Få mer effekt, högre vridmoment och bättre körupplevelse med AK-Tuning.`;
 
   const brandSlug = getSlug(brandData.slug, brandData.name);
   const modelSlug = getSlug(modelData.slug, modelData.name);
@@ -161,7 +161,7 @@ export default function ModelPage({brandData, modelData}: ModelPageProps) {
                 },
                 {
                   "@type": "ItemList",
-                  name: `Motoroptimering för ${brandData.name} ${modelData.name} årsmodeller`,
+                  name: `Motoroptimering till ${brandData.name} ${modelData.name} årsmodeller`,
                   itemListElement: modelData.years?.map((year, index) => ({
                     "@type": "ListItem",
                     position: index + 1,
