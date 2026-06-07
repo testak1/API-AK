@@ -99,8 +99,8 @@ export default function BrandPage({brandData}: BrandPageProps) {
   }
 
   const brandName = cleanText(brandData.name);
-  const pageTitle = cleanText(`Motoroptimering ${brandName} | AK-Tuning`);
-  const pageDescription = `Motoroptimering för ${brandName}. ✅ Effektökning ✅ Bränslebesparing ✅ 2 års garanti. Välj modell och upplev skillnaden!`;
+  const pageTitle = cleanText(`Motoroptimering till ${brandName} | AK-Tuning`);
+  const pageDescription = `Motoroptimering till ${brandName}. ✅ Effektökning ✅ Bränslebesparing ✅ 2 års garanti. Välj modell och upplev skillnaden!`;
 
   const brandSlug = getSlug(brandData.slug, brandData.name);
   const canonicalUrl = `https://tuning.aktuning.se/${brandSlug}`;
