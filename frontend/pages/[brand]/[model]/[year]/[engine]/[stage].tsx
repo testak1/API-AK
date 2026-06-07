@@ -856,7 +856,7 @@ export default function StagePage({
         />
       </Head>
 
-      <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
+      <main className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
         <div className="flex items-center justify-between mb-4">
           <NextImage
             src="/ak-logo2.png"
@@ -1398,7 +1398,7 @@ export default function StagePage({
             )}
           </div>
         </div>
-      </div>
+      </main>
 
       <ContactModal
         isOpen={contactModalData.isOpen}

@@ -985,7 +985,7 @@ export default function EnginePage({
           }}
         />
       </Head>
-      <div className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
+      <main className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
         <div className="flex items-center justify-between mb-4">
           <NextImage
             src="/ak-logo2.png"
@@ -1996,7 +1996,7 @@ export default function EnginePage({
           translate={translate}
           showBookButton={infoModal.type === "stage"}
         />
-      </div>
+      </main>
     </>
   );
 }
