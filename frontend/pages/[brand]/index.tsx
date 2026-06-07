@@ -261,51 +261,48 @@ export default function BrandPage({brandData}: BrandPageProps) {
               className="h-10 object-contain"
             />
           )}
-          <h1 className="text-2xl font-bold text-black">
+          <h1 className="text-2xl font-bold text-slate-900">
             {cleanText(brandData.name)}
           </h1>
         </div>
-
         {/* Tillbaka-knapp */}
         <div className="mb-4">
-          <Link href="/" className="text-sm text-orange-500 hover:underline">
+          {/* Röd länk som matchar loggan med perfekt kontrast */}
+          <Link
+            href="/"
+            className="text-sm text-red-600 font-semibold hover:text-red-700 hover:underline"
+          >
             ← Tillbaka till startsidan
           </Link>
         </div>
-
         {/* Lista modeller */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {brandData.models?.map((model: Model) => (
             <Link
               key={model._id}
               href={`/${brandSlug}/${getSlug(model.slug, model.name)}`}
-              className="p-4 bg-gray-800 hover:bg-gray-700 rounded-lg text-center text-white font-medium shadow"
+              className="p-4 bg-gray-800 hover:bg-gray-700 rounded-lg text-center text-white font-medium shadow transition-colors"
             >
               {formatModelName(brandData.name, model.name)}
             </Link>
           ))}
         </div>
-
         {/* SEO Content Section */}
-        <section className="bg-gray-50 rounded-lg p-6 mt-8">
-          <h2 className="text-xl font-bold text-gray-800 mb-4">
+        <section className="bg-gray-50 rounded-lg p-6 mt-8 border border-gray-100">
+          <h2 className="text-xl font-bold text-slate-900 mb-4">
             Motoroptimering för {brandName}
           </h2>
-
           <div className="prose prose-gray max-w-none">
             <p>
               AK-Tuning erbjuder professionell motoroptimering för {brandName}.
             </p>
-
             <p className="mt-4">
               Välj din {brandName} modell ovan för att se exakta effektökningar
               och priser för motoroptimering.
             </p>
-
-            <h3 className="text-lg font-semibold mt-4">
+            <h3 className="text-lg font-semibold text-slate-800 mt-4">
               Fördelar med {brandName} optimering:
             </h3>
-
             <ul className="list-disc list-inside space-y-1">
               <li>Ökad effekt och vridmoment för bättre acceleration</li>
               <li>Förbättrad bränsleekonomi vid normalkörning</li>

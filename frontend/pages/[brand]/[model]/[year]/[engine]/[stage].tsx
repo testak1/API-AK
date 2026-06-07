@@ -875,7 +875,8 @@ export default function StagePage({
 
         <div className="mb-8 text-center">
           <div>
-            <h1 className="text-xl sm:text-3xl md:text-xl font-bold mb-2">
+            {/* FIX: Ändrat till text-slate-900 för perfekt kontrast på den ljusa bakgrunden */}
+            <h1 className="text-xl sm:text-3xl md:text-xl font-bold mb-2 text-slate-900">
               {translate(currentLanguage, "tuningIntro")}{" "}
               {cleanText(brandData.name)}{" "}
               {cleanText(formatModelName(brandData.name, modelData.name))}{" "}
@@ -884,9 +885,10 @@ export default function StagePage({
                 {cleanText(stageData.name.toUpperCase())}
               </span>
             </h1>
+            {/* FIX: Ändrat från orange-500 till röd varumärkesfärg med bra kontrast */}
             <Link
               href={enginePageUrl}
-              className="text-sm text-orange-500 hover:underline"
+              className="text-sm text-red-600 font-semibold hover:text-red-700 hover:underline"
             >
               ← {translate(currentLanguage, "BACKTO")} {engineData.label}
             </Link>
@@ -927,7 +929,8 @@ export default function StagePage({
                   loading="lazy"
                 />
 
-                <span className="inline-block bg-red-600 text-black px-4 py-1 rounded-full text-xl font-semibold shadow-md">
+                {/* FIX: Ändrat text-black till text-white för att klara kontrastkrav på röd bakgrund */}
+                <span className="inline-block bg-red-600 text-white px-4 py-1 rounded-full text-xl font-bold shadow-md">
                   {stageData.price?.toLocaleString()} kr
                 </span>
                 {(stageData.name.includes("Steg 2") ||
@@ -1299,6 +1302,7 @@ export default function StagePage({
                 {stageData.name.toUpperCase()}
               </button>
             </div>
+
             {allOptions.length > 0 && (
               <div className="mb-6">
                 <div className="bg-gray-900 rounded-lg p-4">
@@ -1323,7 +1327,6 @@ export default function StagePage({
                       .slice(0, expandedAktPlus ? allOptions.length : 6)
                       .map(option => {
                         const isExpanded = expandedOptions[option._id] || false;
-                        // KORRIGERAD RAD - ta bort option.name
                         const optionTitle =
                           option.title?.[currentLanguage] ||
                           option.title?.sv ||
@@ -1337,8 +1340,9 @@ export default function StagePage({
                           <div
                             key={option._id}
                             className={`border rounded-lg p-4 transition-all duration-300 ${
+                              /* FIX: Ändrat fokus-border från orange-400 till red-500 */
                               isExpanded
-                                ? "border-orange-400 bg-gray-800"
+                                ? "border-red-500 bg-gray-800"
                                 : "border-gray-600 bg-gray-700"
                             }`}
                           >
@@ -1348,7 +1352,8 @@ export default function StagePage({
                                   {optionTitle}
                                 </h4>
                                 {option.price && (
-                                  <p className="text-orange-400 font-bold text-lg mb-2">
+                                  /* FIX: Ändrat text-orange-400 till text-red-400 */
+                                  <p className="text-red-400 font-bold text-lg mb-2">
                                     {translate(currentLanguage, "priceLabel")}:{" "}
                                     {option.price.toLocaleString()} kr
                                   </p>
@@ -1357,7 +1362,8 @@ export default function StagePage({
                               <div className="flex flex-col items-end gap-2">
                                 <button
                                   onClick={() => toggleOption(option._id)}
-                                  className="text-orange-400 hover:text-orange-300 text-sm font-medium whitespace-nowrap"
+                                  /* FIX: Ändrat länkfärg från orange-400 till red-400 */
+                                  className="text-red-400 hover:text-red-300 text-sm font-medium whitespace-nowrap"
                                 >
                                   {isExpanded ? "Dölj info" : "Visa info"}
                                 </button>

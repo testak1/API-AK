@@ -1003,19 +1003,22 @@ export default function EnginePage({
         </div>
         <div className="mb-8 text-center">
           {!engineData ? (
-            <h1 className="text-xl sm:text-3xl md:text-xl font-bold">
+            /* FIX: Lagt till text-slate-900 för bra läsbarhet på ljus bakgrund */
+            <h1 className="text-xl sm:text-3xl md:text-xl font-bold text-slate-900">
               {translate(currentLanguage, "tuningIntro")}
             </h1>
           ) : (
             <div>
-              <h1 className="text-xl sm:text-3xl md:text-xl font-bold mb-2">
+              {/* FIX: Lagt till text-slate-900 */}
+              <h1 className="text-xl sm:text-3xl md:text-xl font-bold mb-2 text-slate-900">
                 {translate(currentLanguage, "tuningIntro")}{" "}
                 {cleanText(formatModelName(brandData.name, modelData.name))}{" "}
                 {cleanText(yearData.range)} – {cleanText(engineData.label)}
               </h1>
+              {/* FIX: Ändrat från orange-500 till röd varumärkesfärg */}
               <Link
                 href={`/${slugifySafe(brandData.slug?.current || brandData.name)}/${slugifySafe(modelData.slug?.current || modelData.name)}/${slugifyYear(yearData.range)}`}
-                className="text-sm text-orange-500 hover:underline"
+                className="text-sm text-red-600 font-semibold hover:text-red-700 hover:underline"
               >
                 ← {translate(currentLanguage, "BACKTO")} {yearData.range}
               </Link>
@@ -1069,7 +1072,8 @@ export default function EnginePage({
                           loading="lazy"
                         />
 
-                        <span className="inline-block bg-red-600 text-black px-4 py-1 rounded-full text-xl font-semibold shadow-md">
+                        {/* FIX: Ändrat från text-black till text-white för godkänd kontrast på rött */}
+                        <span className="inline-block bg-red-600 text-white px-4 py-1 rounded-full text-xl font-bold shadow-md">
                           {stage.price?.toLocaleString()} kr
                         </span>
                         {(stage.name.includes("Steg 2") ||
@@ -1085,8 +1089,9 @@ export default function EnginePage({
                           </p>
                         )}
                         <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-700 hover:bg-gray-600 hover:scale-110 transform transition-all duration-300">
+                          {/* FIX: Ändrat pil-ikonen från text-orange-500 till text-red-500 */}
                           <svg
-                            className={`h-6 w-6 text-orange-500 transform transition-transform duration-300 ${
+                            className={`h-6 w-6 text-red-500 transform transition-transform duration-300 ${
                               isExpanded ? "rotate-180" : ""
                             }`}
                             viewBox="0 0 20 20"

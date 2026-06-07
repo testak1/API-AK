@@ -311,27 +311,25 @@ export default function YearPage({
               className="h-10 object-contain"
             />
           )}
-          <h1 className="text-2xl font-bold text-black">
+          <h1 className="text-2xl font-bold text-slate-900">
             {cleanText(brandData.name)} {cleanText(modelName)}{" "}
             {cleanText(yearData.range)}
           </h1>
         </div>
-
         {/* Tillbaka-knapp */}
         <div className="mb-4">
+          {/* Röd länk som matchar loggan med perfekt kontrast */}
           <Link
             href={`/${brandSlug}/${modelSlug}`}
-            className="text-sm text-orange-500 hover:underline"
+            className="text-sm text-red-600 font-semibold hover:text-red-700 hover:underline"
           >
             ← Tillbaka till {formatModelName(brandData.name, modelData.name)}
           </Link>
         </div>
-
         {/* Engines grouped by fuel */}
         {["diesel", "bensin", "hybrid", "el", "other"].map(fuelKey => {
           const engines = enginesGrouped[fuelKey] || [];
           if (!engines.length) return null;
-
           const heading =
             fuelKey === "diesel"
               ? "Diesel-motorer"
@@ -342,21 +340,10 @@ export default function YearPage({
                   : fuelKey === "el"
                     ? "El-motorer"
                     : "Övriga motorer";
-
-          const badgeColor =
-            fuelKey === "diesel"
-              ? "bg-blue-600"
-              : fuelKey === "bensin"
-                ? "bg-red-600"
-                : fuelKey === "hybrid"
-                  ? "bg-green-600"
-                  : fuelKey === "el"
-                    ? "bg-yellow-500"
-                    : "bg-gray-500";
-
           return (
             <div key={fuelKey} className="mb-8">
-              <h2 className="text-xl font-bold text-orange-400 mb-4">
+              {/* Genom att använda text-slate-950 (eller ren text-black) ser det extremt proffsigt ut på vit bakgrund */}
+              <h2 className="text-xl font-bold text-slate-900 mb-4 border-b border-gray-100 pb-2">
                 {heading}
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -367,7 +354,7 @@ export default function YearPage({
                       engine.slug,
                       engine.label
                     )}`}
-                    className="relative p-4 bg-gray-800 hover:bg-gray-700 rounded-lg text-center text-white font-medium shadow"
+                    className="relative p-4 bg-gray-800 hover:bg-gray-700 rounded-lg text-center text-white font-medium shadow transition-colors"
                   >
                     {engine.label}
                   </Link>
@@ -377,28 +364,24 @@ export default function YearPage({
           );
         })}
         {/* SEO Content Section */}
-        <section className="bg-gray-50 rounded-lg p-6 mt-8">
-          <h2 className="text-xl font-bold text-gray-800 mb-4">
+        <section className="bg-gray-50 rounded-lg p-6 mt-8 border border-gray-100">
+          <h2 className="text-xl font-bold text-slate-900 mb-4">
             Motoroptimering för {cleanText(modelName)}{" "}
             {cleanText(yearData.range)}
           </h2>
-
           <div className="prose prose-gray max-w-none">
             <p>
               AK-Tuning erbjuder professionell motoroptimering för{" "}
               {cleanText(modelName)} {cleanText(yearData.range)}.
             </p>
-
             <p className="mt-4">
               Välj din motor ovan för att se exakta effektökningar och priser
               för motoroptimering.
             </p>
-
-            <h3 className="text-lg font-semibold mt-4">
+            <h3 className="text-lg font-semibold text-slate-800 mt-4">
               Fördelar med {cleanText(modelName)} {cleanText(yearData.range)}{" "}
               optimering:
             </h3>
-
             <ul className="list-disc list-inside space-y-1">
               <li>Ökad effekt och vridmoment för bättre acceleration</li>
               <li>Förbättrad bränsleekonomi vid normalkörning</li>
