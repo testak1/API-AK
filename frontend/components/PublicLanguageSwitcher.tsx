@@ -1,14 +1,15 @@
-import React, { useState } from "react";
-import { t as translate } from "@/lib/translations";
+import React, {useState} from "react";
+import Image from "next/image"; // FIX: Importera Next.js Image för bättre hantering av bildformat
+import {t as translate} from "@/lib/translations";
 
-const langOptions: { code: string; name: string; flag: string }[] = [
-  { code: "sv", name: "SVENSKA", flag: "se" },
-  { code: "en", name: "ENGLISH", flag: "gb" },
-  { code: "no", name: "NORSK", flag: "no" },
-  { code: "da", name: "DANSK", flag: "dk" },
-  { code: "de", name: "DEUTSCH", flag: "de" },
-  { code: "fr", name: "FRANÇAIS", flag: "fr" },
-  { code: "it", name: "ITALIANO", flag: "it" },
+const langOptions: {code: string; name: string; flag: string}[] = [
+  {code: "sv", name: "SVENSKA", flag: "se"},
+  {code: "en", name: "ENGLISH", flag: "gb"},
+  {code: "no", name: "NORSK", flag: "no"},
+  {code: "da", name: "DANSK", flag: "dk"},
+  {code: "de", name: "DEUTSCH", flag: "de"},
+  {code: "fr", name: "FRANÇAIS", flag: "fr"},
+  {code: "it", name: "ITALIANO", flag: "it"},
 ];
 
 type Props = {
@@ -21,7 +22,7 @@ export default function PublicLanguageDropdown({
   setCurrentLanguage,
 }: Props) {
   const selectedLang =
-    langOptions.find((lang) => lang.code === currentLanguage) || langOptions[0];
+    langOptions.find(lang => lang.code === currentLanguage) || langOptions[0];
 
   const [open, setOpen] = useState(false);
 
@@ -32,13 +33,14 @@ export default function PublicLanguageDropdown({
         onClick={() => setOpen(!open)}
         className="inline-flex justify-center items-center w-full rounded-md border border-gray-600 shadow-sm px-4 py-2 bg-gray-800 text-sm font-medium text-white hover:bg-gray-700 transition"
       >
-        <img
+        {/* FIX: Ändrat till Next.js Image och justerat height till 13 för att matcha det naturliga 1.60 formatet (40x25) */}
+        <Image
           src={`/flags/${selectedLang.flag}.png`}
           alt={`${selectedLang.name} flag`}
-          className="w-5 h-auto mr-2"
-          width="20"
-          height="15"
-          loading="eager" // Viktig bild, ladda direkt
+          className="mr-2 object-contain"
+          width={20}
+          height={13}
+          priority // Ersätter loading="eager" i Next.js
         />
         {selectedLang.name}
         <svg
@@ -64,7 +66,7 @@ export default function PublicLanguageDropdown({
             <span className="block px-4 py-2 text-sm text-gray-400">
               🌐 {translate(currentLanguage, "lang")}
             </span>
-            {langOptions.map((lang) => (
+            {langOptions.map(lang => (
               <button
                 key={lang.code}
                 onClick={() => {
@@ -73,13 +75,14 @@ export default function PublicLanguageDropdown({
                 }}
                 className="w-full text-left px-4 py-2 text-sm text-gray-900 hover:bg-gray-100 flex items-center gap-2"
               >
-                <img
+                {/* FIX: Ändrat till Next.js Image och korrigerat höjden till 13 här också */}
+                <Image
                   src={`/flags/${lang.flag}.png`}
                   alt={`${lang.name} flag`}
-                  className="w-5 h-auto"
-                  width="20"
-                  height="15"
-                  loading="lazy" // Andra flaggor kan laddas lazy
+                  className="object-contain"
+                  width={20}
+                  height={13}
+                  loading="lazy"
                 />
                 {lang.name}
               </button>
