@@ -254,7 +254,7 @@ export default function ModelPage({brandData, modelData}: ModelPageProps) {
           ))}
         </div>
         {/* SEO Content Section */}
-        <section className="mt-8 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+        <section className="bg-gray-50 rounded-lg p-6 mt-8 border border-gray-100">
           <h2 className="text-xl font-bold text-slate-900 mb-4">
             Motoroptimering för {cleanText(brandData.name)}{" "}
             {cleanText(modelName)}

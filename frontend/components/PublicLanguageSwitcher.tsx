@@ -1,5 +1,4 @@
 import React, {useState} from "react";
-import Image from "next/image";
 import {t as translate} from "@/lib/translations";
 
 const langOptions: {code: string; name: string; flag: string}[] = [
@@ -31,21 +30,19 @@ export default function PublicLanguageDropdown({
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="inline-flex w-full items-center justify-center rounded-md border border-gray-600 bg-gray-800 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-gray-700"
+        className="inline-flex justify-center items-center w-full rounded-md border border-gray-600 shadow-sm px-4 py-2 bg-gray-800 text-sm font-medium text-white hover:bg-gray-700 transition"
       >
-        <Image
+        <img
           src={`/flags/${selectedLang.flag}.png`}
           alt={`${selectedLang.name} flag`}
-          width={40}
-          height={25}
-          className="mr-2 h-auto w-5"
-          priority
+          className="w-5 h-auto mr-2"
+          width="40"
+          height="25"
+          loading="eager" // Viktig bild, ladda direkt
         />
-
         {selectedLang.name}
-
         <svg
-          className="-mr-1 ml-2 h-4 w-4"
+          className="w-4 h-4 ml-2 -mr-1"
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 20 20"
           fill="currentColor"
@@ -60,14 +57,13 @@ export default function PublicLanguageDropdown({
 
       {open && (
         <div
-          className="absolute z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/10 focus:outline-none"
+          className="absolute z-10 mt-2 w-56 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black/10 focus:outline-none"
           onMouseLeave={() => setOpen(false)}
         >
           <div className="py-1">
-            <span className="block px-4 py-2 text-sm text-gray-500">
+            <span className="block px-4 py-2 text-sm text-gray-400">
               🌐 {translate(currentLanguage, "lang")}
             </span>
-
             {langOptions.map(lang => (
               <button
                 key={lang.code}
@@ -75,17 +71,16 @@ export default function PublicLanguageDropdown({
                   setCurrentLanguage(lang.code);
                   setOpen(false);
                 }}
-                className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-gray-900 hover:bg-gray-100"
+                className="w-full text-left px-4 py-2 text-sm text-gray-900 hover:bg-gray-100 flex items-center gap-2"
               >
-                <Image
+                <img
                   src={`/flags/${lang.flag}.png`}
                   alt={`${lang.name} flag`}
-                  width={40}
-                  height={25}
-                  className="h-auto w-5"
-                  loading="lazy"
+                  className="w-5 h-auto"
+                  width="40"
+                  height="25"
+                  loading="lazy" // Andra flaggor kan laddas lazy
                 />
-
                 {lang.name}
               </button>
             ))}
