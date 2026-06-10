@@ -10,6 +10,7 @@ interface MissingItem {
   tunedNm?: number;
   price?: number;
   stages?: ImportStage[];
+  sanityMatch?: SanityMatch;
 }
 
 interface ImportStage {
@@ -30,6 +31,21 @@ interface ImportTableProps {
   onDeselectAll: () => void;
   onSelectOnlyNew: () => void;
   isAlreadyImported: (item: MissingItem) => boolean;
+  canImportItem: (item: MissingItem) => boolean;
+}
+
+interface SanityMatch {
+  status:
+    | "exists"
+    | "missing_stages"
+    | "new_engine"
+    | "new_year"
+    | "new_model"
+    | "missing_brand";
+  matchedYear?: string;
+  existingStages: string[];
+  missingStages: string[];
+  message: string;
 }
 
 export default function ImportTable({
@@ -40,19 +56,29 @@ export default function ImportTable({
   onDeselectAll,
   onSelectOnlyNew,
   isAlreadyImported,
+  canImportItem,
 }: ImportTableProps) {
   const getEngineId = (item: MissingItem) =>
     `${item.brand}-${item.model}-${item.year}-${item.engine}`
       .replace(/\s+/g, "_")
       .toLowerCase();
 
-  const allSelected = missing.length > 0 && selected.length === missing.length;
-  const someSelected = selected.length > 0 && selected.length < missing.length;
+  const importableItems = missing.filter(canImportItem);
+  const selectedImportableCount = selected.filter(id => {
+    const item = missing.find(m => getEngineId(m) === id);
+    return item && canImportItem(item);
+  }).length;
+  const allSelected =
+    importableItems.length > 0 &&
+    selectedImportableCount === importableItems.length;
+  const someSelected =
+    selectedImportableCount > 0 &&
+    selectedImportableCount < importableItems.length;
 
-  const newItemsCount = missing.filter(item => !isAlreadyImported(item)).length;
+  const newItemsCount = importableItems.length;
   const selectedNewCount = selected.filter(id => {
     const item = missing.find(m => getEngineId(m) === id);
-    return item && !isAlreadyImported(item);
+    return item && canImportItem(item);
   }).length;
 
   const getStages = (item: MissingItem): ImportStage[] => {
@@ -73,6 +99,58 @@ export default function ImportTable({
     }
 
     return [];
+  };
+
+  const getStatusBadge = (item: MissingItem) => {
+    const match = item.sanityMatch;
+
+    if (!match) {
+      return {
+        label: isAlreadyImported(item) ? "Finns" : "Ej kollad",
+        className: isAlreadyImported(item)
+          ? "bg-green-100 text-green-700 border-green-200"
+          : "bg-gray-100 text-gray-700 border-gray-200",
+        title: isAlreadyImported(item)
+          ? "Finns i lokal importhistorik"
+          : "Inte kontrollerad mot Sanity",
+      };
+    }
+
+    if (match.status === "exists") {
+      return {
+        label: "Finns",
+        className: "bg-green-100 text-green-700 border-green-200",
+        title: match.message,
+      };
+    }
+
+    if (match.status === "missing_stages") {
+      return {
+        label: "Saknar steg",
+        className: "bg-amber-100 text-amber-800 border-amber-200",
+        title: match.message,
+      };
+    }
+
+    if (match.status === "missing_brand") {
+      return {
+        label: "Saknar märke",
+        className: "bg-red-100 text-red-700 border-red-200",
+        title: match.message,
+      };
+    }
+
+    const labels: Record<string, string> = {
+      new_engine: "Ny motor",
+      new_year: "Ny årsmodell",
+      new_model: "Ny modell",
+    };
+
+    return {
+      label: labels[match.status] || "Ny",
+      className: "bg-blue-100 text-blue-700 border-blue-200",
+      title: match.message,
+    };
   };
 
   return (
@@ -140,7 +218,9 @@ export default function ImportTable({
               const engineId = getEngineId(item);
               const isSelected = selected.includes(engineId);
               const isImported = isAlreadyImported(item);
+              const isImportable = canImportItem(item);
               const stages = getStages(item);
+              const statusBadge = getStatusBadge(item);
               const primaryStage = stages.find(stage =>
                 ["steg1", "stage1"].includes(
                   (stage.name || "").toLowerCase().replace(/[^a-z0-9]/g, "")
@@ -152,29 +232,42 @@ export default function ImportTable({
                   key={engineId}
                   className={`border-b hover:bg-gray-50 ${
                     isSelected ? "bg-blue-50" : ""
-                  } ${isImported ? "opacity-60" : ""}`}
+                  } ${
+                    item.sanityMatch?.status === "exists"
+                      ? "bg-green-50"
+                      : item.sanityMatch?.status === "missing_stages"
+                        ? "bg-amber-50"
+                        : ""
+                  } ${!isImportable ? "opacity-60" : ""}`}
                 >
                   <td className="p-2 border">
                     <input
                       type="checkbox"
                       checked={isSelected}
                       onChange={() => onToggle(engineId)}
-                      disabled={isImported}
+                      disabled={!isImportable}
                     />
                   </td>
                   <td className="p-2 border">
-                    {isImported ? (
+                    <span
+                      className={`inline-block rounded border px-2 py-1 text-xs font-medium ${statusBadge.className}`}
+                      title={statusBadge.title}
+                    >
+                      {statusBadge.label}
+                    </span>
+                    {item.sanityMatch?.missingStages?.length ? (
+                      <div className="mt-1 text-xs text-amber-700">
+                        {item.sanityMatch.missingStages.join(", ")}
+                      </div>
+                    ) : null}
+                    {!item.sanityMatch && isImported ? (
                       <span
-                        className="text-green-600 font-medium"
+                        className="ml-2 text-green-600 font-medium"
                         title="Redan importerad"
                       >
                         ✓
                       </span>
-                    ) : (
-                      <span className="text-blue-600 font-medium" title="Ny">
-                        Ny
-                      </span>
-                    )}
+                    ) : null}
                   </td>
                   <td className="p-2 border font-medium">{item.brand}</td>
                   <td className="p-2 border">{item.model || "-"}</td>

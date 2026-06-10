@@ -17,6 +17,7 @@ interface MissingItem {
   tunedNm?: number;
   price?: number;
   stages?: ImportStage[];
+  sanityMatch?: SanityMatch;
 }
 
 interface ImportStage {
@@ -39,10 +40,35 @@ interface ImportResult {
   message?: string;
 }
 
+interface SanityMatch {
+  id: string;
+  status:
+    | "exists"
+    | "missing_stages"
+    | "new_engine"
+    | "new_year"
+    | "new_model"
+    | "missing_brand";
+  brandExists: boolean;
+  modelExists: boolean;
+  yearExists: boolean;
+  engineExists: boolean;
+  matchedYear?: string;
+  existingStages: string[];
+  missingStages: string[];
+  message: string;
+}
+
 // Nyckel för localStorage
 const IMPORT_HISTORY_KEY = "sanity-import-history";
 
 type ImportTab = "cars" | "jetskis" | "bikes";
+type StatusFilter =
+  | "all"
+  | "needs_import"
+  | "exists"
+  | "missing_stages"
+  | "new_structure";
 
 // Loading komponent för lazy loading
 function LoadingFallback() {
@@ -63,6 +89,7 @@ function CarImport() {
   const [missing, setMissing] = useState<MissingItem[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [checkingSanity, setCheckingSanity] = useState(false);
   const [status, setStatus] = useState("");
   const [importResults, setImportResults] = useState<ImportResult[]>([]);
   const [importHistory, setImportHistory] = useState<Set<string>>(new Set());
@@ -70,6 +97,7 @@ function CarImport() {
     brand: "",
     model: "",
     showOnlyNew: true,
+    status: "needs_import" as StatusFilter,
   });
 
   // Ladda import-historik vid start
@@ -111,12 +139,80 @@ function CarImport() {
       .toLowerCase();
 
   const isAlreadyImported = (item: MissingItem) =>
-    importHistory.has(getEngineId(item));
+    item.sanityMatch?.status === "exists" || importHistory.has(getEngineId(item));
+
+  const canImportItem = (item: MissingItem) =>
+    !isAlreadyImported(item) && item.sanityMatch?.status !== "missing_brand";
+
+  const checkSanityMatches = async (items: MissingItem[]) => {
+    setCheckingSanity(true);
+    setStatus(`Kontrollerar ${items.length} rader mot Sanity...`);
+
+    try {
+      const res = await fetch("/api/import/checkMissing", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({items}),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Sanity-kontroll misslyckades");
+      }
+
+      const matchMap = new Map<string, SanityMatch>(
+        (data.results || []).map((match: SanityMatch) => [match.id, match])
+      );
+      const checkedItems = items.map(item => ({
+        ...item,
+        sanityMatch: matchMap.get(getEngineId(item)),
+      }));
+
+      setMissing(checkedItems);
+      setStatus(
+        `Laddade ${items.length} objekt. ${data.summary?.exists || 0} finns redan, ${data.summary?.missingStages || 0} saknar steg, ${data.summary?.newEngines || 0} nya motorer.`
+      );
+    } catch (error) {
+      console.error("Sanity-kontroll misslyckades:", error);
+      setMissing(items);
+      setStatus("Filen laddades, men Sanity-kontrollen misslyckades.");
+    } finally {
+      setCheckingSanity(false);
+    }
+  };
 
   // Filtrera bort redan importerade och applicera sökfilter
   const filteredMissing = missing.filter(item => {
     // Filtrera bort redan importerade om "Visa bara nya" är aktiverat
-    if (filters.showOnlyNew && isAlreadyImported(item)) {
+    if (
+      filters.showOnlyNew &&
+      filters.status !== "exists" &&
+      isAlreadyImported(item)
+    ) {
+      return false;
+    }
+
+    if (filters.status === "needs_import" && !canImportItem(item)) {
+      return false;
+    }
+
+    if (filters.status === "exists" && item.sanityMatch?.status !== "exists") {
+      return false;
+    }
+
+    if (
+      filters.status === "missing_stages" &&
+      item.sanityMatch?.status !== "missing_stages"
+    ) {
+      return false;
+    }
+
+    if (
+      filters.status === "new_structure" &&
+      !["new_engine", "new_year", "new_model", "missing_brand"].includes(
+        item.sanityMatch?.status || ""
+      )
+    ) {
       return false;
     }
 
@@ -141,7 +237,7 @@ function CarImport() {
 
   // NY: Välj specifikt antal nya objekt
   const selectSpecificCount = (count: number) => {
-    const newItems = filteredMissing.filter(item => !isAlreadyImported(item));
+    const newItems = filteredMissing.filter(canImportItem);
     const itemsToSelect = newItems.slice(0, count);
     const newSelected = new Set(selected);
 
@@ -155,7 +251,7 @@ function CarImport() {
 
   // NY: Välj specifikt antal från alla filtrerade
   const selectSpecificCountFromAll = (count: number) => {
-    const itemsToSelect = filteredMissing.slice(0, count);
+    const itemsToSelect = filteredMissing.filter(canImportItem).slice(0, count);
     const newSelected = new Set(selected);
 
     itemsToSelect.forEach(item => {
@@ -172,7 +268,7 @@ function CarImport() {
 
     try {
       const text = await file.text();
-      const json = JSON.parse(text);
+      const json = JSON.parse(text) as MissingItem[];
 
       if (!Array.isArray(json)) {
         alert("Ogiltig JSON-fil. Välj missing_import.json.");
@@ -182,15 +278,7 @@ function CarImport() {
       setMissing(json);
       setSelected([]);
       setImportResults([]);
-
-      const alreadyImportedCount = json.filter(item =>
-        isAlreadyImported(item)
-      ).length;
-      const newItemsCount = json.length - alreadyImportedCount;
-
-      setStatus(
-        `Laddade ${json.length} objekt (${newItemsCount} nya, ${alreadyImportedCount} redan importerade)`
-      );
+      await checkSanityMatches(json);
     } catch (err) {
       console.error("Fel vid uppladdning:", err);
       alert("Kunde inte läsa filen.");
@@ -206,7 +294,7 @@ function CarImport() {
   };
 
   const selectAll = () => {
-    setSelected(filteredMissing.map(item => getEngineId(item)));
+    setSelected(filteredMissing.filter(canImportItem).map(item => getEngineId(item)));
   };
 
   const deselectAll = () => {
@@ -214,7 +302,7 @@ function CarImport() {
   };
 
   const selectOnlyNew = () => {
-    const newItems = filteredMissing.filter(item => !isAlreadyImported(item));
+    const newItems = filteredMissing.filter(canImportItem);
     setSelected(newItems.map(item => getEngineId(item)));
   };
 
@@ -291,12 +379,24 @@ function CarImport() {
 
   const stats = {
     total: missing.length,
-    new: missing.filter(item => !isAlreadyImported(item)).length,
+    new: missing.filter(canImportItem).length,
     imported: missing.filter(item => isAlreadyImported(item)).length,
+    exists: missing.filter(item => item.sanityMatch?.status === "exists").length,
+    missingStages: missing.filter(
+      item => item.sanityMatch?.status === "missing_stages"
+    ).length,
+    newStructure: missing.filter(item =>
+      ["new_engine", "new_year", "new_model"].includes(
+        item.sanityMatch?.status || ""
+      )
+    ).length,
+    missingBrands: missing.filter(
+      item => item.sanityMatch?.status === "missing_brand"
+    ).length,
     filtered: filteredMissing.length,
     selectedNew: selected.filter(id => {
       const item = missing.find(m => getEngineId(m) === id);
-      return item && !isAlreadyImported(item);
+      return item && canImportItem(item);
     }).length,
   };
 
@@ -328,10 +428,19 @@ function CarImport() {
               <strong>Totalt:</strong> {stats.total}
             </div>
             <div style={{color: "#28a745"}}>
-              <strong>Nya:</strong> {stats.new}
+              <strong>Importbara:</strong> {stats.new}
             </div>
             <div style={{color: "#6c757d"}}>
-              <strong>Importerade:</strong> {stats.imported}
+              <strong>Finns redan:</strong> {stats.exists || stats.imported}
+            </div>
+            <div style={{color: "#b45309"}}>
+              <strong>Saknar steg:</strong> {stats.missingStages}
+            </div>
+            <div style={{color: "#007bff"}}>
+              <strong>Nya i struktur:</strong> {stats.newStructure}
+            </div>
+            <div style={{color: "#dc3545"}}>
+              <strong>Saknar märke:</strong> {stats.missingBrands}
             </div>
             <div>
               <strong>Filtrerade:</strong> {stats.filtered}
@@ -345,6 +454,7 @@ function CarImport() {
       )}
 
       <p>{status}</p>
+      {checkingSanity && <p>Kontrollerar mot Sanity...</p>}
 
       {/* Filter och kontroller */}
       {missing.length > 0 && (
@@ -372,6 +482,37 @@ function CarImport() {
                 />
                 Visa bara nya
               </label>
+            </div>
+
+            <div style={{display: "flex", gap: 5, flexWrap: "wrap"}}>
+              {[
+                ["needs_import", "Att importera"],
+                ["exists", "Finns redan"],
+                ["missing_stages", "Saknar steg"],
+                ["new_structure", "Ny struktur"],
+                ["all", "Alla"],
+              ].map(([value, label]) => (
+                <button
+                  key={value}
+                  onClick={() =>
+                    setFilters(prev => ({
+                      ...prev,
+                      status: value as StatusFilter,
+                    }))
+                  }
+                  style={{
+                    padding: "5px 10px",
+                    background:
+                      filters.status === value ? "#198754" : "#f8f9fa",
+                    color: filters.status === value ? "white" : "#333",
+                    border: "1px solid #ced4da",
+                    borderRadius: 4,
+                    cursor: "pointer",
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
             </div>
 
             <div>
@@ -497,6 +638,7 @@ function CarImport() {
             onDeselectAll={deselectAll}
             onSelectOnlyNew={selectOnlyNew}
             isAlreadyImported={isAlreadyImported}
+            canImportItem={canImportItem}
           />
 
           <div
