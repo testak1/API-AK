@@ -622,6 +622,28 @@ export default function TuningViewer() {
     return translations[lang] || name;
   };
 
+  const usesDsgLabel = (brand?: string): boolean => {
+    const key = (brand || "")
+      .normalize("NFKD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, "");
+
+    return ["audi", "volkswagen", "cupra", "seat", "skoda"].includes(key);
+  };
+
+  const getStageDisplayName = (stageName: string, brand?: string): string => {
+    const isTcuStage = /(^|\s)(dsg|tcu)(\s|$)/i.test(stageName);
+    if (!isTcuStage) return stageName;
+    return usesDsgLabel(brand) ? "DSG" : "TCU";
+  };
+
+  const translateDisplayStageName = (
+    lang: string,
+    stageName: string,
+    brand?: string
+  ): string => translateStageName(lang, getStageDisplayName(stageName, brand));
+
   const getStageColor = (stageName: string) => {
     const name = stageName.toLowerCase();
     if (name.includes("steg 1")) return "text-red-500";
@@ -1852,6 +1874,10 @@ export default function TuningViewer() {
           <div className="space-y-6">
             {stages.map(stage => {
               const isExpanded = expandedStages[stage.name] ?? false;
+              const displayStageName = getStageDisplayName(
+                stage.name,
+                selected.brand
+              );
 
               return (
                 <div
@@ -1886,7 +1912,11 @@ export default function TuningViewer() {
                               stage.name
                             )}`}
                           >
-                            [{translateStageName(currentLanguage, stage.name)}]
+                            [{translateDisplayStageName(
+                              currentLanguage,
+                              stage.name,
+                              selected.brand
+                            )}]
                           </span>
                         </h2>
                       </div>
@@ -1894,7 +1924,7 @@ export default function TuningViewer() {
                       <div className="mt-3 md:mt-0 flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-4 text-center">
                         <Image
                           src={`/badges/${stage.name.toLowerCase().replace(/\s+/g, "")}.png`}
-                          alt={`${selected.brand} ${formatModelName(selected.brand, selected.model)} ${selected.engine} – ${stage.name}`}
+                          alt={`${selected.brand} ${formatModelName(selected.brand, selected.model)} ${selected.engine} - ${displayStageName}`}
                           width={66}
                           height={32}
                           className="h-8 object-contain"
@@ -1939,9 +1969,9 @@ export default function TuningViewer() {
                     (() => {
                       // OPTIMIZATION: All expensive calculations and variables are now inside this block.
                       // They will only run when `isExpanded` is true.
-                      const isDsgStage = stage.name
-                        .toLowerCase()
-                        .includes("dsg");
+                      const isDsgStage = /(^|\s)(dsg|tcu)(\s|$)/i.test(
+                        stage.name
+                      );
                       const isTruck = selected.brand.startsWith("[LASTBIL]");
                       const allOptions = getAllAktPlusOptions(stage);
                       const descriptionObject =
@@ -2104,16 +2134,18 @@ export default function TuningViewer() {
                                 className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg shadow"
                               >
                                 📄{" "}
-                                {translate(
+                                {translateDisplayStageName(
                                   currentLanguage,
-                                  "translateStageName",
-                                  stage.name
+                                  stage.name,
+                                  selected.brand
                                 ).toUpperCase()}{" "}
                                 {translate(currentLanguage, "infoStage")}
                               </button>
                               {/* Hidden SEO content for stage info */}
                               <div className="sr-only">
-                                <h2>{stage.name.toUpperCase()} INFORMATION</h2>
+                                <h2>
+                                  {displayStageName.toUpperCase()} INFORMATION
+                                </h2>
                                 {dynamicDescription && (
                                   <PortableText
                                     value={dynamicDescription}
@@ -2488,7 +2520,7 @@ export default function TuningViewer() {
                                       <span
                                         className={getStageColor(stage.name)}
                                       >
-                                        {stage.name
+                                        {displayStageName
                                           .replace(
                                             "Steg",
                                             translate(
@@ -2745,7 +2777,9 @@ export default function TuningViewer() {
           onClose={() => setInfoModal({open: false, type: infoModal.type})}
           title={
             infoModal.type === "stage" && infoModal.stage
-              ? infoModal.stage.name.replace(/^steg/i, "STEG").toUpperCase()
+              ? getStageDisplayName(infoModal.stage.name, selected.brand)
+                  .replace(/^steg/i, "STEG")
+                  .toUpperCase()
               : translate(currentLanguage, "generalInfoLabel")
           }
           id={

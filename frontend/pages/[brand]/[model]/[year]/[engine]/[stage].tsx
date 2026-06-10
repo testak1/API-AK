@@ -556,6 +556,28 @@ export default function StagePage({
     return translations[lang] || name;
   };
 
+  const usesDsgLabel = (brand?: string): boolean => {
+    const key = (brand || "")
+      .normalize("NFKD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, "");
+
+    return ["audi", "volkswagen", "cupra", "seat", "skoda"].includes(key);
+  };
+
+  const getStageDisplayName = (stageName: string, brand?: string): string => {
+    const isTcuStage = /(^|\s)(dsg|tcu)(\s|$)/i.test(stageName);
+    if (!isTcuStage) return stageName;
+    return usesDsgLabel(brand) ? "DSG" : "TCU";
+  };
+
+  const translateDisplayStageName = (
+    lang: string,
+    stageName: string,
+    brand?: string
+  ): string => translateStageName(lang, getStageDisplayName(stageName, brand));
+
   const rpmLabels = useMemo(() => {
     return engineData?.fuel?.toLowerCase().includes("diesel")
       ? ["1500", "2000", "2500", "3000", "3500", "4000", "4500", "5000"]
@@ -604,9 +626,13 @@ export default function StagePage({
 
   const canonicalUrl = `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}/${stageSlug}`;
   const enginePageUrl = `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}`;
+  const stageDisplayName = getStageDisplayName(
+    stageData?.name || "",
+    brandData?.name
+  );
 
   const pageTitle = cleanText(
-    `Motoroptimering ${brandData?.name} ${modelData?.name} ${engineData?.label} ${yearData?.range} – ${stageData?.name} | AK-TUNING`
+    `Motoroptimering ${brandData?.name} ${modelData?.name} ${engineData?.label} ${yearData?.range} - ${stageDisplayName} | AK-TUNING`
   );
 
   const hkIncreaseText =
@@ -615,7 +641,7 @@ export default function StagePage({
     nmIncrease !== "?" ? `+${nmIncrease} Nm` : "bättre vridmoment";
 
   const pageDescription = cleanText(
-    `${stageData?.name} Motoroptimering till ${brandData?.name} ${modelData?.name} ${engineData?.label} ${yearData?.range}. Effekt: ${stageData?.tunedHk} hk (${hkIncreaseText}). Vridmoment: ${stageData?.tunedNm} Nm (${nmIncreaseText}). Skräddarsydd mjukvara med 2 års garanti & 30 dagars öppet köp!`
+    `${stageDisplayName} Motoroptimering till ${brandData?.name} ${modelData?.name} ${engineData?.label} ${yearData?.range}. Effekt: ${stageData?.tunedHk} hk (${hkIncreaseText}). Vridmoment: ${stageData?.tunedNm} Nm (${nmIncreaseText}). Skräddarsydd mjukvara med 2 års garanti & 30 dagars öppet köp!`
   );
 
   const imageUrl = "https://tuning.aktuning.se/ak-logo1.png";
@@ -686,7 +712,7 @@ export default function StagePage({
     return newDescription;
   };
 
-  const isDsgStage = stageData.name.toLowerCase().includes("dsg");
+  const isDsgStage = /(^|\s)(dsg|tcu)(\s|$)/i.test(stageData.name);
   const isTruck = brandData.name.startsWith("[LASTBIL]");
   const descriptionObject =
     stageData.descriptionRef?.description || stageData.description;
@@ -748,7 +774,7 @@ export default function StagePage({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "Product",
-              name: `Motoroptimering ${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} – ${stageData.name}`,
+              name: `Motoroptimering ${brandData.name} ${modelData.name} ${yearData.range} ${engineData.label} - ${stageDisplayName}`,
               image: [imageUrl],
               description: pageDescription,
               brand: {
@@ -818,7 +844,7 @@ export default function StagePage({
                 {
                   "@type": "ListItem",
                   position: 6,
-                  name: stageData.name,
+                  name: stageDisplayName,
                   item: canonicalUrl,
                 },
               ],
@@ -836,18 +862,18 @@ export default function StagePage({
               mainEntity: [
                 {
                   "@type": "Question",
-                  name: `Vad kostar ${stageData.name} optimering för ${brandData.name} ${modelData.name} ${engineData.label}?`,
+                  name: `Vad kostar ${stageDisplayName} optimering för ${brandData.name} ${modelData.name} ${engineData.label}?`,
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: `${stageData.name} mjukvara för ${brandData.name} ${modelData.name} ${engineData.label} kostar ${price}. Priset inkluderar skräddarsydd mjukvara, diagnostik, samt loggning innan och efter optimering. 2 års mjukvaru garanti och 30 dagars öppet köp.`,
+                    text: `${stageDisplayName} mjukvara för ${brandData.name} ${modelData.name} ${engineData.label} kostar ${price}. Priset inkluderar skräddarsydd mjukvara, diagnostik, samt loggning innan och efter optimering. 2 års mjukvaru garanti och 30 dagars öppet köp.`,
                   },
                 },
                 {
                   "@type": "Question",
-                  name: `Hur mycket ökar effekten med ${stageData.name} till ${brandData.name} ${modelData.name} ${engineData.label}?`,
+                  name: `Hur mycket ökar effekten med ${stageDisplayName} till ${brandData.name} ${modelData.name} ${engineData.label}?`,
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: `Med ${stageData.name} ökar effekten från ${stageData.origHk} hk till ${stageData.tunedHk} hk (+${hkIncrease} hk) och vridmomentet från ${stageData.origNm} Nm till ${stageData.tunedNm} Nm (+${nmIncrease} Nm).`,
+                    text: `Med ${stageDisplayName} ökar effekten från ${stageData.origHk} hk till ${stageData.tunedHk} hk (+${hkIncrease} hk) och vridmomentet från ${stageData.origNm} Nm till ${stageData.tunedNm} Nm (+${nmIncrease} Nm).`,
                   },
                 },
               ],
@@ -882,7 +908,7 @@ export default function StagePage({
               {cleanText(formatModelName(brandData.name, modelData.name))}{" "}
               {cleanText(yearData.range)} {cleanText(engineData.label)} –{" "}
               <span className={getStageColor(stageData.name)}>
-                {cleanText(stageData.name.toUpperCase())}
+                {cleanText(stageDisplayName.toUpperCase())}
               </span>
             </h1>
             {/* FIX: Ändrat från orange-500 till röd varumärkesfärg med bra kontrast */}
@@ -914,7 +940,11 @@ export default function StagePage({
                   <span
                     className={`uppercase tracking-wide ${getStageColor(stageData.name)}`}
                   >
-                    [{translateStageName(currentLanguage, stageData.name)}]
+                    [{translateDisplayStageName(
+                      currentLanguage,
+                      stageData.name,
+                      brandData.name
+                    )}]
                   </span>
                 </h2>
               </div>
@@ -922,7 +952,7 @@ export default function StagePage({
               <div className="mt-3 md:mt-0 flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-4 text-center">
                 <Image
                   src={`/badges/${stageData.name.toLowerCase().replace(/\s+/g, "")}.png`}
-                  alt={`${brandData.name} ${modelData.name} ${engineData.label} – ${stageData.name}`}
+                  alt={`${brandData.name} ${modelData.name} ${engineData.label} - ${stageDisplayName}`}
                   width={66}
                   height={32}
                   className="h-8 object-contain"
@@ -1063,7 +1093,7 @@ export default function StagePage({
                       </span>
                       <span className="text-white">
                         <span className="text-white text-[14px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
-                          {stageData.name
+                          {stageDisplayName
                             .replace("Steg", "ST")
                             .replace(/\s+/g, "")}
                           : {stageData.tunedHk} HK
@@ -1088,7 +1118,7 @@ export default function StagePage({
                       </span>
                       <span className="text-white">
                         <span className="text-white text-[14px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
-                          {stageData.name
+                          {stageDisplayName
                             .replace("Steg", "ST")
                             .replace(/\s+/g, "")}
                           : {stageData.tunedNm} NM
@@ -1279,7 +1309,7 @@ export default function StagePage({
               <div className="mb-6">
                 <div className="bg-gray-900 rounded-lg p-4">
                   <h3 className="text-xl font-bold text-white mb-4">
-                    {cleanText(stageData.name.toUpperCase())} -{" "}
+                    {cleanText(stageDisplayName.toUpperCase())} -{" "}
                     {translate(currentLanguage, "tuningIntro").toUpperCase()}{" "}
                     {translate(currentLanguage, "info1").toUpperCase()}
                   </h3>
@@ -1299,7 +1329,7 @@ export default function StagePage({
                 className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-bold text-lg shadow-lg transition-all duration-300 transform hover:scale-105 w-full sm:w-auto text-center"
               >
                 📩 {translate(currentLanguage, "contactvalue")}{" "}
-                {stageData.name.toUpperCase()}
+                {stageDisplayName.toUpperCase()}
               </button>
             </div>
 
@@ -1435,7 +1465,7 @@ export default function StagePage({
                 <div>
                   <p className="mb-2">
                     <strong>{translate(currentLanguage, "stage")}:</strong>{" "}
-                    {infoModal.stage.name}
+                    {getStageDisplayName(infoModal.stage.name, brandData.name)}
                   </p>
                   <p className="mb-2">
                     <strong>{translate(currentLanguage, "price")}:</strong>{" "}
