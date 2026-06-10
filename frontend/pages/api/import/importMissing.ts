@@ -16,6 +16,19 @@ interface ImportItem {
   origNm?: number;
   tunedNm?: number;
   price?: number;
+  stages?: ImportStage[];
+}
+
+interface ImportStage {
+  name?: string;
+  type?: string;
+  origHk?: number;
+  tunedHk?: number;
+  origNm?: number;
+  tunedNm?: number;
+  price?: number;
+  sourcePrice?: number | string;
+  sourceUrl?: string;
 }
 
 interface ImportResult {
@@ -89,12 +102,6 @@ async function processImportItem(item: ImportItem): Promise<ImportResult> {
     throw new Error("Brand name saknas");
   }
 
-  // Hämta Stage 1 description reference
-  const stage1Description = await findStage1Description();
-  if (!stage1Description) {
-    throw new Error("Kunde inte hitta Stage 1 description");
-  }
-
   // Hämta hela brand-dokumentet med alla modeller, years och engines
   const brandDoc = await sanityClient.fetch(
     `*[_type == "brand" && lower(name) == lower($name)][0]{
@@ -109,28 +116,17 @@ async function processImportItem(item: ImportItem): Promise<ImportResult> {
     throw new Error(`Brand '${brandName}' hittades inte`);
   }
 
-  // Skapa stage objekt med fast pris och description
-  const stage = {
-    _key: generateKey(),
-    name: "Steg 1",
-    type: "performance",
-    origHk: item.origHk,
-    tunedHk: item.tunedHk,
-    origNm: item.origNm,
-    tunedNm: item.tunedNm,
-    price: 4995, // Fast pris för Steg 1
-    descriptionRef: {
-      _type: "reference",
-      _ref: stage1Description._id,
-    },
-  };
+  const stages = await buildStages(item);
+  if (!stages.length) {
+    throw new Error("Stage-data saknas");
+  }
 
   // Skapa engine objekt
   const newEngine = {
     _key: generateKey(),
     fuel: fuelType,
     label: engineLabel,
-    stages: [stage],
+    stages,
   };
 
   let action = "";
@@ -177,19 +173,41 @@ async function processImportItem(item: ImportItem): Promise<ImportResult> {
     } else {
       // Year finns, kolla om engine redan finns
       const year = model.years[yearIndex];
-      const engineExists = year.engines?.some(
+      const engineIndex = year.engines?.findIndex(
         (e: any) => normalizeString(e?.label) === normalizeString(engineLabel)
       );
 
-      if (engineExists) {
-        return {
-          brand: brandName,
-          model: modelName,
-          year: yearRange,
-          engine: engineLabel,
-          status: "exists",
-          action: "engine_exists",
-        };
+      if (
+        typeof engineIndex === "number" &&
+        engineIndex > -1 &&
+        year.engines?.[engineIndex]
+      ) {
+        const existingEngine = year.engines[engineIndex];
+        const existingStageNames = new Set(
+          (existingEngine.stages || []).map((stage: any) =>
+            normalizeString(stage?.name)
+          )
+        );
+        const stagesToAdd = stages.filter(
+          stage => !existingStageNames.has(normalizeString(stage.name))
+        );
+
+        if (!stagesToAdd.length) {
+          return {
+            brand: brandName,
+            model: modelName,
+            year: yearRange,
+            engine: engineLabel,
+            status: "exists",
+            action: "engine_exists",
+          };
+        }
+
+        patch = patch.append(
+          `models[${modelIndex}].years[${yearIndex}].engines[${engineIndex}].stages`,
+          stagesToAdd
+        );
+        action = "new_stages";
       } else {
         // Lägg till engine i befintlig year
         patch = patch.append(
@@ -214,22 +232,150 @@ async function processImportItem(item: ImportItem): Promise<ImportResult> {
   };
 }
 
-// Hjälpfunktion för att hitta Stage 1 description
-async function findStage1Description(): Promise<any> {
-  const query = `*[_type == "stageDescription" && stageName match "steg 1" || stageName match "stage 1"][0]{
+async function buildStages(item: ImportItem) {
+  const importStages = getImportStages(item);
+  const stages = await Promise.all(
+    importStages.map(async stage => {
+      const stageName = normalizeStageName(stage.name);
+      const type = normalizeStageType(stage);
+      const description = await findStageDescription(stageName);
+      const baseStage: any = {
+        _key: generateKey(),
+        name: stageName,
+        type,
+        price:
+          typeof stage.price === "number"
+            ? stage.price
+            : defaultStagePrice(stageName),
+      };
+
+      if (type === "performance") {
+        baseStage.origHk = stage.origHk;
+        baseStage.tunedHk = stage.tunedHk;
+        baseStage.origNm = stage.origNm;
+        baseStage.tunedNm = stage.tunedNm;
+      }
+
+      if (description?._id) {
+        baseStage.descriptionRef = {
+          _type: "reference",
+          _ref: description._id,
+        };
+      }
+
+      return baseStage;
+    })
+  );
+
+  return stages.filter(stage => stage.name);
+}
+
+function getImportStages(item: ImportItem): ImportStage[] {
+  if (Array.isArray(item.stages) && item.stages.length > 0) {
+    return item.stages;
+  }
+
+  if (
+    item.origHk ||
+    item.tunedHk ||
+    item.origNm ||
+    item.tunedNm ||
+    item.price
+  ) {
+    return [
+      {
+        name: "Steg 1",
+        type: "performance",
+        origHk: item.origHk,
+        tunedHk: item.tunedHk,
+        origNm: item.origNm,
+        tunedNm: item.tunedNm,
+        price: 4995,
+      },
+    ];
+  }
+
+  return [];
+}
+
+function normalizeStageName(stageName = "Steg 1"): string {
+  const value = stageName.trim();
+  const key = normalizeString(value);
+
+  if (key === "stage1" || key === "steg1") return "Steg 1";
+  if (key === "stage2" || key === "steg2") return "Steg 2";
+  if (key === "stage3" || key === "steg3") return "Steg 3";
+  if (key === "stage4" || key === "steg4") return "Steg 4";
+  if (["gearbox", "dsg", "tcu"].includes(key) || key.startsWith("dsg")) {
+    return "DSG";
+  }
+
+  return value || "Steg 1";
+}
+
+function normalizeStageType(stage: ImportStage): string {
+  const key = normalizeString(stage.name || "");
+  if (
+    stage.type === "tcu" ||
+    ["gearbox", "dsg", "tcu"].includes(key) ||
+    key.startsWith("dsg")
+  ) {
+    return "tcu";
+  }
+
+  return "performance";
+}
+
+function defaultStagePrice(stageName: string): number {
+  const key = normalizeString(stageName);
+
+  if (key === "steg1" || key === "stage1") return 4995;
+  if (key === "steg2" || key === "stage2") return 9995;
+  if (["gearbox", "dsg", "tcu"].includes(key) || key.startsWith("dsg")) {
+    return 3495;
+  }
+
+  return 0;
+}
+
+const stageDescriptionCache = new Map<string, Promise<any>>();
+
+async function findStageDescription(stageName: string): Promise<any> {
+  const normalizedName = normalizeStageName(stageName);
+  const cacheKey = normalizeString(normalizedName);
+
+  if (stageDescriptionCache.has(cacheKey)) {
+    return stageDescriptionCache.get(cacheKey);
+  }
+
+  const englishName = normalizedName.replace(/^Steg/i, "Stage");
+  const query = `*[_type == "stageDescription" && (
+    lower(stageName) == lower($stageName) ||
+    lower(stageName) == lower($englishName) ||
+    stageName match $stageName ||
+    stageName match $englishName
+  )][0]{
     _id,
     stageName
   }`;
 
-  const description = await sanityClient.fetch(query);
+  const promise = sanityClient
+    .fetch(query, {stageName: normalizedName, englishName})
+    .then(async description => {
+      if (description) return description;
 
-  if (!description) {
-    // Fallback: hitta första stageDescription
-    const fallbackQuery = `*[_type == "stageDescription"][0]{_id, stageName}`;
-    return await sanityClient.fetch(fallbackQuery);
-  }
+      if (cacheKey === "dsg") {
+        return null;
+      }
 
-  return description;
+      const fallbackQuery = `*[_type == "stageDescription" && (
+        stageName match "steg 1" || stageName match "stage 1"
+      )][0]{_id, stageName}`;
+      return sanityClient.fetch(fallbackQuery);
+    });
+
+  stageDescriptionCache.set(cacheKey, promise);
+  return promise;
 }
 
 // Bättre jämförelse av år-intervall

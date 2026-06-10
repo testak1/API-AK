@@ -9,6 +9,17 @@ interface MissingItem {
   origNm?: number;
   tunedNm?: number;
   price?: number;
+  stages?: ImportStage[];
+}
+
+interface ImportStage {
+  name?: string;
+  type?: string;
+  origHk?: number;
+  tunedHk?: number;
+  origNm?: number;
+  tunedNm?: number;
+  price?: number;
 }
 
 interface ImportTableProps {
@@ -43,6 +54,26 @@ export default function ImportTable({
     const item = missing.find(m => getEngineId(m) === id);
     return item && !isAlreadyImported(item);
   }).length;
+
+  const getStages = (item: MissingItem): ImportStage[] => {
+    if (Array.isArray(item.stages) && item.stages.length > 0) {
+      return item.stages;
+    }
+
+    if (item.origHk || item.tunedHk || item.origNm || item.tunedNm) {
+      return [
+        {
+          name: "Steg 1",
+          origHk: item.origHk,
+          tunedHk: item.tunedHk,
+          origNm: item.origNm,
+          tunedNm: item.tunedNm,
+        },
+      ];
+    }
+
+    return [];
+  };
 
   return (
     <div className="w-full">
@@ -98,16 +129,23 @@ export default function ImportTable({
               <th className="p-2 border text-left">Modell</th>
               <th className="p-2 border text-left">År</th>
               <th className="p-2 border text-left">Motor</th>
+              <th className="p-2 border text-left">Steg</th>
               <th className="p-2 border text-left">Bränsle</th>
               <th className="p-2 border text-left">HK</th>
               <th className="p-2 border text-left">NM</th>
             </tr>
           </thead>
           <tbody>
-            {missing.map((item, index) => {
+            {missing.map(item => {
               const engineId = getEngineId(item);
               const isSelected = selected.includes(engineId);
               const isImported = isAlreadyImported(item);
+              const stages = getStages(item);
+              const primaryStage = stages.find(stage =>
+                ["steg1", "stage1"].includes(
+                  (stage.name || "").toLowerCase().replace(/[^a-z0-9]/g, "")
+                )
+              ) || stages[0];
 
               return (
                 <tr
@@ -144,15 +182,20 @@ export default function ImportTable({
                   <td className="p-2 border font-medium">
                     {item.engine || "-"}
                   </td>
+                  <td className="p-2 border">
+                    {stages.length
+                      ? stages.map(stage => stage.name || "Steg").join(", ")
+                      : "-"}
+                  </td>
                   <td className="p-2 border">{item.fuel || "Bensin"}</td>
                   <td className="p-2 border">
-                    {item.origHk && item.tunedHk
-                      ? `${item.origHk}→${item.tunedHk}`
+                    {primaryStage?.origHk && primaryStage?.tunedHk
+                      ? `${primaryStage.origHk}→${primaryStage.tunedHk}`
                       : "-"}
                   </td>
                   <td className="p-2 border">
-                    {item.origNm && item.tunedNm
-                      ? `${item.origNm}→${item.tunedNm}`
+                    {primaryStage?.origNm && primaryStage?.tunedNm
+                      ? `${primaryStage.origNm}→${primaryStage.tunedNm}`
                       : "-"}
                   </td>
                 </tr>

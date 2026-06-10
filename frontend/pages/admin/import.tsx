@@ -16,6 +16,17 @@ interface MissingItem {
   origNm?: number;
   tunedNm?: number;
   price?: number;
+  stages?: ImportStage[];
+}
+
+interface ImportStage {
+  name?: string;
+  type?: string;
+  origHk?: number;
+  tunedHk?: number;
+  origNm?: number;
+  tunedNm?: number;
+  price?: number;
 }
 
 interface ImportResult {

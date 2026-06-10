@@ -9,6 +9,19 @@ export interface ImportItem {
   origNm?: number;
   tunedNm?: number;
   price?: number;
+  stages?: ImportStage[];
+}
+
+export interface ImportStage {
+  name?: string;
+  type?: string;
+  origHk?: number;
+  tunedHk?: number;
+  origNm?: number;
+  tunedNm?: number;
+  price?: number;
+  sourcePrice?: number | string;
+  sourceUrl?: string;
 }
 
 export interface ImportResult {
