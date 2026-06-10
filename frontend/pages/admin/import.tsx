@@ -40,6 +40,19 @@ interface ImportResult {
   message?: string;
 }
 
+interface ImportHistoryEntry {
+  id: string;
+  importedAt: string;
+  brand: string;
+  model?: string;
+  year?: string;
+  engine?: string;
+  stages: string[];
+  status: ImportResult["status"];
+  action?: string;
+  message?: string;
+}
+
 interface SanityMatch {
   id: string;
   status:
@@ -61,8 +74,10 @@ interface SanityMatch {
 
 // Nyckel för localStorage
 const IMPORT_HISTORY_KEY = "sanity-import-history";
+const IMPORT_HISTORY_DETAILS_KEY = "sanity-import-history-details";
 
 type ImportTab = "cars" | "jetskis" | "bikes";
+type CarView = "import" | "history";
 type StatusFilter =
   | "all"
   | "needs_import"
@@ -95,6 +110,7 @@ function LoadingFallback() {
 }
 
 function CarImport() {
+  const [activeCarView, setActiveCarView] = useState<CarView>("import");
   const [missing, setMissing] = useState<MissingItem[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -102,6 +118,9 @@ function CarImport() {
   const [status, setStatus] = useState("");
   const [importResults, setImportResults] = useState<ImportResult[]>([]);
   const [importHistory, setImportHistory] = useState<Set<string>>(new Set());
+  const [importHistoryEntries, setImportHistoryEntries] = useState<
+    ImportHistoryEntry[]
+  >([]);
   const [filters, setFilters] = useState({
     brand: "",
     model: "",
@@ -112,6 +131,8 @@ function CarImport() {
   // Ladda import-historik vid start
   useEffect(() => {
     const savedHistory = localStorage.getItem(IMPORT_HISTORY_KEY);
+    const savedHistoryDetails = localStorage.getItem(IMPORT_HISTORY_DETAILS_KEY);
+
     if (savedHistory) {
       try {
         const historyArray = JSON.parse(savedHistory);
@@ -120,26 +141,72 @@ function CarImport() {
         console.error("Kunde inte ladda import-historik:", error);
       }
     }
+
+    if (savedHistoryDetails) {
+      try {
+        setImportHistoryEntries(JSON.parse(savedHistoryDetails));
+      } catch (error) {
+        console.error("Kunde inte ladda importhistorik-detaljer:", error);
+      }
+    }
   }, []);
 
   // Spara import-historik när den ändras
   useEffect(() => {
-    if (importHistory.size > 0) {
-      localStorage.setItem(
-        IMPORT_HISTORY_KEY,
-        JSON.stringify(Array.from(importHistory))
-      );
-    }
+    localStorage.setItem(
+      IMPORT_HISTORY_KEY,
+      JSON.stringify(Array.from(importHistory))
+    );
   }, [importHistory]);
 
+  useEffect(() => {
+    localStorage.setItem(
+      IMPORT_HISTORY_DETAILS_KEY,
+      JSON.stringify(importHistoryEntries)
+    );
+  }, [importHistoryEntries]);
+
+  const getStageNames = (item: MissingItem) => {
+    if (Array.isArray(item.stages) && item.stages.length > 0) {
+      return item.stages.map(stage => stage.name || "Steg");
+    }
+
+    return item.origHk || item.tunedHk || item.origNm || item.tunedNm
+      ? ["Steg 1"]
+      : [];
+  };
+
   // Lägg till importerade motorer i historiken
-  const addToImportHistory = (items: MissingItem[]) => {
+  const addToImportHistory = (
+    items: MissingItem[],
+    results: ImportResult[]
+  ) => {
     const newHistory = new Set(importHistory);
-    items.forEach(item => {
+    const timestamp = new Date().toISOString();
+    const newEntries = items.map((item, index) => {
+      const result = results[index];
       const engineId = getEngineId(item);
-      newHistory.add(engineId);
+
+      if (result?.status === "created" || result?.status === "exists") {
+        newHistory.add(engineId);
+      }
+
+      return {
+        id: `${timestamp}-${engineId}-${index}`,
+        importedAt: timestamp,
+        brand: item.brand,
+        model: item.model,
+        year: item.year,
+        engine: item.engine,
+        stages: getStageNames(item),
+        status: result?.status || "error",
+        action: result?.action,
+        message: result?.message,
+      };
     });
+
     setImportHistory(newHistory);
+    setImportHistoryEntries(prev => [...newEntries, ...prev].slice(0, 1000));
   };
 
   const getEngineId = (item: MissingItem) =>
@@ -439,12 +506,7 @@ function CarImport() {
 
       if (data.results) {
         setImportResults(data.results);
-
-        // Lägg till framgångsrika imports i historiken
-        const successfulImports = selectedItems.filter(
-          (item, index) => data.results[index]?.status === "created"
-        );
-        addToImportHistory(successfulImports);
+        addToImportHistory(selectedItems, data.results);
       }
 
       setStatus(
@@ -475,9 +537,23 @@ function CarImport() {
   const clearHistory = () => {
     if (confirm("Är du säker på att du vill radera import-historiken?")) {
       setImportHistory(new Set());
+      setImportHistoryEntries([]);
       localStorage.removeItem(IMPORT_HISTORY_KEY);
+      localStorage.removeItem(IMPORT_HISTORY_DETAILS_KEY);
       setStatus("Import-historik raderad");
     }
+  };
+
+  const exportHistory = () => {
+    const blob = new Blob([JSON.stringify(importHistoryEntries, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "import_history.json";
+    link.click();
+    URL.revokeObjectURL(url);
   };
 
   const stats = {
@@ -511,6 +587,177 @@ function CarImport() {
 
   return (
     <div>
+      <div style={{display: "flex", gap: 10, marginBottom: 20}}>
+        <button
+          onClick={() => setActiveCarView("import")}
+          style={{
+            padding: "8px 14px",
+            background: activeCarView === "import" ? "#198754" : "#f8f9fa",
+            color: activeCarView === "import" ? "white" : "#333",
+            border: "1px solid #ced4da",
+            borderRadius: 6,
+            cursor: "pointer",
+          }}
+        >
+          Import
+        </button>
+        <button
+          onClick={() => setActiveCarView("history")}
+          style={{
+            padding: "8px 14px",
+            background: activeCarView === "history" ? "#198754" : "#f8f9fa",
+            color: activeCarView === "history" ? "white" : "#333",
+            border: "1px solid #ced4da",
+            borderRadius: 6,
+            cursor: "pointer",
+          }}
+        >
+          Historik ({importHistoryEntries.length})
+        </button>
+      </div>
+
+      {activeCarView === "history" ? (
+        <div>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              gap: 10,
+              marginBottom: 15,
+            }}
+          >
+            <h3 style={{margin: 0}}>Importhistorik</h3>
+            <div style={{display: "flex", gap: 8}}>
+              <button
+                onClick={exportHistory}
+                disabled={!importHistoryEntries.length}
+                style={{
+                  padding: "7px 12px",
+                  background: importHistoryEntries.length ? "#0d6efd" : "#ccc",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 6,
+                  cursor: importHistoryEntries.length ? "pointer" : "not-allowed",
+                }}
+              >
+                Exportera historik
+              </button>
+              <button
+                onClick={clearHistory}
+                style={{
+                  padding: "7px 12px",
+                  background: "#dc3545",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 6,
+                  cursor: "pointer",
+                }}
+              >
+                Rensa historik
+              </button>
+            </div>
+          </div>
+
+          {importHistoryEntries.length ? (
+            <div style={{overflowX: "auto"}}>
+              <table
+                style={{
+                  width: "100%",
+                  borderCollapse: "collapse",
+                  fontSize: 14,
+                }}
+              >
+                <thead>
+                  <tr style={{background: "#f1f5f9"}}>
+                    {[
+                      "Datum",
+                      "Status",
+                      "Action",
+                      "Märke",
+                      "Modell",
+                      "År",
+                      "Motor",
+                      "Steg",
+                      "Meddelande",
+                    ].map(heading => (
+                      <th
+                        key={heading}
+                        style={{
+                          padding: 8,
+                          border: "1px solid #cbd5e1",
+                          textAlign: "left",
+                        }}
+                      >
+                        {heading}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {importHistoryEntries.map(entry => (
+                    <tr key={entry.id}>
+                      <td style={{padding: 8, border: "1px solid #cbd5e1"}}>
+                        {new Date(entry.importedAt).toLocaleString("sv-SE")}
+                      </td>
+                      <td style={{padding: 8, border: "1px solid #cbd5e1"}}>
+                        <span
+                          style={{
+                            color:
+                              entry.status === "created"
+                                ? "#198754"
+                                : entry.status === "exists"
+                                  ? "#64748b"
+                                  : "#dc3545",
+                            fontWeight: 700,
+                          }}
+                        >
+                          {entry.status}
+                        </span>
+                      </td>
+                      <td style={{padding: 8, border: "1px solid #cbd5e1"}}>
+                        {entry.action || "-"}
+                      </td>
+                      <td style={{padding: 8, border: "1px solid #cbd5e1"}}>
+                        {entry.brand}
+                      </td>
+                      <td style={{padding: 8, border: "1px solid #cbd5e1"}}>
+                        {entry.model || "-"}
+                      </td>
+                      <td style={{padding: 8, border: "1px solid #cbd5e1"}}>
+                        {entry.year || "-"}
+                      </td>
+                      <td style={{padding: 8, border: "1px solid #cbd5e1"}}>
+                        {entry.engine || "-"}
+                      </td>
+                      <td style={{padding: 8, border: "1px solid #cbd5e1"}}>
+                        {entry.stages.length ? entry.stages.join(", ") : "-"}
+                      </td>
+                      <td style={{padding: 8, border: "1px solid #cbd5e1"}}>
+                        {entry.message || "-"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div
+              style={{
+                padding: 30,
+                background: "#f8fafc",
+                border: "1px solid #e2e8f0",
+                borderRadius: 8,
+                textAlign: "center",
+                color: "#64748b",
+              }}
+            >
+              Ingen importhistorik ännu.
+            </div>
+          )}
+        </div>
+      ) : (
+        <>
       <p>
         Välj <strong>missing_import.json</strong> för att granska och importera
         saknade bilar.
@@ -1000,6 +1247,8 @@ function CarImport() {
         >
           Ladda upp en JSON-fil för att börja importera bilar
         </div>
+      )}
+        </>
       )}
     </div>
   );
