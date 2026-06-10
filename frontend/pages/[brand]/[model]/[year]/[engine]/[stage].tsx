@@ -25,6 +25,10 @@ import BmwTcuDescription, {
   BMW_TCU_DESCRIPTION_TEXT,
   isBmwBrand,
 } from "@/components/BmwTcuDescription";
+import MercedesTcuDescription, {
+  MERCEDES_TCU_DESCRIPTION_TEXT,
+  isMercedesBrand,
+} from "@/components/MercedesTcuDescription";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -573,6 +577,7 @@ export default function StagePage({
   const getStageDisplayName = (stageName: string, brand?: string): string => {
     const isTcuStage = /(^|\s)(dsg|tcu)(\s|$)/i.test(stageName);
     if (!isTcuStage) return stageName;
+    if (isMercedesBrand(brand)) return "TCU Mercedes";
     return usesDsgLabel(brand) ? "DSG" : "TCU";
   };
 
@@ -646,10 +651,14 @@ export default function StagePage({
 
   const isDsgStage = /(^|\s)(dsg|tcu)(\s|$)/i.test(stageData.name);
   const useBmwTcuDescription = isDsgStage && isBmwBrand(brandData.name);
+  const useMercedesTcuDescription =
+    isDsgStage && isMercedesBrand(brandData.name);
 
   const pageDescription = cleanText(
     useBmwTcuDescription
       ? BMW_TCU_DESCRIPTION_TEXT
+      : useMercedesTcuDescription
+        ? MERCEDES_TCU_DESCRIPTION_TEXT
       : `${stageDisplayName} Motoroptimering till ${brandData?.name} ${modelData?.name} ${engineData?.label} ${yearData?.range}. Effekt: ${stageData?.tunedHk} hk (${hkIncreaseText}). Vridmoment: ${stageData?.tunedNm} Nm (${nmIncreaseText}). Skräddarsydd mjukvara med 2 års garanti & 30 dagars öppet köp!`
   );
 
@@ -1318,6 +1327,7 @@ export default function StagePage({
             )}
 
             {(useBmwTcuDescription ||
+              useMercedesTcuDescription ||
               (dynamicDescription && dynamicDescription.length > 0)) && (
               <div className="mb-6">
                 <div className="bg-gray-900 rounded-lg p-4">
@@ -1329,6 +1339,8 @@ export default function StagePage({
                   <div className="prose prose-invert max-w-none text-white">
                     {useBmwTcuDescription ? (
                       <BmwTcuDescription />
+                    ) : useMercedesTcuDescription ? (
+                      <MercedesTcuDescription />
                     ) : (
                       <PortableText
                         value={dynamicDescription}

@@ -25,6 +25,10 @@ import BmwTcuDescription, {
   BMW_TCU_DESCRIPTION_TEXT,
   isBmwBrand,
 } from "@/components/BmwTcuDescription";
+import MercedesTcuDescription, {
+  MERCEDES_TCU_DESCRIPTION_TEXT,
+  isMercedesBrand,
+} from "@/components/MercedesTcuDescription";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -610,6 +614,7 @@ export default function EnginePage({
   const getStageDisplayName = (stageName: string, brand?: string): string => {
     const isTcuStage = /(^|\s)(dsg|tcu)(\s|$)/i.test(stageName);
     if (!isTcuStage) return stageName;
+    if (isMercedesBrand(brand)) return "TCU Mercedes";
     return usesDsgLabel(brand) ? "DSG" : "TCU";
   };
 
@@ -823,6 +828,9 @@ export default function EnginePage({
                     const isBmwTcuStage =
                       isBmwBrand(brandData.name) &&
                       /(^|\s)(dsg|tcu)(\s|$)/i.test(stage.name);
+                    const isMercedesTcuStage =
+                      isMercedesBrand(brandData.name) &&
+                      /(^|\s)(dsg|tcu)(\s|$)/i.test(stage.name);
 
                     const templateDescription = extractPlainTextFromDescription(
                       stage.descriptionRef?.description ||
@@ -832,7 +840,9 @@ export default function EnginePage({
 
                     const fullDescription = isBmwTcuStage
                       ? BMW_TCU_DESCRIPTION_TEXT
-                      : renderDescription(templateDescription, {
+                      : isMercedesTcuStage
+                        ? MERCEDES_TCU_DESCRIPTION_TEXT
+                        : renderDescription(templateDescription, {
                           stageName: getStageDisplayName(
                             stage.name,
                             brandData.name
@@ -1191,6 +1201,8 @@ export default function EnginePage({
                         : null;
                       const useBmwTcuDescription =
                         isDsgStage && isBmwBrand(brandData.name);
+                      const useMercedesTcuDescription =
+                        isDsgStage && isMercedesBrand(brandData.name);
 
                       return (
                         <>
@@ -1269,6 +1281,7 @@ export default function EnginePage({
                                 </div>
 
                                 {(useBmwTcuDescription ||
+                                  useMercedesTcuDescription ||
                                   dynamicDescription) && (
                                   <div className="mb-6 rounded-lg border border-blue-500/50 bg-gray-900 p-5 shadow-inner">
                                     <h3 className="mb-3 text-lg font-bold uppercase text-blue-300">
@@ -1277,6 +1290,8 @@ export default function EnginePage({
                                     <div className="prose prose-invert max-w-none text-sm text-gray-200 md:text-base">
                                       {useBmwTcuDescription ? (
                                         <BmwTcuDescription />
+                                      ) : useMercedesTcuDescription ? (
+                                        <MercedesTcuDescription />
                                       ) : (
                                         <PortableText
                                           value={dynamicDescription}
