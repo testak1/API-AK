@@ -42,6 +42,7 @@ interface ImportResult {
 
 interface ImportHistoryEntry {
   id: string;
+  vehicleId?: string;
   importedAt: string;
   brand: string;
   model?: string;
@@ -149,6 +150,8 @@ function CarImport() {
         console.error("Kunde inte ladda importhistorik-detaljer:", error);
       }
     }
+
+    loadImportHistory();
   }, []);
 
   // Spara import-historik när den ändras
@@ -176,6 +179,31 @@ function CarImport() {
       : [];
   };
 
+  const loadImportHistory = async () => {
+    try {
+      const res = await fetch("/api/import/history");
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Kunde inte hämta importhistorik");
+      }
+
+      const entries = (data.entries || []) as ImportHistoryEntry[];
+      setImportHistoryEntries(entries);
+      setImportHistory(
+        new Set(
+          entries
+            .filter(
+              entry => entry.status === "created" || entry.status === "exists"
+            )
+            .map(entry => entry.vehicleId || getEngineId(entry as MissingItem))
+        )
+      );
+    } catch (error) {
+      console.error("Kunde inte hämta importhistorik från Sanity:", error);
+    }
+  };
+
   // Lägg till importerade motorer i historiken
   const addToImportHistory = (
     items: MissingItem[],
@@ -193,6 +221,7 @@ function CarImport() {
 
       return {
         id: `${timestamp}-${engineId}-${index}`,
+        vehicleId: engineId,
         importedAt: timestamp,
         brand: item.brand,
         model: item.model,
@@ -507,6 +536,7 @@ function CarImport() {
       if (data.results) {
         setImportResults(data.results);
         addToImportHistory(selectedItems, data.results);
+        loadImportHistory();
       }
 
       setStatus(
@@ -536,11 +566,23 @@ function CarImport() {
 
   const clearHistory = () => {
     if (confirm("Är du säker på att du vill radera import-historiken?")) {
-      setImportHistory(new Set());
-      setImportHistoryEntries([]);
-      localStorage.removeItem(IMPORT_HISTORY_KEY);
-      localStorage.removeItem(IMPORT_HISTORY_DETAILS_KEY);
-      setStatus("Import-historik raderad");
+      fetch("/api/import/history", {method: "DELETE"})
+        .then(async res => {
+          if (!res.ok) {
+            const data = await res.json();
+            throw new Error(data.message || "Kunde inte radera historik");
+          }
+
+          setImportHistory(new Set());
+          setImportHistoryEntries([]);
+          localStorage.removeItem(IMPORT_HISTORY_KEY);
+          localStorage.removeItem(IMPORT_HISTORY_DETAILS_KEY);
+          setStatus("Import-historik raderad");
+        })
+        .catch(error => {
+          console.error("Kunde inte radera importhistorik:", error);
+          alert("Kunde inte radera importhistoriken.");
+        });
     }
   };
 

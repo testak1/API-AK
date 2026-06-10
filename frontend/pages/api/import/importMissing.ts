@@ -79,15 +79,57 @@ export default async function handler(
       exists: results.filter(r => r.status === "exists").length,
       errors: results.filter(r => r.status === "error").length,
     };
+    const historySaved = await saveImportHistory(items, results, summary);
 
     res.status(200).json({
       message: "Import klar",
       summary,
       results,
+      historySaved,
     });
   } catch (err: any) {
     console.error("🔥 Importfel:", err);
     res.status(500).json({message: "Server error", error: err.message});
+  }
+}
+
+async function saveImportHistory(
+  items: ImportItem[],
+  results: ImportResult[],
+  summary: {total: number; created: number; exists: number; errors: number}
+) {
+  try {
+    const importedAt = new Date().toISOString();
+
+    await sanityClient.create({
+      _type: "importHistory",
+      importedAt,
+      source: "admin-import",
+      summary,
+      entries: items.map((item, index) => {
+        const result = results[index];
+
+        return {
+          _key: generateKey(),
+          importedAt,
+          brand: item.brand,
+          model: item.model,
+          year: item.year,
+          engine: item.engine,
+          stages: getImportStages(item).map(stage =>
+            normalizeStageName(stage.name)
+          ),
+          status: result?.status || "error",
+          action: result?.action,
+          message: result?.message,
+        };
+      }),
+    });
+
+    return true;
+  } catch (error) {
+    console.error("Kunde inte spara importhistorik:", error);
+    return false;
   }
 }
 
