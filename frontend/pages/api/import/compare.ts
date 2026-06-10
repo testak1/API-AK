@@ -24,14 +24,38 @@ function compareYearRanges(range1: string, range2: string): boolean {
   const normalizeYearRange = (range: string): string => {
     return range
       .toLowerCase()
-      .replace(/\s+/g, "")
-      .replace(/[→–-]/g, "-")
+      .replace(/[→⇒➡]/g, "->")
+      .replace(/[‐‑‒–—−]/g, "-")
       .replace(/\.\.\./g, "")
-      .replace(/\//g, "-")
+      .replace(/->/g, " ")
+      .replace(/\//g, " ")
+      .replace(/[^a-z0-9åäö]+/g, "")
       .trim();
   };
 
-  return normalizeYearRange(range1) === normalizeYearRange(range2);
+  if (normalizeYearRange(range1) === normalizeYearRange(range2)) return true;
+
+  const yearSignature = (range: string) => {
+    const normalized = range.toLowerCase().trim();
+    const years = normalized.match(/(?:19|20)\d{2}/g) || [];
+    const prefix = normalized.match(/^\s*([a-z0-9]+)/)?.[1] || "";
+    return {prefix, years};
+  };
+
+  const a = yearSignature(range1);
+  const b = yearSignature(range2);
+
+  if (!a.prefix || a.prefix !== b.prefix || !a.years.length || !b.years.length) {
+    return false;
+  }
+
+  if (a.years.join("|") === b.years.join("|")) return true;
+
+  return (
+    a.years.length === 1 &&
+    b.years.length === 1 &&
+    a.years[0] === b.years[0]
+  );
 }
 
 interface BRData {
