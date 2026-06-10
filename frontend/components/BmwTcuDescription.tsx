@@ -19,6 +19,15 @@ const options = [
   "Höjd launch control-begränsning.",
 ];
 
+export const BMW_TCU_DESCRIPTION_TEXT = [
+  "Våra mjukvaror för BMW automat- och DCT-växellådor utförs enbart i samband med motoroptimering hos oss.",
+  "På bilar utrustade med ZF8HP, DKG/DCT eller Steptronic växellåda rekommenderar vi att optimera/uppdatera växellådans mjukvara för att anpassa den till den ökade effekten och det högre vridmomentet. Detta förbättrar både driftsäkerhet, körbarhet och prestanda!",
+  "Några av fördelarna med vår växellådsmjukvara för BMW:",
+  ...benefits,
+  "Tillval:",
+  ...options,
+].join(" ");
+
 export const isBmwBrand = (brand?: string): boolean =>
   (brand || "")
     .normalize("NFKD")

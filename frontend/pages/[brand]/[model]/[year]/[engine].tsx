@@ -21,7 +21,10 @@ import {t as translate} from "@/lib/translations";
 import Head from "next/head";
 import React, {useEffect, useState, useRef, useMemo} from "react";
 import ContactModal from "@/components/ContactModal";
-import BmwTcuDescription, {isBmwBrand} from "@/components/BmwTcuDescription";
+import BmwTcuDescription, {
+  BMW_TCU_DESCRIPTION_TEXT,
+  isBmwBrand,
+} from "@/components/BmwTcuDescription";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -817,6 +820,9 @@ export default function EnginePage({
                   .map((stage, index) => {
                     const hasPrice =
                       typeof stage.price === "number" && stage.price > 0;
+                    const isBmwTcuStage =
+                      isBmwBrand(brandData.name) &&
+                      /(^|\s)(dsg|tcu)(\s|$)/i.test(stage.name);
 
                     const templateDescription = extractPlainTextFromDescription(
                       stage.descriptionRef?.description ||
@@ -824,29 +830,30 @@ export default function EnginePage({
                         ""
                     );
 
-                    const fullDescription =
-                      renderDescription(templateDescription, {
-                        stageName: getStageDisplayName(
-                          stage.name,
-                          brandData.name
-                        ),
-                        brand: brandData.name,
-                        model: modelData.name,
-                        year: yearData.range,
-                        engine: engineData.label,
-                        origHk: stage.origHk || "",
-                        tunedHk: stage.tunedHk || "",
-                        origNm: stage.origNm || "",
-                        tunedNm: stage.tunedNm || "",
-                        hkIncrease:
-                          stage.tunedHk && stage.origHk
-                            ? stage.tunedHk - stage.origHk
-                            : "",
-                        nmIncrease:
-                          stage.tunedNm && stage.origNm
-                            ? stage.tunedNm - stage.origNm
-                            : "",
-                      }) || "Kontakta oss för offert!";
+                    const fullDescription = isBmwTcuStage
+                      ? BMW_TCU_DESCRIPTION_TEXT
+                      : renderDescription(templateDescription, {
+                          stageName: getStageDisplayName(
+                            stage.name,
+                            brandData.name
+                          ),
+                          brand: brandData.name,
+                          model: modelData.name,
+                          year: yearData.range,
+                          engine: engineData.label,
+                          origHk: stage.origHk || "",
+                          tunedHk: stage.tunedHk || "",
+                          origNm: stage.origNm || "",
+                          tunedNm: stage.tunedNm || "",
+                          hkIncrease:
+                            stage.tunedHk && stage.origHk
+                              ? stage.tunedHk - stage.origHk
+                              : "",
+                          nmIncrease:
+                            stage.tunedNm && stage.origNm
+                              ? stage.tunedNm - stage.origNm
+                              : "",
+                        }) || "Kontakta oss för offert!";
 
                     return {
                       "@type": "ListItem",

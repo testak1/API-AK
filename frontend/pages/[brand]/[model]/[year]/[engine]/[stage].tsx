@@ -21,7 +21,10 @@ import {t as translate} from "@/lib/translations";
 import Head from "next/head";
 import React, {useEffect, useState, useRef, useMemo} from "react";
 import ContactModal from "@/components/ContactModal";
-import BmwTcuDescription, {isBmwBrand} from "@/components/BmwTcuDescription";
+import BmwTcuDescription, {
+  BMW_TCU_DESCRIPTION_TEXT,
+  isBmwBrand,
+} from "@/components/BmwTcuDescription";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -641,8 +644,13 @@ export default function StagePage({
   const nmIncreaseText =
     nmIncrease !== "?" ? `+${nmIncrease} Nm` : "bättre vridmoment";
 
+  const isDsgStage = /(^|\s)(dsg|tcu)(\s|$)/i.test(stageData.name);
+  const useBmwTcuDescription = isDsgStage && isBmwBrand(brandData.name);
+
   const pageDescription = cleanText(
-    `${stageDisplayName} Motoroptimering till ${brandData?.name} ${modelData?.name} ${engineData?.label} ${yearData?.range}. Effekt: ${stageData?.tunedHk} hk (${hkIncreaseText}). Vridmoment: ${stageData?.tunedNm} Nm (${nmIncreaseText}). Skräddarsydd mjukvara med 2 års garanti & 30 dagars öppet köp!`
+    useBmwTcuDescription
+      ? BMW_TCU_DESCRIPTION_TEXT
+      : `${stageDisplayName} Motoroptimering till ${brandData?.name} ${modelData?.name} ${engineData?.label} ${yearData?.range}. Effekt: ${stageData?.tunedHk} hk (${hkIncreaseText}). Vridmoment: ${stageData?.tunedNm} Nm (${nmIncreaseText}). Skräddarsydd mjukvara med 2 års garanti & 30 dagars öppet köp!`
   );
 
   const imageUrl = "https://tuning.aktuning.se/ak-logo1.png";
@@ -716,7 +724,6 @@ export default function StagePage({
     return newDescription;
   };
 
-  const isDsgStage = /(^|\s)(dsg|tcu)(\s|$)/i.test(stageData.name);
   const isTruck = brandData.name.startsWith("[LASTBIL]");
   const descriptionObject =
     stageData.descriptionRef?.description || stageData.description;
@@ -737,8 +744,6 @@ export default function StagePage({
   const dynamicDescription = rawDescription
     ? createDynamicDescription(rawDescription, stageData)
     : null;
-  const useBmwTcuDescription = isDsgStage && isBmwBrand(brandData.name);
-
   return (
     <>
       <Head>
