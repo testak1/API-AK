@@ -4,3 +4,4 @@ Disallow:
 Sitemap: https://tuning.aktuning.se/sitemap-0.xml
 Sitemap: https://tuning.aktuning.se/sitemap-3.xml
 Sitemap: https://tuning.aktuning.se/sitemap-6.xml
+Sitemap: https://tuning.aktuning.se/sitemap-9.xml
