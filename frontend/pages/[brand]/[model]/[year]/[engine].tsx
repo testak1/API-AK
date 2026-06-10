@@ -21,6 +21,7 @@ import {t as translate} from "@/lib/translations";
 import Head from "next/head";
 import React, {useEffect, useState, useRef, useMemo} from "react";
 import ContactModal from "@/components/ContactModal";
+import BmwTcuDescription, {isBmwBrand} from "@/components/BmwTcuDescription";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -1181,6 +1182,8 @@ export default function EnginePage({
                       const dynamicDescription = rawDescription
                         ? createDynamicDescription(rawDescription, stage)
                         : null;
+                      const useBmwTcuDescription =
+                        isDsgStage && isBmwBrand(brandData.name);
 
                       return (
                         <>
@@ -1258,16 +1261,21 @@ export default function EnginePage({
                                   )}
                                 </div>
 
-                                {dynamicDescription && (
+                                {(useBmwTcuDescription ||
+                                  dynamicDescription) && (
                                   <div className="mb-6 rounded-lg border border-blue-500/50 bg-gray-900 p-5 shadow-inner">
                                     <h3 className="mb-3 text-lg font-bold uppercase text-blue-300">
                                       {displayStageName} INFORMATION
                                     </h3>
                                     <div className="prose prose-invert max-w-none text-sm text-gray-200 md:text-base">
-                                      <PortableText
-                                        value={dynamicDescription}
-                                        components={portableTextComponents}
-                                      />
+                                      {useBmwTcuDescription ? (
+                                        <BmwTcuDescription />
+                                      ) : (
+                                        <PortableText
+                                          value={dynamicDescription}
+                                          components={portableTextComponents}
+                                        />
+                                      )}
                                     </div>
                                   </div>
                                 )}

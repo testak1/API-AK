@@ -21,6 +21,7 @@ import {t as translate} from "@/lib/translations";
 import Head from "next/head";
 import React, {useEffect, useState, useRef, useMemo} from "react";
 import ContactModal from "@/components/ContactModal";
+import BmwTcuDescription, {isBmwBrand} from "@/components/BmwTcuDescription";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -736,6 +737,7 @@ export default function StagePage({
   const dynamicDescription = rawDescription
     ? createDynamicDescription(rawDescription, stageData)
     : null;
+  const useBmwTcuDescription = isDsgStage && isBmwBrand(brandData.name);
 
   return (
     <>
@@ -1310,7 +1312,8 @@ export default function StagePage({
               </div>
             )}
 
-            {dynamicDescription && dynamicDescription.length > 0 && (
+            {(useBmwTcuDescription ||
+              (dynamicDescription && dynamicDescription.length > 0)) && (
               <div className="mb-6">
                 <div className="bg-gray-900 rounded-lg p-4">
                   <h3 className="text-xl font-bold text-white mb-4">
@@ -1319,10 +1322,14 @@ export default function StagePage({
                     {translate(currentLanguage, "info1").toUpperCase()}
                   </h3>
                   <div className="prose prose-invert max-w-none text-white">
-                    <PortableText
-                      value={dynamicDescription}
-                      components={portableTextComponents}
-                    />
+                    {useBmwTcuDescription ? (
+                      <BmwTcuDescription />
+                    ) : (
+                      <PortableText
+                        value={dynamicDescription}
+                        components={portableTextComponents}
+                      />
+                    )}
                   </div>
                 </div>
               </div>

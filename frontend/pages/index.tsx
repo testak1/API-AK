@@ -19,6 +19,7 @@ import {urlFor} from "@/lib/sanity";
 import PublicLanguageDropdown from "@/components/PublicLanguageSwitcher";
 import {JetSkiSection} from "@/components/JetSkiSection";
 import {BikeSection} from "@/components/BikeSection";
+import BmwTcuDescription, {isBmwBrand} from "@/components/BmwTcuDescription";
 import {LayoutGrid, List} from "lucide-react";
 import {t as translate} from "@/lib/translations";
 import type {
@@ -1995,6 +1996,8 @@ export default function TuningViewer() {
                       const dynamicDescription = rawDescription
                         ? createDynamicDescription(rawDescription, stage)
                         : null;
+                      const useBmwTcuDescription =
+                        isDsgStage && isBmwBrand(selected.brand);
 
                       // OPTIMIZATION: All heavy components below will only be mounted and rendered
                       // when this block is executed.
@@ -2071,16 +2074,21 @@ export default function TuningViewer() {
                                   )}
                                 </div>
 
-                                {dynamicDescription && (
+                                {(useBmwTcuDescription ||
+                                  dynamicDescription) && (
                                   <div className="mb-6 rounded-lg border border-blue-500/50 bg-gray-900 p-5 shadow-inner">
                                     <h3 className="mb-3 text-lg font-bold uppercase text-blue-300">
                                       {displayStageName} INFORMATION
                                     </h3>
                                     <div className="prose prose-invert max-w-none text-sm text-gray-200 md:text-base">
-                                      <PortableText
-                                        value={dynamicDescription}
-                                        components={portableTextComponents}
-                                      />
+                                      {useBmwTcuDescription ? (
+                                        <BmwTcuDescription />
+                                      ) : (
+                                        <PortableText
+                                          value={dynamicDescription}
+                                          components={portableTextComponents}
+                                        />
+                                      )}
                                     </div>
                                   </div>
                                 )}
