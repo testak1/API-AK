@@ -1073,8 +1073,9 @@ export default function StagePage({
               </div>
             )}
 
-            <div className="mb-6">
-              <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
+            {!isDsgStage && (
+              <div className="mb-6">
+                <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
                 {/* Split the spec boxes */}
                 <div className="absolute hidden md:flex flex-row justify-between top-4 left-0 right-0 px-16">
                   {/* HK Container */}
@@ -1302,8 +1303,9 @@ export default function StagePage({
                 <div className="text-center text-white text-xs mt-4 italic">
                   {translate(currentLanguage, "tuningCurveNote")}
                 </div>
+                </div>
               </div>
-            </div>
+            )}
 
             {dynamicDescription && dynamicDescription.length > 0 && (
               <div className="mb-6">
@@ -1333,7 +1335,7 @@ export default function StagePage({
               </button>
             </div>
 
-            {allOptions.length > 0 && (
+            {!isDsgStage && allOptions.length > 0 && (
               <div className="mb-6">
                 <div className="bg-gray-900 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-4">
