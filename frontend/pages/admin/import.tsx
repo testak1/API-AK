@@ -556,6 +556,98 @@ function CarImport() {
     URL.revokeObjectURL(url);
   };
 
+  const slugifyUrlPart = (value = "") => {
+    return value
+      .toString()
+      .toLowerCase()
+      .trim()
+      .replace(/->/g, "-")
+      .replace(/>/g, "-")
+      .replace(/\//g, "-")
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9\-]/g, "")
+      .replace(/-+/g, "-");
+  };
+
+  const slugifyStage = (value = "") => {
+    return value
+      .toString()
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^\w-]/g, "")
+      .replace(/-+/g, "-");
+  };
+
+  const escapeXml = (value: string) => {
+    return value
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&apos;");
+  };
+
+  const buildSitemapXml = (entries: ImportHistoryEntry[]) => {
+    const lastmod = new Date().toISOString();
+    const urls = new Set<string>();
+
+    entries
+      .filter(entry => entry.status === "created" || entry.status === "exists")
+      .forEach(entry => {
+        const brand = slugifyUrlPart(entry.brand);
+        const model = slugifyUrlPart(entry.model || "");
+        const year = slugifyUrlPart(entry.year || "");
+        const engine = slugifyUrlPart(entry.engine || "");
+
+        if (!brand || !model || !year || !engine) return;
+
+        const engineUrl = `https://tuning.aktuning.se/${brand}/${model}/${year}/${engine}`;
+        urls.add(engineUrl);
+
+        entry.stages.forEach(stage => {
+          const stageSlug = slugifyStage(stage);
+          if (stageSlug) {
+            urls.add(`${engineUrl}/${stageSlug}`);
+          }
+        });
+      });
+
+    const body = Array.from(urls)
+      .sort()
+      .map(
+        url =>
+          `<url><loc>${escapeXml(url)}</loc><lastmod>${lastmod}</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>`
+      )
+      .join("\n");
+
+    return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${body}\n</urlset>\n`;
+  };
+
+  const downloadTextFile = (filename: string, content: string, type: string) => {
+    const blob = new Blob([content], {type});
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const exportTodaySitemap = () => {
+    const today = new Date().toISOString().slice(0, 10);
+    const todayEntries = importHistoryEntries.filter(
+      entry => entry.importedAt.slice(0, 10) === today
+    );
+
+    if (!todayEntries.length) {
+      alert("Det finns inga importer i historiken för idag.");
+      return;
+    }
+
+    const xml = buildSitemapXml(todayEntries);
+    downloadTextFile(`sitemap-imported-${today}.xml`, xml, "application/xml");
+  };
+
   const stats = {
     total: missing.length,
     new: missing.filter(canImportItem).length,
@@ -629,6 +721,20 @@ function CarImport() {
           >
             <h3 style={{margin: 0}}>Importhistorik</h3>
             <div style={{display: "flex", gap: 8}}>
+              <button
+                onClick={exportTodaySitemap}
+                disabled={!importHistoryEntries.length}
+                style={{
+                  padding: "7px 12px",
+                  background: importHistoryEntries.length ? "#198754" : "#ccc",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 6,
+                  cursor: importHistoryEntries.length ? "pointer" : "not-allowed",
+                }}
+              >
+                Exportera sitemap för idag
+              </button>
               <button
                 onClick={exportHistory}
                 disabled={!importHistoryEntries.length}
