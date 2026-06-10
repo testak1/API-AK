@@ -2003,71 +2003,101 @@ export default function TuningViewer() {
                           {isTruck && <FuelSavingCalculator stage={stage} />}
                           <div className="px-6 pb-6">
                             {isDsgStage ? (
-                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 mt-6">
-                                {/* DSG/TCU-FÄLT */}
-                                {stage.tcuFields?.launchControl && (
-                                  <div className="border border-blue-400 rounded-lg p-3 text-white">
-                                    <p className="text-sm font-bold text-blue-300 mb-1">
-                                      LAUNCH CONTROL
-                                    </p>
-                                    <p>
-                                      Original:{" "}
-                                      {stage.tcuFields.launchControl.original ||
-                                        "-"}{" "}
-                                      RPM
-                                    </p>
-                                    <p>
-                                      Optimerad:{" "}
-                                      <span className="text-green-400">
+                              <>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 mt-6">
+                                  {/* DSG/TCU-FÄLT */}
+                                  {stage.tcuFields?.launchControl && (
+                                    <div className="border border-blue-400 rounded-lg p-3 text-white">
+                                      <p className="text-sm font-bold text-blue-300 mb-1">
+                                        LAUNCH CONTROL
+                                      </p>
+                                      <p>
+                                        Original:{" "}
                                         {stage.tcuFields.launchControl
-                                          .optimized || "-"}{" "}
+                                          .original || "-"}{" "}
                                         RPM
-                                      </span>
-                                    </p>
-                                  </div>
-                                )}
-                                {stage.tcuFields?.rpmLimit && (
-                                  <div className="border border-blue-400 rounded-lg p-3 text-white">
-                                    <p className="text-sm font-bold text-blue-300 mb-1">
-                                      VARVSTOPP
-                                    </p>
-                                    <p>
-                                      Original:{" "}
-                                      {stage.tcuFields.rpmLimit.original || "-"}{" "}
-                                      RPM
-                                    </p>
-                                    <p>
-                                      Optimerad:{" "}
-                                      <span className="text-green-400">
-                                        {stage.tcuFields.rpmLimit.optimized ||
+                                      </p>
+                                      <p>
+                                        Optimerad:{" "}
+                                        <span className="text-green-400">
+                                          {stage.tcuFields.launchControl
+                                            .optimized || "-"}{" "}
+                                          RPM
+                                        </span>
+                                      </p>
+                                    </div>
+                                  )}
+                                  {stage.tcuFields?.rpmLimit && (
+                                    <div className="border border-blue-400 rounded-lg p-3 text-white">
+                                      <p className="text-sm font-bold text-blue-300 mb-1">
+                                        VARVSTOPP
+                                      </p>
+                                      <p>
+                                        Original:{" "}
+                                        {stage.tcuFields.rpmLimit.original ||
                                           "-"}{" "}
                                         RPM
-                                      </span>
-                                    </p>
-                                  </div>
-                                )}
-                                {stage.tcuFields?.shiftTime && (
-                                  <div className="border border-blue-400 rounded-lg p-3 text-white">
-                                    <p className="text-sm font-bold text-blue-300 mb-1">
-                                      VÄXLINGSTID
-                                    </p>
-                                    <p>
-                                      Original:{" "}
-                                      {stage.tcuFields.shiftTime.original ||
-                                        "-"}{" "}
-                                      ms
-                                    </p>
-                                    <p>
-                                      Optimerad:{" "}
-                                      <span className="text-green-400">
-                                        {stage.tcuFields.shiftTime.optimized ||
+                                      </p>
+                                      <p>
+                                        Optimerad:{" "}
+                                        <span className="text-green-400">
+                                          {stage.tcuFields.rpmLimit.optimized ||
+                                            "-"}{" "}
+                                          RPM
+                                        </span>
+                                      </p>
+                                    </div>
+                                  )}
+                                  {stage.tcuFields?.shiftTime && (
+                                    <div className="border border-blue-400 rounded-lg p-3 text-white">
+                                      <p className="text-sm font-bold text-blue-300 mb-1">
+                                        VÄXLINGSTID
+                                      </p>
+                                      <p>
+                                        Original:{" "}
+                                        {stage.tcuFields.shiftTime.original ||
                                           "-"}{" "}
                                         ms
-                                      </span>
-                                    </p>
+                                      </p>
+                                      <p>
+                                        Optimerad:{" "}
+                                        <span className="text-green-400">
+                                          {stage.tcuFields.shiftTime.optimized ||
+                                            "-"}{" "}
+                                          ms
+                                        </span>
+                                      </p>
+                                    </div>
+                                  )}
+                                </div>
+
+                                {dynamicDescription && (
+                                  <div className="mb-6 rounded-lg border border-blue-500/50 bg-gray-900 p-5 shadow-inner">
+                                    <h3 className="mb-3 text-lg font-bold uppercase text-blue-300">
+                                      {displayStageName} INFORMATION
+                                    </h3>
+                                    <div className="prose prose-invert max-w-none text-sm text-gray-200 md:text-base">
+                                      <PortableText
+                                        value={dynamicDescription}
+                                        components={portableTextComponents}
+                                      />
+                                    </div>
                                   </div>
                                 )}
-                              </div>
+
+                                <div className="mb-4 flex justify-center">
+                                  <button
+                                    onClick={e => handleBookNow(stage.name, e)}
+                                    className="w-full max-w-2xl rounded-lg bg-green-600 px-6 py-3 font-medium text-white shadow-lg transition-all hover:scale-105 hover:bg-green-700"
+                                  >
+                                    📩{" "}
+                                    {translate(
+                                      currentLanguage,
+                                      "contactvalue"
+                                    )}
+                                  </button>
+                                </div>
+                              </>
                             ) : (
                               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 mt-6">
                                 {/* ORIGINAL & TUNED SPECS - PERFORMANCE */}
@@ -2123,24 +2153,26 @@ export default function TuningViewer() {
                             )}
 
                             <div className="flex flex-col sm:flex-row gap-4 mt-4">
-                              <button
-                                onClick={() =>
-                                  setInfoModal({
-                                    open: true,
-                                    type: "stage",
-                                    stage,
-                                  })
-                                }
-                                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg shadow"
-                              >
-                                📄{" "}
-                                {translateDisplayStageName(
-                                  currentLanguage,
-                                  stage.name,
-                                  selected.brand
-                                ).toUpperCase()}{" "}
-                                {translate(currentLanguage, "infoStage")}
-                              </button>
+                              {!isDsgStage && (
+                                <button
+                                  onClick={() =>
+                                    setInfoModal({
+                                      open: true,
+                                      type: "stage",
+                                      stage,
+                                    })
+                                  }
+                                  className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg shadow"
+                                >
+                                  📄{" "}
+                                  {translateDisplayStageName(
+                                    currentLanguage,
+                                    stage.name,
+                                    selected.brand
+                                  ).toUpperCase()}{" "}
+                                  {translate(currentLanguage, "infoStage")}
+                                </button>
+                              )}
                               {/* Hidden SEO content for stage info */}
                               <div className="sr-only">
                                 <h2>

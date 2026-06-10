@@ -697,7 +697,10 @@ export default function StagePage({
               .replace(/{{model}}/g, modelData.name)
               .replace(/{{year}}/g, yearData?.range || "")
               .replace(/{{engine}}/g, engineData.label)
-              .replace(/{{stageName}}/g, stage.name)
+              .replace(
+                /{{stageName}}/g,
+                getStageDisplayName(stage.name, brandData.name)
+              )
               .replace(/{{origHk}}/g, String(stage.origHk))
               .replace(/{{tunedHk}}/g, String(stage.tunedHk))
               .replace(/{{hkIncrease}}/g, String(hkIncrease))
