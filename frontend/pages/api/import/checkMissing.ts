@@ -98,7 +98,7 @@ function matchItem(item: ImportItem, brands: any[]): ItemMatchStatus {
 
   const model = (brand.models || []).find(
     (modelDoc: any) =>
-      normalizeString(modelDoc?.name) === normalizeString(item.model)
+      modelCompareKey(modelDoc?.name) === modelCompareKey(item.model)
   );
 
   if (!model) {
@@ -262,10 +262,51 @@ function compareYearRanges(range1?: string, range2?: string): boolean {
 
 function normalizeString(text = ""): string {
   return text
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
     .replace(/\s+/g, "")
     .replace(/[^a-z0-9åäö]/g, "")
     .trim();
+}
+
+function modelCompareKey(text = ""): string {
+  let key = normalizeString(text);
+
+  key = key.replace(/^serie(\d)/, "$1serien");
+  key = key.replace(/(\d)serie(n)?/, "$1serien");
+
+  const aliases: Record<string, string> = {
+    serie1: "1serien",
+    serie2: "2serien",
+    serie3: "3serien",
+    serie4: "4serien",
+    serie5: "5serien",
+    serie6: "6serien",
+    serie7: "7serien",
+    serie8: "8serien",
+    serie2gc: "2seriengrancoupe",
+    serie2grancoupe: "2seriengrancoupe",
+    serie2grandcoupe: "2seriengrancoupe",
+    "2seriengc": "2seriengrancoupe",
+    "2seriengrancoupe": "2seriengrancoupe",
+    "2seriengrandcoupe": "2seriengrancoupe",
+    serie2activegran: "2seriengrandactivetourer",
+    serie2activegrantourer: "2seriengrandactivetourer",
+    serie2grandactivetourer: "2seriengrandactivetourer",
+    serie2granactivetourer: "2seriengrandactivetourer",
+    "2serienactivegran": "2seriengrandactivetourer",
+    "2serienactivegrantourer": "2seriengrandactivetourer",
+    "2seriengranactivetourer": "2seriengrandactivetourer",
+    "4seriengc": "4seriengrancoupe",
+    serie4gc: "4seriengrancoupe",
+    serie4grancoupe: "4seriengrancoupe",
+    serie4grandcoupe: "4seriengrancoupe",
+    "4seriengrancoupe": "4seriengrancoupe",
+    "4seriengrandcoupe": "4seriengrancoupe",
+  };
+
+  return aliases[key] || key;
 }
 
 function getEngineId(item: ImportItem): string {
