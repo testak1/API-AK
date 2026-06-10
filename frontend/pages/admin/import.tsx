@@ -69,6 +69,15 @@ type StatusFilter =
   | "exists"
   | "missing_stages"
   | "new_structure";
+type GroupLevel = "brand" | "model" | "year";
+
+interface SelectionGroup {
+  key: string;
+  label: string;
+  items: MissingItem[];
+  count: number;
+  statuses: Record<string, number>;
+}
 
 // Loading komponent för lazy loading
 function LoadingFallback() {
@@ -235,31 +244,126 @@ function CarImport() {
     return true;
   });
 
-  // NY: Välj specifikt antal nya objekt
-  const selectSpecificCount = (count: number) => {
-    const newItems = filteredMissing.filter(canImportItem);
-    const itemsToSelect = newItems.slice(0, count);
+  const importableFiltered = filteredMissing.filter(canImportItem);
+
+  const addSelection = (items: MissingItem[], label: string) => {
+    const importableItems = items.filter(canImportItem);
     const newSelected = new Set(selected);
 
-    itemsToSelect.forEach(item => {
+    importableItems.forEach(item => {
       newSelected.add(getEngineId(item));
     });
 
     setSelected(Array.from(newSelected));
-    setStatus(`Valde ${itemsToSelect.length} nya objekt`);
+    setStatus(`Valde ${importableItems.length} objekt (${label})`);
+  };
+
+  const selectBySanityStatus = (
+    statuses: SanityMatch["status"][],
+    label: string
+  ) => {
+    addSelection(
+      filteredMissing.filter(item =>
+        statuses.includes(item.sanityMatch?.status as SanityMatch["status"])
+      ),
+      label
+    );
+  };
+
+  const getGroupKey = (item: MissingItem, level: GroupLevel) => {
+    if (level === "brand") return item.brand;
+    if (level === "model") return `${item.brand}||${item.model || "-"}`;
+    return `${item.brand}||${item.model || "-"}||${item.year || "-"}`;
+  };
+
+  const getGroupLabel = (item: MissingItem, level: GroupLevel) => {
+    if (level === "brand") return item.brand;
+    if (level === "model") return `${item.brand} ${item.model || "-"}`;
+    return `${item.brand} ${item.model || "-"} ${item.year || "-"}`;
+  };
+
+  const buildGroups = (level: GroupLevel, limit: number): SelectionGroup[] => {
+    const groups = new Map<string, SelectionGroup>();
+
+    importableFiltered.forEach(item => {
+      const key = getGroupKey(item, level);
+      const statusKey = item.sanityMatch?.status || "unknown";
+
+      if (!groups.has(key)) {
+        groups.set(key, {
+          key,
+          label: getGroupLabel(item, level),
+          items: [],
+          count: 0,
+          statuses: {},
+        });
+      }
+
+      const group = groups.get(key)!;
+      group.items.push(item);
+      group.count += 1;
+      group.statuses[statusKey] = (group.statuses[statusKey] || 0) + 1;
+    });
+
+    return Array.from(groups.values())
+      .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label))
+      .slice(0, limit);
+  };
+
+  const yearGroups = buildGroups("year", 14);
+  const modelGroups = buildGroups("model", 10);
+  const brandGroups = buildGroups("brand", 8);
+
+  const renderGroupButtons = (title: string, groups: SelectionGroup[]) => {
+    if (!groups.length) return null;
+
+    return (
+      <div>
+        <div style={{fontWeight: 700, marginBottom: 8}}>{title}</div>
+        <div style={{display: "flex", flexWrap: "wrap", gap: 8}}>
+          {groups.map(group => (
+            <button
+              key={group.key}
+              onClick={() => addSelection(group.items, group.label)}
+              style={{
+                padding: "6px 10px",
+                border: "1px solid #cbd5e1",
+                borderRadius: 6,
+                background: "#fff",
+                cursor: "pointer",
+                textAlign: "left",
+              }}
+              title={[
+                group.statuses.new_year
+                  ? `${group.statuses.new_year} nya årsmodeller`
+                  : "",
+                group.statuses.new_engine
+                  ? `${group.statuses.new_engine} nya motorer`
+                  : "",
+                group.statuses.missing_stages
+                  ? `${group.statuses.missing_stages} saknar steg`
+                  : "",
+              ]
+                .filter(Boolean)
+                .join(", ")}
+            >
+              <span style={{fontWeight: 600}}>{group.label}</span>{" "}
+              <span style={{color: "#64748b"}}>({group.count})</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  // NY: Välj specifikt antal nya objekt
+  const selectSpecificCount = (count: number) => {
+    addSelection(importableFiltered.slice(0, count), `${count} nya objekt`);
   };
 
   // NY: Välj specifikt antal från alla filtrerade
   const selectSpecificCountFromAll = (count: number) => {
-    const itemsToSelect = filteredMissing.filter(canImportItem).slice(0, count);
-    const newSelected = new Set(selected);
-
-    itemsToSelect.forEach(item => {
-      newSelected.add(getEngineId(item));
-    });
-
-    setSelected(Array.from(newSelected));
-    setStatus(`Valde ${itemsToSelect.length} objekt från filtrerade listan`);
+    addSelection(importableFiltered.slice(0, count), `${count} filtrerade`);
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -294,7 +398,7 @@ function CarImport() {
   };
 
   const selectAll = () => {
-    setSelected(filteredMissing.filter(canImportItem).map(item => getEngineId(item)));
+    setSelected(importableFiltered.map(item => getEngineId(item)));
   };
 
   const deselectAll = () => {
@@ -302,8 +406,7 @@ function CarImport() {
   };
 
   const selectOnlyNew = () => {
-    const newItems = filteredMissing.filter(canImportItem);
-    setSelected(newItems.map(item => getEngineId(item)));
+    setSelected(importableFiltered.map(item => getEngineId(item)));
   };
 
   const handleImport = async () => {
@@ -385,6 +488,12 @@ function CarImport() {
     missingStages: missing.filter(
       item => item.sanityMatch?.status === "missing_stages"
     ).length,
+    newYears: missing.filter(item => item.sanityMatch?.status === "new_year")
+      .length,
+    newEngines: missing.filter(item => item.sanityMatch?.status === "new_engine")
+      .length,
+    newModels: missing.filter(item => item.sanityMatch?.status === "new_model")
+      .length,
     newStructure: missing.filter(item =>
       ["new_engine", "new_year", "new_model"].includes(
         item.sanityMatch?.status || ""
@@ -630,6 +739,101 @@ function CarImport() {
 
       {missing.length > 0 && (
         <>
+          <div
+            style={{
+              background: "#f8fafc",
+              border: "1px solid #dbeafe",
+              borderRadius: 8,
+              padding: 15,
+              marginBottom: 20,
+            }}
+          >
+            <h3 style={{marginTop: 0, marginBottom: 12}}>Snabbmarkering</h3>
+
+            <div
+              style={{
+                display: "flex",
+                gap: 8,
+                flexWrap: "wrap",
+                marginBottom: 16,
+              }}
+            >
+              <button
+                onClick={() => addSelection(importableFiltered, "alla importbara")}
+                style={{
+                  padding: "7px 12px",
+                  background: "#198754",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 6,
+                  cursor: "pointer",
+                }}
+              >
+                Markera alla importbara ({importableFiltered.length})
+              </button>
+              <button
+                onClick={() => selectBySanityStatus(["new_year"], "nya årsmodeller")}
+                style={{
+                  padding: "7px 12px",
+                  background: "#0d6efd",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 6,
+                  cursor: "pointer",
+                }}
+              >
+                Markera nya årsmodeller ({stats.newYears})
+              </button>
+              <button
+                onClick={() => selectBySanityStatus(["new_engine"], "nya motorer")}
+                style={{
+                  padding: "7px 12px",
+                  background: "#0d6efd",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 6,
+                  cursor: "pointer",
+                }}
+              >
+                Markera nya motorer ({stats.newEngines})
+              </button>
+              <button
+                onClick={() =>
+                  selectBySanityStatus(["missing_stages"], "saknade steg")
+                }
+                style={{
+                  padding: "7px 12px",
+                  background: "#b45309",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 6,
+                  cursor: "pointer",
+                }}
+              >
+                Markera saknade steg ({stats.missingStages})
+              </button>
+              <button
+                onClick={() => selectBySanityStatus(["new_model"], "nya modeller")}
+                style={{
+                  padding: "7px 12px",
+                  background: "#6f42c1",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 6,
+                  cursor: "pointer",
+                }}
+              >
+                Markera nya modeller ({stats.newModels})
+              </button>
+            </div>
+
+            <div style={{display: "grid", gap: 16}}>
+              {renderGroupButtons("Årsmodeller i aktuell filtrering", yearGroups)}
+              {renderGroupButtons("Modeller i aktuell filtrering", modelGroups)}
+              {renderGroupButtons("Märken i aktuell filtrering", brandGroups)}
+            </div>
+          </div>
+
           <ImportTable
             missing={filteredMissing}
             selected={selected}
