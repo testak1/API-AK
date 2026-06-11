@@ -23,7 +23,7 @@ import BmwTcuDescription, {isBmwBrand} from "@/components/BmwTcuDescription";
 import MercedesTcuDescription, {
   isMercedesBrand,
 } from "@/components/MercedesTcuDescription";
-import {LayoutGrid, List} from "lucide-react";
+import {LayoutGrid, List, Moon, Sun} from "lucide-react";
 import {t as translate} from "@/lib/translations";
 import type {
   Brand,
@@ -124,6 +124,7 @@ export default function TuningViewer() {
   const [allVehicles, setAllVehicles] = useState<FlatVehicle[]>([]);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"card" | "dropdown">("card");
+  const [themeMode, setThemeMode] = useState<"light" | "dark">("light");
   const [isLoading, setIsLoading] = useState(true);
   // const [isDbLoading, setIsDbLoading] = useState(true); // BORTTAGEN - ersatt av isVehicleDbLoading
   const [isVehicleDbLoading, setIsVehicleDbLoading] = useState(false);
@@ -174,6 +175,11 @@ export default function TuningViewer() {
     const savedView = localStorage.getItem("viewMode");
     if (savedView === "dropdown") {
       setViewMode("dropdown");
+    }
+
+    const savedTheme = localStorage.getItem("themeMode");
+    if (savedTheme === "dark") {
+      setThemeMode("dark");
     }
 
     const storedLang = localStorage.getItem("lang");
@@ -768,6 +774,12 @@ export default function TuningViewer() {
     localStorage.setItem("viewMode", newMode);
   };
 
+  const toggleThemeMode = () => {
+    const newTheme = themeMode === "dark" ? "light" : "dark";
+    setThemeMode(newTheme);
+    localStorage.setItem("themeMode", newTheme);
+  };
+
   const slugifyStage = (str: string) =>
     str
       .toLowerCase()
@@ -1106,6 +1118,29 @@ export default function TuningViewer() {
     return newDescription;
   };
 
+  const isDarkTheme = themeMode === "dark";
+  const pageClass = isDarkTheme
+    ? "min-h-screen bg-[#060606] text-white"
+    : "min-h-screen bg-white text-slate-950";
+  const mutedTextClass = isDarkTheme ? "text-slate-300" : "text-gray-600";
+  const headingTextClass = isDarkTheme ? "text-white" : "text-gray-900";
+  const labelTextClass = isDarkTheme ? "text-slate-200" : "text-black";
+  const selectionCardClass = isDarkTheme
+    ? "cursor-pointer rounded-xl p-4 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 transition-all duration-200 shadow-sm hover:shadow-red-950/30 hover:scale-105 active:scale-95 flex flex-col items-center justify-center"
+    : "cursor-pointer rounded-xl p-4 bg-white hover:bg-gray-50 border border-gray-200 transition-all duration-200 shadow-sm hover:shadow-md hover:scale-105 active:scale-95 flex flex-col items-center justify-center";
+  const selectionTextClass = isDarkTheme
+    ? "text-center font-medium text-slate-100"
+    : "text-center font-medium text-gray-800";
+  const sectionHeadingClass = isDarkTheme
+    ? "uppercase tracking-wide text-slate-300 text-sm font-semibold mb-3 border-b border-zinc-700 pb-1"
+    : "uppercase tracking-wide text-gray-600 text-sm font-semibold mb-3 border-b border-gray-200 pb-1";
+  const backButtonClass = isDarkTheme
+    ? "group flex items-center gap-1 mb-4 text-slate-200 hover:text-white transition-colors duration-200 rounded-md px-2 py-1 hover:bg-white/10"
+    : "group flex items-center gap-1 mb-4 hover:text-blue-800 transition-colors duration-200 rounded-md px-2 py-1 hover:bg-gray-200";
+  const fuelHeadingClass = isDarkTheme
+    ? "mb-4 rounded-lg border border-red-500/40 bg-gradient-to-r from-red-950/70 via-zinc-900 to-zinc-900 px-4 py-3 text-sm font-black uppercase tracking-[0.16em] text-white shadow-lg shadow-red-950/20"
+    : "mb-4 rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-sm font-black uppercase tracking-[0.16em] text-red-800";
+
   return (
     <>
       <Head>
@@ -1172,13 +1207,14 @@ export default function TuningViewer() {
         />
       </Head>
 
-      <main className="w-full max-w-6xl mx-auto px-2 py-4 sm:px-4">
+      <main className={pageClass}>
+        <div className="w-full max-w-6xl mx-auto px-2 py-4 sm:px-4">
         {/* TOPBAR: logga, regnr, språk + vy */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between relative mb-8">
           {/* Vänster: Logga */}
           <div className="flex justify-between items-center">
             <Image
-              src="/ak-logo2.png"
+              src={isDarkTheme ? "/ak-logo.png" : "/ak-logo2.png"}
               alt="AK-TUNING MOTOROPTIMERING"
               width={110}
               height={120}
@@ -1197,6 +1233,22 @@ export default function TuningViewer() {
                 currentLanguage={currentLanguage}
                 setCurrentLanguage={setCurrentLanguage}
               />
+              <button
+                onClick={toggleThemeMode}
+                className={`p-2 rounded-full border transition-all shadow-sm ${
+                  isDarkTheme
+                    ? "bg-zinc-900 border-zinc-700 text-yellow-300"
+                    : "bg-white border-gray-300 text-gray-700"
+                }`}
+                aria-label="Byt tema"
+                title={isDarkTheme ? "Byt till ljust tema" : "Byt till mörkt tema"}
+              >
+                {isDarkTheme ? (
+                  <Sun className="w-5 h-5" />
+                ) : (
+                  <Moon className="w-5 h-5" />
+                )}
+              </button>
               <button
                 onClick={toggleViewMode}
                 className={`p-2 rounded-full border transition-all shadow-sm ${
@@ -1236,6 +1288,22 @@ export default function TuningViewer() {
               setCurrentLanguage={setCurrentLanguage}
             />
             <button
+              onClick={toggleThemeMode}
+              className={`p-2 rounded-full border transition-all shadow-sm ${
+                isDarkTheme
+                  ? "bg-zinc-900 border-zinc-700 text-yellow-300"
+                  : "bg-white border-gray-300 text-gray-700"
+              }`}
+              aria-label="Byt tema"
+              title={isDarkTheme ? "Byt till ljust tema" : "Byt till mörkt tema"}
+            >
+              {isDarkTheme ? (
+                <Sun className="w-5 h-5" />
+              ) : (
+                <Moon className="w-5 h-5" />
+              )}
+            </button>
+            <button
               onClick={toggleViewMode}
               className={`p-2 rounded-full border transition-all shadow-sm ${
                 viewMode === "card"
@@ -1255,12 +1323,12 @@ export default function TuningViewer() {
 
         <div className="mb-4 text-center">
           {!selected.brand ? (
-            <p className="text-black text-lg font-semibold">
+            <p className={`${labelTextClass} text-lg font-semibold`}>
               {translate(currentLanguage, "headline")}
             </p>
           ) : selected.engine ? (
             <div>
-              <p className="text-black text-lg font-semibold mb-2">
+              <p className={`${labelTextClass} text-lg font-semibold mb-2`}>
                 {translate(currentLanguage, "tuningIntro")}{" "}
                 {cleanText(selected.brand)}{" "}
                 {formatModelName(selected.brand, cleanText(selected.model))}{" "}
@@ -1286,7 +1354,7 @@ export default function TuningViewer() {
             <div>
               <label
                 htmlFor="brand"
-                className="block text-sm font-bold text-black mb-1"
+                className={`block text-sm font-bold ${labelTextClass} mb-1`}
               >
                 {translate(currentLanguage, "BrandValue")}
               </label>
@@ -1324,7 +1392,7 @@ export default function TuningViewer() {
             <div>
               <label
                 htmlFor="model"
-                className="block text-sm font-bold text-black mb-1"
+                className={`block text-sm font-bold ${labelTextClass} mb-1`}
               >
                 {translate(currentLanguage, "ModelValue")}
               </label>
@@ -1354,7 +1422,7 @@ export default function TuningViewer() {
             <div>
               <label
                 htmlFor="year"
-                className="block text-sm font-bold text-black mb-1"
+                className={`block text-sm font-bold ${labelTextClass} mb-1`}
               >
                 {translate(currentLanguage, "YearValue")}
               </label>
@@ -1383,7 +1451,7 @@ export default function TuningViewer() {
             <div>
               <label
                 htmlFor="engine"
-                className="block text-sm font-bold text-black mb-1"
+                className={`block text-sm font-bold ${labelTextClass} mb-1`}
               >
                 {translate(currentLanguage, "EngineValue")}
               </label>
@@ -1428,13 +1496,13 @@ export default function TuningViewer() {
             {/* Brand selection */}
             {!selected.brand && (
               <>
-                <h2 className="text-xl font-bold text-gray-900 mb-4">
+                <h2 className={`text-xl font-bold ${headingTextClass} mb-4`}>
                   {translate(currentLanguage, "selectBrand")}
                 </h2>
 
                 {/* 🚗 Personbilar */}
                 <div className="mb-6">
-                  <h3 className="uppercase tracking-wide text-gray-600 text-sm font-semibold mb-3 border-b border-gray-200 pb-1">
+                  <h3 className={sectionHeadingClass}>
                     {translate(currentLanguage, "Personbilar")}
                   </h3>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -1465,9 +1533,7 @@ export default function TuningViewer() {
                                 "*"
                               );
                             }}
-                            className="cursor-pointer rounded-xl p-4 bg-white hover:bg-gray-50 border border-gray-200 
-                             transition-all duration-200 shadow-sm hover:shadow-md 
-                             hover:scale-105 active:scale-95 flex flex-col items-center justify-center"
+                            className={selectionCardClass}
                           >
                             {logoUrl && (
                               <Image
@@ -1478,7 +1544,7 @@ export default function TuningViewer() {
                                 className="object-contain mb-2"
                               />
                             )}
-                            <p className="text-center font-medium text-gray-800">
+                            <p className={selectionTextClass}>
                               {brand}
                             </p>
                           </div>
@@ -1489,7 +1555,7 @@ export default function TuningViewer() {
 
                 {/* 🚛 Lastbilar */}
                 <div>
-                  <h3 className="uppercase tracking-wide text-gray-600 text-sm font-semibold mb-3 border-b border-gray-200 pb-1">
+                  <h3 className={sectionHeadingClass}>
                     {translate(currentLanguage, "Lastbilar")}
                   </h3>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -1514,9 +1580,7 @@ export default function TuningViewer() {
                                 "*"
                               );
                             }}
-                            className="cursor-pointer rounded-xl p-4 bg-white hover:bg-gray-50 border border-gray-200 
-                             transition-all duration-200 shadow-sm hover:shadow-md 
-                             hover:scale-105 active:scale-95 flex flex-col items-center justify-center"
+                            className={selectionCardClass}
                           >
                             {brandData?.logo?.asset && (
                               <Image
@@ -1528,7 +1592,7 @@ export default function TuningViewer() {
                                 loading="lazy"
                               />
                             )}
-                            <p className="text-center font-medium text-gray-800">
+                            <p className={selectionTextClass}>
                               {brand
                                 .replace("[LASTBIL] ", "")
                                 .replace(/^-/, "")}
@@ -1564,8 +1628,7 @@ export default function TuningViewer() {
 
                     window.parent.postMessage({scrollToIframe: true}, "*");
                   }}
-                  className="group flex items-center gap-1 mb-4 hover:text-blue-800 
-                   transition-colors duration-200 rounded-md px-2 py-1 hover:bg-gray-200"
+                  className={backButtonClass}
                 >
                   <svg
                     className="w-5 h-5 transition-transform duration-200 group-hover:-translate-x-1"
@@ -1585,7 +1648,7 @@ export default function TuningViewer() {
                   </span>
                 </button>
 
-                <h2 className="flex items-center justify-center gap-2 text-xl font-bold text-gray-900 mb-4">
+                <h2 className={`flex items-center justify-center gap-2 text-xl font-bold ${headingTextClass} mb-4`}>
                   <svg
                     className="w-5 h-5 text-red-600"
                     fill="none"
@@ -1599,7 +1662,7 @@ export default function TuningViewer() {
                       d="M19 9l-7 7-7-7"
                     />
                   </svg>
-                  <span className="text-gray-600 font-semibold">
+                  <span className={`${mutedTextClass} font-semibold`}>
                     {translate(currentLanguage, "selectModel")}
                   </span>
                 </h2>
@@ -1618,9 +1681,7 @@ export default function TuningViewer() {
 
                         window.parent.postMessage({scrollToIframe: true}, "*");
                       }}
-                      className="cursor-pointer rounded-xl p-4 bg-white hover:bg-gray-50 border border-gray-200 
-                       transition-all duration-200 shadow-sm hover:shadow-md 
-                       hover:scale-105 active:scale-95 flex flex-col items-center justify-center"
+                      className={selectionCardClass}
                     >
                       <Image
                         src={getModelImage(model.name, selected.brand)}
@@ -1629,7 +1690,7 @@ export default function TuningViewer() {
                         height={100}
                         className="h-16 w-auto object-contain mb-2"
                       />
-                      <p className="text-center font-medium text-gray-800">
+                      <p className={selectionTextClass}>
                         {formatModelName(selected.brand, model.name)}
                       </p>
                     </div>
@@ -1652,8 +1713,7 @@ export default function TuningViewer() {
 
                     window.parent.postMessage({scrollToIframe: true}, "*");
                   }}
-                  className="group flex items-center gap-1 mb-4 hover:text-blue-800 
-                   transition-colors duration-200 rounded-md px-2 py-1 hover:bg-gray-200"
+                  className={backButtonClass}
                 >
                   <svg
                     className="w-5 h-5 transition-transform duration-200 group-hover:-translate-x-1"
@@ -1674,7 +1734,7 @@ export default function TuningViewer() {
                   </span>
                 </button>
 
-                <h2 className="flex items-center justify-center gap-2 text-xl font-bold text-gray-900 mb-4">
+                <h2 className={`flex items-center justify-center gap-2 text-xl font-bold ${headingTextClass} mb-4`}>
                   <svg
                     className="w-5 h-5 text-red-600"
                     fill="none"
@@ -1688,7 +1748,7 @@ export default function TuningViewer() {
                       d="M19 9l-7 7-7-7"
                     />
                   </svg>
-                  <span className="text-gray-600 font-semibold">
+                  <span className={`${mutedTextClass} font-semibold`}>
                     {translate(currentLanguage, "selectYear")}
                   </span>
                 </h2>
@@ -1706,11 +1766,9 @@ export default function TuningViewer() {
 
                         window.parent.postMessage({scrollToIframe: true}, "*");
                       }}
-                      className="cursor-pointer rounded-xl p-4 bg-white hover:bg-gray-50 border border-gray-200 
-                       transition-all duration-200 shadow-sm hover:shadow-md 
-                       hover:scale-105 active:scale-95 flex flex-col items-center justify-center"
+                      className={selectionCardClass}
                     >
-                      <p className="text-center font-medium text-gray-800">
+                      <p className={selectionTextClass}>
                         {year.range}
                       </p>
                     </div>
@@ -1735,8 +1793,7 @@ export default function TuningViewer() {
 
                       window.parent.postMessage({scrollToIframe: true}, "*");
                     }}
-                    className="group flex items-center gap-1 mb-4 hover:text-blue-800 
-                   transition-colors duration-200 rounded-md px-2 py-1 hover:bg-gray-200"
+                    className={backButtonClass}
                   >
                     <svg
                       className="w-5 h-5 transition-transform duration-200 group-hover:-translate-x-1"
@@ -1758,7 +1815,7 @@ export default function TuningViewer() {
                     </span>
                   </button>
 
-                  <h2 className="flex items-center justify-center gap-2 text-xl font-bold text-gray-900 mb-4">
+                  <h2 className={`flex items-center justify-center gap-2 text-xl font-bold ${headingTextClass} mb-4`}>
                     <svg
                       className="w-5 h-5 text-red-600"
                       fill="none"
@@ -1772,7 +1829,7 @@ export default function TuningViewer() {
                         d="M19 9l-7 7-7-7"
                       />
                     </svg>
-                    <span className="text-gray-600 font-semibold">
+                    <span className={`${mutedTextClass} font-semibold`}>
                       {translate(currentLanguage, "selectEngine")}
                     </span>
                   </h2>
@@ -1786,7 +1843,7 @@ export default function TuningViewer() {
 
                     return (
                       <div className="mb-6" key={fuel}>
-                        <h3 className="text-md font-semibold mb-3 text-gray-700 bg-gray-100 px-3 py-2 rounded-md">
+                        <h3 className={fuelHeadingClass}>
                           {translate(
                             currentLanguage,
                             fuel === "diesel" ? "fuelDiesel" : "fuelPetrol"
@@ -1807,11 +1864,9 @@ export default function TuningViewer() {
                                   "*"
                                 );
                               }}
-                              className="cursor-pointer rounded-xl p-4 bg-white hover:bg-gray-50 border border-gray-200 
-                             transition-all duration-200 shadow-sm hover:shadow-md 
-                             hover:scale-105 active:scale-95 flex flex-col items-center justify-center"
+                              className={selectionCardClass}
                             >
-                              <p className="text-center font-medium text-gray-800">
+                              <p className={selectionTextClass}>
                                 {engine.label}
                               </p>
                             </div>
@@ -1829,7 +1884,7 @@ export default function TuningViewer() {
                       )
                   ).length > 0 && (
                     <div className="mb-6">
-                      <h3 className="text-md font-semibold mb-3 text-gray-700 bg-gray-100 px-3 py-2 rounded-md">
+                      <h3 className={fuelHeadingClass}>
                         {translate(currentLanguage, "otherEngines")}
                       </h3>
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -1854,11 +1909,9 @@ export default function TuningViewer() {
                                   "*"
                                 );
                               }}
-                              className="cursor-pointer rounded-xl p-4 bg-white hover:bg-gray-50 border border-gray-200 
-                             transition-all duration-200 shadow-sm hover:shadow-md 
-                             hover:scale-105 active:scale-95 flex flex-col items-center justify-center"
+                              className={selectionCardClass}
                             >
-                              <p className="text-center font-medium text-gray-800">
+                              <p className={selectionTextClass}>
                                 {engine.label}
                               </p>
                             </div>
@@ -2901,6 +2954,7 @@ export default function TuningViewer() {
           translate={translate}
           showBookButton={infoModal.type === "stage"}
         />
+        </div>
       </main>
     </>
   );
