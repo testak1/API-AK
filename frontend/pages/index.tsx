@@ -1139,7 +1139,7 @@ export default function TuningViewer() {
     : "group flex items-center gap-1 mb-4 hover:text-blue-800 transition-colors duration-200 rounded-md px-2 py-1 hover:bg-gray-200";
   const fuelHeadingClass = isDarkTheme
     ? "mb-4 rounded-lg border border-red-500/40 bg-gradient-to-r from-red-950/70 via-zinc-900 to-zinc-900 px-4 py-3 text-sm font-black uppercase tracking-[0.16em] text-white shadow-lg shadow-red-950/20"
-    : "mb-4 rounded-lg border border-red-100 bg-red-50 px-4 py-3 text-sm font-black uppercase tracking-[0.16em] text-red-800";
+    : "mb-4 rounded-lg border border-gray-200 border-l-4 border-l-red-600 bg-white px-4 py-3 text-sm font-black uppercase tracking-[0.16em] text-slate-800 shadow-sm";
 
   return (
     <>
