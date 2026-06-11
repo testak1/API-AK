@@ -1,11 +1,11 @@
-import { useEffect } from "react";
+import {useEffect} from "react";
 import TuningViewer from "./index";
 
 export default function Embed() {
   useEffect(() => {
     const sendHeight = () => {
       const height = document.body.scrollHeight;
-      window.parent.postMessage({ height }, "*");
+      window.parent.postMessage({height}, "*");
     };
 
     const debounce = (fn: () => void, delay: number) => {
@@ -43,7 +43,5 @@ export default function Embed() {
     };
   }, []);
 
-  return (
-      <TuningViewer />
-  );
+  return <TuningViewer isEmbed />;
 }
