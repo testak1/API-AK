@@ -4,7 +4,10 @@ import TuningViewer from "./index";
 export default function Embed() {
   useEffect(() => {
     const sendHeight = () => {
-      const height = document.body.scrollHeight;
+      const root = document.getElementById("embed-content");
+      const height = root
+        ? Math.ceil(root.getBoundingClientRect().height)
+        : document.documentElement.scrollHeight;
       window.parent.postMessage({ height }, "*");
     };
 
@@ -22,8 +25,10 @@ export default function Embed() {
     debouncedSendHeight();
 
     // Watch for DOM changes
+    const root = document.getElementById("embed-content") || document.body;
+
     const mutationObserver = new MutationObserver(debouncedSendHeight);
-    mutationObserver.observe(document.body, {
+    mutationObserver.observe(root, {
       childList: true,
       subtree: true,
       attributes: true,
@@ -34,7 +39,7 @@ export default function Embed() {
 
     // Optional: Track element size changes (e.g. images loading, modal expanding)
     const resizeObserver = new ResizeObserver(debouncedSendHeight);
-    resizeObserver.observe(document.body);
+    resizeObserver.observe(root);
 
     return () => {
       mutationObserver.disconnect();
@@ -44,6 +49,8 @@ export default function Embed() {
   }, []);
 
   return (
+    <div id="embed-content">
       <TuningViewer />
+    </div>
   );
 }
