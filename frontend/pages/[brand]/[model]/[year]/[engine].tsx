@@ -357,28 +357,38 @@ export default function EnginePage({
 
   const handleBookNow = (
     stageOrOptionName: string,
-    event?: React.MouseEvent
+    event?: React.MouseEvent,
+    isAktPlusOption = false
   ) => {
     if (!brandData || !modelData || !yearData || !engineData) return;
 
     const brandSlug =
       brandData?.slug?.current || slugify(brandData?.name || "");
+
     const modelSlug =
       typeof modelData?.slug === "object"
         ? modelData.slug.current
         : modelData?.slug || slugify(modelData?.name || "");
+
     const yearSlug = yearData?.range.includes(" ")
       ? slugify(yearData.range)
       : yearData?.range || "";
+
     const engineSlug = engineData?.label.includes(" ")
       ? slugify(engineData.label)
       : engineData?.label || "";
 
-    const stageSlug = slugifyStage(stageOrOptionName);
-    const finalLink = `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}/${stageSlug}`;
+    const engineUrl = `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}`;
 
-    const clickY = event?.clientY || 0;
-    const scrollY = window.scrollY + clickY;
+    const stageSlug = slugifyStage(stageOrOptionName);
+
+    const isRealStage =
+      engineData.stages?.some(
+        stage => slugifyStage(stage.name) === stageSlug
+      ) || false;
+
+    const finalLink =
+      isAktPlusOption || !isRealStage ? engineUrl : `${engineUrl}/${stageSlug}`;
 
     const isMobile = typeof window !== "undefined" && window.innerWidth <= 768;
 
@@ -843,27 +853,27 @@ export default function EnginePage({
                       : isMercedesTcuStage
                         ? MERCEDES_TCU_DESCRIPTION_TEXT
                         : renderDescription(templateDescription, {
-                          stageName: getStageDisplayName(
-                            stage.name,
-                            brandData.name
-                          ),
-                          brand: brandData.name,
-                          model: modelData.name,
-                          year: yearData.range,
-                          engine: engineData.label,
-                          origHk: stage.origHk || "",
-                          tunedHk: stage.tunedHk || "",
-                          origNm: stage.origNm || "",
-                          tunedNm: stage.tunedNm || "",
-                          hkIncrease:
-                            stage.tunedHk && stage.origHk
-                              ? stage.tunedHk - stage.origHk
-                              : "",
-                          nmIncrease:
-                            stage.tunedNm && stage.origNm
-                              ? stage.tunedNm - stage.origNm
-                              : "",
-                        }) || "Kontakta oss för offert!";
+                            stageName: getStageDisplayName(
+                              stage.name,
+                              brandData.name
+                            ),
+                            brand: brandData.name,
+                            model: modelData.name,
+                            year: yearData.range,
+                            engine: engineData.label,
+                            origHk: stage.origHk || "",
+                            tunedHk: stage.tunedHk || "",
+                            origNm: stage.origNm || "",
+                            tunedNm: stage.tunedNm || "",
+                            hkIncrease:
+                              stage.tunedHk && stage.origHk
+                                ? stage.tunedHk - stage.origHk
+                                : "",
+                            nmIncrease:
+                              stage.tunedNm && stage.origNm
+                                ? stage.tunedNm - stage.origNm
+                                : "",
+                          }) || "Kontakta oss för offert!";
 
                     return {
                       "@type": "ListItem",
@@ -1109,11 +1119,13 @@ export default function EnginePage({
                           <span
                             className={`uppercase tracking-wide ${getStageColor(stage.name)}`}
                           >
-                            [{translateDisplayStageName(
+                            [
+                            {translateDisplayStageName(
                               currentLanguage,
                               stage.name,
                               brandData.name
-                            )}]
+                            )}
+                            ]
                           </span>
                         </h2>
                       </div>
@@ -1260,7 +1272,10 @@ export default function EnginePage({
                                   {stage.tcuFields?.shiftTime && (
                                     <div className="border border-blue-400 rounded-lg p-3 text-white">
                                       <p className="text-sm font-bold text-blue-300 mb-1">
-                                        {translate(currentLanguage, "shiftTime")}
+                                        {translate(
+                                          currentLanguage,
+                                          "shiftTime"
+                                        )}
                                       </p>
                                       <p>
                                         Original:{" "}
@@ -1271,8 +1286,8 @@ export default function EnginePage({
                                       <p>
                                         Optimerad:{" "}
                                         <span className="text-green-400">
-                                          {stage.tcuFields.shiftTime.optimized ||
-                                            "-"}{" "}
+                                          {stage.tcuFields.shiftTime
+                                            .optimized || "-"}{" "}
                                           ms
                                         </span>
                                       </p>
@@ -1308,10 +1323,7 @@ export default function EnginePage({
                                     className="w-full max-w-2xl rounded-lg bg-green-600 px-6 py-3 font-medium text-white shadow-lg transition-all hover:scale-105 hover:bg-green-700"
                                   >
                                     📩{" "}
-                                    {translate(
-                                      currentLanguage,
-                                      "contactvalue"
-                                    )}
+                                    {translate(currentLanguage, "contactvalue")}
                                   </button>
                                 </div>
                               </>
@@ -1974,7 +1986,9 @@ export default function EnginePage({
                                                 <button
                                                   onClick={() =>
                                                     handleBookNow(
-                                                      translatedTitle
+                                                      translatedTitle,
+                                                      undefined,
+                                                      true
                                                     )
                                                   }
                                                   className="bg-green-600 hover:bg-green-700 hover:scale-105 transform transition-all text-white px-6 py-3 rounded-lg font-medium shadow-lg"
