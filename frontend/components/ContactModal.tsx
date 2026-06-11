@@ -112,14 +112,6 @@ export default function ContactModal({
     onClose();
   };
 
-  const handlePhoneClick = (
-    e: React.MouseEvent<HTMLAnchorElement>,
-    number: string
-  ) => {
-    e.preventDefault();
-    window.location.href = `tel:${number}`;
-  };
-
   const [currentLanguage, setCurrentLanguage] = useState("sv");
 
   // ✅ Mobile-aware modal positioning
@@ -325,7 +317,7 @@ export default function ContactModal({
                     <a
                       key={city}
                       href={`tel:${number}`}
-                      onClick={e => handlePhoneClick(e, number)}
+                      target="_top"
                       rel="noopener"
                       className="flex items-center gap-3 bg-gray-800 hover:bg-gray-700 p-3 rounded-lg transition-colors"
                     >

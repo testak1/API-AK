@@ -8,10 +8,7 @@ export default function Embed() {
 
   useEffect(() => {
     const sendHeight = () => {
-      const root = document.getElementById("reseller-embed-content");
-      const height = root
-        ? Math.ceil(root.getBoundingClientRect().height)
-        : document.documentElement.scrollHeight;
+      const height = document.body.scrollHeight;
       window.parent.postMessage({ height }, "*");
     };
 
@@ -26,11 +23,8 @@ export default function Embed() {
     const debouncedSendHeight = debounce(sendHeight, 100);
     debouncedSendHeight();
 
-    const root =
-      document.getElementById("reseller-embed-content") || document.body;
-
     const mutationObserver = new MutationObserver(debouncedSendHeight);
-    mutationObserver.observe(root, {
+    mutationObserver.observe(document.body, {
       childList: true,
       subtree: true,
       attributes: true,
@@ -39,7 +33,7 @@ export default function Embed() {
     window.addEventListener("resize", debouncedSendHeight);
 
     const resizeObserver = new ResizeObserver(debouncedSendHeight);
-    resizeObserver.observe(root);
+    resizeObserver.observe(document.body);
 
     return () => {
       mutationObserver.disconnect();
@@ -48,9 +42,5 @@ export default function Embed() {
     };
   }, []);
 
-  return (
-    <div id="reseller-embed-content">
-      <TuningViewer />
-    </div>
-  );
+  return <TuningViewer />;
 }
