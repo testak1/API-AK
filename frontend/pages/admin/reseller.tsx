@@ -26,6 +26,8 @@ export default function ResellerAdmin({ session }) {
   const [previewData, setPreviewData] = useState(null);
   const [showPreview, setShowPreview] = useState(false);
   const [isPreviewLoading, setIsPreviewLoading] = useState(false);
+  const [previewSignature, setPreviewSignature] = useState("");
+  const [previewAcknowledged, setPreviewAcknowledged] = useState(false);
 
   const [expandedSection, setExpandedSection] = useState(null);
 
@@ -62,6 +64,28 @@ export default function ResellerAdmin({ session }) {
     dsg: "",
     applyLevel: "model", // 'model' or 'year'
   });
+
+  const getPreviewSignature = (applyLevel) =>
+    JSON.stringify({
+      brand: selectedBrand,
+      model: selectedModel,
+      year: applyLevel === "year" ? selectedYear : "",
+      applyLevel,
+      prices: {
+        steg1: bulkPrices.steg1,
+        steg2: bulkPrices.steg2,
+        steg3: bulkPrices.steg3,
+        steg4: bulkPrices.steg4,
+        dsg: bulkPrices.dsg,
+      },
+    });
+
+  const hasConfirmedPreview = (applyLevel) =>
+    Boolean(
+      previewData &&
+        previewAcknowledged &&
+        previewSignature === getPreviewSignature(applyLevel),
+    );
 
   const [stageDescriptions, setStageDescriptions] = useState([]);
 
@@ -369,6 +393,14 @@ export default function ResellerAdmin({ session }) {
       return;
     }
 
+    if (!isPreview && !hasConfirmedPreview(applyLevel)) {
+      setSaveStatus({
+        message: "Generate and confirm a current preview before applying prices.",
+        isError: true,
+      });
+      return;
+    }
+
     try {
       if (isPreview) {
         setIsPreviewLoading(true);
@@ -400,6 +432,8 @@ export default function ResellerAdmin({ session }) {
       if (isPreview) {
         setPreviewData(result);
         setShowPreview(true);
+        setPreviewSignature(getPreviewSignature(applyLevel));
+        setPreviewAcknowledged(false);
         setIsPreviewLoading(false);
         return;
       }
@@ -419,6 +453,8 @@ export default function ResellerAdmin({ session }) {
       // Clear preview after successful save
       setPreviewData(null);
       setShowPreview(false);
+      setPreviewSignature("");
+      setPreviewAcknowledged(false);
     } catch (error) {
       console.error("Failed to process bulk prices:", error);
       setSaveStatus({
@@ -585,6 +621,19 @@ export default function ResellerAdmin({ session }) {
       dsg: "",
     }));
   }, [selectedBrand, selectedModel, selectedYear, bulkPrices.applyLevel]);
+
+  useEffect(() => {
+    setPreviewAcknowledged(false);
+  }, [
+    selectedBrand,
+    selectedModel,
+    selectedYear,
+    bulkPrices.steg1,
+    bulkPrices.steg2,
+    bulkPrices.steg3,
+    bulkPrices.steg4,
+    bulkPrices.dsg,
+  ]);
 
   const handleBulkPriceChange = (field, value) => {
     const sekValue = value ? fromCurrency(parseFloat(value), currency) : "";
@@ -1101,6 +1150,7 @@ export default function ResellerAdmin({ session }) {
                           isLoading ||
                           isPreviewLoading ||
                           (previewData && !showPreview) ||
+                          !hasConfirmedPreview("model") ||
                           !selectedBrand ||
                           !selectedModel
                         }
@@ -1383,6 +1433,7 @@ export default function ResellerAdmin({ session }) {
                           isLoading ||
                           isPreviewLoading ||
                           (previewData && !showPreview) ||
+                          !hasConfirmedPreview("year") ||
                           !selectedBrand ||
                           !selectedModel ||
                           !selectedYear
@@ -1468,6 +1519,41 @@ export default function ResellerAdmin({ session }) {
 
                 {showPreview && (
                   <div className="border-t border-gray-200">
+                    <div className="grid gap-4 border-b border-gray-200 bg-blue-50 px-4 py-4 sm:grid-cols-[1fr_auto] sm:items-center sm:px-6">
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">
+                          Granska ändringarna innan publicering
+                        </p>
+                        <p className="mt-1 text-xs text-gray-600">
+                          Kontrollera antal, berörda motorer och nytt pris i listan nedan.
+                        </p>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {Object.entries(
+                            previewData.items.reduce((summary, item) => {
+                              summary[item.stageName] = (summary[item.stageName] || 0) + 1;
+                              return summary;
+                            }, {} as Record<string, number>),
+                          ).map(([stageName, count]) => {
+                            const stageLabel = stageName as string;
+                            const itemCount = count as number;
+                            return (
+                              <span key={stageLabel} className="rounded-full bg-white px-2.5 py-1 text-xs font-medium text-blue-800 shadow-sm">
+                                {stageLabel}: {itemCount}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      </div>
+                      <label className="flex max-w-sm items-start gap-3 rounded-lg border border-blue-200 bg-white p-3 text-xs font-medium text-gray-700">
+                        <input
+                          type="checkbox"
+                          checked={previewAcknowledged}
+                          onChange={(event) => setPreviewAcknowledged(event.target.checked)}
+                          className="mt-0.5 h-4 w-4 rounded border-gray-300 text-red-600 focus:ring-red-500"
+                        />
+                        <span>Jag har granskat förhandsvisningen och vill använda dessa priser.</span>
+                      </label>
+                    </div>
                     <div className="overflow-x-auto">
                       <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-50">
