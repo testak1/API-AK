@@ -1,14 +1,30 @@
-import { useState, useEffect } from "react";
-import { GetServerSideProps } from "next";
+import { useEffect, useRef } from "react";
+import type { GetServerSideProps } from "next";
 import Head from "next/head";
-import NextImage from "next/image";
+import Link from "next/link";
 import { PortableText } from "@portabletext/react";
-import client from "@/lib/sanity";
-import { urlFor } from "@/lib/sanity";
+import {
+  ArrowRight,
+  BadgeCheck,
+  Check,
+  ChevronDown,
+  Clock3,
+  CircleHelp,
+  FileSearch,
+  Gauge,
+  Mail,
+  MapPin,
+  Phone,
+  ShieldCheck,
+  SlidersHorizontal,
+  Star,
+  Wrench,
+} from "lucide-react";
+import client, { urlFor } from "@/lib/sanity";
 import { stationPageQuery } from "@/src/lib/queries";
-import { Station } from "@/types/sanity";
-
+import type { Station } from "@/types/sanity";
 import InstagramFeedEmbed from "@/components/InstagramFeedEmbed";
+import { getStationName, getWorkshopServices } from "@/lib/workshopServices";
 
 interface StationPageProps {
   stationData: Station;
@@ -26,32 +42,28 @@ export const getServerSideProps: GetServerSideProps<StationPageProps> = async (
 
     if (!stationData) return { notFound: true };
 
-    return {
-      props: {
-        stationData,
-      },
-    };
-  } catch (err) {
-    console.error("Station fetch failed:", err);
+    return { props: { stationData } };
+  } catch (error) {
+    console.error("Station fetch failed:", error);
     return { notFound: true };
   }
 };
 
-const portableTextComponents = {
+const portableTextComponents: any = {
   types: {
-    image: ({ value }: any) => (
+    image: ({ value }: { value: any }) => (
       <img
-        src={urlFor(value).width(800).url()}
-        alt={value.alt || ""}
-        className="my-4 rounded-xl shadow-lg w-full"
+        src={urlFor(value).width(1200).url()}
+        alt={value.alt || "AK-TUNING verkstad"}
+        className="my-7 w-full rounded-2xl border border-white/10"
       />
     ),
   },
   marks: {
-    link: ({ children, value }: any) => (
+    link: ({ children, value }: { children: React.ReactNode; value: any }) => (
       <a
         href={value.href}
-        className="text-red-500 hover:text-red-400 underline transition-colors"
+        className="font-semibold text-red-400 underline decoration-red-400/50 underline-offset-4 hover:text-red-300"
         target="_blank"
         rel="noopener noreferrer"
       >
@@ -61,618 +73,389 @@ const portableTextComponents = {
   },
 };
 
+const cleanPhone = (phone: string) => phone.replace(/\s+/g, "");
+
+const schemaDayNames: Record<string, string> = {
+  Måndag: "Monday",
+  Tisdag: "Tuesday",
+  Onsdag: "Wednesday",
+  Torsdag: "Thursday",
+  Fredag: "Friday",
+  Lördag: "Saturday",
+  Söndag: "Sunday",
+};
+
 export default function MotoroptimeringStation({
   stationData,
 }: StationPageProps) {
-  const pageTitle = `Motoroptimering ${stationData.city} | AK-TUNING`;
-  const pageDescription = `Professionell Motoroptimering i ${stationData.city} med 2 års garanti. Boka tid för optimering av din bil hos AK-TUNING ${stationData.city} – specialister på skräddarsydd mjukvara.`;
+  const selectorRef = useRef<HTMLElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const stationName = getStationName(stationData.slug, stationData.city);
   const pageUrl = `https://tuning.aktuning.se/motoroptimering/${stationData.slug}`;
+  const heroImage = stationData.featuredImage
+    ? urlFor(stationData.featuredImage).width(2200).quality(85).url()
+    : null;
+  const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+    `${stationData.address.street}, ${stationData.address.postalCode} ${stationName}`,
+  )}`;
+  const workshopServices = getWorkshopServices(stationData.slug);
+  const workshopServiceNames = workshopServices
+    .map((service) => service.title.toLowerCase())
+    .join(", ");
+  const localSeo = workshopServices.length
+    ? stationData.slug === "stockholm" || stationData.slug === "orebro"
+      ? {
+          title: `Motoroptimering & Avgassystem i ${stationName} | AK-TUNING`,
+          description: `Motoroptimering och montering av avgassystem i ${stationName}. Hitta rätt optimering för din bil och boka tid hos AK-TUNING.`,
+        }
+      : {
+          title: `Motoroptimering & Bilverkstad i ${stationName} | AK-TUNING`,
+          description: `Motoroptimering och bilverkstad i ${stationName}. Vi erbjuder ${workshopServiceNames} — samt hjälp att hitta rätt optimering för din bil.`,
+        }
+    : {
+        title: `Motoroptimering i ${stationName} | AK-TUNING`,
+        description: `Professionell motoroptimering i ${stationName}. Hitta effekt, vridmoment och pris för din bil hos AK-TUNING.`,
+      };
+  const faqItems = [
+    {
+      question: `Vad är motoroptimering?`,
+      answer:
+        "Motoroptimering är en anpassning av bilens motorstyrprogram. Vilka alternativ som finns beror på bil, motor och årsmodell.",
+    },
+    {
+      question: `Hur hittar jag rätt optimering för min bil?`,
+      answer:
+        "Börja med att välja märke, modell och motor i bilväljaren. Därefter ser du tillgängliga alternativ och kan kontakta oss för hjälp inför bokning.",
+    },
+    {
+      question: `Hur bokar jag motoroptimering i ${stationName}?`,
+      answer: `Ring eller mejla AK-TUNING ${stationName}. Vi hjälper dig att gå igenom din bil och planera nästa steg.`,
+    },
+    ...(workshopServices.length
+      ? [
+          {
+            question: `Vilka verkstadstjänster erbjuder AK-TUNING ${stationName}?`,
+            answer: `${workshopServiceNames}. Kontakta verkstaden för att prata om din bil och boka tid.`,
+          },
+        ]
+      : []),
+    {
+      question: `Vilken trygghet ingår?`,
+      answer:
+        "AK-TUNING erbjuder 2 års mjukvarugaranti och 30 dagars öppet köp enligt villkoren för tjänsten.",
+    },
+  ];
+  const defaultServices = [
+    {
+      icon: SlidersHorizontal,
+      title: "Motoroptimering",
+      description:
+        "Se alternativ för din motor i bilväljaren och få hjälp att välja en lösning som passar din bil.",
+    },
+    {
+      icon: FileSearch,
+      title: "Bil- & motoranalys",
+      description:
+        "Vi går igenom förutsättningarna för just din bil innan du bokar en tid hos verkstaden.",
+    },
+    {
+      icon: BadgeCheck,
+      title: "Rådgivning & bokning",
+      description: `Prata med teamet i ${stationName} om frågor, upplägg och nästa lediga tid.`,
+    },
+  ];
+
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.origin !== "https://api.aktuning.se" || !iframeRef.current) return;
+      if (typeof event.data?.height === "number") {
+        iframeRef.current.style.height = `${Math.max(180, event.data.height)}px`;
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
+
+  const scrollToSelector = () =>
+    selectorRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
 
   return (
     <>
       <Head>
-        <title>{pageTitle}</title>
-        <meta name="description" content={pageDescription} />
+        <title>{localSeo.title}</title>
+        <meta name="description" content={localSeo.description} />
         <link rel="canonical" href={pageUrl} />
-
-        {/* Open Graph */}
-        <meta property="og:title" content={pageTitle} />
-        <meta property="og:description" content={pageDescription} />
+        <meta property="og:title" content={localSeo.title} />
+        <meta property="og:description" content={localSeo.description} />
         <meta property="og:type" content="website" />
         <meta property="og:url" content={pageUrl} />
-        <meta
-          property="og:image"
-          content="https://tuning.aktuning.se/ak-logo.png"
-        />
-        <meta
-          property="og:site_name"
-          content={`AK-TUNING ${stationData.city}`}
-        />
-
-        {/* Twitter Card */}
+        <meta property="og:image" content={heroImage || "https://tuning.aktuning.se/ak-logo.png"} />
+        <meta property="og:site_name" content={`AK-TUNING ${stationName}`} />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={pageTitle} />
-        <meta name="twitter:description" content={pageDescription} />
-        <meta
-          name="twitter:image"
-          content="https://tuning.aktuning.se/ak-logo.png"
-        />
-
-        {/* LocalBusiness Structured Data */}
+        <meta name="twitter:title" content={localSeo.title} />
+        <meta name="twitter:description" content={localSeo.description} />
+        <meta name="robots" content="index,follow,max-image-preview:large" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
-              "@type": "LocalBusiness",
-              name: `AK-TUNING Motoroptimering ${stationData.city}`,
-              image: "https://tuning.aktuning.se/ak-logo.png",
+              "@type": "AutomotiveBusiness",
+              name: `AK-TUNING ${stationName}`,
+              image: heroImage || "https://tuning.aktuning.se/ak-logo.png",
               "@id": pageUrl,
               url: pageUrl,
               telephone: stationData.phone,
+              email: stationData.email,
               address: {
                 "@type": "PostalAddress",
                 streetAddress: stationData.address.street,
-                addressLocality: stationData.city,
+                addressLocality: stationName,
                 postalCode: stationData.address.postalCode,
                 addressCountry: "SE",
               },
-
-              openingHoursSpecification: [
-                {
+              openingHoursSpecification: stationData.openingHours?.map(
+                (hours) => ({
                   "@type": "OpeningHoursSpecification",
-                  dayOfWeek: [
-                    "Måndag",
-                    "Tisdag",
-                    "Onsdag",
-                    "Torsdag",
-                    "Fredag",
-                  ],
-                  opens: "10:00",
-                  closes: "19:00",
+                  dayOfWeek: hours.days
+                    .map((day) => schemaDayNames[day])
+                    .filter(Boolean),
+                  opens: hours.open,
+                  closes: hours.close,
+                }),
+              ),
+              ...(workshopServices.length
+                ? {
+                    hasOfferCatalog: {
+                      "@type": "OfferCatalog",
+                      name: `Verkstadstjänster i ${stationName}`,
+                      itemListElement: workshopServices.map((service) => ({
+                        "@type": "Offer",
+                        itemOffered: {
+                          "@type": "Service",
+                          name: service.title,
+                          description: service.description,
+                        },
+                      })),
+                    },
+                  }
+                : {}),
+              sameAs: [stationData.facebook, stationData.instagram].filter(Boolean),
+            }),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                {
+                  "@type": "ListItem",
+                  position: 1,
+                  name: "AK-TUNING",
+                  item: "https://tuning.aktuning.se/",
                 },
                 {
-                  "@type": "OpeningHoursSpecification",
-                  dayOfWeek: ["Lördag", "Söndag"],
-                  opens: "10:00",
-                  closes: "16:00",
+                  "@type": "ListItem",
+                  position: 2,
+                  name: `Motoroptimering ${stationName}`,
+                  item: pageUrl,
                 },
-              ],
-              sameAs: [
-                stationData.facebook
-                  ? `https://facebook.com/${stationData.facebook}`
-                  : null,
-                stationData.instagram
-                  ? `https://instagram.com/${stationData.instagram}`
-                  : null,
               ],
             }),
           }}
         />
       </Head>
-      <div className="bg-gray-950 text-white min-h-screen">
-        <div className="w-full max-w-7xl mx-auto px-4 py-8">
-          {/* Hero Section - Improved with better spacing */}
-          <div className="relative bg-gray-900 rounded-2xl overflow-hidden mb-16 shadow-2xl min-h-[500px]">
-            <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent z-10"></div>
-            <div className="relative z-20 px-8 py-16 md:py-28 lg:py-32 h-full flex items-center">
-              <div className="max-w-2xl">
-                <div className="flex items-center mb-6">
-                  <NextImage
-                    src="/ak-logo.png"
-                    alt="AK-TUNING"
-                    width={160}
-                    height={160}
-                    className="w-auto"
-                  />
-                </div>
-                <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white mb-4 leading-tight">
-                  Motoroptimering i{" "}
-                  <span className="text-red-500">{stationData.city}</span>
-                </h2>
-                <p className="text-xl text-gray-300 mb-8 max-w-lg">
-                  Professionell ECU tuning och prestandaoptimering hos
-                  specialisterna på AK-TUNING
-                </p>
-                <div className="flex flex-wrap gap-4">
-                  <a
-                    href={`tel:${stationData.phone.replace(/\s+/g, "")}`}
-                    className="bg-gray-800 hover:bg-gray-700 text-white px-8 py-4 rounded-xl font-bold shadow-lg transition-all hover:scale-105 flex items-center gap-2"
-                  >
-                    <svg
-                      className="w-5 h-5 text-red-500"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                      />
-                    </svg>
-                    {stationData.phone}
-                  </a>
-                  <a
-                    href={`mailto:${stationData.email.replace(/\s+/g, "")}`}
-                    className="bg-gray-800 hover:bg-gray-700 text-white px-8 py-4 rounded-xl font-bold shadow-lg transition-all hover:scale-105 flex items-center gap-2 uppercase"
-                  >
-                    <svg
-                      className="w-5 h-5 text-red-500"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                      />
-                    </svg>
-                    {stationData.email}
-                  </a>
-                </div>
-              </div>
-            </div>
-            {stationData.featuredImage && (
-              <img
-                src={urlFor(stationData.featuredImage).width(1800).url()}
-                alt={`AK-TUNING i ${stationData.city}`}
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-            )}
-          </div>
 
-          {/* Benefits Section - Improved layout */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
-            <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-8 rounded-2xl shadow-xl border border-gray-700 hover:border-red-500 transition-all hover:-translate-y-1">
-              <div className="bg-red-500/10 p-4 rounded-full w-16 h-16 flex items-center justify-center mb-6">
-                <span className="text-red-500 text-2xl">🏆</span>
-              </div>
-              <h3 className="text-xl font-bold text-white mb-3">
-                MARKNADSLEDANDE
-              </h3>
-              <p className="text-gray-400">
-                All vår mjukvara kommer med full garanti för din trygghet och
-                säkerhet.
-              </p>
-            </div>
-            <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-8 rounded-2xl shadow-xl border border-gray-700 hover:border-red-500 transition-all hover:-translate-y-1">
-              <div className="bg-red-500/10 p-4 rounded-full w-16 h-16 flex items-center justify-center mb-6">
-                <span className="text-red-500 text-2xl">✅</span>
-              </div>
-              <h3 className="text-xl font-bold text-white mb-3">
-                2 ÅRS GARANTI
-              </h3>
-              <p className="text-gray-400">
-                Mjukvaru garanti med noggran felsökning och loggning!
-              </p>
-            </div>
-            <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-8 rounded-2xl shadow-xl border border-gray-700 hover:border-red-500 transition-all hover:-translate-y-1">
-              <div className="bg-red-500/10 p-4 rounded-full w-16 h-16 flex items-center justify-center mb-6">
-                <span className="text-red-500 text-2xl">🛒</span>
-              </div>
-              <h3 className="text-xl font-bold text-white mb-3">
-                30 DAGARS ÖPPET KÖP
-              </h3>
-              <p className="text-gray-400">
-                Testa själv och ångra dig inom 30 dagar om du inte är helt nöjd.
-              </p>
-            </div>
-          </div>
-
-          {/* Premium Services Section */}
-          <section className="relative py-16 bg-gradient-to-b from-gray-900 to-gray-950">
-            {/* Decorative elements */}
-            <div className="absolute inset-0 overflow-hidden">
-              <div className="absolute top-0 left-0 w-1/3 h-full bg-gradient-to-r from-red-900/10 to-transparent" />
-              <div className="absolute bottom-0 right-0 w-1/3 h-full bg-gradient-to-l from-red-900/10 to-transparent" />
-            </div>
-
-            <div className="container mx-auto px-4 relative z-10">
-              {/* Header with improved styling */}
-              <div className="text-center mb-10">
-  <h3 className="text-2xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
-    MOTOROPTIMERING
-    <span className="text-red-500"> {stationData.city}</span>
-  </h3>
-                <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-                  Professionella optimeringstjänster skräddarsydda för din bil
-                </p>
-              </div>
-
-              {/* Enhanced iframe container */}
-              <div className="relative bg-white rounded-2xl overflow-hidden">
-                <div className="absolute pointer-events-none" />
-                <iframe
-                  id="aktuning-iframe"
-                  src="https://api.aktuning.se/embed"
-                  className="w-full border-none"
-                  style={{ height: "180px" }}
-                />
-              </div>
-            </div>
-          </section>
-
-          {/* Add this script effect using useEffect */}
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `
-    window.addEventListener("message", (event) => {
-      if (!event.data) return;
-      const iframe = document.getElementById("aktuning-iframe");
-      
-      if (typeof event.data.height === "number") {
-        iframe.style.height = event.data.height + "px";
-      }
-
-      if (event.data.scrollToIframe === true) {
-        const rect = iframe.getBoundingClientRect();
-        const top = window.scrollY + rect.top;
-        window.scrollTo({ top, behavior: "smooth" });
-      }
-    });
-  `,
-            }}
-          />
-
-          {/* About Section - Better content visibility */}
-          <section className="mb-20">
-            <div className="flex flex-col lg:flex-row gap-12 items-center">
-              <div className="lg:w-1/2">
-                <h2 className="text-3xl pt-2 md:text-4xl font-bold text-white mb-8">
-                  VÅR ANLÄGGNING{" "}
-                  <span className="text-red-500">{stationData.city}</span>
-                </h2>
-                <div className="prose prose-invert max-w-none text-gray-300">
-                  {stationData.content && (
-                    <PortableText
-                      value={stationData.content}
-                      components={portableTextComponents}
-                    />
-                  )}
-                </div>
-              </div>
-              <div className="lg:w-1/2">
-                {stationData.gallery && stationData.gallery.length > 0 && (
-                  <div className="grid grid-cols-2 gap-4">
-                    {stationData.gallery.map((image, index) => (
-                      <div
-                        key={index}
-                        className={`${index === 0 ? "col-span-2" : ""} relative rounded-xl overflow-hidden shadow-lg`}
-                      >
-                        <img
-                          src={urlFor(image)
-                            .width(index === 0 ? 1200 : 600)
-                            .url()}
-                          alt={`AK-TUNING ${stationData.city} verkstad ${index + 1}`}
-                          className={`w-full ${index === 0 ? "h-64" : "h-48"} object-cover transition-transform hover:scale-105`}
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          </section>
-
-          <section className="bg-gray-900 rounded-xl mb-20 p-6 shadow-lg">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-white mb-4">
-                Följ oss på <span className="text-red-500">INSTAGRAM</span>
-              </h2>
-            </div>
-            {stationData.elfsightWidgetId && (
-              <InstagramFeedEmbed widgetId={stationData.elfsightWidgetId} />
-            )}
-          </section>
-
-          {/* Map Section - Better layout */}
-          <section className="mb-20">
-            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl overflow-hidden shadow-2xl border border-gray-700">
-              <div className="p-8">
-                <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">
-                  Hitta till oss i{" "}
-                  <span className="text-red-500">{stationData.city}</span>
-                </h2>
-                <p className="text-gray-400 mb-8 max-w-2xl">
-                  Besök vår verkstad för en personlig konsultation och
-                  professionell optimering
-                </p>
-
-                <div className="flex flex-col md:flex-row gap-8">
-                  <div className="md:w-1/2">
-                    <div className="bg-gray-900 rounded-xl p-6 mb-6">
-                      <h3 className="text-xl font-bold text-white mb-4">
-                        <span className="text-red-500">AK-TUNING</span>{" "}
-                        {stationData.city}
-                      </h3>
-                      <div className="space-y-4 text-gray-300">
-                        <div className="flex items-start gap-3">
-                          <svg
-                            className="w-5 h-5 mt-0.5 text-red-500"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                            />
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                            />
-                          </svg>
-                          <div>
-                            <p>{stationData.address.street}</p>
-                            <p>
-                              {stationData.address.postalCode}{" "}
-                              {stationData.city}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <svg
-                            className="w-5 h-5 text-red-500"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                            />
-                          </svg>
-                          <a
-                            href={`tel:${stationData.phone.replace(/\s+/g, "")}`}
-                            className="hover:text-red-500 transition-colors"
-                          >
-                            {stationData.phone}
-                          </a>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <svg
-                            className="w-5 h-5 text-red-500"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                            />
-                          </svg>
-                          <a
-                            href={`mailto:${stationData.email}`}
-                            className="hover:text-red-500 transition-colors uppercase"
-                          >
-                            {stationData.email}
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="bg-gray-900 rounded-xl p-6">
-                      <h4 className="text-lg font-semibold text-white mb-4">
-                        ÖPPETTIDER
-                      </h4>
-                      <ul className="space-y-3 text-gray-300">
-                        {stationData.openingHours.flatMap((hours, hoursIndex) =>
-                          hours.days.map((day, dayIndex) => (
-                            <li
-                              key={`${hoursIndex}-${dayIndex}`}
-                              className="flex justify-between"
-                            >
-                              <span>{day}</span>
-                              <span className="font-medium">
-                                {hours.open} - {hours.close}
-                              </span>
-                            </li>
-                          )),
-                        )}
-                      </ul>
-                    </div>
-                  </div>
-
-                  <div className="md:w-1/2">
-                    <div className="h-full rounded-xl overflow-hidden shadow-lg">
-                      <iframe
-                        src={stationData.google}
-                        width="100%"
-                        height="100%"
-                        style={{ minHeight: "400px", border: 0 }}
-                        allowFullScreen={true}
-                        loading="lazy"
-                      ></iframe>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Testimonials Section */}
-          {stationData.testimonials && stationData.testimonials.length > 0 && (
-            <section className="mb-20">
-              <div className="text-center mb-12">
-                <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                  Vad våra <span className="text-red-500">kunder</span> säger
-                </h2>
-                <p className="text-gray-400 max-w-2xl mx-auto">
-                  Läs om upplevelserna från andra bilentusiaster
-                </p>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {stationData.testimonials.map((testimonial, index) => (
-                  <div
-                    key={index}
-                    className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 shadow-xl border border-gray-700 hover:border-red-500 transition-all hover:-translate-y-2"
-                  >
-                    <div className="flex items-center mb-6">
-                      <div className="flex">
-                        {[...Array(5)].map((_, i) => (
-                          <svg
-                            key={i}
-                            className={`w-5 h-5 ${i < 4 ? "text-red-500" : "text-gray-700"}`}
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                          </svg>
-                        ))}
-                      </div>
-                    </div>
-                    <p className="text-gray-300 italic mb-6">
-                      "{testimonial.quote}"
-                    </p>
-                    <div className="flex items-center">
-                      <div className="bg-red-500/10 p-2 rounded-full mr-4">
-                        <svg
-                          className="w-6 h-6 text-red-500"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                          />
-                        </svg>
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-white">
-                          {testimonial.name}
-                        </h4>
-                        <p className="text-sm text-gray-400">
-                          {testimonial.vehicle}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
+      <main className="min-h-screen overflow-hidden bg-[#090909] text-white selection:bg-red-500 selection:text-white">
+        <section className="relative isolate border-b border-white/10 bg-[#111]">
+          {heroImage && (
+            <img
+              src={heroImage}
+              alt={`AK-TUNING ${stationName}`}
+              className="absolute inset-0 -z-20 h-full w-full object-cover opacity-45"
+            />
           )}
+          <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(9,9,9,.98)_0%,rgba(9,9,9,.88)_47%,rgba(9,9,9,.48)_100%)]" />
+          <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_80%_20%,rgba(220,38,38,.23),transparent_27rem)]" />
 
-          {/* CTA Section */}
-          <section className="mb-20">
-            <div className="bg-gradient-to-r from-red-600 to-red-700 rounded-2xl p-8 md:p-12 text-center shadow-2xl">
-              <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
-                Redo att uppgradera din bil?
-              </h2>
-              <p className="text-red-100 mb-8 max-w-2xl mx-auto">
-                Boka en tid idag och upplev skillnaden med professionell
-                motoroptimering
+          <div className="mx-auto max-w-7xl px-5 pb-16 pt-5 sm:px-8 sm:pb-24 lg:px-10 lg:pb-28">
+            <nav className="flex items-center justify-between" aria-label="Brödsmulor">
+              <Link href="/" className="text-sm font-bold tracking-[0.2em] text-white hover:text-red-400">
+                AK<span className="text-red-500">-</span>TUNING
+              </Link>
+              <a href={`tel:${cleanPhone(stationData.phone)}`} className="hidden items-center gap-2 text-sm font-medium text-white/80 hover:text-white sm:flex">
+                <Phone className="h-4 w-4 text-red-400" /> {stationData.phone}
+              </a>
+            </nav>
+
+            <div className="max-w-3xl pb-4 pt-20 sm:pt-28 lg:pt-36">
+              <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/25 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-white/85 backdrop-blur">
+                <MapPin className="h-3.5 w-3.5 text-red-400" /> AK-TUNING {stationName}
+              </div>
+              <h1 className="max-w-3xl text-5xl font-black uppercase leading-[0.92] tracking-[-0.055em] sm:text-6xl lg:text-8xl">
+                Mer av din <span className="text-red-500">bil.</span>
+              </h1>
+              <p className="mt-7 max-w-xl text-lg leading-relaxed text-white/75 sm:text-xl">
+                Hitta rätt motoroptimering för din bil och få hjälp av teamet i {stationName}.
               </p>
-              <div className="flex flex-col sm:flex-row justify-center gap-4">
-                <a
-                  href={`tel:${stationData.phone.replace(/\s+/g, "")}`}
-                  className="bg-red-800 hover:bg-red-900 text-white px-8 py-4 rounded-xl font-bold shadow-lg transition-all hover:scale-105 flex items-center justify-center gap-2"
-                >
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                    />
-                  </svg>
-                  {stationData.phone}
-                </a>
-                <a
-                  href={`mailto:${stationData.email.replace(/\s+/g, "")}`}
-                  className="bg-gray-800 hover:bg-gray-700 text-white px-8 py-4 rounded-xl font-bold shadow-lg transition-all hover:scale-105 flex items-center gap-2 uppercase"
-                >
-                  <svg
-                    className="w-5 h-5 text-red-500"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                    />
-                  </svg>
-                  {stationData.email}
+              <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+                <button type="button" onClick={scrollToSelector} className="group inline-flex items-center justify-center gap-3 rounded-full bg-red-600 px-7 py-4 text-sm font-extrabold uppercase tracking-wide transition hover:bg-red-500">
+                  Hitta din bil <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </button>
+                <a href={`tel:${cleanPhone(stationData.phone)}`} className="inline-flex items-center justify-center gap-3 rounded-full border border-white/20 bg-black/20 px-7 py-4 text-sm font-bold transition hover:border-white/45 hover:bg-white/10">
+                  <Phone className="h-4 w-4" /> Ring {stationData.phone}
                 </a>
               </div>
             </div>
-          </section>
+          </div>
+        </section>
 
-          {/* Brand Logos Section - Robust Version */}
-          {stationData.brands &&
-          Array.isArray(stationData.brands) &&
-          stationData.brands.length > 0 ? (
-            <section className="mb-16">
-              <div className="text-center mb-12">
-                <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                  Vi optimerar{" "}
-                  <span className="text-red-500">alla bilmärken</span>
-                </h2>
-                <p className="text-gray-400 max-w-2xl mx-auto">
-                  Professionell optimering oavsett bilmärke eller modell
-                </p>
+        <section className="border-b border-white/10 bg-[#0d0d0d]">
+          <div className="mx-auto grid max-w-7xl grid-cols-1 divide-y divide-white/10 px-5 sm:grid-cols-3 sm:divide-x sm:divide-y-0 sm:px-8 lg:px-10">
+            {[
+              [ShieldCheck, "2 års mjukvarugaranti"],
+              [Check, "30 dagars öppet köp"],
+              [Wrench, "Lokal verkstad i " + stationName],
+            ].map(([Icon, text]) => {
+              const FeatureIcon = Icon as typeof ShieldCheck;
+              return <div key={text as string} className="flex items-center justify-center gap-3 px-4 py-5 text-sm font-semibold text-white/80"><FeatureIcon className="h-5 w-5 text-red-500" />{text as string}</div>;
+            })}
+          </div>
+        </section>
+
+        <nav className="sticky top-0 z-30 hidden border-b border-white/10 bg-[#090909]/95 backdrop-blur lg:block" aria-label="Sidnavigering">
+          <div className="mx-auto flex max-w-7xl items-center justify-between px-10 py-3">
+            <span className="text-xs font-extrabold uppercase tracking-[0.18em] text-white/45">Motoroptimering · {stationName}</span>
+            <div className="flex items-center gap-6 text-xs font-bold uppercase tracking-wide text-white/70">
+              <a href="#tjanster" className="transition hover:text-red-400">Tjänster</a>
+              <a href="#verkstad" className="transition hover:text-red-400">Verkstad</a>
+              <a href="#fragor" className="transition hover:text-red-400">Frågor & svar</a>
+              <button type="button" onClick={scrollToSelector} className="rounded-full bg-red-600 px-4 py-2 text-white transition hover:bg-red-500">Hitta din bil</button>
+            </div>
+          </div>
+        </nav>
+
+        <section ref={selectorRef} className="scroll-mt-6 bg-[#f4f1eb] px-5 py-16 text-[#121212] sm:px-8 sm:py-24 lg:px-10">
+          <div className="mx-auto max-w-7xl">
+            <div className="mb-9 flex flex-col justify-between gap-5 md:flex-row md:items-end">
+              <div className="max-w-2xl">
+                <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-red-600">Börja här</p>
+                <h2 className="mt-3 text-4xl font-black uppercase leading-none tracking-[-0.04em] sm:text-5xl">Vad kan din bil få?</h2>
               </div>
+              <p className="max-w-sm text-sm leading-relaxed text-black/60">Välj märke, modell och motor. Du ser vilka alternativ som finns för just din bil.</p>
+            </div>
+            <div className="overflow-hidden rounded-2xl border border-black/10 bg-white shadow-[0_25px_70px_rgba(0,0,0,.12)]">
+              <iframe ref={iframeRef} title="Hitta motoroptimering för din bil" src="https://api.aktuning.se/embed" className="block w-full border-0" style={{ height: "180px" }} />
+            </div>
+          </div>
+        </section>
 
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
-                {stationData.brands
-                  .filter((brand) => !brand.name.includes("[LASTBIL] - VOLVO"))
-                  .map((brand) => (
-                    <div
-                      key={brand._id}
-                      className="bg-gray-800 hover:bg-gray-700 p-2 rounded-lg flex items-center justify-center h-20 transition-all hover:-translate-y-1"
-                    >
-                      {brand.logo?.asset?.url ? (
-                        <img
-                          src={urlFor(brand.logo).width(120).url()}
-                          alt={brand.logo?.alt || `${brand.name} logo`}
-                          className="h-8 w-full object-contain opacity-80 hover:opacity-100 transition-opacity"
-                          onError={(e) => {
-                            e.currentTarget.style.display = "none";
-                            const fallback = document.createElement("span");
-                            fallback.className = "text-gray-300 text-center";
-                            fallback.textContent = brand.name;
-                            e.currentTarget.parentNode?.appendChild(fallback);
-                          }}
-                        />
-                      ) : (
-                        <span className="text-xs text-gray-300 text-center">
-                          {brand.name}
-                        </span>
-                      )}
+        <section className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10 lg:py-28">
+          <div className="grid gap-12 lg:grid-cols-[.8fr_1.2fr] lg:gap-20">
+            <div>
+              <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-red-500">Enkelt från start till mål</p>
+              <h2 className="mt-4 text-4xl font-black uppercase leading-[.95] tracking-[-0.045em] sm:text-5xl">Så fungerar det.</h2>
+              <p className="mt-6 max-w-md leading-relaxed text-white/60">Vi hjälper dig hitta en lösning som passar din bil, dina mål och din vardag.</p>
+            </div>
+            <ol className="grid gap-3 sm:grid-cols-3">
+              {[['01', 'Hitta din bil', 'Välj märke, modell och motor i vår bilväljare.'], ['02', 'Välj rätt nivå', 'Se tillgängliga alternativ och jämför vad som passar dig.'], ['03', 'Boka hos oss', `Kontakta AK-TUNING ${stationName} så planerar vi nästa steg.`]].map(([number, title, text]) => (
+                <li key={number} className="rounded-2xl border border-white/10 bg-white/[.035] p-6">
+                  <span className="text-sm font-black text-red-500">{number}</span>
+                  <h3 className="mt-9 text-xl font-bold">{title}</h3>
+                  <p className="mt-3 text-sm leading-relaxed text-white/55">{text}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+
+        {(stationData.content || stationData.gallery?.length) && (
+          <section id="verkstad" className="scroll-mt-20 border-y border-white/10 bg-[#121212] px-5 py-20 sm:px-8 lg:px-10 lg:py-28">
+            <div className="mx-auto grid max-w-7xl items-start gap-12 lg:grid-cols-2 lg:gap-20">
+              <div>
+                <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-red-500">Din lokala verkstad</p>
+                <h2 className="mt-4 text-4xl font-black uppercase leading-[.95] tracking-[-0.045em] sm:text-5xl">AK-TUNING<br />{stationName}</h2>
+                {stationData.content && <div className="prose prose-invert mt-8 max-w-none text-white/70"><PortableText value={stationData.content} components={portableTextComponents} /></div>}
+              </div>
+              {stationData.gallery && stationData.gallery.length > 0 && (
+                <div className="grid grid-cols-2 gap-3">
+                  {stationData.gallery.slice(0, 3).map((image, index) => (
+                    <div key={`${image.asset._ref}-${index}`} className={`overflow-hidden rounded-2xl bg-white/5 ${index === 0 ? "col-span-2" : ""}`}>
+                      <img src={urlFor(image).width(index === 0 ? 1400 : 800).url()} alt={image.alt || `AK-TUNING ${stationName} verkstad`} className={`w-full object-cover transition duration-700 hover:scale-105 ${index === 0 ? "h-72 sm:h-96" : "h-44 sm:h-56"}`} />
                     </div>
                   ))}
-              </div>
-            </section>
-          ) : (
-            <div className="text-center py-8 text-gray-500">
-              Brands information coming soon
+                </div>
+              )}
             </div>
-          )}
-        </div>
-      </div>
+          </section>
+        )}
+
+        <section id="tjanster" className="scroll-mt-20 mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10 lg:py-28">
+          <div className="mb-10 flex flex-col justify-between gap-5 md:flex-row md:items-end">
+            <div className="max-w-2xl"><p className="text-xs font-extrabold uppercase tracking-[0.2em] text-red-500">På verkstaden</p><h2 className="mt-4 text-4xl font-black uppercase leading-none tracking-[-0.045em] sm:text-5xl">Tjänster med<br />din bil i centrum.</h2></div>
+            <p className="max-w-sm text-sm leading-relaxed text-white/55">Vi börjar alltid med bilens faktiska förutsättningar. Det gör valet enklare och samtalet mer konkret.</p>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {stationData.services?.length ? stationData.services.map((service, index) => <article key={`${service.title}-${index}`} className="group rounded-2xl border border-white/10 bg-white/[.035] p-7 transition hover:-translate-y-1 hover:border-red-500/60 hover:bg-white/[.06]"><Gauge className="h-6 w-6 text-red-500" /><p className="mt-8 text-xs font-bold uppercase tracking-[.18em] text-white/35">0{index + 1}</p><h3 className="mt-2 text-xl font-bold">{service.title}</h3><div className="prose prose-invert mt-3 text-sm text-white/55"><PortableText value={service.description} components={portableTextComponents} /></div></article>) : defaultServices.map(({ icon: Icon, title, description }, index) => <article key={title} className="group rounded-2xl border border-white/10 bg-white/[.035] p-7 transition hover:-translate-y-1 hover:border-red-500/60 hover:bg-white/[.06]"><Icon className="h-6 w-6 text-red-500" /><p className="mt-8 text-xs font-bold uppercase tracking-[.18em] text-white/35">0{index + 1}</p><h3 className="mt-2 text-xl font-bold">{title}</h3><p className="mt-3 text-sm leading-relaxed text-white/55">{description}</p></article>)}
+          </div>
+        </section>
+
+        {workshopServices.length > 0 && (
+          <section className="relative isolate overflow-hidden bg-[#df2020] px-5 py-20 text-white sm:px-8 lg:px-10 lg:py-28">
+            <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_86%_16%,rgba(255,255,255,.16),transparent_24rem)]" />
+            <div className="mx-auto max-w-7xl">
+              <div className="mb-10 grid gap-5 md:grid-cols-[1fr_.7fr] md:items-end">
+                <div>
+                  <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-white/70">Mer än optimering</p>
+                  <h2 className="mt-4 text-4xl font-black uppercase leading-[.92] tracking-[-0.05em] sm:text-6xl">Verkstadstjänster<br />i {stationName}.</h2>
+                </div>
+                <p className="max-w-md text-sm leading-relaxed text-white/75">Behöver bilen något mer än rätt mjukvara? Vårt team i {stationName} hjälper även till med utvalda verkstadstjänster.</p>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {workshopServices.map((service, index) => (
+                  <Link key={service.slug} href={`/bilverkstad/${stationData.slug}/${service.slug}`} className="group rounded-2xl border border-white/10 bg-[#111] p-7 transition duration-300 hover:-translate-y-1 hover:bg-black">
+                    <div className="flex items-start justify-between gap-4"><Wrench className="h-6 w-6 text-red-500" /><span className="text-xs font-black text-white/35">0{index + 1}</span></div>
+                    <h3 className="mt-12 text-2xl font-black leading-tight tracking-[-0.03em]">{service.title}</h3>
+                    <p className="mt-3 max-w-xs text-sm leading-relaxed text-white/60">{service.description}</p>
+                    <span className="mt-7 inline-flex items-center gap-2 text-xs font-extrabold uppercase tracking-wide text-white transition group-hover:text-red-400">Läs mer <ArrowRight className="h-3.5 w-3.5" /></span>
+                  </Link>
+                ))}
+              </div>
+              <div className="mt-8 flex flex-col justify-between gap-4 border-t border-white/25 pt-7 sm:flex-row sm:items-center">
+                <p className="text-sm text-white/75">Vill du boka eller fråga om en specifik tjänst?</p>
+                <a href={`tel:${cleanPhone(stationData.phone)}`} className="inline-flex items-center gap-2 text-sm font-extrabold uppercase tracking-wide hover:text-white/75"><Phone className="h-4 w-4" /> Ring {stationData.phone} <ArrowRight className="h-4 w-4" /></a>
+              </div>
+            </div>
+          </section>
+        )}
+
+        <section id="fragor" className="scroll-mt-20 border-y border-white/10 bg-[#121212] px-5 py-20 sm:px-8 lg:px-10 lg:py-28">
+          <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[.75fr_1.25fr] lg:gap-20"><div><p className="text-xs font-extrabold uppercase tracking-[0.2em] text-red-500">Bra att veta</p><h2 className="mt-4 text-4xl font-black uppercase leading-[.95] tracking-[-0.045em] sm:text-5xl">Frågor innan<br />du bokar?</h2><p className="mt-6 max-w-sm leading-relaxed text-white/55">Här är svaren på det vanligaste. Hittar du inte det du söker, ring oss så hjälper vi dig.</p><a href={`tel:${cleanPhone(stationData.phone)}`} className="mt-8 inline-flex items-center gap-2 text-sm font-bold text-white hover:text-red-400"><Phone className="h-4 w-4 text-red-500" /> {stationData.phone}</a></div><div className="divide-y divide-white/10 border-y border-white/10">{faqItems.map((item, index) => <details key={item.question} className="group py-5" open={index === 0}><summary className="flex cursor-pointer list-none items-center justify-between gap-5 text-lg font-bold"><span>{item.question}</span><CircleHelp className="h-5 w-5 shrink-0 text-red-500 transition-transform group-open:rotate-180" /></summary><p className="max-w-2xl pt-4 pr-8 text-sm leading-relaxed text-white/60">{item.answer}</p></details>)}</div></div>
+        </section>
+
+        {stationData.testimonials?.length > 0 && (
+          <section className="bg-[#e02828] px-5 py-20 text-white sm:px-8 lg:px-10 lg:py-28">
+            <div className="mx-auto max-w-7xl"><div className="mb-10 flex flex-col justify-between gap-5 md:flex-row md:items-end"><div><p className="text-xs font-extrabold uppercase tracking-[0.2em] text-white/70">Kundupplevelser</p><h2 className="mt-4 text-4xl font-black uppercase leading-none tracking-[-0.045em] sm:text-5xl">Ord från vägen.</h2></div><Star className="h-10 w-10 fill-white text-white" /></div><div className="grid gap-4 md:grid-cols-3">{stationData.testimonials.slice(0, 3).map((testimonial, index) => <figure key={`${testimonial.name}-${index}`} className="flex flex-col rounded-2xl bg-black/15 p-7"><blockquote className="text-lg font-medium leading-relaxed">“{testimonial.quote}”</blockquote><figcaption className="mt-8 text-sm text-white/75"><span className="block font-bold text-white">{testimonial.name}</span>{testimonial.vehicle}</figcaption></figure>)}</div></div>
+          </section>
+        )}
+
+        <section className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10 lg:py-28">
+          <div className="grid overflow-hidden rounded-3xl border border-white/10 bg-[#121212] lg:grid-cols-[.8fr_1.2fr]">
+            <div className="p-8 sm:p-12"><p className="text-xs font-extrabold uppercase tracking-[0.2em] text-red-500">Hitta hit</p><h2 className="mt-4 text-4xl font-black uppercase leading-[.95] tracking-[-0.045em]">Besök oss i<br />{stationName}.</h2><div className="mt-10 space-y-5 text-white/65"><a href={mapUrl} target="_blank" rel="noopener noreferrer" className="flex gap-3 hover:text-white"><MapPin className="mt-0.5 h-5 w-5 shrink-0 text-red-500" /><span>{stationData.address.street}<br />{stationData.address.postalCode} {stationName}</span></a><a href={`tel:${cleanPhone(stationData.phone)}`} className="flex items-center gap-3 hover:text-white"><Phone className="h-5 w-5 shrink-0 text-red-500" />{stationData.phone}</a><a href={`mailto:${stationData.email}`} className="flex items-center gap-3 break-all hover:text-white"><Mail className="h-5 w-5 shrink-0 text-red-500" />{stationData.email}</a></div>{stationData.openingHours?.length > 0 && <div className="mt-10 border-t border-white/10 pt-7"><div className="mb-4 flex items-center gap-2 text-sm font-bold"><Clock3 className="h-4 w-4 text-red-500" /> Öppettider</div><div className="space-y-2 text-sm text-white/60">{stationData.openingHours.flatMap((hours, index) => hours.days.map(day => <div key={`${day}-${index}`} className="flex justify-between gap-4"><span>{day}</span><span>{hours.open}–{hours.close}</span></div>))}</div></div>}</div>
+            <div className="min-h-[360px] bg-white/5"><iframe title={`Karta till AK-TUNING ${stationName}`} src={stationData.google} className="h-full min-h-[360px] w-full border-0 grayscale contrast-125" loading="lazy" allowFullScreen /></div>
+          </div>
+        </section>
+
+        {stationData.brands?.length > 0 && <section className="border-t border-white/10 px-5 py-16 sm:px-8 lg:px-10"><div className="mx-auto max-w-7xl"><p className="text-center text-xs font-extrabold uppercase tracking-[0.2em] text-white/40">Vi arbetar med de flesta bilmärken</p><div className="mt-9 grid grid-cols-3 gap-px overflow-hidden rounded-xl border border-white/10 bg-white/10 sm:grid-cols-5 lg:grid-cols-8">{stationData.brands.filter(brand => !brand.name.includes("[LASTBIL] - VOLVO")).map(brand => <div key={brand._id} className="flex h-20 items-center justify-center bg-[#090909] p-3">{brand.logo?.asset?.url ? <img src={urlFor(brand.logo).width(140).url()} alt={brand.logo.alt || brand.name} className="max-h-8 max-w-full object-contain opacity-70 grayscale transition hover:opacity-100 hover:grayscale-0" /> : <span className="text-center text-xs text-white/50">{brand.name}</span>}</div>)}</div></div></section>}
+
+        {stationData.elfsightWidgetId && <section className="border-t border-white/10 bg-[#121212] px-5 py-16 sm:px-8 lg:px-10"><div className="mx-auto max-w-7xl"><p className="mb-6 text-xs font-extrabold uppercase tracking-[0.2em] text-red-500">Följ vår vardag</p><InstagramFeedEmbed widgetId={stationData.elfsightWidgetId} /></div></section>}
+
+        <section className="bg-[#f4f1eb] px-5 py-16 text-[#111] sm:px-8 lg:px-10"><div className="mx-auto flex max-w-7xl flex-col justify-between gap-8 md:flex-row md:items-end"><div><p className="text-xs font-extrabold uppercase tracking-[0.2em] text-red-600">Nästa steg</p><h2 className="mt-4 text-4xl font-black uppercase leading-none tracking-[-0.045em] sm:text-5xl">Låt oss hitta rätt<br />för din bil.</h2></div><button type="button" onClick={scrollToSelector} className="group inline-flex items-center justify-center gap-3 rounded-full bg-[#111] px-7 py-4 text-sm font-extrabold uppercase tracking-wide text-white transition hover:bg-red-600">Se alternativ <ChevronDown className="h-4 w-4 transition-transform group-hover:translate-y-1" /></button></div></section>
+      </main>
     </>
   );
 }
