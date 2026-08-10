@@ -1604,19 +1604,7 @@ export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
                     </div>
                   </div>
 
-                  {/* 🌊 VATTENSKOTRAR */}
-
-                  <JetSkiSection
-                    setContactModalData={setContactModalData}
-                    currentLanguage={currentLanguage}
-                    translate={translate}
-                  />
-
-                  <BikeSection
-                    setContactModalData={setContactModalData}
-                    currentLanguage={currentLanguage}
-                    translate={translate}
-                  />
+                
                 </>
               )}
 
