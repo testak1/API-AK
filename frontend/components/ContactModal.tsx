@@ -279,6 +279,7 @@ export default function ContactModal({
                     <option value="jonkoping">JÖNKÖPING</option>
                     <option value="malmo">MALMÖ</option>
                     <option value="stockholm">STOCKHOLM</option>
+                    <option value="vaxjo">VÄXJÖ (inom kort)</option>
                     <option value="orebro">ÖREBRO</option>
                     <option value="storvik">STORVIK</option>
                   </select>
@@ -311,6 +312,7 @@ export default function ContactModal({
                     { city: "JÖNKÖPING", number: "0362907887" },
                     { city: "SKÅNE", number: "041318166" },
                     { city: "STOCKHOLM", number: "0708265573" },
+                    { city: "VAXJO", number: "070000000" },
                     { city: "ÖREBRO", number: "0708265573" },
                     { city: "STORVIK", number: "0708265573" },
                   ].map(({ city, number }) => (
