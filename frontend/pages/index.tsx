@@ -17,8 +17,6 @@ import RegnrSearch from "@/components/RegnrSearch";
 import ContactModal from "@/components/ContactModal";
 import {urlFor} from "@/lib/sanity";
 import PublicLanguageDropdown from "@/components/PublicLanguageSwitcher";
-import {JetSkiSection} from "@/components/JetSkiSection";
-import {BikeSection} from "@/components/BikeSection";
 import BmwTcuDescription, {isBmwBrand} from "@/components/BmwTcuDescription";
 import MercedesTcuDescription, {
   isMercedesBrand,
