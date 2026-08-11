@@ -1,9 +1,7 @@
 import {useState, useEffect, Suspense, lazy} from "react";
 import ImportTable from "../../components/import/ImportTable";
 
-// Lazy load JetSkiImport för bättre prestanda
-const JetSkiImport = lazy(() => import("../../components/import/JetSkiImport"));
-const BikeImport = lazy(() => import("../../components/import/BikeImport"));
+
 
 interface MissingItem {
   brand: string;
