@@ -75,7 +75,7 @@ interface SanityMatch {
 const IMPORT_HISTORY_KEY = "sanity-import-history";
 const IMPORT_HISTORY_DETAILS_KEY = "sanity-import-history-details";
 
-type ImportTab = "cars" | "jetskis" | "bikes";
+type ImportTab = "cars";
 type CarView = "import" | "history";
 type StatusFilter =
   | "all"
@@ -1430,48 +1430,16 @@ export default function ImportPage() {
           >
             🚗 Bilar
           </button>
-          <button
-            onClick={() => setActiveTab("jetskis")}
-            style={{
-              padding: "10px 20px",
-              background: activeTab === "jetskis" ? "#007bff" : "transparent",
-              color: activeTab === "jetskis" ? "white" : "#007bff",
-              border: "1px solid #007bff",
-              borderRadius: "4px 4px 0 0",
-              cursor: "pointer",
-            }}
-          >
-            🛥️ Jet-Skis
-          </button>
-          <button
-            onClick={() => setActiveTab("bikes")}
-            style={{
-              padding: "10px 20px",
-              background: activeTab === "bikes" ? "#007bff" : "transparent",
-              color: activeTab === "bikes" ? "white" : "#007bff",
-              border: "1px solid #007bff",
-              borderRadius: "4px 4px 0 0",
-              cursor: "pointer",
-            }}
-          >
-            🏍️ Bikes/Quads
-          </button>
+          
+          
         </div>
       </div>
 
       {/* Tab Content */}
       <div>
         {activeTab === "cars" && <CarImport />}
-        {activeTab === "jetskis" && (
-          <Suspense fallback={<LoadingFallback />}>
-            <JetSkiImport />
-          </Suspense>
-        )}
-        {activeTab === "bikes" && (
-          <Suspense fallback={<LoadingFallback />}>
-            <BikeImport />
-          </Suspense>
-        )}
+        
+        
       </div>
     </div>
   );
