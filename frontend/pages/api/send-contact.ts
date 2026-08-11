@@ -34,6 +34,9 @@ export default async function handler(
     case "jonkoping":
       recipientEmail = "jonkoping@aktuning.se";
       break;
+    case "vaxjo":
+      recipientEmail = "vaxjo@aktuning.se";
+      break;
     default:
       return res.status(400).json({ error: "Ogiltig anläggning vald." });
   }
