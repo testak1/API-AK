@@ -279,7 +279,7 @@ export default function ContactModal({
                     <option value="jonkoping">JÖNKÖPING</option>
                     <option value="malmo">MALMÖ</option>
                     <option value="stockholm">STOCKHOLM</option>
-                    <option value="vaxjo">VÄXJÖ (inom kort)</option>
+                    <option value="vaxjo">VÄXJÖ</option>
                     <option value="orebro">ÖREBRO</option>
                     <option value="storvik">STORVIK</option>
                   </select>
