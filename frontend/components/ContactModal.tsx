@@ -312,7 +312,7 @@ export default function ContactModal({
                     { city: "JÖNKÖPING", number: "0362907887" },
                     { city: "SKÅNE", number: "041318166" },
                     { city: "STOCKHOLM", number: "0708265573" },
-                    { city: "VAXJO", number: "070000000" },
+                    { city: "VÄXJÖ", number: "0709796720" },
                     { city: "ÖREBRO", number: "0708265573" },
                     { city: "STORVIK", number: "0708265573" },
                   ].map(({ city, number }) => (
