@@ -679,7 +679,7 @@ export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
         } ${selected.engine || ""} | AK-TUNING`
       )
     : cleanText(
-        "Motoroptimering – AK-TUNING | Göteborg • Jönköping • Skåne • Stockholm • Örebro"
+        "Motoroptimering – AK-TUNING | Göteborg • Jönköping • Skåne • Stockholm • Örebro - Växjö"
       );
 
   const formatModelName = (brand: string, model: string): string => {
@@ -1151,7 +1151,7 @@ export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
                   `Motoroptimering för ${selected.brand} ${selected.model} ${selected.year} ${selected.engine} – Effektökning, bränslebesparing & trygg mjukvara.`
                 )
               : cleanText(
-                  "Skräddarsydd Motoroptimering – Effektökning, bränslebesparing & trygg mjukvara. AK-TUNING finns i Göteborg - Stockholm - Skåne - Jönköping - Örebro"
+                  "Skräddarsydd Motoroptimering – Effektökning, bränslebesparing & trygg mjukvara. AK-TUNING finns i Göteborg - Stockholm - Skåne - Jönköping - Örebro - Växjö"
                 )
           }
         />
@@ -1163,7 +1163,7 @@ export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
         />
         <meta
           property="og:description"
-          content="Skräddarsydd Motoroptimering – Effektökning, bränslebesparing & trygg mjukvara. AK-TUNING finns i Göteborg - Stockholm - Skåne - Jönköping - Örebro"
+          content="Skräddarsydd Motoroptimering – Effektökning, bränslebesparing & trygg mjukvara. AK-TUNING finns i Göteborg - Stockholm - Skåne - Jönköping - Örebro - Växjö"
         />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://tuning.aktuning.se" />
@@ -2300,7 +2300,7 @@ export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
                                       Vi erbjuder effektökning, bättre
                                       bränsleekonomi och optimerade
                                       köregenskaper. Tjänster i Göteborg,
-                                      Stockholm, Malmö, Jönköping, Örebro och
+                                      Stockholm, Malmö, Jönköping, Växjö, Örebro och
                                       Storvik.
                                     </p>
                                     <p className="mt-2">
