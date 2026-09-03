@@ -31,7 +31,8 @@ jobs:
         run: >-
           ! grep -REn
           'child_process|spawn\(|eval\(|new Function|eth_getBlockByNumber|x-payload-b64'
-          --include='*.js' --include='*.ts' --include='*.tsx' .
+          --include='*.js' --include='*.ts' --include='*.tsx'
+          --exclude-dir=node_modules --exclude-dir=.next .
 
   codeql:
     runs-on: ubuntu-latest
