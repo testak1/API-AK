@@ -5,6 +5,18 @@ import { signOut } from "next-auth/react";
 import { urlFor } from "@/lib/sanity";
 import Image from "next/image";
 
+function safeImageSource(value: unknown): string {
+  if (typeof value !== "string") return "/logos/missing.png";
+  if (value.startsWith("blob:")) return value;
+  if (/^data:image\/(?:png|jpeg|gif|webp);base64,/i.test(value)) return value;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" ? url.toString() : "/logos/missing.png";
+  } catch {
+    return "/logos/missing.png";
+  }
+}
+
 export default function ResellerAdmin({ session }) {
   const [brands, setBrands] = useState([]);
   const [overrides, setOverrides] = useState([]);
@@ -1707,9 +1719,11 @@ export default function ResellerAdmin({ session }) {
                 <div className="px-6 py-5 transition-all duration-300 ease-in-out">
                   <div className="flex items-center gap-4">
                     {aktPlusLogoPreview ? (
-                      <img
-                        src={aktPlusLogoPreview}
+                      <Image
+                        src={safeImageSource(aktPlusLogoPreview)}
                         alt="AKT+ Logo"
+                        width={64}
+                        height={32}
                         className="h-8 w-auto object-contain"
                       />
                     ) : (
@@ -2582,9 +2596,11 @@ export default function ResellerAdmin({ session }) {
                 <div className="px-6 py-5 transition-all duration-300 ease-in-out">
                   <div className="flex items-center gap-4">
                     {logoPreview && (
-                      <img
-                        src={logoPreview}
+                      <Image
+                        src={safeImageSource(logoPreview)}
                         alt="Current logo"
+                        width={64}
+                        height={64}
                         className="w-16 h-16 object-contain rounded-md border"
                       />
                     )}
