@@ -1,5 +1,7 @@
 import {NextApiRequest, NextApiResponse} from "next";
 import {sanityClient} from "@/lib/sanity.server";
+import {getServerSession} from "next-auth/next";
+import {authOptions} from "../auth/[...nextauth]";
 
 export const config = {
   api: {bodyParser: {sizeLimit: "15mb"}},
@@ -47,6 +49,9 @@ export default async function handler(
   if (req.method !== "POST") {
     return res.status(405).json({message: "Endast POST tillåten"});
   }
+  const session = await getServerSession(req, res, authOptions);
+  if (!session?.user?.resellerId)
+    return res.status(401).json({message: "Unauthorized"});
 
   const {items} = req.body;
   if (!Array.isArray(items) || items.length === 0) {

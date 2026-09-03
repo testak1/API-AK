@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "./auth/[...nextauth]";
 import client from "@/lib/sanity";
 import { urlFor } from "@/lib/sanity";
+import { decodeImage } from "@/lib/imageUpload";
 
 export const config = {
   api: {
@@ -23,16 +24,16 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { imageData, contentType } = req.body;
+    const { imageData } = req.body;
     if (!imageData) {
       return res.status(400).json({ error: "Missing imageData" });
     }
 
-    const buffer = Buffer.from(imageData, "base64");
+    const { buffer, contentType } = decodeImage(imageData);
 
     const asset = await client.assets.upload("image", buffer, {
       filename: `aktplus-option-${resellerId}-${Date.now()}.png`,
-      contentType: contentType || "image/png",
+      contentType,
     });
 
     return res.status(200).json({

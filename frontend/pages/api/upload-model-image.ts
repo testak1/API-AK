@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import client, { urlFor } from "@/lib/sanity";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./auth/[...nextauth]";
+import { decodeImage } from "@/lib/imageUpload";
 
 export const config = {
   api: {
@@ -34,10 +35,10 @@ export default async function handler(
   }
 
   try {
-    const buffer = Buffer.from(imageData, "base64");
+    const { buffer, contentType } = decodeImage(imageData);
     const asset = await client.assets.upload("image", buffer, {
       filename,
-      contentType: "image/png",
+      contentType,
     });
 
     return res.status(200).json({

@@ -1,35 +1,10 @@
-// /pages/api/login.ts
-import type { NextApiRequest, NextApiResponse } from "next";
-import jwt from "jsonwebtoken";
-import client from "@/lib/sanity"; // Din Sanity-klient
+import type {NextApiRequest, NextApiResponse} from "next";
 
-const secret = process.env.JWT_SECRET!;
-
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse,
-) {
-  const { email, password } = req.body;
-
-  const query = `*[_type == "reseller" && email == $email && password == $password][0]{
-    _id,
-    name,
-    resellerId
-  }`;
-
-  const user = await client.fetch(query, { email, password });
-
-  if (!user) {
-    return res.status(401).json({ message: "Invalid credentials" });
-  }
-
-  const token = jwt.sign(
-    { resellerId: user.resellerId, name: user.name },
-    secret,
-    {
-      expiresIn: "2h",
-    },
-  );
-
-  res.status(200).json({ token });
+// Disabled because this legacy endpoint compared plaintext passwords.
+// Authentication is handled by NextAuth at /api/auth instead.
+export default function handler(_req: NextApiRequest, res: NextApiResponse) {
+  res.setHeader("Allow", ["POST"]);
+  return res.status(410).json({
+    error: "Legacy login disabled. Use /api/auth/signin.",
+  });
 }

@@ -23,7 +23,17 @@ export default async function handler(req, res) {
     } = req.body;
 
     if (overrideId) {
-      await sanity.patch(overrideId).set({ price, tunedHk, tunedNm }).commit();
+      const ownedOverride = await sanity.fetch(
+        `*[_type == "resellerOverride" && _id == $overrideId && resellerId == $resellerId][0]._id`,
+        { overrideId, resellerId },
+      );
+      if (!ownedOverride) {
+        return res.status(404).json({ error: "Override not found" });
+      }
+      await sanity
+        .patch(ownedOverride)
+        .set({ price, tunedHk, tunedNm })
+        .commit();
     } else {
       await sanity.create({
         _type: "resellerOverride",

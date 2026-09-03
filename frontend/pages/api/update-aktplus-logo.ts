@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "./auth/[...nextauth]";
 import client from "@/lib/sanity";
 import { urlFor } from "@/lib/sanity";
+import { decodeImage } from "@/lib/imageUpload";
 
 export const config = {
   api: {
@@ -24,14 +25,13 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { imageData, contentType } = req.body;
+    const { imageData } = req.body;
 
-    // Konvertera base64 till buffer
-    const buffer = Buffer.from(imageData, "base64");
+    const { buffer, contentType } = decodeImage(imageData);
 
     const imageAsset = await client.assets.upload("image", buffer, {
       filename: `aktplus-logo-${resellerId}`,
-      contentType: contentType || "image/png",
+      contentType,
     });
 
     const user = await client.fetch(

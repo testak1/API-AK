@@ -7,6 +7,7 @@ node_modules/
 
 # next
 .next/
+*.tsbuildinfo
 
 
 # Ignore the Sanity Studio build folder (if any)

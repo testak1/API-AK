@@ -1,5 +1,7 @@
 import {NextApiRequest, NextApiResponse} from "next";
 import {sanityClient} from "@/lib/sanity.server";
+import {getServerSession} from "next-auth/next";
+import {authOptions} from "../auth/[...nextauth]";
 
 export const config = {
   api: {
@@ -81,6 +83,9 @@ export default async function handler(
   if (req.method !== "POST") {
     return res.status(405).json({error: "Method not allowed"});
   }
+  const session = await getServerSession(req, res, authOptions);
+  if (!session?.user?.resellerId)
+    return res.status(401).json({error: "Unauthorized"});
 
   try {
     const {jetSkiData}: {jetSkiData: JetSkiData} = req.body;

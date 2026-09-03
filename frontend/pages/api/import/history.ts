@@ -1,5 +1,7 @@
 import {NextApiRequest, NextApiResponse} from "next";
 import {sanityClient} from "@/lib/sanity.server";
+import {getServerSession} from "next-auth/next";
+import {authOptions} from "../auth/[...nextauth]";
 
 interface HistoryEntry {
   _key?: string;
@@ -18,6 +20,10 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  const session = await getServerSession(req, res, authOptions);
+  if (!session?.user?.resellerId)
+    return res.status(401).json({message: "Unauthorized"});
+
   if (req.method === "GET") {
     try {
       const batches = await sanityClient.fetch(

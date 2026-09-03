@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "./auth/[...nextauth]";
 import sanity from "@/lib/sanity";
 import { urlFor } from "@/lib/sanity";
+import { decodeImage } from "@/lib/imageUpload";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -30,10 +31,8 @@ export default async function handler(req, res) {
     }
 
     // Upload image to Sanity
-    const imageAsset = await sanity.assets.upload(
-      "image",
-      Buffer.from(imageData, "base64"),
-    );
+    const { buffer, contentType } = decodeImage(imageData);
+    const imageAsset = await sanity.assets.upload("image", buffer, { contentType });
 
     // Update logo reference
     await sanity
