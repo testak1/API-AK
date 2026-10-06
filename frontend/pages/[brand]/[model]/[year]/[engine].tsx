@@ -18,6 +18,7 @@ import {urlFor} from "@/lib/sanity";
 import {PortableText} from "@portabletext/react";
 import PublicLanguageDropdown from "@/components/PublicLanguageSwitcher";
 import {t as translate} from "@/lib/translations";
+import {generateDynoCurve as generateWarrantyDynoCurve, getDynoRpmLabels} from "@/lib/dynoCurve";
 import Head from "next/head";
 import React, {useEffect, useState, useRef, useMemo} from "react";
 import ContactModal from "@/components/ContactModal";
@@ -646,21 +647,7 @@ export default function EnginePage({
   };
 
   const rpmLabels = useMemo(() => {
-    return engineData?.fuel?.toLowerCase().includes("diesel")
-      ? ["1500", "2000", "2500", "3000", "3500", "4000", "4500", "5000"]
-      : [
-          "2000",
-          "2500",
-          "3000",
-          "3500",
-          "4000",
-          "4500",
-          "5000",
-          "5500",
-          "6000",
-          "6500",
-          "7000",
-        ];
+    return getDynoRpmLabels(engineData?.fuel);
   }, [engineData?.fuel]);
 
   const selectedStage = engineData?.stages?.find(s => expandedStages[s.name]);
@@ -1578,9 +1565,9 @@ export default function EnginePage({
                                       datasets: [
                                         {
                                           label: "ORG",
-                                          data: generateDynoCurve(
+                                          data: generateWarrantyDynoCurve(
                                             stage.origHk,
-                                            true,
+                                            "power",
                                             engineData.fuel
                                           ),
                                           borderColor: "#f87171",
@@ -1593,9 +1580,9 @@ export default function EnginePage({
                                         },
                                         {
                                           label: `ST ${stage.name.replace(/\D/g, "")}`,
-                                          data: generateDynoCurve(
+                                          data: generateWarrantyDynoCurve(
                                             stage.tunedHk,
-                                            true,
+                                            "power",
                                             engineData.fuel
                                           ),
                                           borderColor: "#f87171",
@@ -1607,9 +1594,9 @@ export default function EnginePage({
                                         },
                                         {
                                           label: "ORG",
-                                          data: generateDynoCurve(
+                                          data: generateWarrantyDynoCurve(
                                             stage.origNm,
-                                            false,
+                                            "torque",
                                             engineData.fuel
                                           ),
                                           borderColor: "#FFFFFF",
@@ -1622,9 +1609,9 @@ export default function EnginePage({
                                         },
                                         {
                                           label: `ST ${stage.name.replace(/\D/g, "")}`,
-                                          data: generateDynoCurve(
+                                          data: generateWarrantyDynoCurve(
                                             stage.tunedNm,
-                                            false,
+                                            "torque",
                                             engineData.fuel
                                           ),
                                           borderColor: "#FFFFFF",
