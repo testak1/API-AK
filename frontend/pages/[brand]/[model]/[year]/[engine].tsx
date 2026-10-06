@@ -1,11 +1,11 @@
 // pages/[brand]/[model]/[year]/[engine].tsx
-import {GetServerSideProps} from "next";
+import { GetServerSideProps } from "next";
 import NextImage from "next/image";
 import Image from "next/image";
-import {useRouter} from "next/router";
+import { useRouter } from "next/router";
 import Link from "next/link";
 import client from "@/lib/sanity";
-import {engineByParamsQuery} from "@/src/lib/queries";
+import { engineByParamsQuery } from "@/src/lib/queries";
 import type {
   Brand,
   Model,
@@ -14,13 +14,14 @@ import type {
   Stage,
   AktPlusOption,
 } from "@/types/sanity";
-import {urlFor} from "@/lib/sanity";
-import {PortableText} from "@portabletext/react";
+import { urlFor } from "@/lib/sanity";
+import { buildVehicleOgImageUrl } from "@/lib/ogImage";
+import { PortableText } from "@portabletext/react";
 import PublicLanguageDropdown from "@/components/PublicLanguageSwitcher";
-import {t as translate} from "@/lib/translations";
-import {generateDynoCurve as generateWarrantyDynoCurve, getDynoRpmLabels} from "@/lib/dynoCurve";
+import { t as translate } from "@/lib/translations";
+import { generateDynoCurve, getDynoRpmLabels } from "@/lib/dynoCurve";
 import Head from "next/head";
-import React, {useEffect, useState, useRef, useMemo} from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import ContactModal from "@/components/ContactModal";
 import BmwTcuDescription, {
   BMW_TCU_DESCRIPTION_TEXT,
@@ -49,17 +50,17 @@ ChartJS.register(
   LineElement,
   LineController,
   Tooltip,
-  Legend
+  Legend,
 );
 
-const Line = dynamic(() => import("react-chartjs-2").then(mod => mod.Line), {
+const Line = dynamic(() => import("react-chartjs-2").then((mod) => mod.Line), {
   ssr: false,
   loading: () => <div className="h-96 bg-gray-800 animate-pulse" />,
 });
 
 const FuelSavingCalculator = dynamic(
   () => import("@/components/FuelSavingCalculator"),
-  {ssr: false}
+  { ssr: false },
 );
 
 interface EnginePageProps {
@@ -72,9 +73,9 @@ interface EnginePageProps {
 const normalizeString = (str: string) =>
   str.toLowerCase().replace(/[^a-z0-9]/g, "");
 
-export const getServerSideProps: GetServerSideProps<
-  EnginePageProps
-> = async context => {
+export const getServerSideProps: GetServerSideProps<EnginePageProps> = async (
+  context,
+) => {
   const brand = decodeURIComponent((context.params?.brand as string) || "");
   const model = decodeURIComponent((context.params?.model as string) || "");
   const year = decodeURIComponent((context.params?.year as string) || "");
@@ -89,7 +90,7 @@ export const getServerSideProps: GetServerSideProps<
       lang,
     });
 
-    if (!brandData) return {notFound: true};
+    if (!brandData) return { notFound: true };
 
     const modelData =
       brandData.models?.find(
@@ -97,29 +98,29 @@ export const getServerSideProps: GetServerSideProps<
           normalizeString(m.name) === normalizeString(model) ||
           (m.slug &&
             normalizeString(
-              typeof m.slug === "string" ? m.slug : m.slug.current
-            ) === normalizeString(model))
+              typeof m.slug === "string" ? m.slug : m.slug.current,
+            ) === normalizeString(model)),
       ) || null;
 
-    if (!modelData) return {notFound: true};
+    if (!modelData) return { notFound: true };
 
     const yearData =
       modelData.years?.find(
         (y: Year) =>
           normalizeString(y.range) === normalizeString(year) ||
-          (y.slug && normalizeString(y.slug) === normalizeString(year))
+          (y.slug && normalizeString(y.slug) === normalizeString(year)),
       ) || null;
 
-    if (!yearData) return {notFound: true};
+    if (!yearData) return { notFound: true };
 
     const engineData =
       yearData.engines?.find(
         (e: Engine) =>
           normalizeString(e.label) === normalizeString(engine) ||
-          (e.slug && normalizeString(e.slug) === normalizeString(engine))
+          (e.slug && normalizeString(e.slug) === normalizeString(engine)),
       ) || null;
 
-    if (!engineData) return {notFound: true};
+    if (!engineData) return { notFound: true };
 
     return {
       props: {
@@ -131,7 +132,7 @@ export const getServerSideProps: GetServerSideProps<
     };
   } catch (err) {
     console.error("Engine fetch failed:", err);
-    return {notFound: true};
+    return { notFound: true };
   }
 };
 
@@ -139,10 +140,10 @@ function extractPlainTextFromDescription(description: any): string {
   if (!Array.isArray(description)) return "";
 
   return description
-    .map(block => {
+    .map((block) => {
       if (block._type === "block" && Array.isArray(block.children)) {
         return block.children
-          .map(child => (typeof child.text === "string" ? child.text : ""))
+          .map((child) => (typeof child.text === "string" ? child.text : ""))
           .join("");
       }
 
@@ -158,7 +159,7 @@ function extractPlainTextFromDescription(description: any): string {
 
 const portableTextComponents = {
   types: {
-    image: ({value}: any) => (
+    image: ({ value }: any) => (
       <img
         src={urlFor(value).width(600).url()}
         alt={value.alt || ""}
@@ -168,7 +169,7 @@ const portableTextComponents = {
     ),
   },
   marks: {
-    link: ({children, value}: any) => (
+    link: ({ children, value }: any) => (
       <a
         href={value.href}
         className="text-blue-400 hover:text-blue-300 underline"
@@ -177,92 +178,6 @@ const portableTextComponents = {
       </a>
     ),
   },
-};
-
-const generateDynoCurve = (
-  peakValue: number,
-  isHp: boolean,
-  fuelType: string
-) => {
-  const isDiesel = fuelType.toLowerCase().includes("diesel");
-
-  // RPM-ranges baserat på bränsletyp
-  const rpmRange = isDiesel
-    ? [1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000]
-    : [2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000];
-
-  const totalSteps = rpmRange.length;
-
-  // Lägg till lite slumpmässig variation (±2-3%)
-  const addRandomVariation = (value: number) => {
-    const variation = Math.random() * 0.06 - 0.03; // ±3%
-    return value * (1 + variation);
-  };
-
-  if (isHp) {
-    // ---- HÄSTKRAFT (HP) KURVA ----
-    const startPercentage = isDiesel ? 0.45 : 0.35; // Diesel startar högre
-    const peakStepPercentage = isDiesel ? 0.6 : 0.7; // Bensin peakar senare
-
-    const peakStep = Math.floor(totalSteps * peakStepPercentage);
-
-    return rpmRange.map((rpm, i) => {
-      let value: number;
-
-      if (i <= peakStep) {
-        // Ökning till toppen
-        const progress = i / peakStep;
-        // Diesel: snabbare uppgång, Bensin: lite jämnare
-        const curveFactor = isDiesel ? Math.pow(progress, 0.9) : progress;
-        value =
-          peakValue * (startPercentage + (1 - startPercentage) * curveFactor);
-      } else {
-        // Minskning efter toppen
-        const progress = (i - peakStep) / (totalSteps - 1 - peakStep);
-        // Diesel: långsammare minskning, Bensin: snabbare
-        const dropRate = isDiesel ? 0.15 : 0.25;
-        value = peakValue * (1 - dropRate * Math.pow(progress, 1.2));
-      }
-
-      return addRandomVariation(value);
-    });
-  } else {
-    // ---- VRIDMOMENT (NM) KURVA ----
-    const startPercentage = isDiesel ? 0.6 : 0.4; // Diesel har mer bottenvrid
-    const peakStepPercentage = isDiesel ? 0.3 : 0.4; // Diesel peakar tidigare
-    const plateauLength = isDiesel ? 3 : 2; // Diesel har längre platå
-
-    const peakStep = Math.floor(totalSteps * peakStepPercentage);
-    const plateauEndStep = Math.min(peakStep + plateauLength, totalSteps - 1);
-
-    return rpmRange.map((rpm, i) => {
-      let value: number;
-
-      if (i < peakStep) {
-        // Snabb ökning till toppen
-        const progress = i / peakStep;
-        // Exponentiell ökning för mer realistisk kurva
-        value =
-          peakValue *
-          (startPercentage + (1 - startPercentage) * Math.pow(progress, 1.3));
-      } else if (i <= plateauEndStep) {
-        // Platå - håller maxvärdet med liten variation
-        const plateauProgress = (i - peakStep) / (plateauEndStep - peakStep);
-        // Liten kurva på platån för att undvika perfekt rak linje
-        const plateauVariation = Math.sin(plateauProgress * Math.PI) * 0.02;
-        value = peakValue * (0.98 + plateauVariation);
-      } else {
-        // Minskning efter platån
-        const progress =
-          (i - plateauEndStep) / (totalSteps - 1 - plateauEndStep);
-        // Diesel: långsammare minskning
-        const dropRate = isDiesel ? 0.2 : 0.3;
-        value = peakValue * (1 - dropRate * Math.pow(progress, 1.1));
-      }
-
-      return addRandomVariation(value);
-    });
-  }
 };
 
 const getStageColor = (stageName: string) => {
@@ -293,7 +208,7 @@ export default function EnginePage({
   const stageParam = router.query.stage;
   const stage = typeof stageParam === "string" ? stageParam : "";
   const [expandedStages, setExpandedStages] = useState<Record<string, boolean>>(
-    {}
+    {},
   );
 
   const [expandedOptions, setExpandedOptions] = useState<
@@ -316,7 +231,7 @@ export default function EnginePage({
     open: boolean;
     type: "stage" | "general";
     stage?: Stage;
-  }>({open: false, type: "stage"});
+  }>({ open: false, type: "stage" });
 
   const slugify = (str: string) =>
     str
@@ -359,7 +274,7 @@ export default function EnginePage({
   const handleBookNow = (
     stageOrOptionName: string,
     event?: React.MouseEvent,
-    isAktPlusOption = false
+    isAktPlusOption = false,
   ) => {
     if (!brandData || !modelData || !yearData || !engineData) return;
 
@@ -385,7 +300,7 @@ export default function EnginePage({
 
     const isRealStage =
       engineData.stages?.some(
-        stage => slugifyStage(stage.name) === stageSlug
+        (stage) => slugifyStage(stage.name) === stageSlug,
       ) || false;
 
     const finalLink =
@@ -429,7 +344,7 @@ export default function EnginePage({
           acc[stageObj.name] = stage ? isMatch : stageObj.name === "Steg 1";
           return acc;
         },
-        {} as Record<string, boolean>
+        {} as Record<string, boolean>,
       );
       setExpandedStages(initialExpanded);
     }
@@ -438,12 +353,12 @@ export default function EnginePage({
   const getAllAktPlusOptions = (stage: Stage): AktPlusOption[] => {
     if (!engineData) return [];
 
-    const options = allAktOptions.filter(opt => {
+    const options = allAktOptions.filter((opt) => {
       const isFuelMatch =
         opt.isUniversal || opt.applicableFuelTypes?.includes(engineData.fuel);
 
       const isManualMatch = opt.manualAssignments?.some(
-        ref => ref._ref === engineData._id
+        (ref) => ref._ref === engineData._id,
       );
 
       const isStageMatch =
@@ -453,15 +368,15 @@ export default function EnginePage({
     });
 
     const unique = new Map<string, AktPlusOption>();
-    options.forEach(opt => unique.set(opt._id, opt));
+    options.forEach((opt) => unique.set(opt._id, opt));
     return Array.from(unique.values());
   };
 
   const mergedAktPlusOptions = useMemo(() => {
     const optionMap = new Map<string, AktPlusOption>();
 
-    engineData?.stages?.forEach(stage => {
-      getAllAktPlusOptions(stage).forEach(opt => {
+    engineData?.stages?.forEach((stage) => {
+      getAllAktPlusOptions(stage).forEach((opt) => {
         if (!optionMap.has(opt._id)) {
           optionMap.set(opt._id, opt);
         }
@@ -488,7 +403,7 @@ export default function EnginePage({
   useEffect(() => {
     if (stage) {
       const el = document.getElementById(slugify(stage));
-      if (el) el.scrollIntoView({behavior: "smooth", block: "start"});
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }, [stage]);
 
@@ -497,7 +412,7 @@ export default function EnginePage({
     beforeDraw: (chart: ChartJS) => {
       const ctx = chart.ctx;
       const {
-        chartArea: {top, left, width, height},
+        chartArea: { top, left, width, height },
       } = chart;
 
       if (watermarkImageRef.current?.complete) {
@@ -562,7 +477,7 @@ export default function EnginePage({
   const shadowPlugin = {
     id: "shadowPlugin",
     beforeDatasetDraw(chart: ChartJS, args: any, options: any) {
-      const {ctx} = chart;
+      const { ctx } = chart;
       const dataset = chart.data.datasets[args.index];
 
       ctx.save();
@@ -577,9 +492,9 @@ export default function EnginePage({
   };
 
   const toggleStage = (stageName: string) => {
-    setExpandedStages(prev => {
+    setExpandedStages((prev) => {
       const newState: Record<string, boolean> = {};
-      Object.keys(prev).forEach(key => {
+      Object.keys(prev).forEach((key) => {
         newState[key] = key === stageName ? !prev[key] : false;
       });
       return newState;
@@ -587,7 +502,7 @@ export default function EnginePage({
   };
 
   const toggleOption = (optionId: string) => {
-    setExpandedOptions(prev => {
+    setExpandedOptions((prev) => {
       const newState: Record<string, boolean> = {};
       newState[optionId] = !prev[optionId];
       return newState;
@@ -632,7 +547,7 @@ export default function EnginePage({
   const translateDisplayStageName = (
     lang: string,
     stageName: string,
-    brand?: string
+    brand?: string,
   ): string => translateStageName(lang, getStageDisplayName(stageName, brand));
 
   const [expandedAktPlus, setExpandedAktPlus] = useState<
@@ -640,7 +555,7 @@ export default function EnginePage({
   >({});
 
   const toggleAktPlus = (stageName: string) => {
-    setExpandedAktPlus(prev => ({
+    setExpandedAktPlus((prev) => ({
       ...prev,
       [stageName]: !prev[stageName],
     }));
@@ -650,7 +565,7 @@ export default function EnginePage({
     return getDynoRpmLabels(engineData?.fuel);
   }, [engineData?.fuel]);
 
-  const selectedStage = engineData?.stages?.find(s => expandedStages[s.name]);
+  const selectedStage = engineData?.stages?.find((s) => expandedStages[s.name]);
   const selectedStep = selectedStage?.name
     ? getStageDisplayName(selectedStage.name, brandData?.name).toUpperCase()
     : "MJUKVARA";
@@ -689,7 +604,7 @@ export default function EnginePage({
   const canonicalUrl = `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}`;
 
   const pageTitle = cleanText(
-    `Motoroptimering ${brandData?.name} ${modelData?.name} ${engineData?.label} ${yearData?.range} – ${selectedStep}`
+    `Motoroptimering ${brandData?.name} ${modelData?.name} ${engineData?.label} ${yearData?.range} – ${selectedStep}`,
   );
   const hkIncreaseText =
     hkIncrease !== "?" ? `+${hkIncrease} hk` : "högre effekt";
@@ -697,11 +612,27 @@ export default function EnginePage({
     nmIncrease !== "?" ? `+${nmIncrease} Nm` : "bättre vridmoment";
 
   const pageDescription = cleanText(
-    `Motoroptimering till ${brandData?.name} ${modelData?.name} ${engineData?.label} ${yearData?.range} ${hkIncreaseText} & ${nmIncreaseText} med skräddarsydd ${selectedStep} mjukvara. 2 års garanti & 30 dagars öppet köp!`
+    `Motoroptimering till ${brandData?.name} ${modelData?.name} ${engineData?.label} ${yearData?.range} ${hkIncreaseText} & ${nmIncreaseText} med skräddarsydd ${selectedStep} mjukvara. 2 års garanti & 30 dagars öppet köp!`,
   );
   const pageUrl = `https://tuning.aktuning.se${router.asPath.split("?")[0]}`;
 
-  const imageUrl = "https://tuning.aktuning.se/ak-logo1.png";
+  const ogStage =
+    selectedStage ||
+    engineData?.stages?.find(
+      stage =>
+        typeof stage.origHk === "number" &&
+        typeof stage.tunedHk === "number",
+    ) ||
+    engineData?.stages?.[0];
+  const imageUrl = buildVehicleOgImageUrl({
+    brand: brandData?.name || "",
+    model: modelData?.name || "",
+    stage: ogStage?.name || "Motoroptimering",
+    originalHk: ogStage?.origHk,
+    tunedHk: ogStage?.tunedHk,
+    originalNm: ogStage?.origNm,
+    tunedNm: ogStage?.tunedNm,
+  });
 
   if (!engineData || !brandData || !modelData || !yearData) {
     return (
@@ -717,7 +648,7 @@ export default function EnginePage({
 
   function renderDescription(
     template: string,
-    data: Record<string, string | number>
+    data: Record<string, string | number>,
   ): string {
     return template.replace(/{{(.*?)}}/g, (_, key) => {
       return data[key.trim()]?.toString() || "";
@@ -726,7 +657,7 @@ export default function EnginePage({
 
   const createDynamicDescription = (
     description: any[],
-    stage: Stage | undefined
+    stage: Stage | undefined,
   ) => {
     if (
       !brandData ||
@@ -756,7 +687,7 @@ export default function EnginePage({
               .replace(/{{engine}}/g, engineData.label)
               .replace(
                 /{{stageName}}/g,
-                getStageDisplayName(stage.name, brandData.name)
+                getStageDisplayName(stage.name, brandData.name),
               )
               .replace(/{{origHk}}/g, String(stage.origHk))
               .replace(/{{tunedHk}}/g, String(stage.tunedHk))
@@ -785,6 +716,10 @@ export default function EnginePage({
         <meta property="og:type" content="website" />
         <meta property="og:url" content={pageUrl} />
         <meta property="og:image" content={imageUrl} />
+        <meta property="og:image:type" content="image/png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta name="twitter:card" content="summary_large_image" />
         {/* Favicon */}
         <link rel="icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -832,7 +767,7 @@ export default function EnginePage({
                     const templateDescription = extractPlainTextFromDescription(
                       stage.descriptionRef?.description ||
                         stage.description?.["sv"] ||
-                        ""
+                        "",
                     );
 
                     const fullDescription = isBmwTcuStage
@@ -842,7 +777,7 @@ export default function EnginePage({
                         : renderDescription(templateDescription, {
                             stageName: getStageDisplayName(
                               stage.name,
-                              brandData.name
+                              brandData.name,
                             ),
                             brand: brandData.name,
                             model: modelData.name,
@@ -898,14 +833,14 @@ export default function EnginePage({
                   }),
 
                 ...mergedAktPlusOptions
-                  .filter(opt => {
+                  .filter((opt) => {
                     const isLinkedToStage =
-                      opt.manualAssignments?.some(ref =>
+                      opt.manualAssignments?.some((ref) =>
                         engineData.stages?.some(
-                          stage =>
+                          (stage) =>
                             ref._ref === (stage as any)._id ||
-                            ref._ref === stage.name
-                        )
+                            ref._ref === stage.name,
+                        ),
                       ) ?? false;
 
                     const title =
@@ -936,7 +871,7 @@ export default function EnginePage({
                         description: extractPlainTextFromDescription(
                           typeof opt.description === "string"
                             ? opt.description
-                            : opt.description?.sv || ""
+                            : opt.description?.sv || "",
                         ),
                       }),
                       ...(opt.gallery?.[0]?.asset?.url && {
@@ -1072,11 +1007,11 @@ export default function EnginePage({
         </div>
         {engineData.stages?.length > 0 ? (
           <div className="space-y-6">
-            {engineData.stages.map(stage => {
+            {engineData.stages.map((stage) => {
               const isExpanded = expandedStages[stage.name] ?? false;
               const displayStageName = getStageDisplayName(
                 stage.name,
-                brandData.name
+                brandData.name,
               );
 
               return (
@@ -1110,7 +1045,7 @@ export default function EnginePage({
                             {translateDisplayStageName(
                               currentLanguage,
                               stage.name,
-                              brandData.name
+                              brandData.name,
                             )}
                             ]
                           </span>
@@ -1139,7 +1074,7 @@ export default function EnginePage({
                             <br />
                             {translate(
                               currentLanguage,
-                              "stageContactForHardware"
+                              "stageContactForHardware",
                             )}
                           </p>
                         )}
@@ -1166,7 +1101,7 @@ export default function EnginePage({
                   {isExpanded &&
                     (() => {
                       const isDsgStage = /(^|\s)(dsg|tcu)(\s|$)/i.test(
-                        stage.name
+                        stage.name,
                       );
                       const isTruck = brandData.name.startsWith("[LASTBIL]");
                       const allOptions = getAllAktPlusOptions(stage);
@@ -1216,7 +1151,7 @@ export default function EnginePage({
                                       <p className="text-sm font-bold text-blue-300 mb-1">
                                         {translate(
                                           currentLanguage,
-                                          "launchControl"
+                                          "launchControl",
                                         )}
                                       </p>
                                       <p>
@@ -1261,7 +1196,7 @@ export default function EnginePage({
                                       <p className="text-sm font-bold text-blue-300 mb-1">
                                         {translate(
                                           currentLanguage,
-                                          "shiftTime"
+                                          "shiftTime",
                                         )}
                                       </p>
                                       <p>
@@ -1306,7 +1241,9 @@ export default function EnginePage({
 
                                 <div className="mb-4 flex justify-center">
                                   <button
-                                    onClick={e => handleBookNow(stage.name, e)}
+                                    onClick={(e) =>
+                                      handleBookNow(stage.name, e)
+                                    }
                                     className="w-full max-w-2xl rounded-lg bg-green-600 px-6 py-3 font-medium text-white shadow-lg transition-all hover:scale-105 hover:bg-green-700"
                                   >
                                     📩{" "}
@@ -1330,7 +1267,7 @@ export default function EnginePage({
                                     {translate(
                                       currentLanguage,
                                       "translateStageName",
-                                      stage.name
+                                      stage.name,
                                     )}{" "}
                                     HK
                                   </p>
@@ -1354,7 +1291,7 @@ export default function EnginePage({
                                     {translate(
                                       currentLanguage,
                                       "translateStageName",
-                                      stage.name
+                                      stage.name,
                                     )}{" "}
                                     NM
                                   </p>
@@ -1384,7 +1321,7 @@ export default function EnginePage({
                                   {translateDisplayStageName(
                                     currentLanguage,
                                     stage.name,
-                                    brandData.name
+                                    brandData.name,
                                   ).toUpperCase()}{" "}
                                   {translate(currentLanguage, "infoStage")}
                                 </button>
@@ -1462,7 +1399,7 @@ export default function EnginePage({
                                   {translate(
                                     currentLanguage,
                                     "translateStageName",
-                                    stage.name
+                                    stage.name,
                                   ).toUpperCase()}{" "}
                                 </h3>
                               )}
@@ -1565,10 +1502,10 @@ export default function EnginePage({
                                       datasets: [
                                         {
                                           label: "ORG",
-                                          data: generateWarrantyDynoCurve(
+                                          data: generateDynoCurve(
                                             stage.origHk,
                                             "power",
-                                            engineData.fuel
+                                            engineData.fuel,
                                           ),
                                           borderColor: "#f87171",
                                           backgroundColor: "#000000",
@@ -1580,10 +1517,10 @@ export default function EnginePage({
                                         },
                                         {
                                           label: `ST ${stage.name.replace(/\D/g, "")}`,
-                                          data: generateWarrantyDynoCurve(
+                                          data: generateDynoCurve(
                                             stage.tunedHk,
                                             "power",
-                                            engineData.fuel
+                                            engineData.fuel,
                                           ),
                                           borderColor: "#f87171",
                                           backgroundColor: "#f87171",
@@ -1594,10 +1531,10 @@ export default function EnginePage({
                                         },
                                         {
                                           label: "ORG",
-                                          data: generateWarrantyDynoCurve(
+                                          data: generateDynoCurve(
                                             stage.origNm,
                                             "torque",
-                                            engineData.fuel
+                                            engineData.fuel,
                                           ),
                                           borderColor: "#FFFFFF",
                                           backgroundColor: "#000000",
@@ -1609,10 +1546,10 @@ export default function EnginePage({
                                         },
                                         {
                                           label: `ST ${stage.name.replace(/\D/g, "")}`,
-                                          data: generateWarrantyDynoCurve(
+                                          data: generateDynoCurve(
                                             stage.tunedNm,
                                             "torque",
-                                            engineData.fuel
+                                            engineData.fuel,
                                           ),
                                           borderColor: "#FFFFFF",
                                           backgroundColor: "#FFFFFF",
@@ -1676,10 +1613,10 @@ export default function EnginePage({
                                             display: true,
                                             text: translate(
                                               currentLanguage,
-                                              "powerLabel"
+                                              "powerLabel",
                                             ),
                                             color: "white",
-                                            font: {size: 14},
+                                            font: { size: 14 },
                                           },
                                           min: 0,
                                           max:
@@ -1692,7 +1629,7 @@ export default function EnginePage({
                                           ticks: {
                                             color: "#9CA3AF",
                                             stepSize: 100,
-                                            callback: value => `${value}`,
+                                            callback: (value) => `${value}`,
                                           },
                                         },
                                         nm: {
@@ -1703,10 +1640,10 @@ export default function EnginePage({
                                             display: true,
                                             text: translate(
                                               currentLanguage,
-                                              "torqueLabel"
+                                              "torqueLabel",
                                             ),
                                             color: "white",
-                                            font: {size: 14},
+                                            font: { size: 14 },
                                           },
                                           min: 0,
                                           max:
@@ -1719,7 +1656,7 @@ export default function EnginePage({
                                           ticks: {
                                             color: "#9CA3AF",
                                             stepSize: 100,
-                                            callback: value => `${value}`,
+                                            callback: (value) => `${value}`,
                                           },
                                         },
                                         x: {
@@ -1727,7 +1664,7 @@ export default function EnginePage({
                                             display: true,
                                             text: "RPM",
                                             color: "#E5E7EB",
-                                            font: {size: 14},
+                                            font: { size: 14 },
                                           },
                                           grid: {
                                             color: "rgba(255, 255, 255, 0.1)",
@@ -1748,7 +1685,7 @@ export default function EnginePage({
                                   <div className="text-center text-white text-xs mt-4 italic">
                                     {translate(
                                       currentLanguage,
-                                      "tuningCurveNote"
+                                      "tuningCurveNote",
                                     )}
                                   </div>
                                 </div>
@@ -1762,7 +1699,7 @@ export default function EnginePage({
                                     <p className="text-lg font-semibold text-white">
                                       {translate(
                                         currentLanguage,
-                                        "tuningIntro"
+                                        "tuningIntro",
                                       )}{" "}
                                       <span
                                         className={getStageColor(stage.name)}
@@ -1772,8 +1709,8 @@ export default function EnginePage({
                                             "Steg",
                                             translate(
                                               currentLanguage,
-                                              "stageLabel"
-                                            )
+                                              "stageLabel",
+                                            ),
                                           )
                                           .toUpperCase()}
                                       </span>
@@ -1788,7 +1725,7 @@ export default function EnginePage({
                                   <div className="flex flex-col gap-4 max-w-2xl mx-auto">
                                     {/* Contact Button (Primary) - Now Green */}
                                     <button
-                                      onClick={e =>
+                                      onClick={(e) =>
                                         handleBookNow(stage.name, e)
                                       }
                                       className="bg-green-600 hover:bg-green-700 hover:scale-105 transform transition-all text-white px-6 py-3 rounded-lg font-medium shadow-lg"
@@ -1796,7 +1733,7 @@ export default function EnginePage({
                                       📩{" "}
                                       {translate(
                                         currentLanguage,
-                                        "contactvalue"
+                                        "contactvalue",
                                       )}
                                     </button>
 
@@ -1857,7 +1794,7 @@ export default function EnginePage({
                                     <h3 className="text-xl font-semibold text-white">
                                       {translate(
                                         currentLanguage,
-                                        "additionsLabel"
+                                        "additionsLabel",
                                       )}
                                     </h3>
                                   </div>
@@ -1883,7 +1820,7 @@ export default function EnginePage({
                                 {/* Expandable AKT+ Grid */}
                                 {expandedAktPlus[stage.name] && (
                                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                                    {allOptions.map(option => {
+                                    {allOptions.map((option) => {
                                       const translatedTitle =
                                         option.title?.[currentLanguage] ||
                                         option.title?.sv ||
@@ -1907,7 +1844,7 @@ export default function EnginePage({
                                               {option.gallery?.[0]?.asset && (
                                                 <Image
                                                   src={urlFor(
-                                                    option.gallery[0].asset
+                                                    option.gallery[0].asset,
                                                   )
                                                     .width(80)
                                                     .url()}
@@ -1962,7 +1899,7 @@ export default function EnginePage({
                                                   <p className="font-bold text-green-400">
                                                     {translate(
                                                       currentLanguage,
-                                                      "priceLabel"
+                                                      "priceLabel",
                                                     )}
                                                     :{" "}
                                                     {option.price.toLocaleString()}{" "}
@@ -1975,7 +1912,7 @@ export default function EnginePage({
                                                     handleBookNow(
                                                       translatedTitle,
                                                       undefined,
-                                                      true
+                                                      true,
                                                     )
                                                   }
                                                   className="bg-green-600 hover:bg-green-700 hover:scale-105 transform transition-all text-white px-6 py-3 rounded-lg font-medium shadow-lg"
@@ -1983,7 +1920,7 @@ export default function EnginePage({
                                                   📩{" "}
                                                   {translate(
                                                     currentLanguage,
-                                                    "contactvalue"
+                                                    "contactvalue",
                                                   )}
                                                 </button>
                                               </div>
@@ -2014,7 +1951,7 @@ export default function EnginePage({
         <ContactModal
           isOpen={contactModalData.isOpen}
           onClose={() =>
-            setContactModalData({isOpen: false, stageOrOption: "", link: ""})
+            setContactModalData({ isOpen: false, stageOrOption: "", link: "" })
           }
           selectedVehicle={{
             brand: brandData.name,
@@ -2028,7 +1965,7 @@ export default function EnginePage({
         />
         <InfoModal
           isOpen={infoModal.open}
-          onClose={() => setInfoModal({open: false, type: infoModal.type})}
+          onClose={() => setInfoModal({ open: false, type: infoModal.type })}
           title={
             infoModal.type === "stage" && infoModal.stage
               ? getStageDisplayName(infoModal.stage.name, brandData.name)
@@ -2064,7 +2001,7 @@ export default function EnginePage({
                 if (rawDescription) {
                   const dynamicContent = createDynamicDescription(
                     rawDescription,
-                    infoModal.stage
+                    infoModal.stage,
                   );
                   return (
                     <PortableText

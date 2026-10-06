@@ -2,6 +2,15 @@
 
 const nextConfig = {
   images: {
+    qualities: [75, 100],
+    localPatterns: [
+      {
+        pathname: "/api/hero-image",
+      },
+      {
+        pathname: "/brand-logos-png/**",
+      },
+    ],
     remotePatterns: [
       {
         protocol: "https",

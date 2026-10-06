@@ -1,11 +1,11 @@
 // pages/[brand]/[model]/[year]/[engine]/[stage].tsx
-import {GetStaticPaths, GetStaticProps} from "next";
+import { GetStaticPaths, GetStaticProps } from "next";
 import NextImage from "next/image";
 import Image from "next/image";
-import {useRouter} from "next/router";
+import { useRouter } from "next/router";
 import Link from "next/link";
 import client from "@/lib/sanity";
-import {engineByParamsQuery} from "@/src/lib/queries";
+import { engineByParamsQuery } from "@/src/lib/queries";
 import type {
   Brand,
   Model,
@@ -14,13 +14,14 @@ import type {
   Stage,
   AktPlusOption,
 } from "@/types/sanity";
-import {urlFor} from "@/lib/sanity";
-import {PortableText} from "@portabletext/react";
+import { urlFor } from "@/lib/sanity";
+import { buildVehicleOgImageUrl } from "@/lib/ogImage";
+import { PortableText } from "@portabletext/react";
 import PublicLanguageDropdown from "@/components/PublicLanguageSwitcher";
-import {t as translate} from "@/lib/translations";
-import {generateDynoCurve as generateWarrantyDynoCurve, getDynoRpmLabels} from "@/lib/dynoCurve";
+import { t as translate } from "@/lib/translations";
+import { generateDynoCurve, getDynoRpmLabels } from "@/lib/dynoCurve";
 import Head from "next/head";
-import React, {useEffect, useState, useRef, useMemo} from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import ContactModal from "@/components/ContactModal";
 import BmwTcuDescription, {
   BMW_TCU_DESCRIPTION_TEXT,
@@ -49,16 +50,16 @@ ChartJS.register(
   LineElement,
   LineController,
   Tooltip,
-  Legend
+  Legend,
 );
 
-const Line = dynamic(() => import("react-chartjs-2").then(mod => mod.Line), {
+const Line = dynamic(() => import("react-chartjs-2").then((mod) => mod.Line), {
   ssr: false,
   loading: () => <div className="h-96 bg-gray-800 animate-pulse" />,
 });
 const FuelSavingCalculator = dynamic(
   () => import("@/components/FuelSavingCalculator"),
-  {ssr: false}
+  { ssr: false },
 );
 
 interface StagePageProps {
@@ -80,7 +81,9 @@ export const getStaticPaths: GetStaticPaths = async () => {
   };
 };
 
-export const getStaticProps: GetStaticProps<StagePageProps> = async context => {
+export const getStaticProps: GetStaticProps<StagePageProps> = async (
+  context,
+) => {
   const brand = decodeURIComponent((context.params?.brand as string) || "");
   const model = decodeURIComponent((context.params?.model as string) || "");
   const year = decodeURIComponent((context.params?.year as string) || "");
@@ -94,7 +97,7 @@ export const getStaticProps: GetStaticProps<StagePageProps> = async context => {
       lang,
     });
 
-    if (!brandData) return {notFound: true};
+    if (!brandData) return { notFound: true };
 
     const modelData =
       brandData.models?.find(
@@ -102,29 +105,29 @@ export const getStaticProps: GetStaticProps<StagePageProps> = async context => {
           normalizeString(m.name) === normalizeString(model) ||
           (m.slug &&
             normalizeString(
-              typeof m.slug === "string" ? m.slug : m.slug.current
-            ) === normalizeString(model))
+              typeof m.slug === "string" ? m.slug : m.slug.current,
+            ) === normalizeString(model)),
       ) || null;
 
-    if (!modelData) return {notFound: true};
+    if (!modelData) return { notFound: true };
 
     const yearData =
       modelData.years?.find(
         (y: Year) =>
           normalizeString(y.range) === normalizeString(year) ||
-          (y.slug && normalizeString(y.slug) === normalizeString(year))
+          (y.slug && normalizeString(y.slug) === normalizeString(year)),
       ) || null;
 
-    if (!yearData) return {notFound: true};
+    if (!yearData) return { notFound: true };
 
     const engineData =
       yearData.engines?.find(
         (e: Engine) =>
           normalizeString(e.label) === normalizeString(engine) ||
-          (e.slug && normalizeString(e.slug) === normalizeString(engine))
+          (e.slug && normalizeString(e.slug) === normalizeString(engine)),
       ) || null;
 
-    if (!engineData) return {notFound: true};
+    if (!engineData) return { notFound: true };
 
     // Find the specific stage
     const stageData =
@@ -132,10 +135,10 @@ export const getStaticProps: GetStaticProps<StagePageProps> = async context => {
         (s: Stage) =>
           normalizeString(s.name) === normalizeString(stage) ||
           normalizeString(s.name.replace(/\s+/g, "-")) ===
-            normalizeString(stage)
+            normalizeString(stage),
       ) || null;
 
-    if (!stageData) return {notFound: true};
+    if (!stageData) return { notFound: true };
 
     return {
       props: {
@@ -149,7 +152,7 @@ export const getStaticProps: GetStaticProps<StagePageProps> = async context => {
     };
   } catch (err) {
     console.error("Stage page fetch failed:", err);
-    return {notFound: true};
+    return { notFound: true };
   }
 };
 
@@ -157,10 +160,10 @@ function extractPlainTextFromDescription(description: any): string {
   if (!Array.isArray(description)) return "";
 
   return description
-    .map(block => {
+    .map((block) => {
       if (block._type === "block" && Array.isArray(block.children)) {
         return block.children
-          .map(child => (typeof child.text === "string" ? child.text : ""))
+          .map((child) => (typeof child.text === "string" ? child.text : ""))
           .join("");
       }
 
@@ -176,7 +179,7 @@ function extractPlainTextFromDescription(description: any): string {
 
 const portableTextComponents = {
   types: {
-    image: ({value}: any) => (
+    image: ({ value }: any) => (
       <img
         src={urlFor(value).width(600).url()}
         alt={value.alt || ""}
@@ -186,7 +189,7 @@ const portableTextComponents = {
     ),
   },
   marks: {
-    link: ({children, value}: any) => (
+    link: ({ children, value }: any) => (
       <a
         href={value.href}
         className="text-blue-400 hover:text-blue-300 underline"
@@ -195,92 +198,6 @@ const portableTextComponents = {
       </a>
     ),
   },
-};
-
-const generateDynoCurve = (
-  peakValue: number,
-  isHp: boolean,
-  fuelType: string
-) => {
-  const isDiesel = fuelType.toLowerCase().includes("diesel");
-
-  // RPM-ranges baserat på bränsletyp
-  const rpmRange = isDiesel
-    ? [1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000]
-    : [2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000];
-
-  const totalSteps = rpmRange.length;
-
-  // Lägg till lite slumpmässig variation (±2-3%)
-  const addRandomVariation = (value: number) => {
-    const variation = Math.random() * 0.06 - 0.03; // ±3%
-    return value * (1 + variation);
-  };
-
-  if (isHp) {
-    // ---- HÄSTKRAFT (HP) KURVA ----
-    const startPercentage = isDiesel ? 0.45 : 0.35; // Diesel startar högre
-    const peakStepPercentage = isDiesel ? 0.6 : 0.7; // Bensin peakar senare
-
-    const peakStep = Math.floor(totalSteps * peakStepPercentage);
-
-    return rpmRange.map((rpm, i) => {
-      let value: number;
-
-      if (i <= peakStep) {
-        // Ökning till toppen
-        const progress = i / peakStep;
-        // Diesel: snabbare uppgång, Bensin: lite jämnare
-        const curveFactor = isDiesel ? Math.pow(progress, 0.9) : progress;
-        value =
-          peakValue * (startPercentage + (1 - startPercentage) * curveFactor);
-      } else {
-        // Minskning efter toppen
-        const progress = (i - peakStep) / (totalSteps - 1 - peakStep);
-        // Diesel: långsammare minskning, Bensin: snabbare
-        const dropRate = isDiesel ? 0.15 : 0.25;
-        value = peakValue * (1 - dropRate * Math.pow(progress, 1.2));
-      }
-
-      return addRandomVariation(value);
-    });
-  } else {
-    // ---- VRIDMOMENT (NM) KURVA ----
-    const startPercentage = isDiesel ? 0.6 : 0.4; // Diesel har mer bottenvrid
-    const peakStepPercentage = isDiesel ? 0.3 : 0.4; // Diesel peakar tidigare
-    const plateauLength = isDiesel ? 3 : 2; // Diesel har längre platå
-
-    const peakStep = Math.floor(totalSteps * peakStepPercentage);
-    const plateauEndStep = Math.min(peakStep + plateauLength, totalSteps - 1);
-
-    return rpmRange.map((rpm, i) => {
-      let value: number;
-
-      if (i < peakStep) {
-        // Snabb ökning till toppen
-        const progress = i / peakStep;
-        // Exponentiell ökning för mer realistisk kurva
-        value =
-          peakValue *
-          (startPercentage + (1 - startPercentage) * Math.pow(progress, 1.3));
-      } else if (i <= plateauEndStep) {
-        // Platå - håller maxvärdet med liten variation
-        const plateauProgress = (i - peakStep) / (plateauEndStep - peakStep);
-        // Liten kurva på platån för att undvika perfekt rak linje
-        const plateauVariation = Math.sin(plateauProgress * Math.PI) * 0.02;
-        value = peakValue * (0.98 + plateauVariation);
-      } else {
-        // Minskning efter platån
-        const progress =
-          (i - plateauEndStep) / (totalSteps - 1 - plateauEndStep);
-        // Diesel: långsammare minskning
-        const dropRate = isDiesel ? 0.2 : 0.3;
-        value = peakValue * (1 - dropRate * Math.pow(progress, 1.1));
-      }
-
-      return addRandomVariation(value);
-    });
-  }
 };
 
 const getStageColor = (stageName: string) => {
@@ -327,7 +244,7 @@ export default function StagePage({
     open: boolean;
     type: "stage" | "general";
     stage?: Stage;
-  }>({open: false, type: "stage"});
+  }>({ open: false, type: "stage" });
 
   const [expandedOptions, setExpandedOptions] = useState<
     Record<string, boolean>
@@ -369,7 +286,7 @@ export default function StagePage({
 
   const handleBookNow = (
     stageOrOptionName: string,
-    event?: React.MouseEvent
+    event?: React.MouseEvent,
   ) => {
     if (!brandData || !modelData || !yearData || !engineData) return;
 
@@ -436,12 +353,12 @@ export default function StagePage({
   const getAllAktPlusOptions = (stage: Stage): AktPlusOption[] => {
     if (!engineData) return [];
 
-    const options = allAktOptions.filter(opt => {
+    const options = allAktOptions.filter((opt) => {
       const isFuelMatch =
         opt.isUniversal || opt.applicableFuelTypes?.includes(engineData.fuel);
 
       const isManualMatch = opt.manualAssignments?.some(
-        ref => ref._ref === engineData._id
+        (ref) => ref._ref === engineData._id,
       );
 
       const isStageMatch =
@@ -451,7 +368,7 @@ export default function StagePage({
     });
 
     const unique = new Map<string, AktPlusOption>();
-    options.forEach(opt => unique.set(opt._id, opt));
+    options.forEach((opt) => unique.set(opt._id, opt));
     return Array.from(unique.values());
   };
 
@@ -460,7 +377,7 @@ export default function StagePage({
     beforeDraw: (chart: ChartJS) => {
       const ctx = chart.ctx;
       const {
-        chartArea: {top, left, width, height},
+        chartArea: { top, left, width, height },
       } = chart;
 
       if (watermarkImageRef.current?.complete) {
@@ -525,7 +442,7 @@ export default function StagePage({
   const shadowPlugin = {
     id: "shadowPlugin",
     beforeDatasetDraw(chart: ChartJS, args: any, options: any) {
-      const {ctx} = chart;
+      const { ctx } = chart;
       const dataset = chart.data.datasets[args.index];
 
       ctx.save();
@@ -540,7 +457,7 @@ export default function StagePage({
   };
 
   const toggleOption = (optionId: string) => {
-    setExpandedOptions(prev => {
+    setExpandedOptions((prev) => {
       const newState: Record<string, boolean> = {};
       newState[optionId] = !prev[optionId];
       return newState;
@@ -585,7 +502,7 @@ export default function StagePage({
   const translateDisplayStageName = (
     lang: string,
     stageName: string,
-    brand?: string
+    brand?: string,
   ): string => translateStageName(lang, getStageDisplayName(stageName, brand));
 
   const rpmLabels = useMemo(() => {
@@ -624,11 +541,11 @@ export default function StagePage({
   const enginePageUrl = `https://tuning.aktuning.se/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}`;
   const stageDisplayName = getStageDisplayName(
     stageData?.name || "",
-    brandData?.name
+    brandData?.name,
   );
 
   const pageTitle = cleanText(
-    `Motoroptimering ${brandData?.name} ${modelData?.name} ${engineData?.label} ${yearData?.range} - ${stageDisplayName} | AK-TUNING`
+    `Motoroptimering ${brandData?.name} ${modelData?.name} ${engineData?.label} ${yearData?.range} - ${stageDisplayName} | AK-TUNING`,
   );
 
   const hkIncreaseText =
@@ -646,10 +563,18 @@ export default function StagePage({
       ? BMW_TCU_DESCRIPTION_TEXT
       : useMercedesTcuDescription
         ? MERCEDES_TCU_DESCRIPTION_TEXT
-      : `${stageDisplayName} Motoroptimering till ${brandData?.name} ${modelData?.name} ${engineData?.label} ${yearData?.range}. Effekt: ${stageData?.tunedHk} hk (${hkIncreaseText}). Vridmoment: ${stageData?.tunedNm} Nm (${nmIncreaseText}). Skräddarsydd mjukvara med 2 års garanti & 30 dagars öppet köp!`
+        : `${stageDisplayName} Motoroptimering till ${brandData?.name} ${modelData?.name} ${engineData?.label} ${yearData?.range}. Effekt: ${stageData?.tunedHk} hk (${hkIncreaseText}). Vridmoment: ${stageData?.tunedNm} Nm (${nmIncreaseText}). Skräddarsydd mjukvara med 2 års garanti & 30 dagars öppet köp!`,
   );
 
-  const imageUrl = "https://tuning.aktuning.se/ak-logo1.png";
+  const imageUrl = buildVehicleOgImageUrl({
+    brand: brandData?.name || "",
+    model: modelData?.name || "",
+    stage: stageDisplayName,
+    originalHk: stageData?.origHk,
+    tunedHk: stageData?.tunedHk,
+    originalNm: stageData?.origNm,
+    tunedNm: stageData?.tunedNm,
+  });
 
   if (!engineData || !brandData || !modelData || !yearData || !stageData) {
     return (
@@ -665,7 +590,7 @@ export default function StagePage({
 
   function renderDescription(
     template: string,
-    data: Record<string, string | number>
+    data: Record<string, string | number>,
   ): string {
     return template.replace(/{{(.*?)}}/g, (_, key) => {
       return data[key.trim()]?.toString() || "";
@@ -674,7 +599,7 @@ export default function StagePage({
 
   const createDynamicDescription = (
     description: any[],
-    stage: Stage | undefined
+    stage: Stage | undefined,
   ) => {
     if (
       !brandData ||
@@ -704,7 +629,7 @@ export default function StagePage({
               .replace(/{{engine}}/g, engineData.label)
               .replace(
                 /{{stageName}}/g,
-                getStageDisplayName(stage.name, brandData.name)
+                getStageDisplayName(stage.name, brandData.name),
               )
               .replace(/{{origHk}}/g, String(stage.origHk))
               .replace(/{{tunedHk}}/g, String(stage.tunedHk))
@@ -754,6 +679,10 @@ export default function StagePage({
         <meta property="og:type" content="website" />
         <meta property="og:url" content={canonicalUrl} />
         <meta property="og:image" content={imageUrl} />
+        <meta property="og:image:type" content="image/png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta name="twitter:card" content="summary_large_image" />
 
         {/* Favicon */}
         <link rel="icon" href="/favicon.ico" />
@@ -946,11 +875,13 @@ export default function StagePage({
                   <span
                     className={`uppercase tracking-wide ${getStageColor(stageData.name)}`}
                   >
-                    [{translateDisplayStageName(
+                    [
+                    {translateDisplayStageName(
                       currentLanguage,
                       stageData.name,
-                      brandData.name
-                    )}]
+                      brandData.name,
+                    )}
+                    ]
                   </span>
                 </h2>
               </div>
@@ -1082,233 +1013,233 @@ export default function StagePage({
             {!isDsgStage && (
               <div className="mb-6">
                 <div className="h-96 bg-gray-900 rounded-lg p-4 relative">
-                {/* Split the spec boxes */}
-                <div className="absolute hidden md:flex flex-row justify-between top-4 left-0 right-0 px-16">
-                  {/* HK Container */}
-                  <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-red-400 font-mono text-[16px] tracking-wide drop-shadow-[0_0_3px_rgba(248,113,113,0.8)]">
-                        ---
-                      </span>
-                      <span className="text-white">
-                        ORG: {stageData.origHk} HK
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-red-600 font-mono text-[16px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
-                        ━━━
-                      </span>
-                      <span className="text-white">
-                        <span className="text-white text-[14px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
-                          {stageDisplayName
-                            .replace("Steg", "ST")
-                            .replace(/\s+/g, "")}
-                          : {stageData.tunedHk} HK
+                  {/* Split the spec boxes */}
+                  <div className="absolute hidden md:flex flex-row justify-between top-4 left-0 right-0 px-16">
+                    {/* HK Container */}
+                    <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-red-400 font-mono text-[16px] tracking-wide drop-shadow-[0_0_3px_rgba(248,113,113,0.8)]">
+                          ---
                         </span>
-                      </span>
+                        <span className="text-white">
+                          ORG: {stageData.origHk} HK
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-red-600 font-mono text-[16px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
+                          ━━━
+                        </span>
+                        <span className="text-white">
+                          <span className="text-white text-[14px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
+                            {stageDisplayName
+                              .replace("Steg", "ST")
+                              .replace(/\s+/g, "")}
+                            : {stageData.tunedHk} HK
+                          </span>
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* NM Container */}
+                    <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-white font-mono text-[16px] tracking-wide drop-shadow-[0_0_3px_rgba(248,113,113,0.8)]">
+                          ---
+                        </span>
+                        <span className="text-white">
+                          ORG: {stageData.origNm} NM
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-white font-mono text-[16px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
+                          ━━━
+                        </span>
+                        <span className="text-white">
+                          <span className="text-white text-[14px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
+                            {stageDisplayName
+                              .replace("Steg", "ST")
+                              .replace(/\s+/g, "")}
+                            : {stageData.tunedNm} NM
+                          </span>
+                        </span>
+                      </div>
                     </div>
                   </div>
 
-                  {/* NM Container */}
-                  <div className="bg-gray-900 px-4 py-1 rounded text-xs text-white flex flex-col items-start w-auto">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-white font-mono text-[16px] tracking-wide drop-shadow-[0_0_3px_rgba(248,113,113,0.8)]">
-                        ---
-                      </span>
-                      <span className="text-white">
-                        ORG: {stageData.origNm} NM
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-white font-mono text-[16px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
-                        ━━━
-                      </span>
-                      <span className="text-white">
-                        <span className="text-white text-[14px] drop-shadow-[0_0_4px_rgba(239,68,68,0.9)]">
-                          {stageDisplayName
-                            .replace("Steg", "ST")
-                            .replace(/\s+/g, "")}
-                          : {stageData.tunedNm} NM
-                        </span>
-                      </span>
-                    </div>
-                  </div>
-                </div>
+                  {/* Dyno graph */}
+                  <Line
+                    data={{
+                      labels: rpmLabels,
+                      datasets: [
+                        {
+                          label: "ORG",
+                          data: generateDynoCurve(
+                            stageData.origHk,
+                            "power",
+                            engineData.fuel,
+                          ),
+                          borderColor: "#f87171",
+                          backgroundColor: "#000000",
+                          borderWidth: 2,
+                          borderDash: [5, 3],
+                          tension: 0.5,
+                          pointRadius: 0,
+                          yAxisID: "hp",
+                        },
+                        {
+                          label: `ST ${stageData.name.replace(/\D/g, "")}`,
+                          data: generateDynoCurve(
+                            stageData.tunedHk,
+                            "power",
+                            engineData.fuel,
+                          ),
+                          borderColor: "#f87171",
+                          backgroundColor: "#f87171",
+                          borderWidth: 3,
+                          tension: 0.5,
+                          pointRadius: 0,
+                          yAxisID: "hp",
+                        },
+                        {
+                          label: "ORG",
+                          data: generateDynoCurve(
+                            stageData.origNm,
+                            "torque",
+                            engineData.fuel,
+                          ),
+                          borderColor: "#FFFFFF",
+                          backgroundColor: "#000000",
+                          borderWidth: 2,
+                          borderDash: [5, 3],
+                          tension: 0.5,
+                          pointRadius: 0,
+                          yAxisID: "nm",
+                        },
+                        {
+                          label: `ST ${stageData.name.replace(/\D/g, "")}`,
+                          data: generateDynoCurve(
+                            stageData.tunedNm,
+                            "torque",
+                            engineData.fuel,
+                          ),
+                          borderColor: "#FFFFFF",
+                          backgroundColor: "#FFFFFF",
+                          borderWidth: 3,
+                          tension: 0.5,
+                          pointRadius: 0,
+                          yAxisID: "nm",
+                        },
+                      ],
+                    }}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: {
+                          display: false,
+                        },
+                        tooltip: {
+                          enabled: true,
+                          mode: "index",
+                          intersect: false,
+                          backgroundColor: "#1f2937",
+                          titleColor: "#ffffff",
+                          bodyColor: "#ffffff",
+                          borderColor: "#6b7280",
+                          borderWidth: 1,
+                          padding: 10,
+                          displayColors: true,
+                          usePointStyle: true,
+                          callbacks: {
+                            labelPointStyle: () => ({
+                              pointStyle: "circle",
+                              rotation: 0,
+                            }),
+                            title: function (tooltipItems) {
+                              return `${tooltipItems[0].label} RPM`;
+                            },
+                            label: function (context) {
+                              const label = context.dataset.label || "";
+                              const value = context.parsed.y;
 
-                {/* Dyno graph */}
-                <Line
-                  data={{
-                    labels: rpmLabels,
-                    datasets: [
-                      {
-                        label: "ORG",
-                        data: generateWarrantyDynoCurve(
-                          stageData.origHk,
-                          "power",
-                          engineData.fuel
-                        ),
-                        borderColor: "#f87171",
-                        backgroundColor: "#000000",
-                        borderWidth: 2,
-                        borderDash: [5, 3],
-                        tension: 0.5,
-                        pointRadius: 0,
-                        yAxisID: "hp",
+                              if (value === undefined) return label;
+
+                              const unit =
+                                context.dataset.yAxisID === "hp" ? "hk" : "Nm";
+                              return `${label}: ${Math.round(value)} ${unit}`;
+                            },
+                          },
+                        },
                       },
-                      {
-                        label: `ST ${stageData.name.replace(/\D/g, "")}`,
-                        data: generateWarrantyDynoCurve(
-                          stageData.tunedHk,
-                          "power",
-                          engineData.fuel
-                        ),
-                        borderColor: "#f87171",
-                        backgroundColor: "#f87171",
-                        borderWidth: 3,
-                        tension: 0.5,
-                        pointRadius: 0,
-                        yAxisID: "hp",
+                      scales: {
+                        hp: {
+                          type: "linear",
+                          display: true,
+                          position: "left",
+                          title: {
+                            display: true,
+                            text: translate(currentLanguage, "powerLabel"),
+                            color: "white",
+                            font: { size: 14 },
+                          },
+                          min: 0,
+                          max: Math.ceil(stageData.tunedHk / 100) * 100 + 100,
+                          grid: {
+                            color: "rgba(255, 255, 255, 0.1)",
+                          },
+                          ticks: {
+                            color: "#9CA3AF",
+                            stepSize: 100,
+                            callback: (value) => `${value}`,
+                          },
+                        },
+                        nm: {
+                          type: "linear",
+                          display: true,
+                          position: "right",
+                          title: {
+                            display: true,
+                            text: translate(currentLanguage, "torqueLabel"),
+                            color: "white",
+                            font: { size: 14 },
+                          },
+                          min: 0,
+                          max: Math.ceil(stageData.tunedNm / 100) * 100 + 100,
+                          grid: {
+                            drawOnChartArea: false,
+                          },
+                          ticks: {
+                            color: "#9CA3AF",
+                            stepSize: 100,
+                            callback: (value) => `${value}`,
+                          },
+                        },
+                        x: {
+                          title: {
+                            display: true,
+                            text: "RPM",
+                            color: "#E5E7EB",
+                            font: { size: 14 },
+                          },
+                          grid: {
+                            color: "rgba(255, 255, 255, 0.1)",
+                          },
+                          ticks: {
+                            color: "#9CA3AF",
+                          },
+                        },
                       },
-                      {
-                        label: "ORG",
-                        data: generateWarrantyDynoCurve(
-                          stageData.origNm,
-                          "torque",
-                          engineData.fuel
-                        ),
-                        borderColor: "#FFFFFF",
-                        backgroundColor: "#000000",
-                        borderWidth: 2,
-                        borderDash: [5, 3],
-                        tension: 0.5,
-                        pointRadius: 0,
-                        yAxisID: "nm",
-                      },
-                      {
-                        label: `ST ${stageData.name.replace(/\D/g, "")}`,
-                        data: generateWarrantyDynoCurve(
-                          stageData.tunedNm,
-                          "torque",
-                          engineData.fuel
-                        ),
-                        borderColor: "#FFFFFF",
-                        backgroundColor: "#FFFFFF",
-                        borderWidth: 3,
-                        tension: 0.5,
-                        pointRadius: 0,
-                        yAxisID: "nm",
-                      },
-                    ],
-                  }}
-                  options={{
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                      legend: {
-                        display: false,
-                      },
-                      tooltip: {
-                        enabled: true,
-                        mode: "index",
+                      interaction: {
                         intersect: false,
-                        backgroundColor: "#1f2937",
-                        titleColor: "#ffffff",
-                        bodyColor: "#ffffff",
-                        borderColor: "#6b7280",
-                        borderWidth: 1,
-                        padding: 10,
-                        displayColors: true,
-                        usePointStyle: true,
-                        callbacks: {
-                          labelPointStyle: () => ({
-                            pointStyle: "circle",
-                            rotation: 0,
-                          }),
-                          title: function (tooltipItems) {
-                            return `${tooltipItems[0].label} RPM`;
-                          },
-                          label: function (context) {
-                            const label = context.dataset.label || "";
-                            const value = context.parsed.y;
+                        mode: "index",
+                      },
+                    }}
+                    plugins={[watermarkPlugin, shadowPlugin]}
+                  />
 
-                            if (value === undefined) return label;
-
-                            const unit =
-                              context.dataset.yAxisID === "hp" ? "hk" : "Nm";
-                            return `${label}: ${Math.round(value)} ${unit}`;
-                          },
-                        },
-                      },
-                    },
-                    scales: {
-                      hp: {
-                        type: "linear",
-                        display: true,
-                        position: "left",
-                        title: {
-                          display: true,
-                          text: translate(currentLanguage, "powerLabel"),
-                          color: "white",
-                          font: {size: 14},
-                        },
-                        min: 0,
-                        max: Math.ceil(stageData.tunedHk / 100) * 100 + 100,
-                        grid: {
-                          color: "rgba(255, 255, 255, 0.1)",
-                        },
-                        ticks: {
-                          color: "#9CA3AF",
-                          stepSize: 100,
-                          callback: value => `${value}`,
-                        },
-                      },
-                      nm: {
-                        type: "linear",
-                        display: true,
-                        position: "right",
-                        title: {
-                          display: true,
-                          text: translate(currentLanguage, "torqueLabel"),
-                          color: "white",
-                          font: {size: 14},
-                        },
-                        min: 0,
-                        max: Math.ceil(stageData.tunedNm / 100) * 100 + 100,
-                        grid: {
-                          drawOnChartArea: false,
-                        },
-                        ticks: {
-                          color: "#9CA3AF",
-                          stepSize: 100,
-                          callback: value => `${value}`,
-                        },
-                      },
-                      x: {
-                        title: {
-                          display: true,
-                          text: "RPM",
-                          color: "#E5E7EB",
-                          font: {size: 14},
-                        },
-                        grid: {
-                          color: "rgba(255, 255, 255, 0.1)",
-                        },
-                        ticks: {
-                          color: "#9CA3AF",
-                        },
-                      },
-                    },
-                    interaction: {
-                      intersect: false,
-                      mode: "index",
-                    },
-                  }}
-                  plugins={[watermarkPlugin, shadowPlugin]}
-                />
-
-                <div className="text-center text-white text-xs mt-4 italic">
-                  {translate(currentLanguage, "tuningCurveNote")}
-                </div>
+                  <div className="text-center text-white text-xs mt-4 italic">
+                    {translate(currentLanguage, "tuningCurveNote")}
+                  </div>
                 </div>
               </div>
             )}
@@ -1341,7 +1272,7 @@ export default function StagePage({
 
             <div className="flex flex-col sm:flex-row justify-center items-center mb-4">
               <button
-                onClick={e => handleBookNow(stageData.name, e)}
+                onClick={(e) => handleBookNow(stageData.name, e)}
                 className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-bold text-lg shadow-lg transition-all duration-300 transform hover:scale-105 w-full sm:w-auto text-center"
               >
                 📩 {translate(currentLanguage, "contactvalue")}{" "}
@@ -1371,7 +1302,7 @@ export default function StagePage({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {allOptions
                       .slice(0, expandedAktPlus ? allOptions.length : 6)
-                      .map(option => {
+                      .map((option) => {
                         const isExpanded = expandedOptions[option._id] || false;
                         const optionTitle =
                           option.title?.[currentLanguage] ||
@@ -1414,7 +1345,7 @@ export default function StagePage({
                                   {isExpanded ? "Dölj info" : "Visa info"}
                                 </button>
                                 <button
-                                  onClick={e =>
+                                  onClick={(e) =>
                                     handleBookNow(`${optionTitle}`, e)
                                   }
                                   className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm font-medium whitespace-nowrap"
@@ -1455,7 +1386,7 @@ export default function StagePage({
       <ContactModal
         isOpen={contactModalData.isOpen}
         onClose={() =>
-          setContactModalData({isOpen: false, stageOrOption: "", link: ""})
+          setContactModalData({ isOpen: false, stageOrOption: "", link: "" })
         }
         selectedVehicle={{
           brand: brandData.name,
@@ -1501,7 +1432,7 @@ export default function StagePage({
               )}
             </div>
             <button
-              onClick={() => setInfoModal({open: false, type: "stage"})}
+              onClick={() => setInfoModal({ open: false, type: "stage" })}
               className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded w-full"
             >
               {translate(currentLanguage, "close")}

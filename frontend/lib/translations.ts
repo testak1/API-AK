@@ -75,7 +75,8 @@ export const translations = {
     additionsLabel: "TILLÄGG",
     stageNameWithHP: (stageName: string) => `${stageName} HK`,
     powerCurveLabel: (stageName: string) => `${stageName} effektkurva`,
-    translateStageName: (stageName: string) => stageName,
+    translateStageName: (stageName: string) =>
+      stageName.replace("Steg", "Steg"),
     stageInfoPrefix: "STEG",
     stageInfoSuffix: "INFORMATION",
     generalInfoLabel: "GENERELL INFORMATION",
