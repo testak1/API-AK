@@ -111,6 +111,33 @@ const normalize = (str: string | undefined | null): string => {
   return str.toLowerCase().replace(/[^a-z0-9]/g, "");
 };
 
+const fuelMatches = (scrapedFuel: string, databaseFuel: string): boolean => {
+  const scraped = normalize(scrapedFuel);
+  const database = normalize(databaseFuel);
+
+  if (scraped === database) return true;
+
+  const scrapedIsDiesel = scraped.includes("diesel");
+  const databaseIsDiesel = database.includes("diesel");
+  if (scrapedIsDiesel || databaseIsDiesel) {
+    return scrapedIsDiesel && databaseIsDiesel;
+  }
+
+  const scrapedIsPetrol =
+    scraped.includes("bensin") ||
+    scraped.includes("petrol") ||
+    scraped.includes("gasoline");
+  const databaseIsPetrolOrHybrid =
+    database.includes("bensin") ||
+    database.includes("petrol") ||
+    database.includes("gasoline") ||
+    database.includes("hybrid");
+
+  // Biluppgifter reports plug-in hybrids as e.g. "Bensin, El", while the
+  // tuning catalogue stores Volvo PHEV engines as either Bensin or Hybrid.
+  return scrapedIsPetrol && databaseIsPetrolOrHybrid;
+};
+
 export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
   const [data, setData] = useState<Brand[]>([]);
   const [selected, setSelected] = useState<SelectionState>({
@@ -435,6 +462,18 @@ export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
         }
       }
 
+      if (normalizedBrand === "volvo") {
+        const volvoModel = normalized.match(/(?:xc|v|s|c)\s?\d{2}/i)?.[0];
+        if (volvoModel) {
+          // Strip generation and drivetrain suffixes such as "II T8 AWD".
+          // Combined catalogue models (V90/S90) still work through the fuzzy
+          // contains check below because their normalized name contains S90.
+          if (!normalized.includes("v90s90")) {
+            normalized = volvoModel;
+          }
+        }
+      }
+
       return normalized.replace(/\s+/g, "");
     };
 
@@ -444,7 +483,6 @@ export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
       scrapedVehicle.brand
     );
     const scrapedHp = parseInt(scrapedVehicle.powerHp, 10);
-    const scrapedFuelNorm = normalize(scrapedVehicle.fuel);
     const scrapedVolumeLiters =
       Math.round((parseInt(scrapedVehicle.engineCm3, 10) / 1000) * 10) / 10;
 
@@ -521,7 +559,7 @@ export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
         closestModel = vehicle;
       }
 
-      if (normalize(vehicle.engineFuel) !== scrapedFuelNorm) continue;
+      if (!fuelMatches(scrapedVehicle.fuel, vehicle.engineFuel)) continue;
 
       const yearInRange = isYearInRange(scrapedVehicle.year, vehicle.yearRange);
 
