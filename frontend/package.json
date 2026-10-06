@@ -2,6 +2,7 @@
   "name": "frontend",
   "version": "1.0.0",
   "scripts": {
+    "sitemap:volvo": "node scripts/generate-volvo-sitemap.mjs",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
