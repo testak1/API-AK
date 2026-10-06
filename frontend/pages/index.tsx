@@ -182,6 +182,20 @@ export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
   >({});
 
   useEffect(() => {
+    // The card view replaces a long list with a much shorter next step. Safari
+    // otherwise keeps the old scroll offset, leaving the viewport below the
+    // new content and making the page appear blank.
+    const frame = window.requestAnimationFrame(() => {
+      window.scrollTo({top: 0, left: 0, behavior: "auto"});
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      window.parent.postMessage({scrollToIframe: true}, "*");
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [selected.brand, selected.model, selected.year, selected.engine]);
+
+  useEffect(() => {
     setIsLoading(true);
 
     fetch("/api/brands")
