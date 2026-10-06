@@ -10,6 +10,21 @@ const nextConfig = {
       {
         pathname: "/brand-logos-png/**",
       },
+      {
+        pathname: "/ak-logo.png",
+      },
+      {
+        pathname: "/ak-logo2.png",
+      },
+      {
+        pathname: "/badges/**",
+      },
+      {
+        pathname: "/logos/**",
+      },
+      {
+        pathname: "/flags/**",
+      },
     ],
     remotePatterns: [
       {
