@@ -5,8 +5,12 @@ import Link from "next/link";
 import client from "@/lib/sanity";
 import {brandBySlugQuery} from "@/src/lib/queries";
 import {Brand, Model, Year} from "@/types/sanity";
-import {urlFor} from "@/lib/sanity";
-import NextImage from "next/image";
+import {buildVehicleOgImageUrl} from "@/lib/ogImage";
+import {getModelImageUrl} from "@/lib/server/modelImage";
+import VehicleCategoryHero from "@/components/VehicleCategoryHero";
+import PublicPageToolbar from "@/components/PublicPageToolbar";
+import {usePublicPreferences} from "@/lib/usePublicPreferences";
+import {t as translate} from "@/lib/translations";
 
 const slugifySafe = (str: string) => {
   return str
@@ -80,6 +84,7 @@ const formatModelName = (brand: string, model: string): string => {
 interface ModelPageProps {
   brandData: Brand | null;
   modelData: Model | null;
+  modelImageUrl: string | null;
 }
 
 export const getServerSideProps: GetServerSideProps<
@@ -102,10 +107,21 @@ export const getServerSideProps: GetServerSideProps<
 
   if (!modelData) return {notFound: true};
 
-  return {props: {brandData, modelData}};
+  const modelImageUrl = await getModelImageUrl(brandData.name, modelData.name);
+
+  return {props: {brandData, modelData, modelImageUrl}};
 };
 
-export default function ModelPage({brandData, modelData}: ModelPageProps) {
+export default function ModelPage({
+  brandData,
+  modelData,
+  modelImageUrl,
+}: ModelPageProps) {
+  const {
+    currentLanguage,
+    isDarkTheme,
+    toggleTheme,
+  } = usePublicPreferences();
   const cleanText = (str: string | null | undefined) => {
     if (!str) return "";
     return str
@@ -127,8 +143,23 @@ export default function ModelPage({brandData, modelData}: ModelPageProps) {
   const brandSlug = getSlug(brandData.slug, brandData.name);
   const modelSlug = getSlug(modelData.slug, modelData.name);
   const canonicalUrl = `https://tuning.aktuning.se/${brandSlug}/${modelSlug}`;
-  const imageUrl =
-    brandData.logo?.asset?.url || "https://tuning.aktuning.se/ak-logo1.png";
+  const imageUrl = buildVehicleOgImageUrl({
+    brand: brandData.name,
+    model: modelName,
+  });
+  const isVolvoS60OrV60 =
+    brandData.name.toLowerCase() === "volvo" &&
+    ["s60", "v60"].includes(modelData.name.toLowerCase());
+  const modelEngines = (modelData.years || []).flatMap(
+    year => year.engines || [],
+  );
+  const engineExamples = Array.from(
+    new Set(modelEngines.map(engine => cleanText(engine.label)).filter(Boolean)),
+  ).slice(0, 7);
+  const yearExamples = (modelData.years || [])
+    .map(year => cleanText(year.range))
+    .filter(Boolean)
+    .slice(0, 5);
 
   return (
     <>
@@ -138,6 +169,10 @@ export default function ModelPage({brandData, modelData}: ModelPageProps) {
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={pageDescription} />
         <meta property="og:image" content={imageUrl} />
+        <meta property="og:image:type" content="image/png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta name="twitter:card" content="summary_large_image" />
         <link rel="canonical" href={canonicalUrl} />
 
         <script
@@ -202,39 +237,35 @@ export default function ModelPage({brandData, modelData}: ModelPageProps) {
           }}
         />
       </Head>
-      <main className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
-        <div className="flex items-center justify-between mb-4">
-          <NextImage
-            src="/ak-logo1.png"
-            alt="AK-TUNING MOTOROPTIMERING"
-            width={110}
-            height={120}
-            className="h-full object-contain cursor-pointer hover:opacity-90"
-            onClick={() => (window.location.href = "/")}
-            priority
-          />
-        </div>
-        {/* Header med logga */}
-        <div className="flex items-center gap-4 mb-6">
-          {brandData.logo?.asset && (
-            <img
-              src={urlFor(brandData.logo).width(80).url()}
-              alt={brandData.logo.alt || brandData.name}
-              className="h-10 object-contain"
-            />
-          )}
-          <h1 className="text-2xl font-bold text-slate-900">
-            {cleanText(brandData.name)} {cleanText(modelName)}
-          </h1>
-        </div>
+      <main
+        className={`min-h-screen transition-colors ${
+          isDarkTheme ? "bg-[#060606] text-white" : "bg-white text-slate-950"
+        }`}
+      >
+        <div className="mx-auto w-full max-w-6xl px-2 p-4 sm:px-4">
+        <PublicPageToolbar
+          isDarkTheme={isDarkTheme}
+          toggleTheme={toggleTheme}
+        />
+        <VehicleCategoryHero
+          eyebrow={`${translate(currentLanguage, "tuningIntro")} ${cleanText(brandData.name)}`}
+          heading={`${cleanText(brandData.name)} ${cleanText(modelName)}`}
+          description={translate(currentLanguage, "selectYear")}
+          imageUrl={modelImageUrl}
+          imageAlt={`${cleanText(brandData.name)} ${cleanText(modelName)}`}
+        />
         {/* Tillbaka-knapp */}
         <div className="mb-4">
           {/* Röd länk som matchar loggan med perfekt kontrast */}
           <Link
             href={`/${brandSlug}`}
-            className="text-sm text-red-600 font-semibold hover:text-red-700 hover:underline"
+            className={`text-sm font-semibold hover:underline ${
+              isDarkTheme
+                ? "text-red-400 hover:text-red-300"
+                : "text-red-600 hover:text-red-700"
+            }`}
           >
-            ← Tillbaka till {brandData.name}
+            ← {translate(currentLanguage, "BACKTO")} {brandData.name}
           </Link>
         </div>
         {/* Lista år */}
@@ -254,34 +285,97 @@ export default function ModelPage({brandData, modelData}: ModelPageProps) {
           ))}
         </div>
         {/* SEO Content Section */}
-        <section className="bg-gray-50 rounded-lg p-6 mt-8 border border-gray-100">
-          <h2 className="text-xl font-bold text-slate-900 mb-4">
+        <section
+          className={`rounded-lg border p-6 mt-8 ${
+            isDarkTheme
+              ? "border-zinc-800 bg-zinc-900 text-slate-200"
+              : "border-gray-100 bg-gray-50 text-slate-800"
+          }`}
+        >
+          <h2 className={`text-xl font-bold mb-4 ${isDarkTheme ? "text-white" : "text-slate-900"}`}>
             Motoroptimering för {cleanText(brandData.name)}{" "}
             {cleanText(modelName)}
           </h2>
-          <div className="prose prose-gray max-w-none">
-            <p>
-              AK-Tuning erbjuder professionell motoroptimering för{" "}
-              {cleanText(brandData.name)} {cleanText(modelName)}.
-            </p>
-            <p className="mt-4">
-              Välj din {cleanText(brandData.name)} {cleanText(modelName)}{" "}
-              årsmodell ovan för att se exakta effektökningar och priser för
-              motoroptimering.
-            </p>
-            <h3 className="text-lg font-semibold text-slate-800 mt-4">
-              Fördelar med {cleanText(brandData.name)} {cleanText(modelName)}{" "}
-              optimering:
-            </h3>
-            <ul className="list-disc list-inside space-y-1">
-              <li>Ökad effekt och vridmoment för bättre acceleration</li>
-              <li>Förbättrad bränsleekonomi vid normalkörning</li>
-              <li>Skräddarsydd mjukvara anpassad för din specifika modell</li>
-              <li>2 års garanti på allt vårt arbete</li>
-              <li>Professionell diagnostik före och efter optimering</li>
-            </ul>
-          </div>
+          {isVolvoS60OrV60 ? (
+            <div className={`prose max-w-none ${isDarkTheme ? "prose-invert" : "prose-gray"}`}>
+              <p>
+                Volvo {cleanText(modelName)} finns med flera generationer av
+                diesel-, bensin- och laddhybriddrivlinor. Bland de vanligaste
+                alternativen finns D3, D4, D5, T4, T5, T6 och Recharge.
+              </p>
+              <p className="mt-4">
+                Vid optimering av en Volvo {cleanText(modelName)} anpassas
+                vridmomentet efter bilens motor, Geartronic-växellåda och
+                eventuell AWD-drivlina. Målet är en starkare och jämnare
+                kraftleverans med bibehållen körbarhet.
+              </p>
+              <h3 className={`text-lg font-semibold mt-6 ${isDarkTheme ? "text-white" : "text-slate-800"}`}>
+                Välj rätt generation och motor
+              </h3>
+              <p className="mt-2">
+                Välj årsmodell ovan för att se de motoralternativ som finns för
+                just din {cleanText(modelName)}. På motorsidan visas
+                originaleffekt, optimerad effekt, vridmoment, tillgängliga steg
+                och aktuellt pris.
+              </p>
+              <h3 className={`text-lg font-semibold mt-6 ${isDarkTheme ? "text-white" : "text-slate-800"}`}>
+                Volvo {cleanText(modelName)} Recharge
+              </h3>
+              <p className="mt-2">
+                För laddhybrider beror resultatet på bilens motorstyrning och
+                mjukvaruversion. Den angivna effekten kan avse bensinmotorn
+                eller hela hybridsystemet, vilket redovisas på den specifika
+                motorsidan.
+              </p>
+            </div>
+          ) : (
+            <div className={`prose max-w-none ${isDarkTheme ? "prose-invert" : "prose-gray"}`}>
+              <p>
+                {cleanText(brandData.name)} {cleanText(modelName)} finns i
+                flera generationer och motoralternativ. AK-TUNING anpassar
+                motoroptimeringen efter bilens motorstyrning, mjukvaruversion,
+                växellåda och drivlina.
+              </p>
+              <p className="mt-4">
+                Välj rätt årsmodell ovan för att se motorerna som är
+                tillgängliga för just din {cleanText(modelName)}. Där visas
+                originaleffekt, optimerad effekt, vridmoment, tillgängliga steg
+                och aktuellt pris.
+              </p>
+              {yearExamples.length > 0 && (
+                <p className="mt-4">
+                  Tillgängliga generationer och perioder omfattar bland annat{" "}
+                  {yearExamples.join(", ")}.
+                </p>
+              )}
+
+              <h3 className={`text-lg font-semibold mt-6 ${isDarkTheme ? "text-white" : "text-slate-800"}`}>
+                Välj rätt generation och motor
+              </h3>
+              <p className="mt-2">
+                Samma modellnamn kan omfatta flera generationer med olika
+                styrenheter och motorer. Årsmodell och motorbeteckning behöver
+                därför stämma innan effektökningen kan anges.
+              </p>
+              {engineExamples.length > 0 && (
+                <p className="mt-4">
+                  Exempel på motoralternativ för {cleanText(modelName)} är{" "}
+                  {engineExamples.join(", ")}.
+                </p>
+              )}
+
+              <h3 className={`text-lg font-semibold mt-6 ${isDarkTheme ? "text-white" : "text-slate-800"}`}>
+                Anpassad för växellåda och drivlina
+              </h3>
+              <p className="mt-2">
+                Vridmomentet anpassas efter bilens växellåda och drivning för
+                en jämnare kraftleverans. Diagnostik utförs före och efter
+                programmeringen och originalfilen sparas alltid.
+              </p>
+            </div>
+          )}
         </section>
+        </div>
       </main>
     </>
   );

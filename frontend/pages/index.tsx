@@ -23,6 +23,7 @@ import MercedesTcuDescription, {
 } from "@/components/MercedesTcuDescription";
 import {LayoutGrid, List, Moon, Sun} from "lucide-react";
 import {t as translate} from "@/lib/translations";
+import {getBrandLogoUrl, needsWhiteBrandLogo} from "@/lib/brandLogo";
 import type {
   Brand,
   Stage,
@@ -149,7 +150,7 @@ export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
   const [allVehicles, setAllVehicles] = useState<FlatVehicle[]>([]);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"card" | "dropdown">("card");
-  const [themeMode, setThemeMode] = useState<"light" | "dark">("light");
+  const [themeMode, setThemeMode] = useState<"light" | "dark">("dark");
   const [isLoading, setIsLoading] = useState(true);
   // const [isDbLoading, setIsDbLoading] = useState(true); // BORTTAGEN - ersatt av isVehicleDbLoading
   const [isVehicleDbLoading, setIsVehicleDbLoading] = useState(false);
@@ -163,6 +164,9 @@ export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
   const watermarkImageRef = useRef<HTMLImageElement | null>(null);
   const [currentLanguage, setCurrentLanguage] = useState("sv");
   const [allModels, setAllModels] = useState<any[]>([]);
+  const [modelImagesStatus, setModelImagesStatus] = useState<
+    "idle" | "loading" | "ready" | "error"
+  >("idle");
   const [contactModalData, setContactModalData] = useState<{
     isOpen: boolean;
     stageOrOption: string;
@@ -217,8 +221,8 @@ export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
     }
 
     const savedTheme = localStorage.getItem("themeMode");
-    if (savedTheme === "dark") {
-      setThemeMode("dark");
+    if (savedTheme === "light" || savedTheme === "dark") {
+      setThemeMode(savedTheme);
     }
 
     const storedLang = localStorage.getItem("lang");
@@ -781,16 +785,24 @@ export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
       .replace(/-+/g, "-");
 
   const loadModelImages = useCallback(async () => {
-    if (allModels.length > 0) return;
+    if (modelImagesStatus === "loading" || modelImagesStatus === "ready") {
+      return;
+    }
 
+    setModelImagesStatus("loading");
     try {
       const res = await fetch("/data/all_models.json");
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
       const data = await res.json();
       setAllModels(data);
+      setModelImagesStatus("ready");
     } catch (err) {
       console.error("Fel vid inläsning av modellbilder:", err);
+      setModelImagesStatus("error");
     }
-  }, [allModels.length]);
+  }, [modelImagesStatus]);
 
   const getModelImage = (modelName: string, brandName: string): string => {
     const normalize = (str: string) => str.toLowerCase().replace(/\s+/g, "");
@@ -1565,10 +1577,7 @@ export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
                         .filter(b => !b.startsWith("[LASTBIL]"))
                         .sort((a, b) => a.localeCompare(b))
                         .map(brand => {
-                          const brandData = data.find(b => b.name === brand);
-                          const logoUrl = brandData?.logo?.asset
-                            ? urlFor(brandData.logo).width(200).url()
-                            : null;
+                          const logoUrl = getBrandLogoUrl(brand);
 
                           return (
                             <div
@@ -1596,7 +1605,11 @@ export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
                                   alt={brand}
                                   width={80}
                                   height={80}
-                                  className="object-contain mb-2"
+                                  className={`object-contain mb-2 ${
+                                    themeMode === "dark" && needsWhiteBrandLogo(brand)
+                                      ? "brightness-0 invert"
+                                      : ""
+                                  }`}
                                 />
                               )}
                               <p className={selectionTextClass}>{brand}</p>
@@ -1616,7 +1629,7 @@ export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
                         .filter(b => b.startsWith("[LASTBIL]"))
                         .sort((a, b) => a.localeCompare(b))
                         .map(brand => {
-                          const brandData = data.find(b => b.name === brand);
+                          const logoUrl = getBrandLogoUrl(brand);
                           return (
                             <div
                               key={brand}
@@ -1635,13 +1648,17 @@ export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
                               }}
                               className={selectionCardClass}
                             >
-                              {brandData?.logo?.asset && (
+                              {logoUrl && (
                                 <Image
-                                  src={urlFor(brandData.logo).width(250).url()}
+                                  src={logoUrl}
                                   alt={brand}
                                   width={100}
                                   height={100}
-                                  className="object-contain mb-2"
+                                  className={`object-contain mb-2 ${
+                                    themeMode === "dark" && needsWhiteBrandLogo(brand)
+                                      ? "brightness-0 invert"
+                                      : ""
+                                  }`}
                                   loading="lazy"
                                 />
                               )}
@@ -1729,13 +1746,23 @@ export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
                         }}
                         className={selectionCardClass}
                       >
-                        <Image
-                          src={getModelImage(model.name, selected.brand)}
-                          alt={`${selected.brand} ${formatModelName(selected.brand, model.name)}`}
-                          width={250}
-                          height={100}
-                          className="h-16 w-auto object-contain mb-2"
-                        />
+                        {!selected.brand.includes("[LASTBIL]") &&
+                        (modelImagesStatus === "idle" ||
+                          modelImagesStatus === "loading") ? (
+                          <div
+                            aria-hidden="true"
+                            className="mb-2 h-16 w-40 max-w-full animate-pulse rounded-md bg-gray-300/20"
+                          />
+                        ) : (
+                          <Image
+                            src={getModelImage(model.name, selected.brand)}
+                            alt={`${selected.brand} ${formatModelName(selected.brand, model.name)}`}
+                            width={250}
+                            height={100}
+                            sizes="(max-width: 639px) 42vw, 200px"
+                            className="h-16 w-auto object-contain mb-2"
+                          />
+                        )}
                         <p className={selectionTextClass}>
                           {formatModelName(selected.brand, model.name)}
                         </p>
@@ -1987,6 +2014,7 @@ export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
                   stage.name,
                   selected.brand
                 );
+                const stageLogoUrl = getBrandLogoUrl(selected.brand);
 
                 return (
                   <div
@@ -1999,18 +2027,17 @@ export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
                     >
                       <div className="flex flex-col md:flex-row md:items-center md:justify-between">
                         <div className="flex items-center gap-4">
-                          {data.find(b => b.name === selected.brand)?.logo
-                            ?.asset && (
+                          {stageLogoUrl && (
                             <Image
-                              src={urlFor(
-                                data.find(b => b.name === selected.brand)?.logo
-                              )
-                                .width(60)
-                                .url()}
+                              src={stageLogoUrl}
                               alt={selected.brand}
                               width={80}
                               height={32}
-                              className="h-8 w-auto object-contain"
+                              className={`h-8 w-auto object-contain ${
+                                needsWhiteBrandLogo(selected.brand)
+                                  ? "brightness-0 invert"
+                                  : ""
+                              }`}
                               loading="lazy"
                             />
                           )}

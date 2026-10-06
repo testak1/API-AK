@@ -28,7 +28,6 @@ const VehicleSelector = ({
   resellerId,
 }: Props) => {
   const router = useRouter();
-  const pathSegment = (value: string) => encodeURIComponent(value);
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
@@ -87,14 +86,17 @@ const VehicleSelector = ({
         value={selectedEngine}
         onChange={(e) => {
           onEngineChange(e.target.value);
-          const engineSlug = e.target.value;
+          const engineSlug = encodeURIComponent(e.target.value);
+          const brandSlug = encodeURIComponent(selectedBrand);
+          const modelSlug = encodeURIComponent(selectedModel);
+          const yearSlug = encodeURIComponent(selectedYear);
           if (resellerId) {
             router.push(
-              `/reseller/${pathSegment(resellerId)}/${pathSegment(selectedBrand)}/${pathSegment(selectedModel)}/${pathSegment(selectedYear)}/${pathSegment(engineSlug)}`
+              `/reseller/${encodeURIComponent(resellerId)}/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}`
             );
           } else {
             router.push(
-              `/${pathSegment(selectedBrand)}/${pathSegment(selectedModel)}/${pathSegment(selectedYear)}/${pathSegment(engineSlug)}`
+              `/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}`
             );
           }
         }}
