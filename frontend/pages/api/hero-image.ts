@@ -1,35 +1,24 @@
 import type {NextApiRequest, NextApiResponse} from "next";
 import sharp from "sharp";
 
-const SANITY_HOST = "cdn.sanity.io";
-const SANITY_PROJECT_PATH = "/images/wensahkh/production/";
+const SANITY_BASE_URL =
+  "https://cdn.sanity.io/images/wensahkh/production/";
+const SANITY_ASSET_PATTERN =
+  /^[a-f0-9]+-\d+x\d+\.(?:png|jpe?g|webp)$/i;
 
 export default async function handler(
   request: NextApiRequest,
   response: NextApiResponse,
 ) {
-  const source = Array.isArray(request.query.src)
-    ? request.query.src[0]
-    : request.query.src;
+  const asset = Array.isArray(request.query.asset)
+    ? request.query.asset[0]
+    : request.query.asset;
 
-  if (!source) {
-    return response.status(400).json({error: "Bildadress saknas"});
+  if (!asset || !SANITY_ASSET_PATTERN.test(asset)) {
+    return response.status(400).json({error: "Ogiltigt bild-ID"});
   }
 
-  let sourceUrl: URL;
-  try {
-    sourceUrl = new URL(source);
-  } catch {
-    return response.status(400).json({error: "Ogiltig bildadress"});
-  }
-
-  if (
-    sourceUrl.protocol !== "https:" ||
-    sourceUrl.hostname !== SANITY_HOST ||
-    !sourceUrl.pathname.startsWith(SANITY_PROJECT_PATH)
-  ) {
-    return response.status(400).json({error: "Bildkällan är inte tillåten"});
-  }
+  const sourceUrl = `${SANITY_BASE_URL}${asset}`;
 
   try {
     const imageResponse = await fetch(sourceUrl);

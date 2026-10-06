@@ -86,14 +86,17 @@ const VehicleSelector = ({
         value={selectedEngine}
         onChange={(e) => {
           onEngineChange(e.target.value);
-          const engineSlug = e.target.value;
+          const engineSlug = encodeURIComponent(e.target.value);
+          const brandSlug = encodeURIComponent(selectedBrand);
+          const modelSlug = encodeURIComponent(selectedModel);
+          const yearSlug = encodeURIComponent(selectedYear);
           if (resellerId) {
             router.push(
-              `/reseller/${resellerId}/${selectedBrand}/${selectedModel}/${selectedYear}/${engineSlug}`
+              `/reseller/${encodeURIComponent(resellerId)}/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}`
             );
           } else {
             router.push(
-              `/${selectedBrand}/${selectedModel}/${selectedYear}/${engineSlug}`
+              `/${brandSlug}/${modelSlug}/${yearSlug}/${engineSlug}`
             );
           }
         }}

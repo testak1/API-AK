@@ -20,8 +20,11 @@ export default function VehicleCategoryHero({
   const isSmallSanityImage =
     Boolean(sourceDimensions) &&
     imageUrl?.startsWith("https://cdn.sanity.io/images/wensahkh/production/");
+  const sanityAsset = isSmallSanityImage
+    ? imageUrl?.split("/").pop()?.split("?")[0]
+    : null;
   const renderedImageUrl = isSmallSanityImage
-    ? `/api/hero-image?src=${encodeURIComponent(imageUrl || "")}`
+    ? `/api/hero-image?asset=${encodeURIComponent(sanityAsset || "")}`
     : imageUrl;
   const logoSlug = renderedImageUrl?.match(/\/brand-logos-png\/([^/.]+)\.png/)?.[1];
   const useWhiteLogo = logoSlug ? needsWhiteBrandLogo(logoSlug) : false;
