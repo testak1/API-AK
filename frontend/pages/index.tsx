@@ -1606,6 +1606,7 @@ export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
                                   width={80}
                                   height={80}
                                   sizes="80px"
+                                  loading="eager"
                                   className={`object-contain mb-2 ${
                                     themeMode === "dark" && needsWhiteBrandLogo(brand)
                                       ? "brightness-0 invert"
@@ -1661,7 +1662,7 @@ export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
                                       ? "brightness-0 invert"
                                       : ""
                                   }`}
-                                  loading="lazy"
+                                  loading="eager"
                                 />
                               )}
                               <p className={selectionTextClass}>
