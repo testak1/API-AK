@@ -1,6 +1,7 @@
 // pages/[brand]/index.tsx
 import Head from "next/head";
 import {GetServerSideProps} from "next";
+import Image from "next/image";
 import Link from "next/link";
 import {useRouter} from "next/router";
 import client from "@/lib/sanity";
@@ -14,6 +15,7 @@ import {t as translate} from "@/lib/translations";
 import {getBrandLogoUrl} from "@/lib/brandLogo";
 import {getRepresentativeEngines} from "@/lib/seoEngineExamples";
 import {getPopularModelExamples} from "@/lib/seoModelExamples";
+import {getModelImageUrls} from "@/lib/server/modelImage";
 
 const slugifySafe = (str: string) => {
   return str
@@ -30,6 +32,7 @@ const slugifySafe = (str: string) => {
 
 interface BrandPageProps {
   brandData: Brand | null;
+  modelImages: Record<string, string | null>;
 }
 
 const getSlug = (slug: any, fallback: string) => {
@@ -87,10 +90,15 @@ export const getServerSideProps: GetServerSideProps<
 
   if (!brandData) return {notFound: true};
 
-  return {props: {brandData}};
+  const modelImages = await getModelImageUrls(
+    brandData.name,
+    (brandData.models || []).map((model: Model) => model.name),
+  );
+
+  return {props: {brandData, modelImages}};
 };
 
-export default function BrandPage({brandData}: BrandPageProps) {
+export default function BrandPage({brandData, modelImages}: BrandPageProps) {
   const {
     currentLanguage,
     isDarkTheme,
@@ -297,15 +305,43 @@ export default function BrandPage({brandData}: BrandPageProps) {
         </div>
         {/* Lista modeller */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-          {brandData.models?.map((model: Model) => (
-            <Link
-              key={model._id}
-              href={`/${brandSlug}/${getSlug(model.slug, model.name)}`}
-              className="p-4 bg-gray-800 hover:bg-gray-700 rounded-lg text-center text-white font-medium shadow transition-colors"
-            >
-              {formatModelName(brandData.name, model.name)}
-            </Link>
-          ))}
+          {brandData.models?.map((model: Model) => {
+            const modelImage = modelImages[model.name];
+            return (
+              <Link
+                key={getSlug(model.slug, model.name)}
+                href={`/${brandSlug}/${getSlug(model.slug, model.name)}`}
+                className={`group flex min-h-40 flex-col items-center justify-end overflow-hidden rounded-xl border p-3 text-center font-medium shadow transition ${
+                  isDarkTheme
+                    ? "border-zinc-700 bg-zinc-900 text-white hover:border-zinc-500 hover:bg-zinc-800"
+                    : "border-slate-200 bg-white text-slate-900 hover:border-slate-300 hover:bg-slate-50"
+                }`}
+              >
+                <div className="relative flex h-28 w-full items-center justify-center sm:h-32">
+                  {modelImage ? (
+                    <Image
+                      src={modelImage}
+                      alt={`${brandName} ${formatModelName(brandData.name, model.name)}`}
+                      width={320}
+                      height={160}
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                      className="h-full w-full object-contain transition-transform duration-200 group-hover:scale-[1.03]"
+                    />
+                  ) : (
+                    <div
+                      className={`h-20 w-32 rounded-lg ${
+                        isDarkTheme ? "bg-zinc-800" : "bg-slate-100"
+                      }`}
+                      aria-hidden="true"
+                    />
+                  )}
+                </div>
+                <span className="mt-2">
+                  {formatModelName(brandData.name, model.name)}
+                </span>
+              </Link>
+            );
+          })}
         </div>
         {/* SEO Content Section */}
         <section
