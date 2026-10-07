@@ -1,6 +1,6 @@
 // pages/api/all-vehicles.ts
 import type {NextApiRequest, NextApiResponse} from "next";
-import {groq} from "next-sanity";
+import groq from "groq";
 import client from "@/lib/sanity";
 
 // Updated query using supported GROQ functions

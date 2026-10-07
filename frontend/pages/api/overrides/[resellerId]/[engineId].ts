@@ -1,5 +1,5 @@
 // pages/api/overrides/[resellerId]/[engineId].ts
-import { groq } from "next-sanity";
+import groq from "groq";
 import type { NextApiRequest, NextApiResponse } from "next";
 import client from "@/lib/sanity";
 import { engineByParamsQuery, resellerOverridesForEngineQuery } from "@/src/lib/queries";
