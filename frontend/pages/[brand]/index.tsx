@@ -396,7 +396,7 @@ export default function BrandPage({brandData}: BrandPageProps) {
               </p>
               {modelExamples.length > 0 && (
                 <p className="mt-4">
-                  I vårt utbud finns bland annat {modelExamples.join(", ")}.
+                  I vårt utbud finns bland annat {`${modelExamples.join(", ")}.`}
                   Välj modell för att gå vidare till rätt generation och
                   motoralternativ.
                 </p>
