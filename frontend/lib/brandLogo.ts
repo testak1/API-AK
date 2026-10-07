@@ -9,7 +9,7 @@ export const normalizeBrandSlug = (value: string) =>
 
 // Increment when any file in public/brand-logos-png is replaced. This gives
 // Next Image and the deployment CDN a fresh cache key without a full cache clear.
-export const BRAND_LOGO_VERSION = "2026-10-07-1";
+export const BRAND_LOGO_VERSION = "2026-10-07-2";
 
 export const getBrandLogoUrl = (brandOrSlug: string) =>
   `/brand-logos-png/${normalizeBrandSlug(brandOrSlug)}.png?v=${BRAND_LOGO_VERSION}`;

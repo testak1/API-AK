@@ -1605,7 +1605,7 @@ export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
                                   alt={brand}
                                   width={80}
                                   height={80}
-                                  unoptimized
+                                  sizes="80px"
                                   className={`object-contain mb-2 ${
                                     themeMode === "dark" && needsWhiteBrandLogo(brand)
                                       ? "brightness-0 invert"
