@@ -13,6 +13,7 @@ import {usePublicPreferences} from "@/lib/usePublicPreferences";
 import {t as translate} from "@/lib/translations";
 import {getBrandLogoUrl} from "@/lib/brandLogo";
 import {getRepresentativeEngines} from "@/lib/seoEngineExamples";
+import {getPopularModelExamples} from "@/lib/seoModelExamples";
 
 const slugifySafe = (str: string) => {
   return str
@@ -118,10 +119,12 @@ export default function BrandPage({brandData}: BrandPageProps) {
   const imageUrl = buildVehicleOgImageUrl({brand: brandName});
   const isVolvo = brandName.toLowerCase() === "volvo";
   const isTruckBrand = brandSlug.startsWith("lastbil-");
-  const modelExamples = (brandData.models || [])
+  const modelExamples = getPopularModelExamples(
+    brandName,
+    brandData.models || [],
+  )
     .map(model => cleanText(formatModelName(brandData.name, model.name)))
-    .filter(Boolean)
-    .slice(0, 6);
+    .filter(Boolean);
   const brandEngines = (brandData.models || []).flatMap(model =>
     (model.years || []).flatMap(year => year.engines || []),
   );
