@@ -27,6 +27,7 @@ export default function VehicleCategoryHero({
     ? `/api/hero-image?asset=${encodeURIComponent(sanityAsset || "")}`
     : imageUrl;
   const logoSlug = renderedImageUrl?.match(/\/brand-logos-png\/([^/.]+)\.png/)?.[1];
+  const isBrandLogo = Boolean(logoSlug);
   const useWhiteLogo = logoSlug ? needsWhiteBrandLogo(logoSlug) : false;
 
   return (
@@ -56,7 +57,7 @@ export default function VehicleCategoryHero({
               height={360}
               sizes="(max-width: 767px) 80vw, 420px"
               quality={100}
-              unoptimized={isSmallSanityImage}
+              unoptimized={isSmallSanityImage || isBrandLogo}
               className={`h-40 w-full max-w-[420px] object-contain drop-shadow-2xl ${
                 useWhiteLogo ? "brightness-0 invert" : ""
               }`}
