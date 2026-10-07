@@ -1655,7 +1655,7 @@ export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
                                   alt={brand}
                                   width={100}
                                   height={100}
-                                  unoptimized
+                                  sizes="100px"
                                   className={`object-contain mb-2 ${
                                     themeMode === "dark" && needsWhiteBrandLogo(brand)
                                       ? "brightness-0 invert"
@@ -2035,7 +2035,7 @@ export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
                               alt={selected.brand}
                               width={80}
                               height={32}
-                              unoptimized
+                              sizes="80px"
                               className={`h-8 w-auto object-contain ${
                                 needsWhiteBrandLogo(selected.brand)
                                   ? "brightness-0 invert"
