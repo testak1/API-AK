@@ -118,8 +118,18 @@ def slugify(value: str) -> str:
 
 
 def variant_model_folder(base_model: str, carsized_body: str) -> str:
-    """Route Audi performance bodies to their own S/RS/SQ model folder."""
+    """Route performance bodies to their own S/RS/SQ/M model folder."""
     body = unicodedata.normalize("NFKD", carsized_body).encode("ascii", "ignore").decode()
+    bmw_explicit = re.search(r"\bM\s*-?\s*(\d)\b", body, re.I)
+    if bmw_explicit:
+        return f"M{bmw_explicit.group(1)}"
+
+    if re.search(r"\bM\b", body, re.I):
+        base = re.sub(r"[^A-Za-z0-9]", "", base_model).upper()
+        bmw_x_family = re.fullmatch(r"X(\d)", base)
+        if bmw_x_family:
+            return f"X{bmw_x_family.group(1)} M"
+
     explicit = re.search(r"\b(RSQ|SQ|RS|S)\s*-?\s*(\d)\b", body, re.I)
     if explicit:
         return f"{explicit.group(1).upper()}{explicit.group(2)}"
@@ -418,6 +428,12 @@ def parse_args() -> argparse.Namespace:
         default=Path.home() / "Downloads" / "ak-model-images-3x",
     )
     parser.add_argument("--brand", help="Begränsa till ett märke, t.ex. Volvo.")
+    parser.add_argument(
+        "--exclude-brand",
+        action="append",
+        default=[],
+        help="Hoppa över ett märke. Flaggan kan anges flera gånger.",
+    )
     parser.add_argument("--workers", type=int, default=4)
     parser.add_argument("--limit", type=int, help="Begränsa antalet matchningar vid test.")
     parser.add_argument(
@@ -437,6 +453,11 @@ def parse_args() -> argparse.Namespace:
             "Ladda ner alla relevanta karossvarianter för varje årsintervall "
             "i stället för enbart skriptets förstaval."
         ),
+    )
+    parser.add_argument(
+        "--latest-only",
+        action="store_true",
+        help="Behåll endast det nyaste matchade årsintervallet per modell.",
     )
     return parser.parse_args()
 
@@ -461,6 +482,8 @@ def main() -> int:
         if normalize(brand_name) in TRUCK_BRANDS or "lastbil" in normalize(brand_name):
             continue
         if args.brand and normalize(args.brand) != normalize(brand_name):
+            continue
+        if normalize(brand_name) in {normalize(value) for value in args.exclude_brand}:
             continue
         for model in brand.get("models") or []:
             model_name = str(model.get("name") or "")
@@ -503,6 +526,19 @@ def main() -> int:
                             seen_urls.add(candidate.url)
                 elif best and (status == "matched" or args.include_ambiguous):
                     selected.append((row, best))
+
+    if args.latest_only:
+        latest_starts: dict[tuple[str, str], int] = {}
+        for row, _ in selected:
+            key = (normalize(row["brand"]), normalize(row["model"]))
+            start = int(row["resolvedYears"].split("-", 1)[0])
+            latest_starts[key] = max(start, latest_starts.get(key, 0))
+        selected = [
+            (row, car)
+            for row, car in selected
+            if int(row["resolvedYears"].split("-", 1)[0])
+            == latest_starts[(normalize(row["brand"]), normalize(row["model"]))]
+        ]
 
     if args.limit:
         selected = selected[: args.limit]

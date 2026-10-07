@@ -34,6 +34,7 @@ ELECTRIC_MODELS = {"a6 e-tron", "q4", "q6", "s6 e-tron", "e-tron"}
 
 def slugify(value: str) -> str:
     value = unicodedata.normalize("NFKD", value).encode("ascii", "ignore").decode()
+    value = re.sub(r"\b(series|serien|serie|class|klass)\b", "", value, flags=re.I)
     value = re.sub(r"[^a-zA-Z0-9]+", "-", value.lower()).strip("-")
     return value or "unknown"
 
