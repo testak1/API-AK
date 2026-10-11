@@ -1,15 +1,18 @@
 import Image from "next/image";
 import Link from "next/link";
 import {Moon, Sun} from "lucide-react";
+import type {ReactNode} from "react";
 
 type PublicPageToolbarProps = {
   isDarkTheme: boolean;
   toggleTheme: () => void;
+  children?: ReactNode;
 };
 
 export default function PublicPageToolbar({
   isDarkTheme,
   toggleTheme,
+  children,
 }: PublicPageToolbarProps) {
   return (
     <div className="mb-6 flex items-center justify-between gap-4">
@@ -24,6 +27,7 @@ export default function PublicPageToolbar({
         />
       </Link>
       <div className="flex items-center gap-3">
+        {children}
         <button
           type="button"
           onClick={toggleTheme}

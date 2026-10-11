@@ -18,6 +18,9 @@ import { urlFor } from "@/lib/sanity";
 import { buildVehicleOgImageUrl } from "@/lib/ogImage";
 import { PortableText } from "@portabletext/react";
 import PublicLanguageDropdown from "@/components/PublicLanguageSwitcher";
+import PublicPageToolbar from "@/components/PublicPageToolbar";
+import {usePublicPreferences} from "@/lib/usePublicPreferences";
+import {getBrandLogoUrl, needsWhiteBrandLogo} from "@/lib/brandLogo";
 import { t as translate } from "@/lib/translations";
 import { generateDynoCurve, getDynoRpmLabels } from "@/lib/dynoCurve";
 import Head from "next/head";
@@ -228,7 +231,12 @@ export default function StagePage({
 
   const router = useRouter();
   const watermarkImageRef = useRef<HTMLImageElement | null>(null);
-  const [currentLanguage, setCurrentLanguage] = useState("sv");
+  const {
+    currentLanguage,
+    setCurrentLanguage,
+    isDarkTheme,
+    toggleTheme,
+  } = usePublicPreferences();
   const [contactModalData, setContactModalData] = useState<{
     isOpen: boolean;
     stageOrOption: string;
@@ -316,17 +324,6 @@ export default function StagePage({
       scrollPosition: isMobile ? undefined : 0,
     });
   };
-
-  useEffect(() => {
-    const storedLang = localStorage.getItem("lang");
-    if (storedLang) {
-      setCurrentLanguage(storedLang);
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("lang", currentLanguage);
-  }, [currentLanguage]);
 
   useEffect(() => {
     const img = new window.Image();
@@ -817,27 +814,19 @@ export default function StagePage({
         />
       </Head>
 
+      <div className={isDarkTheme ? "min-h-screen bg-black" : "min-h-screen bg-white"}>
       <main className="w-full max-w-6xl mx-auto px-2 p-4 sm:px-4">
-        <div className="flex items-center justify-between mb-4">
-          <NextImage
-            src="/ak-logo2.png"
-            alt="AK-TUNING MOTOROPTIMERING"
-            width={110}
-            height={120}
-            className="h-full object-contain cursor-pointer hover:opacity-90"
-            onClick={() => (window.location.href = "/")}
-            priority
-          />
+        <PublicPageToolbar isDarkTheme={isDarkTheme} toggleTheme={toggleTheme}>
           <PublicLanguageDropdown
             currentLanguage={currentLanguage}
             setCurrentLanguage={setCurrentLanguage}
           />
-        </div>
+        </PublicPageToolbar>
 
         <div className="mb-8 text-center">
           <div>
             {/* FIX: Ändrat till text-slate-900 för perfekt kontrast på den ljusa bakgrunden */}
-            <h1 className="text-xl sm:text-3xl md:text-xl font-bold mb-2 text-slate-900">
+            <h1 className={`text-xl sm:text-3xl md:text-xl font-bold mb-2 ${isDarkTheme ? "text-white" : "text-slate-900"}`}>
               {translate(currentLanguage, "tuningIntro")}{" "}
               {cleanText(brandData.name)}{" "}
               {cleanText(formatModelName(brandData.name, modelData.name))}{" "}
@@ -860,14 +849,15 @@ export default function StagePage({
           <div className="w-full p-6">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between">
               <div className="flex items-center gap-4">
-                {brandData.logo?.asset && (
+                {brandData.name && (
                   <Image
-                    src={urlFor(brandData.logo).width(60).url()}
+                    src={getBrandLogoUrl(brandData.name)}
                     alt={`${brandData.name} logo`}
-                    width={60}
-                    height={35}
-                    className="h-8 w-auto object-contain"
-                    loading="lazy"
+                    width={80}
+                    height={32}
+                    sizes="80px"
+                    className={`h-8 w-auto object-contain ${needsWhiteBrandLogo(brandData.name) ? "brightness-0 invert" : ""}`}
+                    loading="eager"
                   />
                 )}
                 <h2 className="text-lg font-semibold text-white">
@@ -1382,6 +1372,7 @@ export default function StagePage({
           </div>
         </div>
       </main>
+      </div>
 
       <ContactModal
         isOpen={contactModalData.isOpen}
