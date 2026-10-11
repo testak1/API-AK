@@ -856,6 +856,7 @@ export default function StagePage({
                     width={80}
                     height={32}
                     sizes="80px"
+                    unoptimized
                     className={`h-8 w-auto object-contain ${needsWhiteBrandLogo(brandData.name) ? "brightness-0 invert" : ""}`}
                     loading="eager"
                   />

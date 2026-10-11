@@ -56,7 +56,7 @@ export default function VehicleCategoryHero({
               width={840}
               height={360}
               sizes="(max-width: 767px) 80vw, 420px"
-              unoptimized={isSmallSanityImage}
+              unoptimized={isSmallSanityImage || isBrandLogo}
               className={`h-40 w-full max-w-[420px] object-contain drop-shadow-2xl ${
                 useWhiteLogo ? "brightness-0 invert" : ""
               }`}

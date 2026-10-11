@@ -1607,6 +1607,7 @@ export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
                                   height={80}
                                   sizes="80px"
                                   loading="eager"
+                                  unoptimized
                                   className={`object-contain mb-2 ${
                                     themeMode === "dark" && needsWhiteBrandLogo(brand)
                                       ? "brightness-0 invert"
@@ -1657,6 +1658,7 @@ export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
                                   width={100}
                                   height={100}
                                   sizes="100px"
+                                  unoptimized
                                   className={`object-contain mb-2 ${
                                     themeMode === "dark" && needsWhiteBrandLogo(brand)
                                       ? "brightness-0 invert"
@@ -2037,6 +2039,7 @@ export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
                               width={80}
                               height={32}
                               sizes="80px"
+                              unoptimized
                               className={`h-8 w-auto object-contain ${
                                 needsWhiteBrandLogo(selected.brand)
                                   ? "brightness-0 invert"
