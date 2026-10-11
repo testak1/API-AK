@@ -58,6 +58,10 @@ export default function VehicleCategoryHero({
               sizes="(max-width: 767px) 80vw, 420px"
               unoptimized={isSmallSanityImage || isBrandLogo}
               className={`h-40 w-full max-w-[420px] object-contain drop-shadow-2xl ${
+                isBrandLogo
+                  ? "vehicle-hero-logo-enter"
+                  : "vehicle-hero-car-enter"
+              } ${
                 useWhiteLogo ? "brightness-0 invert" : ""
               }`}
               priority
