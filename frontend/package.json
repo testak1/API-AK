@@ -45,9 +45,9 @@
     "typescript": "^5.9.3"
   },
   "devDependencies": {
-    "baseline-browser-mapping": "^2.9.6",
-    "eslint": "^8.57.1",
-    "eslint-config-next": "^15.5.27",
-    "postcss-import": "^16.1.1"
+    "baseline-browser-mapping": "^2.11.28",
+    "eslint": "^10.12.0",
+    "eslint-config-next": "^16.4.0",
+    "postcss-import": "^17.0.0"
   }
 }
