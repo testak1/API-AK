@@ -41,7 +41,7 @@
 @keyframes vehicle-hero-car-enter {
   0% {
     opacity: 0;
-    transform: translate3d(min(32vw, 360px), 18px, 0);
+    transform: translate3d(min(32vw, 360px), 0, 0);
   }
   35% {
     opacity: 0.2;
