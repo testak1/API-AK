@@ -11,6 +11,9 @@ const nextConfig = {
         pathname: "/brand-logos-png/**",
       },
       {
+        pathname: "/model-images/**",
+      },
+      {
         pathname: "/ak-logo.png",
       },
       {
