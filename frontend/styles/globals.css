@@ -39,11 +39,17 @@
 }
 
 @keyframes vehicle-hero-car-enter {
-  from {
+  0% {
     opacity: 0;
-    transform: translate3d(72px, 0, 0);
+    transform: translate3d(min(32vw, 360px), 18px, 0);
   }
-  to {
+  35% {
+    opacity: 0.2;
+  }
+  70% {
+    opacity: 0.78;
+  }
+  100% {
     opacity: 1;
     transform: translate3d(0, 0, 0);
   }
@@ -56,7 +62,7 @@
 }
 
 .vehicle-hero-car-enter {
-  animation: vehicle-hero-car-enter 2200ms cubic-bezier(0.22, 0.65, 0.32, 1) 100ms both;
+  animation: vehicle-hero-car-enter 2400ms cubic-bezier(0.22, 0.61, 0.36, 1) 80ms both;
   will-change: opacity, transform;
 }
 
