@@ -1757,11 +1757,11 @@ export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
                           modelImagesStatus === "loading") ? (
                           <div
                             aria-hidden="true"
-                            className="mb-2 h-16 w-40 max-w-full animate-pulse rounded-md bg-gray-300/20"
+                            className="mb-2 h-28 w-full animate-pulse rounded-md bg-gray-300/20 sm:h-32"
                           />
                         ) : (
                           <div
-                            className={`mb-2 flex h-16 w-40 max-w-full items-center justify-center ${
+                            className={`mb-2 flex h-28 w-full items-center justify-center sm:h-32 ${
                               shouldFlipModelImage(selected.brand, model.name)
                                 ? "-scale-x-100"
                                 : ""
@@ -1770,10 +1770,10 @@ export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
                             <Image
                               src={getModelImage(model.name, selected.brand)}
                               alt={`${selected.brand} ${formatModelName(selected.brand, model.name)}`}
-                              width={250}
-                              height={100}
-                              sizes="(max-width: 639px) 42vw, 200px"
-                              className="h-16 w-auto object-contain"
+                              width={320}
+                              height={160}
+                              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                              className="h-full w-full object-contain"
                             />
                           </div>
                         )}
