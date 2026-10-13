@@ -2714,19 +2714,19 @@
   {
     "name": "Sports Series",
     "id": "7410",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
+    "image_url": "/model-images/mclaren-series.png",
     "brand": "McLaren"
   },
   {
     "name": "Super Series",
     "id": "3914",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
+    "image_url": "/model-images/mclaren-series.png",
     "brand": "McLaren"
   },
   {
     "name": "Ultimate Series",
     "id": "6143",
-    "image_url": "https://cdn.sanity.io/images/wensahkh/production/0662536359d44234abf42fbabc6fb56198471264-200x75.png",
+    "image_url": "/model-images/mclaren-series.png",
     "brand": "McLaren"
   },
   {
