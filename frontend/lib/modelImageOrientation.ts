@@ -4,6 +4,15 @@ const normalize = (value: string) =>
 // The source images below have the front of the vehicle pointing right.
 // Flip them at render time so every model consistently points left.
 const RIGHT_FACING_MODEL_IMAGES = new Set([
+  "kia:ceedproceed",
+  "lexus:gs",
+  "lexus:nx",
+  "lotus:elise",
+  "lotus:evora",
+  "lotus:exige",
+  "nissan:leaf",
+  "nissan:np300navara",
+  "nissan:nv300",
   "volvo:v40v40cc",
   "volvo:s60v60",
   "volvo:xc40",

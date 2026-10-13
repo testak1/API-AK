@@ -24,6 +24,7 @@ import MercedesTcuDescription, {
 import {LayoutGrid, List, Moon, Sun} from "lucide-react";
 import {t as translate} from "@/lib/translations";
 import {getBrandLogoUrl, needsWhiteBrandLogo} from "@/lib/brandLogo";
+import {shouldFlipModelImage} from "@/lib/modelImageOrientation";
 import type {
   Brand,
   Stage,
@@ -1759,14 +1760,22 @@ export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
                             className="mb-2 h-16 w-40 max-w-full animate-pulse rounded-md bg-gray-300/20"
                           />
                         ) : (
-                          <Image
-                            src={getModelImage(model.name, selected.brand)}
-                            alt={`${selected.brand} ${formatModelName(selected.brand, model.name)}`}
-                            width={250}
-                            height={100}
-                            sizes="(max-width: 639px) 42vw, 200px"
-                            className="h-16 w-auto object-contain mb-2"
-                          />
+                          <div
+                            className={`mb-2 flex h-16 w-40 max-w-full items-center justify-center ${
+                              shouldFlipModelImage(selected.brand, model.name)
+                                ? "-scale-x-100"
+                                : ""
+                            }`}
+                          >
+                            <Image
+                              src={getModelImage(model.name, selected.brand)}
+                              alt={`${selected.brand} ${formatModelName(selected.brand, model.name)}`}
+                              width={250}
+                              height={100}
+                              sizes="(max-width: 639px) 42vw, 200px"
+                              className="h-16 w-auto object-contain"
+                            />
+                          </div>
                         )}
                         <p className={selectionTextClass}>
                           {formatModelName(selected.brand, model.name)}
