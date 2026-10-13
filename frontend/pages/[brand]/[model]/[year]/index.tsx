@@ -8,6 +8,7 @@ import {Brand, Model, Year, Engine} from "@/types/sanity";
 import {buildVehicleOgImageUrl} from "@/lib/ogImage";
 import {getModelImageUrl} from "@/lib/server/modelImage";
 import VehicleCategoryHero from "@/components/VehicleCategoryHero";
+import {shouldFlipModelImage} from "@/lib/modelImageOrientation";
 import PublicPageToolbar from "@/components/PublicPageToolbar";
 import {usePublicPreferences} from "@/lib/usePublicPreferences";
 import {t as translate} from "@/lib/translations";
@@ -331,6 +332,7 @@ export default function YearPage({
           description={`${cleanText(yearData.range)} – ${translate(currentLanguage, "selectEngine")}`}
           imageUrl={modelImageUrl}
           imageAlt={`${cleanText(brandData.name)} ${cleanText(modelName)} ${cleanText(yearData.range)}`}
+          flipImage={shouldFlipModelImage(brandData.name, modelData.name)}
         />
         {/* Tillbaka-knapp */}
         <div className="mb-4">

@@ -7,6 +7,7 @@ type VehicleCategoryHeroProps = {
   description: string;
   imageUrl?: string | null;
   imageAlt: string;
+  flipImage?: boolean;
 };
 
 export default function VehicleCategoryHero({
@@ -15,6 +16,7 @@ export default function VehicleCategoryHero({
   description,
   imageUrl,
   imageAlt,
+  flipImage = false,
 }: VehicleCategoryHeroProps) {
   const sourceDimensions = imageUrl?.match(/-(\d+)x(\d+)\.(?:png|jpe?g|webp)(?:\?|$)/i);
   const isSmallSanityImage =
@@ -49,7 +51,13 @@ export default function VehicleCategoryHero({
           </p>
         </div>
         {renderedImageUrl && (
-          <div className="relative flex min-h-32 items-center justify-center md:min-h-40">
+          <div
+            className={`relative flex min-h-32 items-center justify-center md:min-h-40 ${
+              isBrandLogo
+                ? "vehicle-hero-logo-enter"
+                : "vehicle-hero-car-enter"
+            }`}
+          >
             <Image
               src={renderedImageUrl}
               alt={imageAlt}
@@ -58,9 +66,7 @@ export default function VehicleCategoryHero({
               sizes="(max-width: 767px) 80vw, 420px"
               unoptimized={isSmallSanityImage || isBrandLogo}
               className={`h-40 w-full max-w-[420px] object-contain drop-shadow-2xl ${
-                isBrandLogo
-                  ? "vehicle-hero-logo-enter"
-                  : "vehicle-hero-car-enter"
+                flipImage ? "-scale-x-100" : ""
               } ${
                 useWhiteLogo ? "brightness-0 invert" : ""
               }`}

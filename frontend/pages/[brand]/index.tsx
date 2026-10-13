@@ -16,6 +16,7 @@ import {getBrandLogoUrl} from "@/lib/brandLogo";
 import {getRepresentativeEngines} from "@/lib/seoEngineExamples";
 import {getPopularModelExamples} from "@/lib/seoModelExamples";
 import {getModelImageUrls} from "@/lib/server/modelImage";
+import {shouldFlipModelImage} from "@/lib/modelImageOrientation";
 
 const slugifySafe = (str: string) => {
   return str
@@ -319,14 +320,22 @@ export default function BrandPage({brandData, modelImages}: BrandPageProps) {
               >
                 <div className="relative flex h-28 w-full items-center justify-center sm:h-32">
                   {modelImage ? (
-                    <Image
-                      src={modelImage}
-                      alt={`${brandName} ${formatModelName(brandData.name, model.name)}`}
-                      width={320}
-                      height={160}
-                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                      className="h-full w-full object-contain transition-transform duration-200 group-hover:scale-[1.03]"
-                    />
+                    <div
+                      className={`h-full w-full ${
+                        shouldFlipModelImage(brandData.name, model.name)
+                          ? "-scale-x-100"
+                          : ""
+                      }`}
+                    >
+                      <Image
+                        src={modelImage}
+                        alt={`${brandName} ${formatModelName(brandData.name, model.name)}`}
+                        width={320}
+                        height={160}
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        className="h-full w-full object-contain transition-transform duration-200 group-hover:scale-[1.03]"
+                      />
+                    </div>
                   ) : (
                     <div
                       className={`h-20 w-32 rounded-lg ${
