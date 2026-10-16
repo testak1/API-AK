@@ -736,7 +736,7 @@ export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
         } ${selected.engine || ""} | AK-TUNING`
       )
     : cleanText(
-        "Motoroptimering – AK-TUNING | Göteborg • Jönköping • Skåne • Stockholm • Örebro - Växjö"
+        "Motoroptimering – AK-TUNING | Göteborg • Jönköping • Skåne • Stockholm • Örebro • Växjö"
       );
 
   const formatModelName = (brand: string, model: string): string => {
@@ -1224,7 +1224,7 @@ export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta
           property="og:title"
-          content="Motoroptimering i Göteborg, Stockholm, Skåne, Jönköping & Örebro | AK-TUNING"
+          content="Motoroptimering i Göteborg, Stockholm, Skåne, Jönköping, Växjö & Örebro | AK-TUNING"
         />
         <meta
           property="og:description"
