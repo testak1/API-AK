@@ -853,11 +853,11 @@ export default function StagePage({
                   <Image
                     src={getBrandLogoUrl(brandData.name)}
                     alt={`${brandData.name} logo`}
-                    width={80}
-                    height={32}
-                    sizes="80px"
+                    width={120}
+                    height={48}
+                    sizes="120px"
                     unoptimized
-                    className={`h-8 w-auto object-contain ${needsWhiteBrandLogo(brandData.name) ? "brightness-0 invert" : ""}`}
+                    className={`vehicle-hero-logo-enter h-12 w-auto max-w-28 object-contain ${needsWhiteBrandLogo(brandData.name) ? "brightness-0 invert" : ""}`}
                     loading="eager"
                   />
                 )}

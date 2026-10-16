@@ -1712,6 +1712,26 @@ export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
                     </span>
                   </button>
 
+                  {getBrandLogoUrl(selected.brand) && (
+                    <div className="vehicle-hero-logo-enter mb-4 flex justify-center">
+                      <Image
+                        key={selected.brand}
+                        src={getBrandLogoUrl(selected.brand)}
+                        alt={selected.brand.replace("[LASTBIL] ", "")}
+                        width={160}
+                        height={80}
+                        sizes="160px"
+                        unoptimized
+                        className={`h-20 w-auto max-w-[160px] object-contain ${
+                          isDarkTheme && needsWhiteBrandLogo(selected.brand)
+                            ? "brightness-0 invert"
+                            : ""
+                        }`}
+                        loading="eager"
+                      />
+                    </div>
+                  )}
+
                   <h2
                     className={`flex items-center justify-center gap-2 text-xl font-bold ${headingTextClass} mb-4`}
                   >
@@ -2045,11 +2065,11 @@ export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
                             <Image
                               src={stageLogoUrl}
                               alt={selected.brand}
-                              width={80}
-                              height={32}
-                              sizes="80px"
+                              width={120}
+                              height={48}
+                              sizes="120px"
                               unoptimized
-                              className={`h-8 w-auto object-contain ${
+                              className={`vehicle-hero-logo-enter h-12 w-auto max-w-28 object-contain ${
                                 needsWhiteBrandLogo(selected.brand)
                                   ? "brightness-0 invert"
                                   : ""
