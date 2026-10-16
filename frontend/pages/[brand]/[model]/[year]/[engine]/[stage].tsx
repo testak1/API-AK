@@ -1392,14 +1392,14 @@ export default function StagePage({
       />
 
       {infoModal.open && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-800 rounded-lg max-w-md w-full p-6 border border-gray-600">
-            <h3 className="text-xl font-bold text-white mb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-2 sm:p-4">
+          <div className="flex max-h-[calc(100dvh-1rem)] w-full max-w-md flex-col overflow-hidden rounded-xl border border-gray-600 bg-gray-800 p-4 sm:max-h-[90vh] sm:p-6">
+            <h3 className="mb-3 shrink-0 text-base font-bold text-white sm:mb-4 sm:text-xl">
               {infoModal.type === "stage"
                 ? translate(currentLanguage, "infoStage")
                 : translate(currentLanguage, "infoGeneral")}
             </h3>
-            <div className="text-gray-200 mb-6">
+            <div className="min-h-0 flex-1 overflow-y-auto text-[13px] leading-5 text-gray-200 sm:mb-6 sm:text-base sm:leading-6">
               {infoModal.type === "stage" && infoModal.stage ? (
                 <div>
                   <p className="mb-2">
@@ -1425,7 +1425,7 @@ export default function StagePage({
             </div>
             <button
               onClick={() => setInfoModal({ open: false, type: "stage" })}
-              className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded w-full"
+              className="mt-3 w-full shrink-0 rounded bg-orange-500 px-3 py-2 text-sm text-white hover:bg-orange-600 sm:mt-0 sm:px-4 sm:text-base"
             >
               {translate(currentLanguage, "close")}
             </button>

@@ -2110,24 +2110,25 @@ const InfoModal = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 p-2 sm:p-4"
       role="dialog"
       aria-modal="true"
+      aria-labelledby={`${id}-title`}
     >
       <div
         ref={modalRef}
         id={id}
-        className="bg-gray-900 p-6 rounded-lg shadow-lg max-w-2xl w-full outline-none"
+        className="flex max-h-[calc(100dvh-1rem)] w-full max-w-2xl flex-col overflow-hidden rounded-xl bg-gray-900 p-4 shadow-lg outline-none sm:max-h-[90vh] sm:p-6"
         tabIndex={-1}
       >
-        <div className="flex justify-between items-center mb-4">
-          <h2 id={`${id}-title`} className="text-white text-lg font-semibold">
+        <div className="mb-3 flex shrink-0 items-center justify-between gap-3 sm:mb-4">
+          <h2 id={`${id}-title`} className="text-base font-semibold text-white sm:text-lg">
             {title}
           </h2>
           <button
             onClick={onClose}
             aria-label="Close modal"
-            className="text-white text-xl hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded text-2xl leading-none text-white hover:bg-gray-800 hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
           >
             &times;
           </button>
@@ -2135,12 +2136,12 @@ const InfoModal = ({
 
         <div
           id={`${id}-content`}
-          className="text-gray-300 text-sm max-h-[70vh] overflow-y-auto"
+          className="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1 text-[13px] leading-5 text-gray-300 sm:text-sm sm:leading-6 [&_h1]:text-lg [&_h1]:leading-6 [&_h2]:text-base [&_h2]:leading-6 [&_h3]:text-sm [&_li]:leading-5 [&_p]:mb-3 sm:[&_h1]:text-xl sm:[&_h2]:text-lg"
         >
           {content}
         </div>
 
-        <div className="mt-6 flex justify-between">
+        <div className="mt-3 flex shrink-0 justify-between gap-2 border-t border-gray-700 pt-3 sm:mt-5 sm:pt-4">
           {showBookButton && (
             <button
               onClick={() => {
@@ -2152,7 +2153,7 @@ const InfoModal = ({
                 });
                 onClose();
               }}
-              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-bold transition focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="rounded-lg bg-green-600 px-3 py-2 text-sm font-bold text-white transition hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-orange-500 sm:px-4"
             >
               📅 {translate(currentLanguage, "bookNow")}
             </button>
@@ -2160,7 +2161,7 @@ const InfoModal = ({
 
           <button
             onClick={onClose}
-            className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-orange-500 ml-auto"
+            className="ml-auto rounded-lg bg-gray-700 px-3 py-2 text-sm font-medium text-white transition hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500 sm:px-4"
           >
             ❌ {translate(currentLanguage, "close")}
           </button>
