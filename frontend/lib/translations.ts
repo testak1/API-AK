@@ -78,7 +78,7 @@ export const translations = {
     translateStageName: (stageName: string) => stageName,
     stageInfoPrefix: "STEG",
     stageInfoSuffix: "INFORMATION",
-    generalInfoLabel: "GENERELL INFORMATION",
+    generalInfoLabel: "DÄRFÖR VÄLJER KUNDER AK-TUNING",
     horsepowerUnit: "hk",
     horsepowerDisplay: (value: number) => `${value} hk`,
     requestSent: "✅ FÖRFRÅGAN SKICKAD!",
@@ -98,16 +98,18 @@ export const translations = {
     sendMessage: "Skicka meddelande",
     phoneTitle: "📱 TELEFONNUMMER",
     noPhoneNumbers: "❌ Inga kontaktnummer tillgängliga",
-    customSoftware: "All mjukvara är skräddarsydd för din bil",
-    prePostDiagnostics: "Felsökning innan samt efter optimering",
-    loggingForCustomization: "Loggning för att anpassa en individuell mjukvara",
-    performanceAndEconomy: "Optimerad för både prestanda och bränsleekonomi",
+    customSoftware: "Individuellt anpassad mjukvara för din bil",
+    prePostDiagnostics: "Diagnostik före och efter motoroptimeringen",
+    loggingForCustomization:
+      "Loggning och kontroll av bilens relevanta motorvärden",
+    performanceAndEconomy:
+      "Anpassning med fokus på prestanda, körbarhet och driftsäkerhet",
     aboutUs1:
-      "AK-TUNING är specialister på skräddarsydd motoroptimering, chiptuning och ECU-programmering för alla bilmärken.",
+      "AK-Tuning arbetar med professionell motoroptimering, chiptuning och ECU-programmering för ett stort antal bilmärken och motoralternativ. Varje optimering anpassas efter bilens motor, styrenhet, programvara och tekniska förutsättningar.",
     aboutUs2:
-      "Vi erbjuder effektökning, bättre bränsleekonomi och optimerade köregenskaper. Tjänster i Göteborg, Stockholm, Malmö, Jönköping, Örebro och Storvik.",
+      "Målet är en starkare och mer responsiv bil med jämn effektleverans och förbättrade köregenskaper. Vid normal körning kan det ökade vridmomentet även göra det möjligt att köra mer effektivt, men den faktiska bränsleförbrukningen påverkas alltid av körstil och körförhållanden.",
     aboutUs3:
-      "All mjukvara utvecklas in-house med fokus på kvalitet, säkerhet och lång livslängd. Välkommen till en ny nivå av bilprestanda med AK-TUNING.",
+      "Vår mjukvara utvecklas och anpassas internt med fokus på kvalitet, noggrannhet och långsiktig driftsäkerhet. Vi erbjuder motoroptimering genom våra anslutna stationer i bland annat Göteborg, Stockholm, Malmö, Jönköping, Örebro, Växjö och Storvik.",
     hide: "Dölj",
     showAll: "Visa alla",
     hideInfo: "DÖLJ INFO",

@@ -2488,43 +2488,55 @@ export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
                               </div>
                               {/* Hidden SEO content for general info */}
                               <div className="sr-only">
-                                <h2>GENERELL INFORMATION</h2>
+                                <h2>Därför väljer kunder AK-Tuning</h2>
                                 <div>
                                   <ul className="space-y-2">
                                     <li>
-                                      ✅ All mjukvara är skräddarsydd för din
-                                      bil
+                                      Individuellt anpassad mjukvara för din bil
                                     </li>
                                     <li>
-                                      ✅ Felsökning inann samt efter optimering
+                                      Diagnostik före och efter motoroptimeringen
                                     </li>
                                     <li>
-                                      ✅ Loggning för att anpassa en individuell
-                                      mjukvara
+                                      Loggning och kontroll av bilens relevanta
+                                      motorvärden
                                     </li>
                                     <li>
-                                      ✅ Optimerad för både prestanda och
-                                      bränsleekonomi
+                                      Anpassning med fokus på prestanda,
+                                      körbarhet och driftsäkerhet
+                                    </li>
+                                    <li>
+                                      Möjlighet till effektivare
+                                      bränsleförbrukning vid oförändrat körsätt
                                     </li>
                                   </ul>
                                   <div className="mt-6 text-sm text-gray-400 leading-relaxed">
                                     <p>
-                                      AK-TUNING är specialister på skräddarsydd
+                                      AK-Tuning arbetar med professionell
                                       motoroptimering, chiptuning och
-                                      ECU-programmering för alla bilmärken.
+                                      ECU-programmering för ett stort antal
+                                      bilmärken och motoralternativ. Varje
+                                      optimering anpassas efter bilens motor,
+                                      styrenhet, programvara och tekniska
+                                      förutsättningar.
                                     </p>
                                     <p className="mt-2">
-                                      Vi erbjuder effektökning, bättre
-                                      bränsleekonomi och optimerade
-                                      köregenskaper. Tjänster i Göteborg,
-                                      Stockholm, Malmö, Jönköping, Växjö, Örebro och
-                                      Storvik.
+                                      Målet är en starkare och mer responsiv bil
+                                      med jämn effektleverans och förbättrade
+                                      köregenskaper. Vid normal körning kan det
+                                      ökade vridmomentet även göra det möjligt
+                                      att köra mer effektivt, men den faktiska
+                                      bränsleförbrukningen påverkas alltid av
+                                      körstil och körförhållanden.
                                     </p>
                                     <p className="mt-2">
-                                      All mjukvara utvecklas in-house med fokus
-                                      på kvalitet, säkerhet och lång livslängd.
-                                      Välkommen till en ny nivå av bilprestanda
-                                      med AK-TUNING.
+                                      Vår mjukvara utvecklas och anpassas
+                                      internt med fokus på kvalitet, noggrannhet
+                                      och långsiktig driftsäkerhet. Vi erbjuder
+                                      motoroptimering genom våra anslutna
+                                      stationer i bland annat Göteborg,
+                                      Stockholm, Malmö, Jönköping, Örebro,
+                                      Växjö och Storvik.
                                     </p>
                                   </div>
                                 </div>
@@ -3162,6 +3174,12 @@ export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
                     <li>
                       ✅ {translate(currentLanguage, "performanceAndEconomy")}
                     </li>
+                    {currentLanguage === "sv" && (
+                      <li>
+                        ✅ Möjlighet till effektivare bränsleförbrukning vid
+                        oförändrat körsätt
+                      </li>
+                    )}
                   </ul>
 
                   <div className="mt-6 text-sm text-gray-400 leading-relaxed">
