@@ -1091,6 +1091,7 @@ export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
   };
   const handleBrandChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelected({brand: e.target.value, model: "", year: "", engine: ""});
+    if (e.target.value) loadModelImages();
   };
   const handleModelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelected(prev => ({
@@ -1203,6 +1204,24 @@ export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
   const fuelHeadingClass = isDarkTheme
     ? "mb-4 rounded-lg border border-red-500/40 bg-gradient-to-r from-red-950/70 via-zinc-900 to-zinc-900 px-4 py-3 text-sm font-black uppercase tracking-[0.16em] text-white shadow-lg shadow-red-950/20"
     : "mb-4 rounded-lg border border-gray-200 border-l-4 border-l-red-600 bg-white px-4 py-3 text-sm font-black uppercase tracking-[0.16em] text-slate-800 shadow-sm";
+  const selectedBrandName = selected.brand.replace("[LASTBIL] ", "");
+  const selectedModelName = selected.model
+    ? formatModelName(selected.brand, selected.model)
+    : "";
+  const selectedBrandLogoUrl = selected.brand
+    ? getBrandLogoUrl(selected.brand)
+    : null;
+  const selectedModelImageUrl =
+    selected.brand && selected.model && !selected.brand.includes("[LASTBIL]")
+      ? getModelImage(selected.model, selected.brand)
+      : null;
+  const selectedNextStep = !selected.model
+    ? translate(currentLanguage, "selectModel")
+    : !selected.year
+      ? translate(currentLanguage, "selectYear")
+      : !selected.engine
+        ? translate(currentLanguage, "selectEngine")
+        : translate(currentLanguage, "tuningIntro");
 
   return (
     <>
@@ -1390,9 +1409,9 @@ export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
 
           <div className="mb-4 text-center">
             {!selected.brand ? (
-              <p className={`${labelTextClass} text-lg font-semibold`}>
+              <h1 className={`${labelTextClass} text-lg font-semibold`}>
                 {translate(currentLanguage, "headline")}
-              </p>
+              </h1>
             ) : selected.engine ? (
               <div>
                 <p className={`${labelTextClass} text-lg font-semibold mb-2`}>
@@ -1415,6 +1434,109 @@ export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
               </div>
             ) : null}
           </div>
+
+          {selected.brand && (
+            <section
+              aria-labelledby="selected-vehicle-heading"
+              className={`relative mb-6 overflow-hidden rounded-2xl border px-5 py-5 shadow-lg sm:px-7 ${
+                isDarkTheme
+                  ? "border-zinc-800 bg-gradient-to-br from-slate-950 via-zinc-900 to-red-950/70"
+                  : "border-slate-200 bg-gradient-to-br from-white via-slate-50 to-red-50"
+              }`}
+            >
+              <div
+                aria-hidden="true"
+                className="absolute -right-12 -top-20 h-56 w-56 rounded-full bg-red-600/10 blur-3xl"
+              />
+              <div className="relative grid min-h-28 items-center gap-4 sm:grid-cols-[1fr_240px]">
+                <div className="min-w-0 text-left">
+                  <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-red-500">
+                    {selectedNextStep}
+                  </p>
+                  <h1
+                    id="selected-vehicle-heading"
+                    className={`truncate text-2xl font-extrabold sm:text-3xl ${headingTextClass}`}
+                  >
+                    {selectedBrandName}
+                    {selectedModelName ? ` ${selectedModelName}` : ""}
+                  </h1>
+                  <nav
+                    aria-label="Valt fordon"
+                    className={`mt-3 flex flex-wrap items-center gap-2 text-sm ${mutedTextClass}`}
+                  >
+                    {[selectedBrandName, selectedModelName, selected.year, selected.engine]
+                      .filter(Boolean)
+                      .map((item, index) => (
+                        <React.Fragment key={`${item}-${index}`}>
+                          {index > 0 && (
+                            <span aria-hidden="true" className="text-red-500/70">
+                              ›
+                            </span>
+                          )}
+                          <span>{cleanText(item)}</span>
+                        </React.Fragment>
+                      ))}
+                  </nav>
+                </div>
+
+                <div className="flex min-h-24 items-center justify-center sm:justify-end">
+                  {selectedModelImageUrl ? (
+                    modelImagesStatus === "idle" || modelImagesStatus === "loading" ? (
+                      <div
+                        aria-hidden="true"
+                        className="h-24 w-full max-w-60 animate-pulse rounded-lg bg-white/10"
+                      />
+                    ) : (
+                      <div
+                        key={`${selected.brand}-${selected.model}`}
+                        className="vehicle-hero-car-enter flex h-28 w-full max-w-60 items-center justify-center"
+                      >
+                        <div
+                          className={`h-full w-full ${
+                            shouldFlipModelImage(selected.brand, selected.model)
+                              ? "-scale-x-100"
+                              : ""
+                          }`}
+                        >
+                          <Image
+                            src={selectedModelImageUrl}
+                            alt={`${selectedBrandName} ${selectedModelName}`}
+                            width={420}
+                            height={180}
+                            sizes="(max-width: 639px) 70vw, 240px"
+                            className="h-full w-full object-contain drop-shadow-xl"
+                            priority
+                          />
+                        </div>
+                      </div>
+                    )
+                  ) : (
+                    selectedBrandLogoUrl && (
+                      <div
+                        key={selected.brand}
+                        className="vehicle-hero-logo-enter flex h-24 w-full max-w-48 items-center justify-center"
+                      >
+                        <Image
+                          src={selectedBrandLogoUrl}
+                          alt={`${selectedBrandName} logotyp`}
+                          width={180}
+                          height={96}
+                          sizes="180px"
+                          unoptimized
+                          className={`h-full w-full object-contain ${
+                            isDarkTheme && needsWhiteBrandLogo(selected.brand)
+                              ? "brightness-0 invert"
+                              : ""
+                          }`}
+                          priority
+                        />
+                      </div>
+                    )
+                  )}
+                </div>
+              </div>
+            </section>
+          )}
 
           {viewMode === "dropdown" ? (
             <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-8">
@@ -1711,26 +1833,6 @@ export default function TuningViewer({isEmbed = false}: {isEmbed?: boolean}) {
                       {translate(currentLanguage, "BACKTOMARKE")}
                     </span>
                   </button>
-
-                  {getBrandLogoUrl(selected.brand) && (
-                    <div className="vehicle-hero-logo-enter mb-4 flex justify-center">
-                      <Image
-                        key={selected.brand}
-                        src={getBrandLogoUrl(selected.brand)}
-                        alt={selected.brand.replace("[LASTBIL] ", "")}
-                        width={160}
-                        height={80}
-                        sizes="160px"
-                        unoptimized
-                        className={`h-20 w-auto max-w-[160px] object-contain ${
-                          isDarkTheme && needsWhiteBrandLogo(selected.brand)
-                            ? "brightness-0 invert"
-                            : ""
-                        }`}
-                        loading="eager"
-                      />
-                    </div>
-                  )}
 
                   <h2
                     className={`flex items-center justify-center gap-2 text-xl font-bold ${headingTextClass} mb-4`}
